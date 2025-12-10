@@ -11,7 +11,7 @@
       </p>
 
       <!-- Search Bar -->
-      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores" }, class: "flex items-stretch gap-3 animate-fadeInUp delay-100" do |f| %>
+      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "flex items-stretch gap-3 animate-fadeInUp delay-100" do |f| %>
         <%= f.hidden_field :key, value: params[:key] %>
         <%= f.hidden_field :time, value: params[:time] %>
         <%= f.hidden_field :genre, value: params[:genre] %>
@@ -33,7 +33,7 @@
   <div class="flex gap-8">
     <!-- Filters Sidebar -->
     <aside class="w-64 flex-shrink-0 animate-fadeInUp delay-200">
-      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores" }, html: { class: "mm-card p-5 sticky top-6" } do |f| %>
+      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "mm-card p-5 sticky top-6" } do |f| %>
         <h3 class="text-lg font-[var(--font-family-display)] text-[var(--color-primary)] mb-5 font-black uppercase tracking-tight">
           Filters
         </h3>
@@ -94,7 +94,7 @@
     </aside>
 
     <!-- Results Grid -->
-    <turbo-frame id="scores" class="flex-1 contents">
+    <turbo-frame id="scores" data-turbo-action="advance" class="flex-1 contents">
     <main class="flex-1">
       <!-- Results Header -->
       <div class="flex items-center justify-between mb-6">
@@ -121,7 +121,7 @@
       <!-- Score Cards Grid -->
       <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         <% @scores.each_with_index do |score, i| %>
-          <%= link_to score_path(score), class: "mm-card overflow-hidden group block" do %>
+          <%= link_to score_path(score), data: { turbo_frame: "_top" }, class: "mm-card overflow-hidden group block" do %>
             <!-- Thumbnail -->
             <div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center relative overflow-hidden border-b-2 border-[var(--color-border)]">
               <% if score.thumbnail_url.present? %>
