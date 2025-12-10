@@ -9,20 +9,20 @@
 
 /* Light Mode (Default) - Warm Neubrutalism */
 :root {
-  --color-primary: #1f1a12;
-  --color-primary-dark: #2a231a;
-  --color-accent: #c96a1f;
-  --color-accent-hover: #b35d18;
-  --color-accent-dark: #9a4f14;
-  --color-text: #1f1a12;
-  --color-text-muted: #635847;
-  --color-border: #2a231a;
-  --color-border-subtle: #cdc5b8;
-  --color-bg: #f3efe8;
-  --color-bg-elevated: #f9f7f3;
-  --color-bg-card: #f9f7f3;
+  --color-primary: #171310;
+  --color-primary-dark: #1f1b16;
+  --color-accent: #bf5f15;
+  --color-accent-hover: #a85210;
+  --color-accent-dark: #8f460d;
+  --color-text: #171310;
+  --color-text-muted: #524639;
+  --color-border: #1f1b16;
+  --color-border-subtle: #bfb5a5;
+  --color-bg: #efe9e0;
+  --color-bg-elevated: #f7f4ef;
+  --color-bg-card: #f7f4ef;
   --shadow-offset: 4px;
-  --shadow-color: rgba(31, 26, 18, 0.12);
+  --shadow-color: rgba(23, 19, 16, 0.15);
 }
 
 /* Dark Mode - Softer, less harsh */

@@ -113,7 +113,7 @@
           <%= f.select :sort,
               [["Popular", "popularity"], ["Rated", "rating"], ["Newest", "newest"], ["Title", "title"], ["Composer", "composer"]],
               { selected: params[:sort] || "popularity" },
-              { class: "mm-input text-xs", onchange: "this.form.submit()" }
+              { class: "mm-input text-xs", onchange: "this.form.requestSubmit()" }
           %>
         <% end %>
       </div>
