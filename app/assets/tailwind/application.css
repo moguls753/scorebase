@@ -7,22 +7,22 @@
   --font-family-body: 'Work Sans', sans-serif;
 }
 
-/* Light Mode (Default) - Warm Neubrutalism */
+/* Light Mode (Default) - Warm Neubrutalism with Higher Contrast */
 :root {
-  --color-primary: #171310;
-  --color-primary-dark: #1f1b16;
-  --color-accent: #bf5f15;
-  --color-accent-hover: #a85210;
-  --color-accent-dark: #8f460d;
-  --color-text: #171310;
-  --color-text-muted: #524639;
-  --color-border: #1f1b16;
-  --color-border-subtle: #bfb5a5;
-  --color-bg: #efe9e0;
-  --color-bg-elevated: #f7f4ef;
-  --color-bg-card: #f7f4ef;
+  --color-primary: #0f0d0a;
+  --color-primary-dark: #1a1612;
+  --color-accent: #c45a10;
+  --color-accent-hover: #a84c0c;
+  --color-accent-dark: #8a3f0a;
+  --color-text: #0f0d0a;
+  --color-text-muted: #3d3128;
+  --color-border: #1a1612;
+  --color-border-subtle: #9c9080;
+  --color-bg: #f5f0e8;
+  --color-bg-elevated: #faf8f4;
+  --color-bg-card: #fdfcfa;
   --shadow-offset: 4px;
-  --shadow-color: rgba(23, 19, 16, 0.15);
+  --shadow-color: rgba(15, 13, 10, 0.22);
 }
 
 /* Dark Mode - Softer, less harsh */
@@ -65,7 +65,7 @@ body {
   height: 100%;
   pointer-events: none;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
-  opacity: 0.02;
+  opacity: 0.025;
   z-index: 0;
 }
 
@@ -79,14 +79,14 @@ body {
   border: 2px solid var(--color-border);
   border-radius: 2px;
   transition: all 0.2s ease;
-  box-shadow: 3px 3px 0 var(--shadow-color);
+  box-shadow: 4px 4px 0 var(--shadow-color);
   position: relative;
 }
 
 /* Only add hover effect to linked cards (score cards), not static cards like filters */
 a.mm-card:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 var(--shadow-color);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--shadow-color);
 }
 
 .mm-button {
@@ -106,36 +106,36 @@ a.mm-card:hover {
 .mm-button-primary {
   background: var(--color-accent);
   color: #ffffff;
-  box-shadow: 3px 3px 0 var(--shadow-color);
+  box-shadow: 4px 4px 0 var(--shadow-color);
 }
 
 .mm-button-primary:hover {
   background: var(--color-accent-hover);
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--shadow-color);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--shadow-color);
 }
 
 .mm-button-primary:active {
-  transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 var(--shadow-color);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color);
 }
 
 .mm-button-secondary {
   background: var(--color-bg-elevated);
   color: var(--color-text);
-  box-shadow: 3px 3px 0 var(--shadow-color);
+  box-shadow: 4px 4px 0 var(--shadow-color);
 }
 
 .mm-button-secondary:hover {
   background: var(--color-bg-card);
   border-color: var(--color-accent);
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--color-accent);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--color-accent);
 }
 
 .mm-button-secondary:active {
-  transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 var(--shadow-color);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--shadow-color);
 }
 
 .mm-input {
@@ -152,7 +152,7 @@ a.mm-card:hover {
 .mm-input:focus {
   outline: none;
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 2px rgba(0, 179, 104, 0.15);
+  box-shadow: 0 0 0 3px rgba(196, 90, 16, 0.18);
   background: var(--color-bg-elevated);
 }
 
@@ -342,21 +342,21 @@ button, input, select {
   transition: all 0.15s ease;
 }
 
-/* Hero Section - Vibrant Colors */
+/* Hero Section - Higher Contrast Warm Tones */
 .hero-section {
-  background: linear-gradient(135deg, #d4a574 0%, #c4956a 50%, #dbb896 100%);
+  background: linear-gradient(135deg, #fdfaf6 0%, #f8ede0 50%, #fdf8f2 100%);
 }
 
 .hero-title {
-  color: #1a1510;
+  color: #1a150f;
 }
 
 .hero-subtitle {
-  color: #3d3225;
+  color: #4a3d30;
 }
 
 .hero-accent {
-  color: #9e4a0a;
+  color: #c45a10;
 }
 
 [data-theme="dark"] .hero-section {
