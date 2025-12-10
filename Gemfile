@@ -43,9 +43,6 @@ gem "image_processing", "~> 1.2"
 # Use Tailwind CSS [https://github.com/rails/tailwindcss-rails]
 gem "tailwindcss-rails"
 
-# Full-text search [https://github.com/Casecommons/pg_search]
-gem "pg_search"
-
 # Pagination [https://github.com/kaminari/kaminari]
 gem "kaminari"
 
