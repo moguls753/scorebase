@@ -7,22 +7,22 @@
   --font-family-body: 'Work Sans', sans-serif;
 }
 
-/* Light Mode (Default) - Minimalist Neubrutalism */
+/* Light Mode (Default) - Warm Neubrutalism */
 :root {
-  --color-primary: #1a1a1a;
-  --color-primary-dark: #2d2d2d;
-  --color-accent: #00b368;
-  --color-accent-hover: #009957;
-  --color-accent-dark: #007a46;
-  --color-text: #1a1a1a;
-  --color-text-muted: #6b6b6b;
-  --color-border: #1a1a1a;
-  --color-border-subtle: #d4d4d4;
-  --color-bg: #f8f7f4;
-  --color-bg-elevated: #ffffff;
-  --color-bg-card: #ffffff;
+  --color-primary: #2c2416;
+  --color-primary-dark: #3d3225;
+  --color-accent: #d4762c;
+  --color-accent-hover: #c26820;
+  --color-accent-dark: #a85a1b;
+  --color-text: #2c2416;
+  --color-text-muted: #7a6f5f;
+  --color-border: #3d3225;
+  --color-border-subtle: #d9d2c7;
+  --color-bg: #f5f1eb;
+  --color-bg-elevated: #faf8f5;
+  --color-bg-card: #faf8f5;
   --shadow-offset: 4px;
-  --shadow-color: rgba(0, 0, 0, 0.12);
+  --shadow-color: rgba(44, 36, 22, 0.10);
 }
 
 /* Dark Mode - Softer, less harsh */
@@ -343,14 +343,14 @@ button, input, select {
 }
 
 /* Visual interest: accent underlines for text links */
-main a:not(.mm-button):not(.mm-card) {
+main a:not(.mm-button):not(.mm-card):not(.page-link):not([rel="prev"]):not([rel="next"]) {
   text-decoration: underline;
   text-decoration-color: var(--color-accent);
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
 }
 
-main a:not(.mm-button):not(.mm-card):hover {
+main a:not(.mm-button):not(.mm-card):not(.page-link):not([rel="prev"]):not([rel="next"]):hover {
   color: var(--color-accent);
   text-decoration-thickness: 3px;
 }

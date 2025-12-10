@@ -104,7 +104,7 @@
           </p>
         </div>
 
-        <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores" }, html: { class: "inline" } do |f| %>
+        <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "inline" } do |f| %>
           <%= f.hidden_field :q, value: params[:q] %>
           <%= f.hidden_field :key, value: params[:key] %>
           <%= f.hidden_field :time, value: params[:time] %>
