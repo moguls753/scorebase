@@ -1,10 +1,20 @@
 class Score < ApplicationRecord
+  # Sources
+  SOURCES = %w[pdmx cpdl imslp].freeze
+
   # Validations
   validates :title, presence: true
   validates :data_path, presence: true, uniqueness: true
+  validates :source, inclusion: { in: SOURCES }, allow_nil: true
 
   # Pagination
   paginates_per 12
+
+  # Source scopes
+  scope :from_pdmx, -> { where(source: "pdmx") }
+  scope :from_cpdl, -> { where(source: "cpdl") }
+  scope :from_imslp, -> { where(source: "imslp") }
+  scope :by_source, ->(source) { where(source: source) if source.present? }
 
   # Scopes for filtering
   scope :by_key_signature, ->(key) { where(key_signature: key) if key.present? }
@@ -70,5 +80,28 @@ class Score < ApplicationRecord
 
   def has_midi?
     mid_path.present? && mid_path != "N/A"
+  end
+
+  # Source helpers
+  def pdmx?
+    source == "pdmx"
+  end
+
+  def cpdl?
+    source == "cpdl"
+  end
+
+  def imslp?
+    source == "imslp"
+  end
+
+  def external?
+    cpdl? || imslp?
+  end
+
+  # For CPDL scores, generate direct file URLs
+  def cpdl_file_url(filename)
+    return nil unless cpdl? && filename.present?
+    "https://www.cpdl.org/wiki/images/#{filename}"
   end
 end

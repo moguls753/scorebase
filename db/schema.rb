@@ -10,12 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_09_194433) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_10_223327) do
   create_table "scores", force: :cascade do |t|
     t.integer "complexity"
     t.string "composer"
     t.datetime "created_at", null: false
     t.string "data_path"
+    t.string "external_id"
+    t.string "external_url"
     t.integer "favorites", default: 0
     t.text "genres"
     t.string "key_signature"
@@ -25,6 +27,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_09_194433) do
     t.integer "num_parts"
     t.string "pdf_path"
     t.decimal "rating", precision: 3, scale: 2
+    t.string "source", default: "pdmx"
     t.text "tags"
     t.string "thumbnail_url"
     t.string "time_signature"
@@ -33,9 +36,11 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_09_194433) do
     t.integer "views", default: 0
     t.index ["complexity"], name: "index_scores_on_complexity"
     t.index ["composer"], name: "index_scores_on_composer"
+    t.index ["external_id"], name: "index_scores_on_external_id"
     t.index ["key_signature"], name: "index_scores_on_key_signature"
     t.index ["num_parts"], name: "index_scores_on_num_parts"
     t.index ["rating"], name: "index_scores_on_rating"
+    t.index ["source"], name: "index_scores_on_source"
     t.index ["time_signature"], name: "index_scores_on_time_signature"
     t.index ["views"], name: "index_scores_on_views"
   end
