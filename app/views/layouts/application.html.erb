@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "ScoreBase — 222K Public Domain Music Scores" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Scorebase">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <link rel="icon" href="/icon.png" type="image/png">
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/icon.png">
+
+    <%# Includes all stylesheet files in app/assets/stylesheets %>
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="relative z-10 bg-[var(--color-bg-elevated)] border-b-4 border-[var(--color-border)]">
+      <div class="max-w-7xl mx-auto px-6 py-6">
+        <div class="flex items-center justify-between">
+          <!-- Logo -->
+          <%= link_to root_path, class: "group" do %>
+            <h1 class="text-3xl font-[var(--font-family-display)] text-[var(--color-primary)] font-black tracking-tight transition-all hover:text-[var(--color-accent)]">
+              SCORE<span class="text-[var(--color-accent)]">BASE</span>
+            </h1>
+          <% end %>
+
+          <!-- Navigation -->
+          <nav class="flex items-center gap-3">
+            <%= link_to "Browse", root_path, class: "mm-button mm-button-secondary text-xs px-4 py-2" %>
+            <%= link_to "About", "#", class: "mm-button mm-button-secondary text-xs px-4 py-2" %>
+            <a href="https://zenodo.org/records/15571083" target="_blank" rel="noopener" class="mm-button mm-button-primary text-xs px-4 py-2">
+              Dataset
+            </a>
+          </nav>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="relative z-10 flex-1">
+      <%= yield %>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 bg-[var(--color-bg-elevated)] border-t-4 border-[var(--color-border)] mt-20">
+      <div class="max-w-7xl mx-auto px-6 py-8">
+        <div class="flex items-center justify-between text-xs">
+          <p class="text-[var(--color-text-muted)] font-medium">
+            <span class="font-bold text-[var(--color-accent)]">222,856</span> public domain scores from the
+            <a href="https://zenodo.org/records/15571083" target="_blank" rel="noopener" class="text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors font-semibold underline">PDMX dataset</a>
+          </p>
+          <p class="font-[var(--font-family-display)] text-sm text-[var(--color-text-muted)] font-bold uppercase tracking-wider">
+            For Musicians
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

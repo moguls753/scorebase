@@ -1,0 +1,168 @@
+<!-- Hero Section with Search -->
+<section class="py-16 bg-[var(--color-bg-elevated)] border-b-4 border-[var(--color-border)]">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="max-w-3xl mx-auto text-center animate-fadeInUp">
+      <h2 class="text-5xl font-[var(--font-family-display)] text-[var(--color-primary)] mb-3 leading-tight font-black uppercase tracking-tight">
+        Public Domain<br>
+        Music Scores
+      </h2>
+      <p class="text-base text-[var(--color-text-muted)] mb-10 font-medium">
+        <span class="font-bold text-[var(--color-accent)]">222,856</span> scores ready to download
+      </p>
+
+      <!-- Search Bar -->
+      <%= form_with url: scores_path, method: :get, class: "flex items-stretch gap-3 animate-fadeInUp delay-100" do |f| %>
+        <%= f.text_field :q,
+          placeholder: "SEARCH SCORES...",
+          value: params[:q],
+          class: "flex-1 mm-input text-sm"
+        %>
+        <%= f.submit "Search", class: "mm-button mm-button-primary cursor-pointer px-6 text-xs" %>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<!-- Main Content: Filters + Grid -->
+<div class="max-w-7xl mx-auto px-6 py-12">
+  <div class="flex gap-8">
+    <!-- Filters Sidebar -->
+    <aside class="w-64 flex-shrink-0 animate-fadeInUp delay-200">
+      <%= form_with url: scores_path, method: :get, html: { class: "mm-card p-5 sticky top-6", data: { controller: "filter-form" } } do |f| %>
+        <h3 class="text-lg font-[var(--font-family-display)] text-[var(--color-primary)] mb-5 font-black uppercase tracking-tight">
+          Filters
+        </h3>
+
+        <%= f.hidden_field :q, value: params[:q] %>
+        <%= f.hidden_field :sort, value: params[:sort] %>
+
+        <!-- Filter: Key Signature -->
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
+            Key
+          </label>
+          <%= f.select :key,
+              options_for_select([['Any', ''], ['D major', 'D major'], ['G major', 'G major'], ['A major', 'A major'], ['F major', 'F major'], ['C major', 'C major'], ['E minor', 'E minor'], ['A minor', 'A minor']], params[:key]),
+              {},
+              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+          %>
+        </div>
+
+        <!-- Filter: Time Signature -->
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
+            Time
+          </label>
+          <%= f.select :time,
+              options_for_select([['Any', ''], ['4/4', '4/4'], ['3/4', '3/4'], ['6/8', '6/8'], ['2/4', '2/4'], ['2/2', '2/2']], params[:time]),
+              {},
+              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+          %>
+        </div>
+
+        <!-- Filter: Number of Parts -->
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
+            Voicing
+          </label>
+          <%= f.select :voicing,
+              options_for_select([['Any', ''], ['Solo', 'solo'], ['Duet', 'duet'], ['Trio', 'trio'], ['Quartet', 'quartet'], ['Ensemble (5+)', 'ensemble']], params[:voicing]),
+              {},
+              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+          %>
+        </div>
+
+        <!-- Filter: Genre -->
+        <div class="mb-5">
+          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
+            Genre
+          </label>
+          <%= f.select :genre,
+              options_for_select([['Any', ''], ['classical', 'classical'], ['folk', 'folk'], ['jazz', 'jazz'], ['rock', 'rock'], ['pop', 'pop']], params[:genre]),
+              {},
+              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+          %>
+        </div>
+
+        <%= link_to "Clear", scores_path, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
+      <% end %>
+    </aside>
+
+    <!-- Results Grid -->
+    <main class="flex-1">
+      <!-- Results Header -->
+      <div class="flex items-center justify-between mb-6 animate-fadeInUp delay-300">
+        <div>
+          <p class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wide">
+            <span class="text-[var(--color-accent)]"><%= @filtered_count %></span> / <%= @total_count %> scores
+          </p>
+        </div>
+
+        <%= form_with url: scores_path, method: :get, html: { class: "inline" } do |f| %>
+          <%= f.hidden_field :q, value: params[:q] %>
+          <%= f.hidden_field :key, value: params[:key] %>
+          <%= f.hidden_field :time, value: params[:time] %>
+          <%= f.hidden_field :genre, value: params[:genre] %>
+          <%= f.hidden_field :voicing, value: params[:voicing] %>
+          <%= f.select :sort,
+              [["Popular", "popularity"], ["Rated", "rating"], ["Newest", "newest"], ["Title", "title"], ["Composer", "composer"]],
+              { selected: params[:sort] || "popularity" },
+              { class: "mm-input text-xs", onchange: "this.form.submit()" }
+          %>
+        <% end %>
+      </div>
+
+      <!-- Score Cards Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <% @scores.each_with_index do |score, i| %>
+          <%= link_to score_path(score), class: "mm-card overflow-hidden group block" do %>
+            <!-- Thumbnail -->
+            <div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center relative overflow-hidden border-b-3 border-[var(--color-border)]">
+              <% if score.thumbnail_url.present? %>
+                <%= image_tag score.thumbnail_url,
+                    alt: score.title,
+                    class: "w-full h-full object-cover",
+                    loading: "lazy",
+                    onerror: "this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2280%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23333%22%3E♪%3C/text%3E%3C/svg%3E'"
+                %>
+              <% else %>
+                <!-- Fallback: Musical notation -->
+                <div class="text-6xl text-[var(--color-border-subtle)]">♪</div>
+              <% end %>
+            </div>
+
+            <!-- Card Content -->
+            <div class="p-3">
+              <h4 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-1 leading-tight font-bold line-clamp-1">
+                <%= score.title %>
+              </h4>
+              <p class="text-xs text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
+                <%= score.composer.presence || "Unknown" %>
+              </p>
+
+              <!-- Single Metadata Badge -->
+              <% if score.primary_key_signature.present? %>
+                <span class="mm-badge text-[10px] inline-block">
+                  <%= score.primary_key_signature %>
+                </span>
+              <% elsif score.primary_time_signature.present? %>
+                <span class="mm-badge text-[10px] inline-block">
+                  <%= score.primary_time_signature %>
+                </span>
+              <% end %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Pagination -->
+      <% if @scores.total_pages > 1 %>
+        <div class="mt-12 flex justify-center">
+          <div class="flex items-center gap-2">
+            <%= paginate @scores %>
+          </div>
+        </div>
+      <% end %>
+    </main>
+  </div>
+</div>

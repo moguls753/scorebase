@@ -1,0 +1,39 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  title: MyString
+  composer: MyString
+  key_signature: MyString
+  time_signature: MyString
+  num_parts: 1
+  genres: MyText
+  tags: MyText
+  complexity: 1
+  rating: 9.99
+  views: 1
+  favorites: 1
+  thumbnail_url: MyString
+  data_path: MyString
+  metadata_path: MyString
+  mxl_path: MyString
+  pdf_path: MyString
+  mid_path: MyString
+
+two:
+  title: MyString
+  composer: MyString
+  key_signature: MyString
+  time_signature: MyString
+  num_parts: 1
+  genres: MyText
+  tags: MyText
+  complexity: 1
+  rating: 9.99
+  views: 1
+  favorites: 1
+  thumbnail_url: MyString
+  data_path: MyString
+  metadata_path: MyString
+  mxl_path: MyString
+  pdf_path: MyString
+  mid_path: MyString
