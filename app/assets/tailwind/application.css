@@ -342,17 +342,17 @@ button, input, select {
   transition: all 0.15s ease;
 }
 
-/* Hero Section - Higher Contrast Warm Tones */
+/* Hero Section - Bright, Almost White */
 .hero-section {
-  background: linear-gradient(135deg, #fdfaf6 0%, #f8ede0 50%, #fdf8f2 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #fefcf9 50%, #ffffff 100%);
 }
 
 .hero-title {
-  color: #1a150f;
+  color: #0f0d0a;
 }
 
 .hero-subtitle {
-  color: #4a3d30;
+  color: #3d3128;
 }
 
 .hero-accent {
