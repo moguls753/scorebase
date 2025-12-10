@@ -383,3 +383,77 @@ main a:not(.mm-button):not(.mm-card) {
 main a:not(.mm-button):not(.mm-card):hover {
   color: var(--color-accent);
 }
+
+/* Sort Control - Compact Brutalist Style */
+.sort-control {
+  display: inline-flex;
+  align-items: stretch;
+  background: var(--color-bg-elevated);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  transition: all 0.15s ease;
+}
+
+.sort-control:hover {
+  border-color: var(--color-accent);
+}
+
+.sort-control:focus-within {
+  border-color: var(--color-accent);
+}
+
+.sort-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: var(--color-accent);
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  font-family: var(--font-family-display);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-right: 2px solid var(--color-border);
+  user-select: none;
+  cursor: pointer;
+}
+
+.sort-icon {
+  font-size: 11px;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.sort-select {
+  padding: 6px 8px;
+  border: none;
+  background-color: var(--color-bg-card);
+  color: var(--color-text);
+  font-family: var(--font-family-body);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  min-width: 90px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%230f0d0a' stroke-width='1.5' stroke-linecap='square'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 26px;
+  transition: background-color 0.15s ease;
+}
+
+.sort-select:hover {
+  background-color: var(--color-bg-elevated);
+}
+
+.sort-select:focus {
+  outline: none;
+  background-color: var(--color-bg-elevated);
+}
+
+[data-theme="dark"] .sort-select {
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23e8e8e8' stroke-width='1.5' stroke-linecap='square'/%3E%3C/svg%3E");
+}

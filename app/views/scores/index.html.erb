@@ -104,17 +104,23 @@
           </p>
         </div>
 
-        <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "inline" } do |f| %>
+        <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "inline-block" } do |f| %>
           <%= f.hidden_field :q, value: params[:q] %>
           <%= f.hidden_field :key, value: params[:key] %>
           <%= f.hidden_field :time, value: params[:time] %>
           <%= f.hidden_field :genre, value: params[:genre] %>
           <%= f.hidden_field :voicing, value: params[:voicing] %>
-          <%= f.select :sort,
-              [["Popular", "popularity"], ["Rated", "rating"], ["Newest", "newest"], ["Title", "title"], ["Composer", "composer"]],
-              { selected: params[:sort] || "popularity" },
-              { class: "mm-input text-xs", onchange: "this.form.requestSubmit()" }
-          %>
+          <div class="sort-control">
+            <label for="sort" class="sort-label">
+              <span class="sort-icon">↕</span>
+              SORT BY
+            </label>
+            <%= f.select :sort,
+                [["Popular", "popularity"], ["Rated", "rating"], ["Newest", "newest"], ["Title", "title"], ["Composer", "composer"]],
+                { selected: params[:sort] || "popularity" },
+                { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" }
+            %>
+          </div>
         <% end %>
       </div>
 
