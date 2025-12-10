@@ -12,6 +12,11 @@
 
       <!-- Search Bar -->
       <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores" }, class: "flex items-stretch gap-3 animate-fadeInUp delay-100" do |f| %>
+        <%= f.hidden_field :key, value: params[:key] %>
+        <%= f.hidden_field :time, value: params[:time] %>
+        <%= f.hidden_field :genre, value: params[:genre] %>
+        <%= f.hidden_field :voicing, value: params[:voicing] %>
+        <%= f.hidden_field :sort, value: params[:sort] %>
         <%= f.text_field :q,
           placeholder: "SEARCH SCORES...",
           value: params[:q],
