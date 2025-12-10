@@ -1,5 +1,5 @@
 <!-- Hero Section with Search -->
-<section class="py-16 bg-[var(--color-bg-elevated)] border-b-4 border-[var(--color-border)]">
+<section class="py-16 bg-[var(--color-bg-elevated)] border-b-2 border-[var(--color-border)]">
   <div class="max-w-7xl mx-auto px-6">
     <div class="max-w-3xl mx-auto text-center animate-fadeInUp">
       <h2 class="text-5xl font-[var(--font-family-display)] text-[var(--color-primary)] mb-3 leading-tight font-black uppercase tracking-tight">
@@ -117,7 +117,7 @@
         <% @scores.each_with_index do |score, i| %>
           <%= link_to score_path(score), class: "mm-card overflow-hidden group block" do %>
             <!-- Thumbnail -->
-            <div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center relative overflow-hidden border-b-3 border-[var(--color-border)]">
+            <div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center relative overflow-hidden border-b-2 border-[var(--color-border)]">
               <% if score.thumbnail_url.present? %>
                 <%= image_tag score.thumbnail_url,
                     alt: score.title,
