@@ -67,8 +67,7 @@
       <div class="max-w-7xl mx-auto px-6 py-8">
         <div class="flex items-center justify-between text-xs">
           <p class="text-[var(--color-text-muted)] font-medium">
-            <span class="font-bold text-[var(--color-accent)]">222,856</span> public domain scores from the
-            <a href="https://zenodo.org/records/15571083" target="_blank" rel="noopener" class="text-[var(--color-text)] hover:text-[var(--color-accent)] transition-colors font-semibold underline">PDMX dataset</a>
+            <span class="font-bold text-[var(--color-accent)]"><%= number_with_delimiter(Score.count) %></span> public domain scores
           </p>
           <p class="font-[var(--font-family-display)] text-sm text-[var(--color-text-muted)] font-bold uppercase tracking-wider">
             For Musicians
