@@ -11,7 +11,7 @@
       </p>
 
       <!-- Search Bar -->
-      <%= form_with url: scores_path, method: :get, class: "flex items-stretch gap-3 animate-fadeInUp delay-100" do |f| %>
+      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores" }, class: "flex items-stretch gap-3 animate-fadeInUp delay-100" do |f| %>
         <%= f.text_field :q,
           placeholder: "SEARCH SCORES...",
           value: params[:q],
