@@ -28,7 +28,7 @@
   <div class="flex gap-8">
     <!-- Filters Sidebar -->
     <aside class="w-64 flex-shrink-0 animate-fadeInUp delay-200">
-      <%= form_with url: scores_path, method: :get, html: { class: "mm-card p-5 sticky top-6", data: { controller: "filter-form" } } do |f| %>
+      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores" }, html: { class: "mm-card p-5 sticky top-6" } do |f| %>
         <h3 class="text-lg font-[var(--font-family-display)] text-[var(--color-primary)] mb-5 font-black uppercase tracking-tight">
           Filters
         </h3>
@@ -84,21 +84,22 @@
           %>
         </div>
 
-        <%= link_to "Clear", scores_path, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
+        <%= link_to "Clear", scores_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
       <% end %>
     </aside>
 
     <!-- Results Grid -->
+    <turbo-frame id="scores" class="flex-1 contents">
     <main class="flex-1">
       <!-- Results Header -->
-      <div class="flex items-center justify-between mb-6 animate-fadeInUp delay-300">
+      <div class="flex items-center justify-between mb-6">
         <div>
           <p class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wide">
             <span class="text-[var(--color-accent)]"><%= @filtered_count %></span> / <%= @total_count %> scores
           </p>
         </div>
 
-        <%= form_with url: scores_path, method: :get, html: { class: "inline" } do |f| %>
+        <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores" }, html: { class: "inline" } do |f| %>
           <%= f.hidden_field :q, value: params[:q] %>
           <%= f.hidden_field :key, value: params[:key] %>
           <%= f.hidden_field :time, value: params[:time] %>
@@ -164,5 +165,6 @@
         </div>
       <% end %>
     </main>
+    </turbo-frame>
   </div>
 </div>
