@@ -27,7 +27,7 @@ class Score < ApplicationRecord
     return all if query.blank?
 
     where(
-      "title LIKE :q OR composer LIKE :q OR genres LIKE :q OR tags LIKE :q",
+      "title LIKE :q OR composer LIKE :q OR genres LIKE :q",
       q: "%#{sanitize_sql_like(query)}%"
     )
   }
