@@ -342,6 +342,39 @@ button, input, select {
   transition: all 0.15s ease;
 }
 
+/* Hero Section - Vibrant Colors */
+.hero-section {
+  background: linear-gradient(135deg, #d4a574 0%, #c4956a 50%, #dbb896 100%);
+}
+
+.hero-title {
+  color: #1a1510;
+}
+
+.hero-subtitle {
+  color: #3d3225;
+}
+
+.hero-accent {
+  color: #9e4a0a;
+}
+
+[data-theme="dark"] .hero-section {
+  background: linear-gradient(135deg, #2a2520 0%, #1f1b18 50%, #2d2823 100%);
+}
+
+[data-theme="dark"] .hero-title {
+  color: #f5f0eb;
+}
+
+[data-theme="dark"] .hero-subtitle {
+  color: #a89d90;
+}
+
+[data-theme="dark"] .hero-accent {
+  color: #e8a060;
+}
+
 /* Visual interest: accent underlines for text links */
 main a:not(.mm-button):not(.mm-card) {
   text-decoration: none;
