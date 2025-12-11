@@ -78,9 +78,14 @@ body {
   background: var(--color-bg-card);
   border: 2px solid var(--color-border);
   border-radius: 2px;
-  transition: all 0.2s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 4px 4px 0 var(--shadow-color);
   position: relative;
+}
+
+/* Disable transitions on cards that are animating to prevent flicker */
+.mm-card.animate-fadeInUp {
+  transition: none;
 }
 
 /* Only add hover effect to linked cards (score cards), not static cards like filters */
@@ -162,41 +167,37 @@ a.mm-card:hover {
 
 /* Animations */
 @keyframes fadeInUp {
-  from {
+  0% {
     opacity: 0;
     transform: translateY(20px);
   }
-  to {
+  100% {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 .animate-fadeInUp {
+  opacity: 0; /* Start hidden to prevent flash */
   animation: fadeInUp 0.6s ease-out forwards;
 }
 
-/* Disable box-shadow transition during fadeInUp animation to prevent flickering */
-.animate-fadeInUp,
-.animate-fadeInUp *,
-[style*="animation-delay"] {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease !important;
-}
+/* Staggered delays - keep elements hidden until their animation starts */
+.animate-fadeInUp.delay-100 { animation-delay: 0.1s; }
+.animate-fadeInUp.delay-200 { animation-delay: 0.2s; }
+.animate-fadeInUp.delay-300 { animation-delay: 0.3s; }
+.animate-fadeInUp.delay-400 { animation-delay: 0.4s; }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .animate-fadeIn {
   animation: fadeIn 0.4s ease-out;
 }
 
-/* Staggered animation delays */
+/* Generic delays for inline styles */
 .delay-100 { animation-delay: 0.1s; }
 .delay-200 { animation-delay: 0.2s; }
 .delay-300 { animation-delay: 0.3s; }
@@ -339,8 +340,14 @@ a {
   transition: all 0.15s ease;
 }
 
-/* Smooth theme transition for all elements */
-*, *::before, *::after {
+/* Theme transition - targeted elements only (global * causes flickering with animations) */
+.mm-button,
+.mm-input,
+.mm-badge,
+.mm-badge-source,
+header,
+footer,
+.hero-section {
   transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 }
 
