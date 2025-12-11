@@ -231,8 +231,8 @@
         <% end %>
       </div>
 
-      <!-- Score Cards Grid: 1 col mobile, 2 cols sm, 3 cols md, 4 cols lg+ -->
-      <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
+      <!-- Score Cards Grid: 3 cols mobile, 4 cols lg, max-width cards on 4K -->
+      <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-4 [&>*]:max-w-[280px]">
         <% @scores.each_with_index do |score, i| %>
           <%= link_to score_path(score), data: { turbo_frame: "_top" }, class: "mm-card overflow-hidden group block" do %>
             <!-- Thumbnail -->

@@ -469,7 +469,6 @@ main a:not(.mm-button):not(.mm-card):hover {
 
 /* Hamburger Menu Button */
 .hamburger {
-  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
