@@ -444,10 +444,10 @@ class CpdlImporter
     unless response.is_a?(Net::HTTPSuccess)
       if response.code == "403"
         raise RateLimitError, "CPDL API returned 403 Forbidden. Your IP may be temporarily blocked. Wait 1-24 hours and try again with resume mode: bin/rails \"cpdl:sync[true]\""
-      elsif response.code == "500" && retry_count < 2
+      elsif response.code == "500" && retry_count < 3
         # Exponential backoff for 500 errors (server issues)
-        wait_time = retry_count == 0 ? 10 : 30
-        puts "  ⚠️  Server error (500). Retrying in #{wait_time}s... (attempt #{retry_count + 1}/2)"
+        wait_time = [30, 60, 120][retry_count]
+        puts "  ⚠️  Server error (500). Retrying in #{wait_time}s... (attempt #{retry_count + 1}/3)"
         sleep(wait_time)
         return api_request(params, retry_count: retry_count + 1)
       end
