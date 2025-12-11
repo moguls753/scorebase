@@ -22,7 +22,13 @@ export default class extends Controller {
 
     // Sync all inputs/selects in this form based on their name attribute
     this.element.querySelectorAll("input, select").forEach(field => {
-      const paramValue = params.get(field.name) || ""
+      let paramValue = params.get(field.name) || ""
+
+      // Default sort to "popularity" when not specified in URL
+      if (field.name === "sort" && paramValue === "") {
+        paramValue = "popularity"
+      }
+
       if (field.type === "hidden" || field.type === "text") {
         field.value = paramValue
       } else if (field.tagName === "SELECT") {
