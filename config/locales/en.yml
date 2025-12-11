@@ -4,8 +4,6 @@ en:
     about: "About"
     impressum: "Impressum"
     github: "GitHub"
-    light: "Light"
-    dark: "Dark"
     toggle_dark_mode: "Toggle dark mode"
     toggle_language: "Toggle language"
 
