@@ -1,7 +1,7 @@
 <!-- Hero Section with Search -->
 <section class="hero-section py-16 border-b-2 border-[var(--color-border)]">
   <div class="max-w-7xl mx-auto px-6">
-    <div class="max-w-3xl mx-auto text-center animate-fadeInUp">
+    <div class="max-w-3xl mx-auto text-center">
       <h2 class="text-5xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
         Public Domain<br>
         Music Scores
@@ -11,7 +11,7 @@
       </p>
 
       <!-- Search Bar -->
-      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "flex items-stretch gap-3 animate-fadeInUp delay-100" do |f| %>
+      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "flex items-stretch gap-3" do |f| %>
         <%= f.hidden_field :source, value: params[:source] %>
         <%= f.hidden_field :key, value: params[:key] %>
         <%= f.hidden_field :time, value: params[:time] %>
@@ -33,7 +33,7 @@
 <div class="max-w-7xl mx-auto px-6 py-12">
   <div class="flex gap-8">
     <!-- Filters Sidebar -->
-    <aside class="w-64 flex-shrink-0 animate-fadeInUp delay-200">
+    <aside class="w-64 flex-shrink-0">
       <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "mm-card p-5 sticky top-6" } do |f| %>
         <h3 class="text-lg font-[var(--font-family-display)] text-[var(--color-primary)] mb-5 font-black uppercase tracking-tight">
           Filters
