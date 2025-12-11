@@ -42,18 +42,6 @@
         <%= f.hidden_field :q, value: params[:q] %>
         <%= f.hidden_field :sort, value: params[:sort] %>
 
-        <!-- Filter: Source -->
-        <div class="mb-4">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            Source
-          </label>
-          <%= f.select :source,
-              options_for_select([['Any', ''], ['PDMX', 'pdmx'], ['CPDL', 'cpdl'], ['IMSLP', 'imslp']], params[:source]),
-              {},
-              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-          %>
-        </div>
-
         <!-- Filter: Key Signature -->
         <div class="mb-4">
           <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
@@ -91,12 +79,24 @@
         </div>
 
         <!-- Filter: Genre -->
-        <div class="mb-5">
+        <div class="mb-4">
           <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
             Genre
           </label>
           <%= f.select :genre,
               options_for_select([['Any', ''], ['classical', 'classical'], ['folk', 'folk'], ['jazz', 'jazz'], ['rock', 'rock'], ['pop', 'pop']], params[:genre]),
+              {},
+              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+          %>
+        </div>
+
+        <!-- Filter: Source -->
+        <div class="mb-5">
+          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
+            Source
+          </label>
+          <%= f.select :source,
+              options_for_select([['Any', ''], ['PDMX', 'pdmx'], ['CPDL', 'cpdl'], ['IMSLP', 'imslp']], params[:source]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
