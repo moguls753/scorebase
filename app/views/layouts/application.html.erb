@@ -3,8 +3,9 @@
   <head>
     <title><%= content_for(:title) || "ScoreBase — 222K Public Domain Music Scores" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Browse and download 222,000+ public domain music scores. Free sheet music from CPDL, IMSLP, and PDMX.">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="application-name" content="Scorebase">
+    <meta name="application-name" content="ScoreBase">
     <meta name="mobile-web-app-capable" content="yes">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -14,9 +15,20 @@
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
     <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
 
-    <link rel="icon" href="/icon.png" type="image/png">
-    <link rel="icon" href="/icon.svg" type="image/svg+xml">
-    <link rel="apple-touch-icon" href="/icon.png">
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="icon" type="image/png" href="/icon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="<%= content_for(:title) || "ScoreBase — 222K Public Domain Music Scores" %>">
+    <meta property="og:description" content="Browse and download 222,000+ public domain music scores. Free sheet music from CPDL, IMSLP, and PDMX.">
+    <meta property="og:image" content="/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
