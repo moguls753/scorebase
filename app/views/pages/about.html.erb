@@ -1,152 +1,134 @@
-<section class="about-page py-20 md:py-32 overflow-hidden">
-  <!-- Decorative staff lines background -->
-  <div class="absolute inset-0 pointer-events-none opacity-[0.04]">
-    <% 8.times do |i| %>
-      <div class="absolute w-full h-px bg-[var(--color-primary)]" style="top: <%= 80 + i * 48 %>px;"></div>
-    <% end %>
-  </div>
-
-  <div class="max-w-5xl mx-auto px-6 md:px-12 relative">
-    <!-- Editorial Header -->
-    <header class="mb-24 md:mb-32 animate-fadeInUp">
-      <div class="flex items-end gap-4 mb-6">
-        <span class="text-[10px] font-bold uppercase tracking-[0.3em] text-[var(--color-accent)] font-[var(--font-family-display)]">About</span>
-        <div class="flex-1 h-[2px] bg-[var(--color-accent)] mb-1"></div>
-      </div>
-      <h1 class="text-6xl md:text-8xl lg:text-9xl font-[var(--font-family-display)] font-black uppercase leading-[0.85] tracking-tight text-[var(--color-primary)]">
-        Score<br/>
-        <span class="text-[var(--color-accent)]">Base</span>
-      </h1>
-      <p class="mt-8 text-xl md:text-2xl text-[var(--color-text-muted)] font-light max-w-xl leading-relaxed">
-        One search for all public domain music. No barriers, no subscriptions, just scores.
-      </p>
-    </header>
-
-    <!-- Stats Section - Asymmetric Grid -->
-    <div class="mb-24 md:mb-32 animate-fadeInUp delay-100">
-      <div class="grid grid-cols-12 gap-4 md:gap-6">
-        <!-- Total Count - Large Feature -->
-        <div class="col-span-12 md:col-span-5 mm-card p-8 md:p-12 relative group">
-          <div class="absolute top-4 right-4">
-            <svg class="w-8 h-8 text-[var(--color-accent)] opacity-30" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
-            </svg>
-          </div>
-          <p class="text-6xl md:text-7xl font-[var(--font-family-display)] font-black text-[var(--color-accent)] mb-2">
-            <%= number_with_delimiter(@total_count) %>
-          </p>
-          <p class="text-sm font-bold uppercase tracking-[0.2em] text-[var(--color-text-muted)]">Total Scores</p>
+<section class="py-16 md:py-24">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="max-w-4xl mx-auto">
+      <!-- Header -->
+      <header class="mb-16 md:mb-20 animate-fadeInUp">
+        <div class="flex items-end gap-4 mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-accent)] font-[var(--font-family-display)]">About</span>
+          <div class="flex-1 h-[2px] bg-[var(--color-accent)] mb-0.5"></div>
         </div>
+        <h1 class="text-5xl md:text-6xl font-[var(--font-family-display)] font-black uppercase leading-[0.9] tracking-tight text-[var(--color-primary)]">
+          Score<span class="text-[var(--color-accent)]">Base</span>
+        </h1>
+        <p class="mt-6 text-lg md:text-xl text-[var(--color-text-muted)] font-medium max-w-xl leading-relaxed">
+          One search for all public domain music. No barriers, no subscriptions, just scores.
+        </p>
+      </header>
 
-        <!-- Source counts - Stacked -->
-        <div class="col-span-12 md:col-span-7 grid grid-cols-3 gap-4 md:gap-6">
+      <!-- Stats Grid -->
+      <div class="mb-16 md:mb-20 animate-fadeInUp delay-100">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <!-- Total Count -->
+          <div class="col-span-2 md:col-span-1 mm-card p-6 md:p-8">
+            <p class="text-4xl md:text-5xl font-[var(--font-family-display)] font-black text-[var(--color-accent)] mb-1">
+              <%= number_with_delimiter(@total_count) %>
+            </p>
+            <p class="text-xs font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">Total Scores</p>
+          </div>
+
+          <!-- Source counts -->
           <% sources = [
-            { key: 'imslp', label: 'IMSLP', desc: 'Classical Archive' },
-            { key: 'cpdl', label: 'CPDL', desc: 'Choral Works' },
-            { key: 'pdmx', label: 'PDMX', desc: 'MusicXML' }
+            { key: 'imslp', label: 'IMSLP' },
+            { key: 'cpdl', label: 'CPDL' },
+            { key: 'pdmx', label: 'PDMX' }
           ] %>
           <% sources.each_with_index do |source, i| %>
-            <div class="mm-card p-6 md:p-8 text-center animate-fadeInUp" style="animation-delay: <%= 200 + i * 100 %>ms;">
+            <div class="mm-card p-6 md:p-8 animate-fadeInUp" style="animation-delay: <%= 150 + i * 50 %>ms;">
               <p class="text-2xl md:text-3xl font-[var(--font-family-display)] font-black text-[var(--color-primary)] mb-1">
                 <%= number_with_delimiter(@source_counts[source[:key]] || 0) %>
               </p>
-              <span class="mm-badge-source mm-badge-<%= source[:key] %> mb-2"><%= source[:label] %></span>
-              <p class="text-[10px] text-[var(--color-text-muted)] uppercase tracking-wider font-medium mt-2 hidden md:block"><%= source[:desc] %></p>
+              <span class="mm-badge-source mm-badge-<%= source[:key] %>"><%= source[:label] %></span>
             </div>
           <% end %>
         </div>
       </div>
-    </div>
 
-    <!-- Mission Statement - Pull Quote Style -->
-    <div class="mb-24 md:mb-32 animate-fadeInUp delay-200">
-      <div class="relative pl-8 md:pl-12 border-l-4 border-[var(--color-accent)]">
-        <span class="absolute -left-4 -top-4 text-8xl md:text-9xl font-[var(--font-family-display)] font-black text-[var(--color-accent)] opacity-10 leading-none">"</span>
-        <p class="text-2xl md:text-3xl lg:text-4xl font-[var(--font-family-display)] text-[var(--color-primary)] leading-snug font-semibold">
-          Public domain music scores are scattered across the internet.
-        </p>
-        <p class="mt-4 text-lg md:text-xl text-[var(--color-text-muted)] leading-relaxed">
-          IMSLP, CPDL, PDMX—each archive has its own interface, search quirks, and limitations. ScoreBase brings them together into a single, fast, unified search.
-        </p>
-      </div>
-    </div>
-
-    <!-- Sources Section - Editorial Cards -->
-    <div class="animate-fadeInUp delay-300">
-      <div class="flex items-center gap-4 mb-12">
-        <h2 class="text-sm font-bold uppercase tracking-[0.2em] text-[var(--color-accent)] font-[var(--font-family-display)]">Sources</h2>
-        <div class="flex-1 h-[2px] bg-[var(--color-border-subtle)]"></div>
-      </div>
-
-      <div class="space-y-6">
-        <!-- IMSLP -->
-        <div class="mm-card p-8 md:p-10 grid md:grid-cols-[auto_1fr] gap-6 items-start group hover:border-[var(--color-accent)] transition-colors">
-          <div class="flex flex-col items-start gap-3">
-            <span class="mm-badge-source mm-badge-imslp text-xs">IMSLP</span>
-            <span class="text-3xl md:text-4xl font-[var(--font-family-display)] font-black text-[var(--color-primary)]">
-              <%= number_with_delimiter(@source_counts['imslp'] || 0) %>
-            </span>
-          </div>
-          <div>
-            <h3 class="text-lg md:text-xl font-[var(--font-family-display)] font-bold text-[var(--color-primary)] mb-2">
-              International Music Score Library Project
-            </h3>
-            <p class="text-base text-[var(--color-text-muted)] leading-relaxed">
-              The largest collection of public domain music scores on the web. Hundreds of thousands of classical works spanning centuries of composition—from medieval manuscripts to 20th century masters.
+      <!-- Mission -->
+      <div class="mb-16 md:mb-20 animate-fadeInUp delay-200">
+        <div class="mm-card p-6 md:p-10">
+          <div class="relative pl-6 border-l-3 border-[var(--color-accent)]">
+            <p class="text-xl md:text-2xl font-[var(--font-family-display)] text-[var(--color-primary)] leading-snug font-semibold">
+              Public domain music scores are scattered across the internet.
             </p>
-          </div>
-        </div>
-
-        <!-- CPDL -->
-        <div class="mm-card p-8 md:p-10 grid md:grid-cols-[auto_1fr] gap-6 items-start group hover:border-[var(--color-accent)] transition-colors">
-          <div class="flex flex-col items-start gap-3">
-            <span class="mm-badge-source mm-badge-cpdl text-xs">CPDL</span>
-            <span class="text-3xl md:text-4xl font-[var(--font-family-display)] font-black text-[var(--color-primary)]">
-              <%= number_with_delimiter(@source_counts['cpdl'] || 0) %>
-            </span>
-          </div>
-          <div>
-            <h3 class="text-lg md:text-xl font-[var(--font-family-display)] font-bold text-[var(--color-primary)] mb-2">
-              Choral Public Domain Library
-            </h3>
-            <p class="text-base text-[var(--color-text-muted)] leading-relaxed">
-              Dedicated to choral and vocal music. Sacred works, madrigals, art songs, and ensemble pieces—curated by a community of musicians and scholars passionate about vocal repertoire.
-            </p>
-          </div>
-        </div>
-
-        <!-- PDMX -->
-        <div class="mm-card p-8 md:p-10 grid md:grid-cols-[auto_1fr] gap-6 items-start group hover:border-[var(--color-accent)] transition-colors">
-          <div class="flex flex-col items-start gap-3">
-            <span class="mm-badge-source mm-badge-pdmx text-xs">PDMX</span>
-            <span class="text-3xl md:text-4xl font-[var(--font-family-display)] font-black text-[var(--color-primary)]">
-              <%= number_with_delimiter(@source_counts['pdmx'] || 0) %>
-            </span>
-          </div>
-          <div>
-            <h3 class="text-lg md:text-xl font-[var(--font-family-display)] font-bold text-[var(--color-primary)] mb-2">
-              Public Domain MusicXML
-            </h3>
-            <p class="text-base text-[var(--color-text-muted)] leading-relaxed">
-              A curated collection of scores in MusicXML format—the universal standard for digital notation. Perfect for importing into MuseScore, Sibelius, Finale, or any modern notation software.
+            <p class="mt-4 text-base text-[var(--color-text-muted)] leading-relaxed">
+              IMSLP, CPDL, PDMX—each archive has its own interface, search quirks, and limitations. ScoreBase brings them together into a single, fast, unified search.
             </p>
           </div>
         </div>
       </div>
-    </div>
 
-    <!-- Call to Action -->
-    <div class="mt-20 md:mt-28 text-center animate-fadeInUp delay-400">
-      <div class="inline-flex flex-col items-center gap-6">
-        <%= link_to root_path, class: "mm-button mm-button-primary text-sm px-10 py-4 inline-flex items-center gap-3" do %>
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <!-- Sources -->
+      <div class="animate-fadeInUp delay-300">
+        <div class="flex items-center gap-4 mb-8">
+          <h2 class="text-xs font-bold uppercase tracking-[0.15em] text-[var(--color-accent)] font-[var(--font-family-display)]">Sources</h2>
+          <div class="flex-1 h-px bg-[var(--color-border-subtle)]"></div>
+        </div>
+
+        <div class="space-y-4">
+          <!-- IMSLP -->
+          <div class="mm-card p-6 md:p-8 flex flex-col md:flex-row md:items-start gap-4">
+            <div class="flex items-center gap-3 md:w-40 shrink-0">
+              <span class="mm-badge-source mm-badge-imslp">IMSLP</span>
+              <span class="text-xl font-[var(--font-family-display)] font-black text-[var(--color-primary)]">
+                <%= number_with_delimiter(@source_counts['imslp'] || 0) %>
+              </span>
+            </div>
+            <div>
+              <h3 class="text-base font-[var(--font-family-display)] font-bold text-[var(--color-primary)] mb-1">
+                International Music Score Library Project
+              </h3>
+              <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
+                The largest collection of public domain music scores. Hundreds of thousands of classical works spanning centuries—from medieval manuscripts to 20th century masters.
+              </p>
+            </div>
+          </div>
+
+          <!-- CPDL -->
+          <div class="mm-card p-6 md:p-8 flex flex-col md:flex-row md:items-start gap-4">
+            <div class="flex items-center gap-3 md:w-40 shrink-0">
+              <span class="mm-badge-source mm-badge-cpdl">CPDL</span>
+              <span class="text-xl font-[var(--font-family-display)] font-black text-[var(--color-primary)]">
+                <%= number_with_delimiter(@source_counts['cpdl'] || 0) %>
+              </span>
+            </div>
+            <div>
+              <h3 class="text-base font-[var(--font-family-display)] font-bold text-[var(--color-primary)] mb-1">
+                Choral Public Domain Library
+              </h3>
+              <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
+                Dedicated to choral and vocal music. Sacred works, madrigals, art songs, and ensemble pieces—curated by musicians passionate about vocal repertoire.
+              </p>
+            </div>
+          </div>
+
+          <!-- PDMX -->
+          <div class="mm-card p-6 md:p-8 flex flex-col md:flex-row md:items-start gap-4">
+            <div class="flex items-center gap-3 md:w-40 shrink-0">
+              <span class="mm-badge-source mm-badge-pdmx">PDMX</span>
+              <span class="text-xl font-[var(--font-family-display)] font-black text-[var(--color-primary)]">
+                <%= number_with_delimiter(@source_counts['pdmx'] || 0) %>
+              </span>
+            </div>
+            <div>
+              <h3 class="text-base font-[var(--font-family-display)] font-bold text-[var(--color-primary)] mb-1">
+                Public Domain MusicXML
+              </h3>
+              <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
+                Scores in MusicXML format—the universal standard for digital notation. Perfect for MuseScore, Sibelius, Finale, or any modern notation software.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="mt-16 text-center animate-fadeInUp delay-400">
+        <%= link_to root_path, class: "mm-button mm-button-primary text-xs px-8 py-3 inline-flex items-center gap-2" do %>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
           </svg>
           Start Searching
         <% end %>
-        <p class="text-xs text-[var(--color-text-muted)] uppercase tracking-wider font-medium">
-          <%= number_with_delimiter(@total_count) %> scores waiting
-        </p>
       </div>
     </div>
   </div>
