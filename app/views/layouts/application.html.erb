@@ -40,20 +40,21 @@
     <header class="relative z-10 bg-[var(--color-bg-elevated)] border-b-2 border-[var(--color-border)]">
       <div class="max-w-7xl mx-auto px-6 py-6">
         <div class="flex items-center justify-between">
-          <!-- Logo -->
-          <%= link_to root_path, class: "group" do %>
-            <h1 class="text-3xl font-[var(--font-family-display)] text-[var(--color-primary)] font-black tracking-tight transition-all hover:text-[var(--color-accent)]">
-              SCORE<span class="text-[var(--color-accent)]">BASE</span>
-            </h1>
-          <% end %>
+          <!-- Logo & Source Info -->
+          <div>
+            <%= link_to root_path, class: "group" do %>
+              <h1 class="text-3xl font-[var(--font-family-display)] text-[var(--color-primary)] font-black tracking-tight transition-all hover:text-[var(--color-accent)]">
+                SCORE<span class="text-[var(--color-accent)]">BASE</span>
+              </h1>
+            <% end %>
+            <p class="text-[10px] text-[var(--color-text-muted)] font-medium tracking-wide mt-0.5">
+              Scores from <span class="font-semibold">CPDL</span> + <span class="font-semibold">IMSLP</span> + <span class="font-semibold">PDMX</span>
+            </p>
+          </div>
 
           <!-- Navigation -->
           <nav class="flex items-center gap-3">
-            <%= link_to "Browse", root_path, class: "mm-button mm-button-secondary text-xs px-4 py-2" %>
-            <%= link_to "About", "#", class: "mm-button mm-button-secondary text-xs px-4 py-2" %>
-            <a href="https://zenodo.org/records/15571083" target="_blank" rel="noopener" class="mm-button mm-button-primary text-xs px-4 py-2">
-              Dataset
-            </a>
+            <%= link_to "About", about_path, class: "mm-button mm-button-secondary text-xs px-4 py-2" %>
             <!-- Theme Toggle -->
             <div data-controller="theme" class="theme-toggle-wrapper ml-2">
               <span data-theme-target="label" class="theme-toggle-label">Light</span>
@@ -81,8 +82,10 @@
           <p class="text-[var(--color-text-muted)] font-medium">
             <span class="font-bold text-[var(--color-accent)]"><%= number_with_delimiter(Score.count) %></span> public domain scores
           </p>
-          <p class="font-[var(--font-family-display)] text-sm text-[var(--color-text-muted)] font-bold uppercase tracking-wider">
-            For Musicians
+          <p class="text-[var(--color-text-muted)] font-medium">
+            <a href="https://github.com/moguls753" target="_blank" rel="noopener" class="hover:text-[var(--color-primary)] transition-colors">GitHub</a>
+            <span class="mx-2">·</span>
+            <%= link_to "Impressum", impressum_path, class: "hover:text-[var(--color-primary)] transition-colors" %>
           </p>
         </div>
       </div>

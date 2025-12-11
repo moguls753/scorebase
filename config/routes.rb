@@ -16,6 +16,10 @@ Rails.application.routes.draw do
     end
   end
 
+  # Pages
+  get "about", to: "pages#about"
+  get "impressum", to: "pages#impressum"
+
   # Root path
   root "scores#index"
 end
