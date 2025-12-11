@@ -41,8 +41,8 @@ en:
 
   # Sort options
   sort:
-    popular: "Popular"
-    rated: "Rated"
+    popular: "Popularity"
+    rated: "Rating"
     newest: "Newest"
     title: "Title"
     composer: "Composer"
