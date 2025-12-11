@@ -21,7 +21,7 @@ de:
   search:
     hero_title_line1: "Freie Noten"
     hero_title_line2: "Eine Suche für IMSLP, CPDL und PDMX."
-    scores_ready: "%{count} Noten zum Download bereit"
+    scores_ready: "%{count} Noten verfügbar"
     placeholder: "NOTEN SUCHEN..."
     button: "Suchen"
     filters: "Filter"
