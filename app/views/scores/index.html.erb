@@ -3,10 +3,12 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="max-w-3xl mx-auto text-center">
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-[var(--font-family-display)] mb-2 sm:mb-3 leading-tight font-black uppercase tracking-tight hero-title">
-        <%= t('search.hero_title_line1') %><br>
-        <%= t('search.hero_title_line2') %>
+        <%= t('search.hero_title_line1') %>
       </h2>
-      <p class="text-sm sm:text-base mb-6 sm:mb-10 font-medium hero-subtitle">
+      <p class="text-base sm:text-lg mb-2 sm:mb-3 font-medium hero-subtitle">
+        <%= t('search.hero_title_line2') %>
+      </p>
+      <p class="text-sm sm:text-base mb-6 sm:mb-10 font-medium hero-subtitle opacity-75">
         <%= t('search.scores_ready', count: number_with_delimiter(@total_count)).html_safe.gsub(number_with_delimiter(@total_count), "<span class='font-bold hero-accent'>#{number_with_delimiter(@total_count)}</span>").html_safe %>
       </p>
 

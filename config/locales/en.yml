@@ -19,8 +19,8 @@ en:
 
   # Index / Search Page
   search:
-    hero_title_line1: "Public Domain"
-    hero_title_line2: "Music Scores"
+    hero_title_line1: "Public Domain Scores"
+    hero_title_line2: "One search across IMSLP, CPDL, and PDMX."
     scores_ready: "%{count} scores ready to download"
     placeholder: "SEARCH SCORES..."
     button: "Search"
