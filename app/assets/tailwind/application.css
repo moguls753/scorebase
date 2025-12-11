@@ -83,11 +83,6 @@ body {
   position: relative;
 }
 
-/* Disable transitions on cards that are animating to prevent flicker */
-.mm-card.animate-fadeInUp {
-  transition: none;
-}
-
 /* Only add hover effect to linked cards (score cards), not static cards like filters */
 a.mm-card:hover {
   transform: translate(-2px, -2px);
@@ -164,44 +159,6 @@ a.mm-card:hover {
 .mm-input::placeholder {
   color: var(--color-text-muted);
 }
-
-/* Animations */
-@keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fadeInUp {
-  opacity: 0; /* Start hidden to prevent flash */
-  animation: fadeInUp 0.6s ease-out forwards;
-}
-
-/* Staggered delays - keep elements hidden until their animation starts */
-.animate-fadeInUp.delay-100 { animation-delay: 0.1s; }
-.animate-fadeInUp.delay-200 { animation-delay: 0.2s; }
-.animate-fadeInUp.delay-300 { animation-delay: 0.3s; }
-.animate-fadeInUp.delay-400 { animation-delay: 0.4s; }
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.4s ease-out;
-}
-
-/* Generic delays for inline styles */
-.delay-100 { animation-delay: 0.1s; }
-.delay-200 { animation-delay: 0.2s; }
-.delay-300 { animation-delay: 0.3s; }
-.delay-400 { animation-delay: 0.4s; }
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
