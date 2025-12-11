@@ -1,17 +1,17 @@
 <!-- Hero Section with Search -->
-<section class="hero-section py-16 border-b-2 border-[var(--color-border)]">
-  <div class="max-w-7xl mx-auto px-6">
+<section class="hero-section py-8 sm:py-12 lg:py-16 border-b-2 border-[var(--color-border)]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="max-w-3xl mx-auto text-center">
-      <h2 class="text-5xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-[var(--font-family-display)] mb-2 sm:mb-3 leading-tight font-black uppercase tracking-tight hero-title">
         <%= t('search.hero_title_line1') %><br>
         <%= t('search.hero_title_line2') %>
       </h2>
-      <p class="text-base mb-10 font-medium hero-subtitle">
+      <p class="text-sm sm:text-base mb-6 sm:mb-10 font-medium hero-subtitle">
         <%= t('search.scores_ready', count: number_with_delimiter(@total_count)).html_safe.gsub(number_with_delimiter(@total_count), "<span class='font-bold hero-accent'>#{number_with_delimiter(@total_count)}</span>").html_safe %>
       </p>
 
       <!-- Search Bar -->
-      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "flex items-stretch gap-3" do |f| %>
+      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "flex flex-col sm:flex-row items-stretch gap-2 sm:gap-3" do |f| %>
         <%= f.hidden_field :source, value: params[:source] %>
         <%= f.hidden_field :key, value: params[:key] %>
         <%= f.hidden_field :time, value: params[:time] %>
@@ -23,17 +23,110 @@
           value: params[:q],
           class: "flex-1 mm-input text-sm"
         %>
-        <%= f.submit t('search.button'), class: "mm-button mm-button-primary cursor-pointer px-6 text-xs" %>
+        <%= f.submit t('search.button'), class: "mm-button mm-button-primary cursor-pointer px-6 text-xs w-full sm:w-auto" %>
       <% end %>
     </div>
   </div>
 </section>
 
 <!-- Main Content: Filters + Grid -->
-<div class="max-w-7xl mx-auto px-6 py-12">
-  <div class="flex gap-8">
-    <!-- Filters Sidebar -->
-    <aside class="w-64 flex-shrink-0">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-12">
+  <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
+    <!-- Mobile Filters (collapsible) -->
+    <aside class="lg:hidden">
+      <details class="filter-details mm-card">
+        <summary class="filter-summary">
+          <div class="flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight">
+              <%= t('search.filters') %>
+            </span>
+            <% active_filters = [params[:key], params[:time], params[:voicing], params[:genre], params[:source]].compact.reject(&:blank?).count %>
+            <% if active_filters > 0 %>
+              <span class="filter-count"><%= active_filters %></span>
+            <% end %>
+          </div>
+          <svg class="filter-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"></polyline>
+          </svg>
+        </summary>
+        <div class="filter-content">
+          <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" } do |f| %>
+            <%= f.hidden_field :q, value: params[:q] %>
+            <%= f.hidden_field :sort, value: params[:sort] %>
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <!-- Filter: Key Signature -->
+              <div>
+                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
+                  <%= t('filters.key') %>
+                </label>
+                <%= f.select :key,
+                    options_for_select([[t('filters.any'), ''], ['D major', 'D major'], ['G major', 'G major'], ['A major', 'A major'], ['F major', 'F major'], ['C major', 'C major'], ['E minor', 'E minor'], ['A minor', 'A minor']], params[:key]),
+                    {},
+                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+                %>
+              </div>
+
+              <!-- Filter: Time Signature -->
+              <div>
+                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
+                  <%= t('filters.time') %>
+                </label>
+                <%= f.select :time,
+                    options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['6/8', '6/8'], ['2/4', '2/4'], ['2/2', '2/2']], params[:time]),
+                    {},
+                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+                %>
+              </div>
+
+              <!-- Filter: Voicing -->
+              <div>
+                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
+                  <%= t('filters.voicing') %>
+                </label>
+                <%= f.select :voicing,
+                    options_for_select([[t('filters.any'), ''], [t('voicing.solo'), 'solo'], [t('voicing.duet'), 'duet'], [t('voicing.trio'), 'trio'], [t('voicing.quartet'), 'quartet'], [t('voicing.ensemble'), 'ensemble']], params[:voicing]),
+                    {},
+                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+                %>
+              </div>
+
+              <!-- Filter: Genre -->
+              <div>
+                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
+                  <%= t('filters.genre') %>
+                </label>
+                <%= f.select :genre,
+                    options_for_select([[t('filters.any'), ''], ['classical', 'classical'], ['folk', 'folk'], ['jazz', 'jazz'], ['rock', 'rock'], ['pop', 'pop']], params[:genre]),
+                    {},
+                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+                %>
+              </div>
+            </div>
+
+            <!-- Filter: Source (full width) -->
+            <div class="mb-4">
+              <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
+                <%= t('filters.source') %>
+              </label>
+              <%= f.select :source,
+                  options_for_select([[t('filters.any'), ''], ['PDMX', 'pdmx'], ['CPDL', 'cpdl'], ['IMSLP', 'imslp']], params[:source]),
+                  {},
+                  { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+              %>
+            </div>
+
+            <%= link_to t('search.clear'), scores_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
+          <% end %>
+        </div>
+      </details>
+    </aside>
+
+    <!-- Desktop Filters Sidebar -->
+    <aside class="hidden lg:block w-64 flex-shrink-0">
       <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "mm-card p-5 sticky top-6" } do |f| %>
         <h3 class="text-lg font-[var(--font-family-display)] text-[var(--color-primary)] mb-5 font-black uppercase tracking-tight">
           <%= t('search.filters') %>
@@ -108,9 +201,9 @@
 
     <!-- Results Grid -->
     <turbo-frame id="scores" data-turbo-action="advance" class="flex-1 contents">
-    <main class="flex-1">
+    <main class="flex-1 min-w-0">
       <!-- Results Header -->
-      <div class="flex items-center justify-between mb-6">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
         <div>
           <p class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wide">
             <span class="text-[var(--color-accent)]"><%= @filtered_count %></span> / <%= @total_count %> <%= t('search.results_count') %>
@@ -127,7 +220,7 @@
           <div class="sort-control">
             <label for="sort" class="sort-label">
               <span class="sort-icon">↕</span>
-              <%= t('search.sort_by') %>
+              <span class="hidden xs:inline"><%= t('search.sort_by') %></span>
             </label>
             <%= f.select :sort,
                 [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
@@ -138,8 +231,8 @@
         <% end %>
       </div>
 
-      <!-- Score Cards Grid -->
-      <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      <!-- Score Cards Grid: 1 col mobile, 2 cols sm, 3 cols md, 4 cols lg+ -->
+      <div class="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
         <% @scores.each_with_index do |score, i| %>
           <%= link_to score_path(score), data: { turbo_frame: "_top" }, class: "mm-card overflow-hidden group block" do %>
             <!-- Thumbnail -->
