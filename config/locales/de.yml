@@ -76,6 +76,23 @@ de:
     favs: "Favoriten"
     complexity_scale: "%{value} / 3"
     rating_scale: "%{value} / 5,0"
+    # Extended CPDL fields
+    language: "Sprache"
+    instruments: "Instrumente"
+    voicing: "Besetzung"
+    description: "Beschreibung"
+    editor: "Bearbeiter"
+    license: "Lizenz"
+    lyrics: "Text"
+    cpdl_number: "CPDL Nr."
+    posted_date: "Veröffentlicht"
+    page_count: "Seiten"
+    tags: "Schlagwörter"
+    about_this_score: "Über dieses Stück"
+    music_details: "Musikalische Details"
+    download_files: "Downloads"
+    external_source: "Externe Quelle"
+    lyrics_text: "Text / Lyrics"
 
   # About Page
   about:

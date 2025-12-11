@@ -262,6 +262,110 @@ a.mm-button {
   border-color: #84cc16;
 }
 
+/* Tag badge variant */
+.mm-badge-tag {
+  background: var(--color-bg);
+  border-style: dashed;
+}
+
+/* Score Detail Page Styles */
+.score-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0;
+}
+
+.score-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 0;
+  border-bottom: 2px solid var(--color-border-subtle);
+}
+
+.score-detail-item:nth-child(odd) {
+  padding-right: 12px;
+  border-right: 2px solid var(--color-border-subtle);
+}
+
+.score-detail-item:nth-child(even) {
+  padding-left: 12px;
+}
+
+/* Remove bottom border from last row */
+.score-detail-item:nth-last-child(1),
+.score-detail-item:nth-last-child(2):nth-child(odd) {
+  border-bottom: none;
+}
+
+/* Full-width item spans both columns */
+.score-detail-item-full {
+  grid-column: 1 / -1;
+  border-right: none !important;
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
+.score-detail-item dt {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+}
+
+.score-detail-item dd {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* Lyrics accordion */
+.lyrics-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.lyrics-accordion summary {
+  list-style: none;
+}
+
+.lyrics-accordion[open] .lyrics-chevron {
+  transform: rotate(180deg);
+}
+
+.lyrics-content {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  line-height: 1.8;
+  color: var(--color-text);
+}
+
+/* Score description quote styling */
+.score-description {
+  position: relative;
+  padding-left: 16px;
+  border-left: 3px solid var(--color-accent);
+}
+
+/* Responsive adjustments for score details */
+@media (max-width: 400px) {
+  .score-details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .score-detail-item:nth-child(odd) {
+    padding-right: 0;
+    border-right: none;
+  }
+
+  .score-detail-item:nth-child(even) {
+    padding-left: 0;
+  }
+
+  .score-detail-item:nth-last-child(2):nth-child(odd) {
+    border-bottom: 2px solid var(--color-border-subtle);
+  }
+}
+
 /* Link styles */
 a {
   transition: all 0.15s ease;
