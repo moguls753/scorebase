@@ -10,22 +10,31 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_10_223327) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_10_233957) do
   create_table "scores", force: :cascade do |t|
     t.integer "complexity"
     t.string "composer"
+    t.string "cpdl_number"
     t.datetime "created_at", null: false
     t.string "data_path"
+    t.text "description"
+    t.string "editor"
     t.string "external_id"
     t.string "external_url"
     t.integer "favorites", default: 0
     t.text "genres"
+    t.string "instruments"
     t.string "key_signature"
+    t.string "language"
+    t.string "license"
+    t.text "lyrics"
     t.string "metadata_path"
     t.string "mid_path"
     t.string "mxl_path"
     t.integer "num_parts"
+    t.integer "page_count"
     t.string "pdf_path"
+    t.date "posted_date"
     t.decimal "rating", precision: 3, scale: 2
     t.string "source", default: "pdmx"
     t.text "tags"
@@ -34,6 +43,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_10_223327) do
     t.string "title"
     t.datetime "updated_at", null: false
     t.integer "views", default: 0
+    t.string "voicing"
     t.index ["complexity"], name: "index_scores_on_complexity"
     t.index ["composer"], name: "index_scores_on_composer"
     t.index ["external_id"], name: "index_scores_on_external_id"

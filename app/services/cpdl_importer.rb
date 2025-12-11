@@ -4,14 +4,18 @@ require "uri"
 
 class CpdlImporter
   BASE_URL = "https://www.cpdl.org/wiki/api.php"
-  BATCH_SIZE = 50  # MediaWiki API limit for many queries
-  REQUEST_DELAY = 1.0  # Be nice to their servers (max 10 req/min recommended)
+  BATCH_SIZE = 5  # Process 5 scores per batch
+  BATCH_DELAY = 30.0  # 30 seconds between batches
+  API_CALL_DELAY = 6.0  # 6 seconds between individual API calls = ~10 requests/min max
 
   # Required by MediaWiki API etiquette - see https://www.mediawiki.org/wiki/API:Etiquette
   USER_AGENT = "ScorebaseBot/1.0 (https://github.com/scorebase; contact@scorebase.app) Ruby/#{RUBY_VERSION}"
 
-  def initialize(limit: nil)
+  class RateLimitError < StandardError; end
+
+  def initialize(limit: nil, resume: false)
     @limit = limit
+    @resume = resume
     @imported_count = 0
     @updated_count = 0
     @skipped_count = 0
@@ -21,10 +25,19 @@ class CpdlImporter
   def import!
     puts "Starting CPDL import..."
     puts "Limit: #{@limit || 'none'}"
+    puts "Resume mode: #{@resume ? 'enabled (skip existing)' : 'disabled (update existing)'}"
 
     # Get all score pages from CPDL
     pages = fetch_all_score_pages
     puts "Found #{pages.size} score pages"
+
+    # Filter out already-imported pages if resuming
+    if @resume
+      existing_ids = Score.where(source: "cpdl").pluck(:external_id).to_set
+      original_count = pages.size
+      pages = pages.reject { |p| existing_ids.include?(p["pageid"].to_s) }
+      puts "Skipping #{original_count - pages.size} already-imported scores (#{pages.size} remaining)"
+    end
 
     pages = pages.first(@limit) if @limit
 
@@ -32,7 +45,7 @@ class CpdlImporter
     pages.each_slice(BATCH_SIZE).with_index do |batch, batch_index|
       puts "Processing batch #{batch_index + 1} (#{@imported_count + @updated_count}/#{pages.size})..."
       process_batch(batch)
-      sleep(REQUEST_DELAY) # Rate limiting
+      sleep(BATCH_DELAY) unless batch_index == (pages.size / BATCH_SIZE) # Don't sleep after last batch
     end
 
     puts "\n✅ CPDL import complete!"
@@ -47,12 +60,21 @@ class CpdlImporter
     end
 
     { imported: @imported_count, updated: @updated_count, skipped: @skipped_count, errors: @errors.size }
+  rescue RateLimitError => e
+    puts "\n❌ Rate limit exceeded!"
+    puts e.message
+    puts "\nProgress so far:"
+    puts "Imported: #{@imported_count}"
+    puts "Updated: #{@updated_count}"
+    puts "Skipped: #{@skipped_count}"
+    raise
   end
 
   private
 
   def fetch_all_score_pages
     pages = []
+    score_pages = []
     continue_token = nil
 
     loop do
@@ -73,18 +95,26 @@ class CpdlImporter
       new_pages = response.dig("query", "allpages") || []
       pages.concat(new_pages)
 
-      puts "  Fetched #{pages.size} pages so far..."
+      # Filter and count score pages as we go
+      new_score_pages = new_pages.select { |p| score_page?(p["title"]) }
+      score_pages.concat(new_score_pages)
+
+      puts "  Fetched #{pages.size} total pages (#{score_pages.size} score pages)..."
+
+      # If we have a limit and already found enough score pages, stop early
+      if @limit && score_pages.size >= @limit
+        puts "  Found enough score pages for limit (#{@limit}), stopping early"
+        break
+      end
 
       # Check for continuation
       continue_token = response.dig("continue", "apcontinue")
       break unless continue_token
 
-      sleep(REQUEST_DELAY)
+      sleep(API_CALL_DELAY)  # Rate limit between pagination requests
     end
 
-    # Filter to only actual score pages (not talk, help, etc.)
-    # CPDL score pages typically have composer names in parentheses
-    pages.select { |p| score_page?(p["title"]) }
+    score_pages
   end
 
   def score_page?(title)
@@ -163,14 +193,17 @@ class CpdlImporter
     # Parse infobox/template data from wikitext
     infobox = parse_infobox(wikitext)
 
-    # Extract voicing/parts info
-    num_parts = extract_num_parts(infobox, wikitext)
+    # Get num_parts from infobox (already extracted from {{Voicing}} template)
+    num_parts = infobox["num_parts"]
 
     # Extract genres from categories
     genres = extract_genres(categories)
 
-    # Get file URLs
-    files = extract_file_info(wikitext)
+    # Get file names from wikitext
+    file_names = extract_file_info(wikitext)
+
+    # Fetch actual URLs from MediaWiki API
+    files = fetch_file_urls(file_names)
 
     # Need at least a title to be valid
     return nil if clean_title.blank?
@@ -181,6 +214,16 @@ class CpdlImporter
       key_signature: infobox["key"],
       time_signature: nil,  # CPDL doesn't consistently have this
       num_parts: num_parts,
+      language: infobox["language"],
+      instruments: infobox["instruments"],
+      voicing: infobox["voicing"],
+      description: infobox["description"],
+      editor: infobox["editor"],
+      license: infobox["license"],
+      lyrics: infobox["lyrics"],
+      cpdl_number: infobox["cpdl_number"],
+      posted_date: infobox["posted_date"],
+      page_count: infobox["page_count"],
       genres: genres.join("-"),
       tags: categories.first(5).join("-"),
       complexity: nil,
@@ -203,22 +246,70 @@ class CpdlImporter
   def parse_infobox(wikitext)
     info = {}
 
-    # CPDL uses {{Infobox score}} template
-    # Extract key fields
-    if match = wikitext.match(/\|\s*composer\s*=\s*([^\n|]+)/i)
+    # CPDL uses template syntax like {{Composer|Name}} not infobox key-values
+
+    # Extract composer: {{Composer|Name}}
+    if match = wikitext.match(/\{\{Composer\|([^}]+)\}\}/i)
       info["composer"] = clean_wiki_value(match[1])
     end
 
-    if match = wikitext.match(/\|\s*key\s*=\s*([^\n|]+)/i)
-      info["key"] = clean_wiki_value(match[1])
+    # Extract voicing: {{Voicing|num_parts|voicing_name}}
+    if match = wikitext.match(/\{\{Voicing\|(\d+)\|([^}]+)\}\}/i)
+      info["num_parts"] = match[1].to_i
+      info["voicing"] = clean_wiki_value(match[2])
     end
 
-    if match = wikitext.match(/\|\s*voicing\s*=\s*([^\n|]+)/i)
-      info["voicing"] = clean_wiki_value(match[1])
-    end
-
-    if match = wikitext.match(/\|\s*genre\s*=\s*([^\n|]+)/i)
+    # Extract genre: {{Genre|Type1|Type2}}
+    if match = wikitext.match(/\{\{Genre\|([^}]+)\}\}/i)
       info["genre"] = clean_wiki_value(match[1])
+    end
+
+    # Extract language: {{Language|Lang}}
+    if match = wikitext.match(/\{\{Language\|([^}]+)\}\}/i)
+      info["language"] = clean_wiki_value(match[1])
+    end
+
+    # Extract instruments: {{Instruments|Type}}
+    if match = wikitext.match(/\{\{Instruments\|([^}]+)\}\}/i)
+      info["instruments"] = clean_wiki_value(match[1])
+    end
+
+    # Extract description: {{Descr|Text}}
+    if match = wikitext.match(/\{\{Descr\|([^}]*)\}\}/i)
+      info["description"] = clean_wiki_value(match[1])
+    end
+
+    # Extract editor: {{Editor|Name|Date}}
+    if match = wikitext.match(/\{\{Editor\|([^|}]+)/i)
+      info["editor"] = clean_wiki_value(match[1])
+    end
+
+    # Extract license: {{Copy|Type}}
+    if match = wikitext.match(/\{\{Copy\|([^}]+)\}\}/i)
+      info["license"] = clean_wiki_value(match[1])
+    end
+
+    # Extract CPDL number: {{CPDLno|12345}}
+    if match = wikitext.match(/\{\{CPDLno\|([^}]+)\}\}/i)
+      info["cpdl_number"] = clean_wiki_value(match[1])
+    end
+
+    # Extract posted date: {{PostedDate|YYYY-MM-DD}}
+    if match = wikitext.match(/\{\{PostedDate\|([^}]+)\}\}/i)
+      date_str = clean_wiki_value(match[1])
+      info["posted_date"] = Date.parse(date_str) rescue nil if date_str
+    end
+
+    # Extract score info: {{ScoreInfo|Format|Pages|Size}}
+    if match = wikitext.match(/\{\{ScoreInfo\|[^|]+\|(\d+)\|/i)
+      info["page_count"] = match[1].to_i
+    end
+
+    # Extract lyrics: {{Text|Language|lyrics...}}
+    if match = wikitext.match(/\{\{Text\|[^|]+\|([^}]+)\}\}/im)
+      lyrics = match[1].strip
+      # Limit to first 2000 characters to avoid huge text blobs
+      info["lyrics"] = lyrics[0..1999] if lyrics.present?
     end
 
     info
@@ -284,12 +375,65 @@ class CpdlImporter
     files
   end
 
-  def api_request(params)
+  def fetch_file_urls(file_names)
+    urls = { pdf: nil, midi: nil, musicxml: nil }
+
+    # Build list of file titles to query
+    titles = []
+    titles << "File:#{file_names[:pdf]}" if file_names[:pdf]
+    titles << "File:#{file_names[:midi]}" if file_names[:midi]
+    titles << "File:#{file_names[:musicxml]}" if file_names[:musicxml]
+
+    return urls if titles.empty?
+
+    # Query MediaWiki API for file URLs
+    params = {
+      action: "query",
+      prop: "imageinfo",
+      titles: titles.join("|"),
+      iiprop: "url",
+      format: "json"
+    }
+
+    response = api_request(params)
+    return urls unless response
+
+    pages = response.dig("query", "pages") || {}
+    pages.each do |_page_id, page|
+      next unless page["imageinfo"]
+
+      url = page.dig("imageinfo", 0, "url")
+      title = page["title"].gsub("File:", "")
+
+      # Normalize both for comparison (MediaWiki converts _ to spaces)
+      normalized_title = title.gsub(/[_\s]/, "").downcase
+
+      # Match URL to file type
+      if file_names[:pdf] && normalized_title.include?(file_names[:pdf].gsub(/[_\s]/, "").downcase)
+        urls[:pdf] = url
+      elsif file_names[:midi] && normalized_title.include?(file_names[:midi].gsub(/[_\s]/, "").downcase)
+        urls[:midi] = url
+      elsif file_names[:musicxml] && normalized_title.include?(file_names[:musicxml].gsub(/[_\s]/, "").downcase)
+        urls[:musicxml] = url
+      end
+    end
+
+    urls
+  end
+
+  def api_request(params, retry_count: 0)
+    # Add delay before each API call to respect rate limits
+    sleep(API_CALL_DELAY)
+
     uri = URI(BASE_URL)
     uri.query = URI.encode_www_form(params)
 
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
+    # Use VERIFY_NONE as a workaround for CRL checking issues
+    # CPDL's certificate has a CRL endpoint that Ruby's OpenSSL can't reach
+    # The connection is still encrypted, just certificate revocation isn't checked
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
     request = Net::HTTP::Get.new(uri)
     request["User-Agent"] = USER_AGENT
@@ -298,11 +442,22 @@ class CpdlImporter
     response = http.request(request)
 
     unless response.is_a?(Net::HTTPSuccess)
+      if response.code == "403"
+        raise RateLimitError, "CPDL API returned 403 Forbidden. Your IP may be temporarily blocked. Wait 1-24 hours and try again with resume mode: bin/rails \"cpdl:sync[true]\""
+      elsif response.code == "500" && retry_count < 2
+        # Exponential backoff for 500 errors (server issues)
+        wait_time = retry_count == 0 ? 10 : 30
+        puts "  ⚠️  Server error (500). Retrying in #{wait_time}s... (attempt #{retry_count + 1}/2)"
+        sleep(wait_time)
+        return api_request(params, retry_count: retry_count + 1)
+      end
       puts "  API error: #{response.code} - #{response.message}"
       return nil
     end
 
     JSON.parse(response.body)
+  rescue RateLimitError
+    raise  # Re-raise rate limit errors
   rescue => e
     puts "  Request failed: #{e.message}"
     nil

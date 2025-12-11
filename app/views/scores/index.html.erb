@@ -12,6 +12,7 @@
 
       <!-- Search Bar -->
       <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "flex items-stretch gap-3 animate-fadeInUp delay-100" do |f| %>
+        <%= f.hidden_field :source, value: params[:source] %>
         <%= f.hidden_field :key, value: params[:key] %>
         <%= f.hidden_field :time, value: params[:time] %>
         <%= f.hidden_field :genre, value: params[:genre] %>
@@ -40,6 +41,18 @@
 
         <%= f.hidden_field :q, value: params[:q] %>
         <%= f.hidden_field :sort, value: params[:sort] %>
+
+        <!-- Filter: Source -->
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
+            Source
+          </label>
+          <%= f.select :source,
+              options_for_select([['Any', ''], ['PDMX', 'pdmx'], ['CPDL', 'cpdl'], ['IMSLP', 'imslp']], params[:source]),
+              {},
+              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+          %>
+        </div>
 
         <!-- Filter: Key Signature -->
         <div class="mb-4">
@@ -106,6 +119,7 @@
 
         <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "inline-block" } do |f| %>
           <%= f.hidden_field :q, value: params[:q] %>
+          <%= f.hidden_field :source, value: params[:source] %>
           <%= f.hidden_field :key, value: params[:key] %>
           <%= f.hidden_field :time, value: params[:time] %>
           <%= f.hidden_field :genre, value: params[:genre] %>
@@ -152,16 +166,23 @@
                 <%= score.composer.presence || "Unknown" %>
               </p>
 
-              <!-- Single Metadata Badge -->
-              <% if score.primary_key_signature.present? %>
-                <span class="mm-badge text-[10px] inline-block">
-                  <%= score.primary_key_signature %>
-                </span>
-              <% elsif score.primary_time_signature.present? %>
-                <span class="mm-badge text-[10px] inline-block">
-                  <%= score.primary_time_signature %>
-                </span>
-              <% end %>
+              <!-- Metadata Badges -->
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <% if score.source.present? %>
+                  <span class="mm-badge-source mm-badge-<%= score.source %> inline-block">
+                    <%= score.source.upcase %>
+                  </span>
+                <% end %>
+                <% if score.primary_key_signature.present? %>
+                  <span class="mm-badge text-[10px] inline-block">
+                    <%= score.primary_key_signature %>
+                  </span>
+                <% elsif score.primary_time_signature.present? %>
+                  <span class="mm-badge text-[10px] inline-block">
+                    <%= score.primary_time_signature %>
+                  </span>
+                <% end %>
+              </div>
             </div>
           <% end %>
         <% end %>

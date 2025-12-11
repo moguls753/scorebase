@@ -279,6 +279,54 @@ a.mm-button {
   letter-spacing: 0.5px;
 }
 
+/* Source badges - distinct styling for each platform */
+.mm-badge-source {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 3px 8px;
+  letter-spacing: 0.6px;
+  font-family: var(--font-family-display);
+  border-width: 2px;
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  transition: all 0.2s ease;
+}
+
+.mm-badge-cpdl {
+  background: #e8f4f8;
+  color: #0369a1;
+  border-color: #0369a1;
+}
+
+[data-theme="dark"] .mm-badge-cpdl {
+  background: #0c4a6e;
+  color: #7dd3fc;
+  border-color: #0ea5e9;
+}
+
+.mm-badge-imslp {
+  background: #f3e8ff;
+  color: #7e22ce;
+  border-color: #7e22ce;
+}
+
+[data-theme="dark"] .mm-badge-imslp {
+  background: #581c87;
+  color: #d8b4fe;
+  border-color: #a855f7;
+}
+
+.mm-badge-pdmx {
+  background: #ecfccb;
+  color: #4d7c0f;
+  border-color: #65a30d;
+}
+
+[data-theme="dark"] .mm-badge-pdmx {
+  background: #3f6212;
+  color: #bef264;
+  border-color: #84cc16;
+}
+
 /* Link styles */
 a {
   transition: all 0.15s ease;

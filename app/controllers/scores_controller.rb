@@ -8,6 +8,7 @@ class ScoresController < ApplicationController
     end
 
     # Filters
+    @scores = @scores.by_source(params[:source]) if params[:source].present?
     @scores = @scores.by_key_signature(params[:key]) if params[:key].present?
     @scores = @scores.by_time_signature(params[:time]) if params[:time].present?
     @scores = @scores.by_genre(params[:genre]) if params[:genre].present?
@@ -52,6 +53,19 @@ class ScoresController < ApplicationController
       return
     end
 
+    # Handle CPDL scores - redirect to external file URL
+    # For CPDL, file_path already contains the full URL
+    if @score.cpdl?
+      if file_path.start_with?('http')
+        redirect_to file_path, allow_other_host: true
+        return
+      else
+        render plain: "CPDL file URL unavailable", status: :not_found
+        return
+      end
+    end
+
+    # Handle PDMX scores - serve from local filesystem
     # Convert relative path to absolute path (PDMX data location)
     absolute_path = File.join(ENV.fetch('PDMX_DATA_PATH', File.expand_path('~/data/pdmx')), file_path.sub(/^\.\//, ''))
 
