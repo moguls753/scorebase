@@ -9,17 +9,17 @@ de:
 
   # Footer
   footer:
-    public_domain_scores: "gemeinfreie Noten"
+    public_domain_scores: "freie Noten"
 
   # Meta
   meta:
-    title: "ScoreBase — Gemeinfreie Noten"
-    description: "Durchsuchen und laden Sie tausende gemeinfreie Musiknoten herunter. Kostenlose Noten von CPDL, IMSLP und PDMX."
+    title: "ScoreBase — Freie Noten"
+    description: "Durchsuche und lade tausende freie Musiknoten herunter. Kostenlose Noten von CPDL, IMSLP und PDMX."
     sources_tagline: "Noten von CPDL + IMSLP + PDMX"
 
   # Index / Search Page
   search:
-    hero_title_line1: "Gemeinfreie"
+    hero_title_line1: "Freie"
     hero_title_line2: "Noten"
     scores_ready: "%{count} Noten zum Download bereit"
     placeholder: "NOTEN SUCHEN..."
@@ -81,19 +81,19 @@ de:
   about:
     label: "Info"
     title: "ScoreBase"
-    subtitle: "Durchsuche gemeinfreie Musiknoten von IMSLP, CPDL und PDMX an einem Ort."
+    subtitle: "Durchsuche freie Noten von IMSLP, CPDL und PDMX an einem Ort."
     total_scores: "Noten gesamt"
-    why_exists_title: "Warum es das gibt"
-    why_exists_p1: "Es gibt viele gemeinfreie Noten da draußen – IMSLP, CPDL, PDMX und andere. Aber alle haben verschiedene Webseiten, verschiedene Suchsysteme, und um zu finden was man braucht, muss man oft mehrere Seiten durchsuchen."
-    why_exists_p2: "Ich hatte keine Lust mehr, zwischen Seiten zu wechseln, also habe ich ScoreBase gebaut, um alle auf einmal zu durchsuchen. Das ist im Grunde alles."
+    why_exists_title: "Warum?"
+    why_exists_p1: "IMSLP, CPDL, PDMX – es gibt einige gute Quellen für freie Noten. Aber jede Seite hat ihre eigene Suche, und oft muss man überall einzeln schauen, bis man findet was man sucht."
+    why_exists_p2: "ScoreBase löst genau dieses Problem – eine Suche für alle Quellen."
     sources_title: "Quellen"
     back_to_search: "Zurück zur Suche"
     imslp_name: "International Music Score Library Project"
-    imslp_description: "Auch bekannt als Petrucci-Musikbibliothek. Die größte Sammlung gemeinfreier Noten mit über 800.000 Partituren von mehr als 27.000 Komponisten."
+    imslp_description: "Auch bekannt als Petrucci-Musikbibliothek. Die größte Sammlung freier Noten mit über 800.000 Partituren von mehr als 27.000 Komponisten."
     cpdl_name: "Choral Public Domain Library"
     cpdl_description: "Auch bekannt als ChoralWiki. Die größte Seite für kostenlose Chornoten, mit starker Abdeckung von Renaissance- und Barockvokalwerken."
     pdmx_name: "Public Domain MusicXML"
-    pdmx_description: "Ein Forschungsdatensatz mit über 250.000 gemeinfreien MusicXML-Dateien, gesammelt von MuseScore. Nützlich für Notationssoftware wie MuseScore, Sibelius oder Finale."
+    pdmx_description: "Ein Datensatz mit über 250.000 freien MusicXML-Dateien von MuseScore. Nützlich für Notationssoftware wie MuseScore, Sibelius oder Finale."
 
   # Impressum Page
   impressum:
