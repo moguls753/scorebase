@@ -4,18 +4,18 @@
       <!-- Header -->
       <header class="mb-12 md:mb-16">
         <div class="flex items-end gap-4 mb-4">
-          <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-accent)] font-[var(--font-family-display)]">Legal</span>
+          <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-accent)] font-[var(--font-family-display)]"><%= t('impressum.label') %></span>
           <div class="flex-1 h-[2px] bg-[var(--color-accent)] mb-0.5"></div>
         </div>
         <h1 class="text-4xl md:text-5xl font-[var(--font-family-display)] font-black uppercase tracking-tight text-[var(--color-primary)]">
-          Impressum
+          <%= t('impressum.title') %>
         </h1>
       </header>
 
       <!-- Contact Card -->
       <div class="mm-card p-6 md:p-8 mb-6">
         <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-accent)] font-[var(--font-family-display)] mb-5">
-          Contact
+          <%= t('impressum.contact') %>
         </h2>
 
         <div class="space-y-4">
@@ -40,18 +40,18 @@
       <!-- Privacy Card -->
       <div class="mm-card p-6 md:p-8">
         <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-accent)] font-[var(--font-family-display)] mb-5">
-          Privacy
+          <%= t('impressum.privacy') %>
         </h2>
 
         <div class="grid grid-cols-2 gap-4">
           <div class="p-4 bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-sm">
-            <p class="text-xs font-bold uppercase tracking-wide text-[var(--color-text)] mb-1">No Cookies</p>
-            <p class="text-xs text-[var(--color-text-muted)]">No tracking cookies used</p>
+            <p class="text-xs font-bold uppercase tracking-wide text-[var(--color-text)] mb-1"><%= t('impressum.no_tracking') %></p>
+            <p class="text-xs text-[var(--color-text-muted)]"><%= t('impressum.no_tracking_desc') %></p>
           </div>
 
           <div class="p-4 bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-sm">
-            <p class="text-xs font-bold uppercase tracking-wide text-[var(--color-text)] mb-1">No Tracking</p>
-            <p class="text-xs text-[var(--color-text-muted)]">No usage data collected</p>
+            <p class="text-xs font-bold uppercase tracking-wide text-[var(--color-text)] mb-1"><%= t('impressum.functional_cookie') %></p>
+            <p class="text-xs text-[var(--color-text-muted)]"><%= t('impressum.functional_cookie_desc') %></p>
           </div>
         </div>
       </div>
@@ -59,10 +59,10 @@
       <!-- Navigation -->
       <div class="mt-12 flex items-center justify-center gap-4">
         <%= link_to root_path, class: "mm-button mm-button-secondary text-xs px-6 py-2.5" do %>
-          Back to Search
+          <%= t('impressum.back_to_search') %>
         <% end %>
         <%= link_to about_path, class: "mm-button mm-button-secondary text-xs px-6 py-2.5" do %>
-          About
+          <%= t('nav.about') %>
         <% end %>
       </div>
     </div>

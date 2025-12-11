@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="<%= I18n.locale %>">
   <head>
-    <title><%= content_for(:title) || "ScoreBase — 222K Public Domain Music Scores" %></title>
+    <title><%= content_for(:title) || t('meta.title') %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="Browse and download 222,000+ public domain music scores. Free sheet music from CPDL, IMSLP, and PDMX.">
+    <meta name="description" content="<%= t('meta.description') %>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="ScoreBase">
     <meta name="mobile-web-app-capable" content="yes">
@@ -23,8 +23,8 @@
 
     <!-- Open Graph / Social Sharing -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="<%= content_for(:title) || "ScoreBase — 222K Public Domain Music Scores" %>">
-    <meta property="og:description" content="Browse and download 222,000+ public domain music scores. Free sheet music from CPDL, IMSLP, and PDMX.">
+    <meta property="og:title" content="<%= content_for(:title) || t('meta.title') %>">
+    <meta property="og:description" content="<%= t('meta.description') %>">
     <meta property="og:image" content="/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -48,21 +48,29 @@
               </h1>
             <% end %>
             <p class="text-[10px] text-[var(--color-text-muted)] font-medium tracking-wide mt-0.5">
-              Scores from <span class="font-semibold">CPDL</span> + <span class="font-semibold">IMSLP</span> + <span class="font-semibold">PDMX</span>
+              <%= t('meta.sources_tagline') %>
             </p>
           </div>
 
           <!-- Navigation -->
           <nav class="flex items-center gap-3">
-            <%= link_to "About", about_path, class: "mm-button mm-button-secondary text-xs px-4 py-2" %>
+            <%= link_to t('nav.about'), about_path, class: "mm-button mm-button-secondary text-xs px-4 py-2" %>
+            <!-- Language Toggle -->
+            <% other_locale = I18n.locale == :en ? :de : :en %>
+            <%= link_to url_for(locale: other_locale),
+                class: "locale-toggle",
+                aria: { label: t('nav.toggle_language') },
+                data: { turbo_action: "replace" } do %>
+              <span><%= t("languages.#{other_locale}") %></span>
+            <% end %>
             <!-- Theme Toggle -->
-            <div data-controller="theme" class="theme-toggle-wrapper ml-2">
-              <span data-theme-target="label" class="theme-toggle-label">Light</span>
+            <div data-controller="theme" class="theme-toggle-wrapper">
+              <span data-theme-target="label" class="theme-toggle-label" data-light="<%= t('nav.light') %>" data-dark="<%= t('nav.dark') %>"><%= t('nav.light') %></span>
               <button type="button"
                       data-action="click->theme#toggle"
                       data-theme-target="toggle"
                       class="theme-toggle"
-                      aria-label="Toggle dark mode">
+                      aria-label="<%= t('nav.toggle_dark_mode') %>">
               </button>
             </div>
           </nav>
@@ -80,12 +88,12 @@
       <div class="max-w-7xl mx-auto px-6 py-8">
         <div class="flex items-center justify-between text-xs">
           <p class="text-[var(--color-text-muted)] font-medium">
-            <span class="font-bold text-[var(--color-accent)]"><%= number_with_delimiter(Score.count) %></span> public domain scores
+            <span class="font-bold text-[var(--color-accent)]"><%= number_with_delimiter(Score.count) %></span> <%= t('footer.public_domain_scores') %>
           </p>
           <p class="text-[var(--color-text-muted)] font-medium">
-            <a href="https://github.com/moguls753/scorebase" target="_blank" rel="noopener nofollow" class="hover:text-[var(--color-primary)] transition-colors">GitHub</a>
+            <a href="https://github.com/moguls753/scorebase" target="_blank" rel="noopener nofollow" class="hover:text-[var(--color-primary)] transition-colors"><%= t('nav.github') %></a>
             <span class="mx-2">·</span>
-            <%= link_to "Impressum", impressum_path, class: "hover:text-[var(--color-primary)] transition-colors" %>
+            <%= link_to t('nav.impressum'), impressum_path, class: "hover:text-[var(--color-primary)] transition-colors" %>
           </p>
         </div>
       </div>

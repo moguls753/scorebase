@@ -3,11 +3,11 @@
   <div class="max-w-7xl mx-auto px-6">
     <div class="max-w-3xl mx-auto text-center">
       <h2 class="text-5xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
-        Public Domain<br>
-        Music Scores
+        <%= t('search.hero_title_line1') %><br>
+        <%= t('search.hero_title_line2') %>
       </h2>
       <p class="text-base mb-10 font-medium hero-subtitle">
-        <span class="font-bold hero-accent"><%= number_with_delimiter(@total_count) %></span> scores ready to download
+        <%= t('search.scores_ready', count: number_with_delimiter(@total_count)).html_safe.gsub(number_with_delimiter(@total_count), "<span class='font-bold hero-accent'>#{number_with_delimiter(@total_count)}</span>").html_safe %>
       </p>
 
       <!-- Search Bar -->
@@ -19,11 +19,11 @@
         <%= f.hidden_field :voicing, value: params[:voicing] %>
         <%= f.hidden_field :sort, value: params[:sort] %>
         <%= f.text_field :q,
-          placeholder: "SEARCH SCORES...",
+          placeholder: t('search.placeholder'),
           value: params[:q],
           class: "flex-1 mm-input text-sm"
         %>
-        <%= f.submit "Search", class: "mm-button mm-button-primary cursor-pointer px-6 text-xs" %>
+        <%= f.submit t('search.button'), class: "mm-button mm-button-primary cursor-pointer px-6 text-xs" %>
       <% end %>
     </div>
   </div>
@@ -36,7 +36,7 @@
     <aside class="w-64 flex-shrink-0">
       <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "mm-card p-5 sticky top-6" } do |f| %>
         <h3 class="text-lg font-[var(--font-family-display)] text-[var(--color-primary)] mb-5 font-black uppercase tracking-tight">
-          Filters
+          <%= t('search.filters') %>
         </h3>
 
         <%= f.hidden_field :q, value: params[:q] %>
@@ -45,10 +45,10 @@
         <!-- Filter: Key Signature -->
         <div class="mb-4">
           <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            Key
+            <%= t('filters.key') %>
           </label>
           <%= f.select :key,
-              options_for_select([['Any', ''], ['D major', 'D major'], ['G major', 'G major'], ['A major', 'A major'], ['F major', 'F major'], ['C major', 'C major'], ['E minor', 'E minor'], ['A minor', 'A minor']], params[:key]),
+              options_for_select([[t('filters.any'), ''], ['D major', 'D major'], ['G major', 'G major'], ['A major', 'A major'], ['F major', 'F major'], ['C major', 'C major'], ['E minor', 'E minor'], ['A minor', 'A minor']], params[:key]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
@@ -57,10 +57,10 @@
         <!-- Filter: Time Signature -->
         <div class="mb-4">
           <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            Time
+            <%= t('filters.time') %>
           </label>
           <%= f.select :time,
-              options_for_select([['Any', ''], ['4/4', '4/4'], ['3/4', '3/4'], ['6/8', '6/8'], ['2/4', '2/4'], ['2/2', '2/2']], params[:time]),
+              options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['6/8', '6/8'], ['2/4', '2/4'], ['2/2', '2/2']], params[:time]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
@@ -69,10 +69,10 @@
         <!-- Filter: Number of Parts -->
         <div class="mb-4">
           <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            Voicing
+            <%= t('filters.voicing') %>
           </label>
           <%= f.select :voicing,
-              options_for_select([['Any', ''], ['Solo', 'solo'], ['Duet', 'duet'], ['Trio', 'trio'], ['Quartet', 'quartet'], ['Ensemble (5+)', 'ensemble']], params[:voicing]),
+              options_for_select([[t('filters.any'), ''], [t('voicing.solo'), 'solo'], [t('voicing.duet'), 'duet'], [t('voicing.trio'), 'trio'], [t('voicing.quartet'), 'quartet'], [t('voicing.ensemble'), 'ensemble']], params[:voicing]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
@@ -81,10 +81,10 @@
         <!-- Filter: Genre -->
         <div class="mb-4">
           <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            Genre
+            <%= t('filters.genre') %>
           </label>
           <%= f.select :genre,
-              options_for_select([['Any', ''], ['classical', 'classical'], ['folk', 'folk'], ['jazz', 'jazz'], ['rock', 'rock'], ['pop', 'pop']], params[:genre]),
+              options_for_select([[t('filters.any'), ''], ['classical', 'classical'], ['folk', 'folk'], ['jazz', 'jazz'], ['rock', 'rock'], ['pop', 'pop']], params[:genre]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
@@ -93,16 +93,16 @@
         <!-- Filter: Source -->
         <div class="mb-5">
           <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            Source
+            <%= t('filters.source') %>
           </label>
           <%= f.select :source,
-              options_for_select([['Any', ''], ['PDMX', 'pdmx'], ['CPDL', 'cpdl'], ['IMSLP', 'imslp']], params[:source]),
+              options_for_select([[t('filters.any'), ''], ['PDMX', 'pdmx'], ['CPDL', 'cpdl'], ['IMSLP', 'imslp']], params[:source]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
         </div>
 
-        <%= link_to "Clear", scores_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
+        <%= link_to t('search.clear'), scores_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
       <% end %>
     </aside>
 
@@ -113,7 +113,7 @@
       <div class="flex items-center justify-between mb-6">
         <div>
           <p class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wide">
-            <span class="text-[var(--color-accent)]"><%= @filtered_count %></span> / <%= @total_count %> scores
+            <span class="text-[var(--color-accent)]"><%= @filtered_count %></span> / <%= @total_count %> <%= t('search.results_count') %>
           </p>
         </div>
 
@@ -127,10 +127,10 @@
           <div class="sort-control">
             <label for="sort" class="sort-label">
               <span class="sort-icon">↕</span>
-              SORT BY
+              <%= t('search.sort_by') %>
             </label>
             <%= f.select :sort,
-                [["Popular", "popularity"], ["Rated", "rating"], ["Newest", "newest"], ["Title", "title"], ["Composer", "composer"]],
+                [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
                 { selected: params[:sort] || "popularity" },
                 { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" }
             %>
@@ -163,7 +163,7 @@
                 <%= score.title %>
               </h4>
               <p class="text-xs text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
-                <%= score.composer.presence || "Unknown" %>
+                <%= score.composer.presence || t('search.unknown_composer') %>
               </p>
 
               <!-- Metadata Badges -->

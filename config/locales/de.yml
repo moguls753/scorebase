@@ -1,0 +1,115 @@
+de:
+  # Navigation & Layout
+  nav:
+    about: "Info"
+    impressum: "Impressum"
+    github: "GitHub"
+    light: "Hell"
+    dark: "Dunkel"
+    toggle_dark_mode: "Dunkelmodus umschalten"
+    toggle_language: "Sprache wechseln"
+
+  # Footer
+  footer:
+    public_domain_scores: "gemeinfreie Noten"
+
+  # Meta
+  meta:
+    title: "ScoreBase — Gemeinfreie Noten"
+    description: "Durchsuchen und laden Sie tausende gemeinfreie Musiknoten herunter. Kostenlose Noten von CPDL, IMSLP und PDMX."
+    sources_tagline: "Noten von CPDL + IMSLP + PDMX"
+
+  # Index / Search Page
+  search:
+    hero_title_line1: "Gemeinfreie"
+    hero_title_line2: "Noten"
+    scores_ready: "%{count} Noten zum Download bereit"
+    placeholder: "NOTEN SUCHEN..."
+    button: "Suchen"
+    filters: "Filter"
+    clear: "Zurücksetzen"
+    results_count: "Noten"
+    sort_by: "SORTIEREN"
+    unknown_composer: "Unbekannt"
+
+  # Filters
+  filters:
+    key: "Tonart"
+    time: "Takt"
+    voicing: "Besetzung"
+    genre: "Genre"
+    source: "Quelle"
+    any: "Alle"
+
+  # Sort options
+  sort:
+    popular: "Beliebt"
+    rated: "Bewertet"
+    newest: "Neueste"
+    title: "Titel"
+    composer: "Komponist"
+
+  # Voicing options
+  voicing:
+    solo: "Solo"
+    duet: "Duett"
+    trio: "Trio"
+    quartet: "Quartett"
+    ensemble: "Ensemble (5+)"
+
+  # Score Detail Page
+  score:
+    back: "Zurück"
+    preview_not_generated: "Vorschau noch nicht erstellt"
+    open_pdf: "PDF öffnen"
+    download_musicxml: "MusicXML herunterladen"
+    download_pdf: "PDF herunterladen"
+    download_midi: "MIDI herunterladen"
+    view_on_source: "Auf %{source} ansehen"
+    unknown_composer: "Unbekannter Komponist"
+    details: "Details"
+    key: "Tonart"
+    time: "Takt"
+    parts: "Stimmen"
+    complexity: "Schwierigkeit"
+    rating: "Bewertung"
+    genres: "Genres"
+    views: "Aufrufe"
+    favs: "Favoriten"
+    complexity_scale: "%{value} / 3"
+    rating_scale: "%{value} / 5,0"
+
+  # About Page
+  about:
+    label: "Info"
+    title: "ScoreBase"
+    subtitle: "Durchsuche gemeinfreie Musiknoten von IMSLP, CPDL und PDMX an einem Ort."
+    total_scores: "Noten gesamt"
+    why_exists_title: "Warum es das gibt"
+    why_exists_p1: "Es gibt viele gemeinfreie Noten da draußen – IMSLP, CPDL, PDMX und andere. Aber alle haben verschiedene Webseiten, verschiedene Suchsysteme, und um zu finden was man braucht, muss man oft mehrere Seiten durchsuchen."
+    why_exists_p2: "Ich hatte keine Lust mehr, zwischen Seiten zu wechseln, also habe ich ScoreBase gebaut, um alle auf einmal zu durchsuchen. Das ist im Grunde alles."
+    sources_title: "Quellen"
+    back_to_search: "Zurück zur Suche"
+    imslp_name: "International Music Score Library Project"
+    imslp_description: "Auch bekannt als Petrucci-Musikbibliothek. Die größte Sammlung gemeinfreier Noten mit über 800.000 Partituren von mehr als 27.000 Komponisten."
+    cpdl_name: "Choral Public Domain Library"
+    cpdl_description: "Auch bekannt als ChoralWiki. Die größte Seite für kostenlose Chornoten, mit starker Abdeckung von Renaissance- und Barockvokalwerken."
+    pdmx_name: "Public Domain MusicXML"
+    pdmx_description: "Ein Forschungsdatensatz mit über 250.000 gemeinfreien MusicXML-Dateien, gesammelt von MuseScore. Nützlich für Notationssoftware wie MuseScore, Sibelius oder Finale."
+
+  # Impressum Page
+  impressum:
+    label: "Rechtliches"
+    title: "Impressum"
+    contact: "Kontakt"
+    privacy: "Datenschutz"
+    no_tracking: "Kein Tracking"
+    no_tracking_desc: "Keine Analyse- oder Drittanbieter-Cookies"
+    functional_cookie: "Funktionaler Cookie"
+    functional_cookie_desc: "Nur für Spracheinstellung"
+    back_to_search: "Zurück zur Suche"
+
+  # Language names (for the toggle)
+  languages:
+    en: "EN"
+    de: "DE"

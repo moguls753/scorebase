@@ -1,31 +1,115 @@
-# Files in the config/locales directory are used for internationalization and
-# are automatically loaded by Rails. If you want to use locales other than
-# English, add the necessary files in this directory.
-#
-# To use the locales, use `I18n.t`:
-#
-#     I18n.t "hello"
-#
-# In views, this is aliased to just `t`:
-#
-#     <%= t("hello") %>
-#
-# To use a different locale, set it with `I18n.locale`:
-#
-#     I18n.locale = :es
-#
-# This would use the information in config/locales/es.yml.
-#
-# To learn more about the API, please read the Rails Internationalization guide
-# at https://guides.rubyonrails.org/i18n.html.
-#
-# Be aware that YAML interprets the following case-insensitive strings as
-# booleans: `true`, `false`, `on`, `off`, `yes`, `no`. Therefore, these strings
-# must be quoted to be interpreted as strings. For example:
-#
-#     en:
-#       "yes": yup
-#       enabled: "ON"
-
 en:
-  hello: "Hello world"
+  # Navigation & Layout
+  nav:
+    about: "About"
+    impressum: "Impressum"
+    github: "GitHub"
+    light: "Light"
+    dark: "Dark"
+    toggle_dark_mode: "Toggle dark mode"
+    toggle_language: "Toggle language"
+
+  # Footer
+  footer:
+    public_domain_scores: "public domain scores"
+
+  # Meta
+  meta:
+    title: "ScoreBase — Public Domain Music Scores"
+    description: "Browse and download thousands of public domain music scores. Free sheet music from CPDL, IMSLP, and PDMX."
+    sources_tagline: "Scores from CPDL + IMSLP + PDMX"
+
+  # Index / Search Page
+  search:
+    hero_title_line1: "Public Domain"
+    hero_title_line2: "Music Scores"
+    scores_ready: "%{count} scores ready to download"
+    placeholder: "SEARCH SCORES..."
+    button: "Search"
+    filters: "Filters"
+    clear: "Clear"
+    results_count: "scores"
+    sort_by: "SORT BY"
+    unknown_composer: "Unknown"
+
+  # Filters
+  filters:
+    key: "Key"
+    time: "Time"
+    voicing: "Voicing"
+    genre: "Genre"
+    source: "Source"
+    any: "Any"
+
+  # Sort options
+  sort:
+    popular: "Popular"
+    rated: "Rated"
+    newest: "Newest"
+    title: "Title"
+    composer: "Composer"
+
+  # Voicing options
+  voicing:
+    solo: "Solo"
+    duet: "Duet"
+    trio: "Trio"
+    quartet: "Quartet"
+    ensemble: "Ensemble (5+)"
+
+  # Score Detail Page
+  score:
+    back: "Back"
+    preview_not_generated: "Preview not generated yet"
+    open_pdf: "Open PDF"
+    download_musicxml: "Download MusicXML"
+    download_pdf: "Download PDF"
+    download_midi: "Download MIDI"
+    view_on_source: "View on %{source}"
+    unknown_composer: "Unknown Composer"
+    details: "Details"
+    key: "Key"
+    time: "Time"
+    parts: "Parts"
+    complexity: "Complexity"
+    rating: "Rating"
+    genres: "Genres"
+    views: "views"
+    favs: "favs"
+    complexity_scale: "%{value} / 3"
+    rating_scale: "%{value} / 5.0"
+
+  # About Page
+  about:
+    label: "About"
+    title: "ScoreBase"
+    subtitle: "Search public domain music scores from IMSLP, CPDL, and PDMX in one place."
+    total_scores: "Total Scores"
+    why_exists_title: "Why this exists"
+    why_exists_p1: "There's a lot of public domain sheet music out there—IMSLP, CPDL, PDMX, and others. But they all have different websites, different search systems, and finding what you need often means checking multiple places."
+    why_exists_p2: "I got tired of jumping between sites, so I built ScoreBase to search them all at once. That's basically it."
+    sources_title: "Sources"
+    back_to_search: "Back to Search"
+    imslp_name: "International Music Score Library Project"
+    imslp_description: "Also known as the Petrucci Music Library. The largest collection of public domain sheet music with over 800,000 scores from 27,000+ composers."
+    cpdl_name: "Choral Public Domain Library"
+    cpdl_description: "Also known as ChoralWiki. The largest site for free choral sheet music, with strong coverage of Renaissance and Baroque vocal works."
+    pdmx_name: "Public Domain MusicXML"
+    pdmx_description: "A research dataset of 250K+ public domain MusicXML files collected from MuseScore. Useful for notation software like MuseScore, Sibelius, or Finale."
+
+  # Impressum Page
+  impressum:
+    label: "Legal"
+    title: "Impressum"
+    contact: "Contact"
+    privacy: "Privacy"
+    no_tracking: "No Tracking"
+    no_tracking_desc: "No analytics or third-party cookies"
+    functional_cookie: "Functional Cookie"
+    functional_cookie_desc: "Language preference only"
+    back_to_search: "Back to Search"
+
+  # Language names (for the toggle)
+  languages:
+    en: "EN"
+    de: "DE"

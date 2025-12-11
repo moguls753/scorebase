@@ -4,14 +4,14 @@
       <!-- Header -->
       <header class="mb-16 md:mb-20">
         <div class="flex items-end gap-4 mb-4">
-          <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-accent)] font-[var(--font-family-display)]">About</span>
+          <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-accent)] font-[var(--font-family-display)]"><%= t('about.label') %></span>
           <div class="flex-1 h-[2px] bg-[var(--color-accent)] mb-0.5"></div>
         </div>
         <h1 class="text-5xl md:text-6xl font-[var(--font-family-display)] font-black uppercase leading-[0.9] tracking-tight text-[var(--color-primary)]">
           Score<span class="text-[var(--color-accent)]">Base</span>
         </h1>
         <p class="mt-6 text-lg md:text-xl text-[var(--color-text-muted)] font-medium max-w-xl leading-relaxed">
-          Search public domain music scores from IMSLP, CPDL, and PDMX in one place.
+          <%= t('about.subtitle') %>
         </p>
       </header>
 
@@ -23,7 +23,7 @@
             <p class="text-3xl md:text-4xl font-[var(--font-family-display)] font-black text-[var(--color-accent)] mb-2">
               <%= number_with_delimiter(@total_count) %>
             </p>
-            <p class="text-xs font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]">Total Scores</p>
+            <p class="text-xs font-bold uppercase tracking-[0.15em] text-[var(--color-text-muted)]"><%= t('about.total_scores') %></p>
           </div>
 
           <!-- Source counts -->
@@ -48,13 +48,13 @@
         <div class="mm-card p-8 md:p-12">
           <div class="relative pl-6 border-l-[3px] border-[var(--color-accent)]">
             <p class="text-xl md:text-2xl font-[var(--font-family-display)] text-[var(--color-primary)] leading-snug font-semibold">
-              Why this exists
+              <%= t('about.why_exists_title') %>
             </p>
             <p class="mt-4 text-base text-[var(--color-text-muted)] leading-relaxed">
-              There's a lot of public domain sheet music out there—IMSLP, CPDL, PDMX, and others. But they all have different websites, different search systems, and finding what you need often means checking multiple places.
+              <%= t('about.why_exists_p1') %>
             </p>
             <p class="mt-3 text-base text-[var(--color-text-muted)] leading-relaxed">
-              I got tired of jumping between sites, so I built ScoreBase to search them all at once. That's basically it.
+              <%= t('about.why_exists_p2') %>
             </p>
           </div>
         </div>
@@ -63,7 +63,7 @@
       <!-- Sources -->
       <div>
         <div class="flex items-center gap-4 mb-8">
-          <h2 class="text-xs font-bold uppercase tracking-[0.15em] text-[var(--color-accent)] font-[var(--font-family-display)]">Sources</h2>
+          <h2 class="text-xs font-bold uppercase tracking-[0.15em] text-[var(--color-accent)] font-[var(--font-family-display)]"><%= t('about.sources_title') %></h2>
           <div class="flex-1 h-px bg-[var(--color-border-subtle)]"></div>
         </div>
 
@@ -78,10 +78,10 @@
             </div>
             <div>
               <a href="https://imslp.org" target="_blank" rel="nofollow noopener" class="text-base font-[var(--font-family-display)] font-bold text-[var(--color-primary)] hover:text-[var(--color-accent)] transition-colors mb-1 inline-block">
-                International Music Score Library Project
+                <%= t('about.imslp_name') %>
               </a>
               <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
-                Also known as the Petrucci Music Library. The largest collection of public domain sheet music with over 800,000 scores from 27,000+ composers.
+                <%= t('about.imslp_description') %>
               </p>
             </div>
           </div>
@@ -96,10 +96,10 @@
             </div>
             <div>
               <a href="https://www.cpdl.org" target="_blank" rel="nofollow noopener" class="text-base font-[var(--font-family-display)] font-bold text-[var(--color-primary)] hover:text-[var(--color-accent)] transition-colors mb-1 inline-block">
-                Choral Public Domain Library
+                <%= t('about.cpdl_name') %>
               </a>
               <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
-                Also known as ChoralWiki. The largest site for free choral sheet music, with strong coverage of Renaissance and Baroque vocal works.
+                <%= t('about.cpdl_description') %>
               </p>
             </div>
           </div>
@@ -114,10 +114,10 @@
             </div>
             <div>
               <a href="https://github.com/pnlong/PDMX" target="_blank" rel="nofollow noopener" class="text-base font-[var(--font-family-display)] font-bold text-[var(--color-primary)] hover:text-[var(--color-accent)] transition-colors mb-1 inline-block">
-                Public Domain MusicXML
+                <%= t('about.pdmx_name') %>
               </a>
               <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
-                A research dataset of 250K+ public domain MusicXML files collected from MuseScore. Useful for notation software like MuseScore, Sibelius, or Finale.
+                <%= t('about.pdmx_description') %>
               </p>
             </div>
           </div>
@@ -127,7 +127,7 @@
       <!-- CTA -->
       <div class="mt-16 text-center">
         <%= link_to root_path, class: "mm-button mm-button-primary text-xs px-8 py-3" do %>
-          Back to Search
+          <%= t('about.back_to_search') %>
         <% end %>
       </div>
     </div>

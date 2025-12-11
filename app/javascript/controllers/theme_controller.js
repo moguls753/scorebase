@@ -19,12 +19,16 @@ export default class extends Controller {
     if (theme === "dark") {
       document.documentElement.setAttribute("data-theme", "dark")
       if (this.hasLabelTarget) {
-        this.labelTarget.textContent = "Dark"
+        // Use translated label from data attribute
+        const darkLabel = this.labelTarget.dataset.dark || "Dark"
+        this.labelTarget.textContent = darkLabel
       }
     } else {
       document.documentElement.removeAttribute("data-theme")
       if (this.hasLabelTarget) {
-        this.labelTarget.textContent = "Light"
+        // Use translated label from data attribute
+        const lightLabel = this.labelTarget.dataset.light || "Light"
+        this.labelTarget.textContent = lightLabel
       }
     }
     localStorage.setItem("theme", theme)

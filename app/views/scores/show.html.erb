@@ -5,7 +5,7 @@
       <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
       </svg>
-      Back
+      <%= t('score.back') %>
     <% end %>
   </div>
 
@@ -30,13 +30,13 @@
           <div class="text-[120px] text-[var(--color-border-subtle)]">📄</div>
           <div class="text-center">
             <p class="text-sm font-semibold text-[var(--color-text-muted)] mb-4">
-              Preview not generated yet
+              <%= t('score.preview_not_generated') %>
             </p>
             <%= link_to file_score_path(@score, 'pdf'),
                 target: "_blank",
                 rel: "noopener noreferrer",
                 class: "mm-button mm-button-primary inline-flex items-center gap-2 text-xs px-6 py-3" do %>
-              <span>Open PDF ↗</span>
+              <span><%= t('score.open_pdf') %> ↗</span>
             <% end %>
           </div>
         </div>
@@ -56,7 +56,7 @@
 
       <div class="flex items-center gap-3 mb-6">
         <p class="text-base text-[var(--color-text-muted)] font-semibold">
-          <%= @score.composer.presence || "Unknown Composer" %>
+          <%= @score.composer.presence || t('score.unknown_composer') %>
         </p>
         <% if @score.source.present? %>
           <span class="mm-badge-source mm-badge-<%= @score.source %>">
@@ -67,36 +67,36 @@
 
       <!-- Metadata -->
       <div class="mm-card p-5 mb-6">
-        <h3 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-4 font-black uppercase tracking-tight">Details</h3>
+        <h3 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-4 font-black uppercase tracking-tight"><%= t('score.details') %></h3>
         <dl class="space-y-2">
           <% if @score.primary_key_signature.present? %>
             <div class="flex items-center justify-between py-2 border-b-2 border-[var(--color-border-subtle)]">
-              <dt class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">Key</dt>
+              <dt class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"><%= t('score.key') %></dt>
               <dd class="text-xs font-bold text-[var(--color-text)]"><%= @score.primary_key_signature %></dd>
             </div>
           <% end %>
           <% if @score.primary_time_signature.present? %>
             <div class="flex items-center justify-between py-2 border-b-2 border-[var(--color-border-subtle)]">
-              <dt class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">Time</dt>
+              <dt class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"><%= t('score.time') %></dt>
               <dd class="text-xs font-bold text-[var(--color-text)]"><%= @score.primary_time_signature %></dd>
             </div>
           <% end %>
           <% if @score.num_parts.present? %>
             <div class="flex items-center justify-between py-2 border-b-2 border-[var(--color-border-subtle)]">
-              <dt class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">Parts</dt>
+              <dt class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"><%= t('score.parts') %></dt>
               <dd class="text-xs font-bold text-[var(--color-text)]"><%= @score.num_parts %></dd>
             </div>
           <% end %>
           <% if @score.complexity.present? && @score.complexity > 0 %>
             <div class="flex items-center justify-between py-2 border-b-2 border-[var(--color-border-subtle)]">
-              <dt class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">Complexity</dt>
-              <dd class="text-xs font-bold text-[var(--color-text)]"><%= @score.complexity %> / 3</dd>
+              <dt class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"><%= t('score.complexity') %></dt>
+              <dd class="text-xs font-bold text-[var(--color-text)]"><%= t('score.complexity_scale', value: @score.complexity) %></dd>
             </div>
           <% end %>
           <% if @score.rating.present? && @score.rating > 0 %>
             <div class="flex items-center justify-between py-2">
-              <dt class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide">Rating</dt>
-              <dd class="text-xs font-bold text-[var(--color-text)]"><%= number_with_precision(@score.rating, precision: 1) %> / 5.0</dd>
+              <dt class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"><%= t('score.rating') %></dt>
+              <dd class="text-xs font-bold text-[var(--color-text)]"><%= t('score.rating_scale', value: number_with_precision(@score.rating, precision: 1)) %></dd>
             </div>
           <% end %>
         </dl>
@@ -105,7 +105,7 @@
       <!-- Genres/Tags -->
       <% if @score.genre_list.any? %>
         <div class="mb-6">
-          <h3 class="text-xs font-semibold text-[var(--color-text-muted)] mb-3 uppercase tracking-wide">Genres</h3>
+          <h3 class="text-xs font-semibold text-[var(--color-text-muted)] mb-3 uppercase tracking-wide"><%= t('score.genres') %></h3>
           <div class="flex flex-wrap gap-2">
             <% @score.genre_list.each do |genre| %>
               <span class="mm-badge">
@@ -121,21 +121,21 @@
         <% if @score.has_mxl? %>
           <%= link_to file_score_path(@score, 'mxl', download: true), class: "mm-button mm-button-primary block w-full text-center py-3 text-xs" do %>
             <span class="inline-flex items-center gap-2">
-              <span>↓</span> Download MusicXML
+              <span>↓</span> <%= t('score.download_musicxml') %>
             </span>
           <% end %>
         <% end %>
         <% if @score.has_pdf? %>
           <%= link_to file_score_path(@score, 'pdf', download: true), class: "mm-button mm-button-secondary block w-full text-center py-3 text-xs" do %>
             <span class="inline-flex items-center gap-2">
-              <span>↓</span> Download PDF
+              <span>↓</span> <%= t('score.download_pdf') %>
             </span>
           <% end %>
         <% end %>
         <% if @score.has_midi? %>
           <%= link_to file_score_path(@score, 'mid', download: true), class: "mm-button mm-button-secondary block w-full text-center py-3 text-xs" do %>
             <span class="inline-flex items-center gap-2">
-              <span>↓</span> Download MIDI
+              <span>↓</span> <%= t('score.download_midi') %>
             </span>
           <% end %>
         <% end %>
@@ -143,7 +143,7 @@
           <div class="pt-2 border-t-2 border-[var(--color-border-subtle)]"></div>
           <%= link_to @score.external_url, target: "_blank", rel: "noopener noreferrer", class: "mm-button mm-button-secondary block w-full text-center py-3 text-xs" do %>
             <span class="inline-flex items-center gap-2">
-              View on <%= @score.source.upcase %> <span>↗</span>
+              <%= t('score.view_on_source', source: @score.source.upcase) %> <span>↗</span>
             </span>
           <% end %>
         <% end %>
@@ -153,11 +153,11 @@
       <div class="mt-6 pt-6 border-t-2 border-[var(--color-border-subtle)] flex gap-6 text-xs">
         <div>
           <span class="font-black text-[var(--color-accent)]"><%= @score.views %></span>
-          <span class="text-[var(--color-text-muted)] font-semibold uppercase ml-1">views</span>
+          <span class="text-[var(--color-text-muted)] font-semibold uppercase ml-1"><%= t('score.views') %></span>
         </div>
         <div>
           <span class="font-black text-[var(--color-accent)]"><%= @score.favorites %></span>
-          <span class="text-[var(--color-text-muted)] font-semibold uppercase ml-1">favs</span>
+          <span class="text-[var(--color-text-muted)] font-semibold uppercase ml-1"><%= t('score.favs') %></span>
         </div>
       </div>
     </div>
