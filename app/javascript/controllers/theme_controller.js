@@ -4,8 +4,9 @@ export default class extends Controller {
   static targets = ["toggle"]
 
   connect() {
-    // Check for saved theme preference, default to light
-    const savedTheme = localStorage.getItem("theme") || "light"
+    // Check for saved theme preference, fall back to system preference
+    const savedTheme = localStorage.getItem("theme") ||
+      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
     this.setTheme(savedTheme)
   }
 
