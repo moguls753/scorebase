@@ -33,7 +33,7 @@ de:
   # Filters
   filters:
     key: "Tonart"
-    time: "Takt"
+    time: "Taktart"
     voicing: "Besetzung"
     genre: "Genre"
     source: "Quelle"
@@ -46,6 +46,24 @@ de:
     newest: "Neueste"
     title: "Titel"
     composer: "Komponist"
+
+  # Genres
+  genres:
+    classical: "Klassik"
+    folk: "Volksmusik"
+    jazz: "Jazz"
+    rock: "Rock"
+    pop: "Pop"
+
+  # Key signatures
+  keys:
+    d_major: "D-Dur"
+    g_major: "G-Dur"
+    a_major: "A-Dur"
+    f_major: "F-Dur"
+    c_major: "C-Dur"
+    e_minor: "e-Moll"
+    a_minor: "a-Moll"
 
   # Voicing options
   voicing:
@@ -67,7 +85,7 @@ de:
     unknown_composer: "Unbekannter Komponist"
     details: "Details"
     key: "Tonart"
-    time: "Takt"
+    time: "Taktart"
     parts: "Stimmen"
     complexity: "Schwierigkeit"
     rating: "Bewertung"

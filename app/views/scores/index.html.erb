@@ -66,7 +66,7 @@
                   <%= t('filters.key') %>
                 </label>
                 <%= f.select :key,
-                    options_for_select([[t('filters.any'), ''], ['D major', 'D major'], ['G major', 'G major'], ['A major', 'A major'], ['F major', 'F major'], ['C major', 'C major'], ['E minor', 'E minor'], ['A minor', 'A minor']], params[:key]),
+                    options_for_select([[t('filters.any'), ''], [t('keys.d_major'), 'D major'], [t('keys.g_major'), 'G major'], [t('keys.a_major'), 'A major'], [t('keys.f_major'), 'F major'], [t('keys.c_major'), 'C major'], [t('keys.e_minor'), 'E minor'], [t('keys.a_minor'), 'A minor']], params[:key]),
                     {},
                     { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
                 %>
@@ -102,7 +102,7 @@
                   <%= t('filters.genre') %>
                 </label>
                 <%= f.select :genre,
-                    options_for_select([[t('filters.any'), ''], ['classical', 'classical'], ['folk', 'folk'], ['jazz', 'jazz'], ['rock', 'rock'], ['pop', 'pop']], params[:genre]),
+                    options_for_select([[t('filters.any'), ''], [t('genres.classical'), 'classical'], [t('genres.folk'), 'folk'], [t('genres.jazz'), 'jazz'], [t('genres.rock'), 'rock'], [t('genres.pop'), 'pop']], params[:genre]),
                     {},
                     { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
                 %>
@@ -143,7 +143,7 @@
             <%= t('filters.key') %>
           </label>
           <%= f.select :key,
-              options_for_select([[t('filters.any'), ''], ['D major', 'D major'], ['G major', 'G major'], ['A major', 'A major'], ['F major', 'F major'], ['C major', 'C major'], ['E minor', 'E minor'], ['A minor', 'A minor']], params[:key]),
+              options_for_select([[t('filters.any'), ''], [t('keys.d_major'), 'D major'], [t('keys.g_major'), 'G major'], [t('keys.a_major'), 'A major'], [t('keys.f_major'), 'F major'], [t('keys.c_major'), 'C major'], [t('keys.e_minor'), 'E minor'], [t('keys.a_minor'), 'A minor']], params[:key]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
@@ -179,7 +179,7 @@
             <%= t('filters.genre') %>
           </label>
           <%= f.select :genre,
-              options_for_select([[t('filters.any'), ''], ['classical', 'classical'], ['folk', 'folk'], ['jazz', 'jazz'], ['rock', 'rock'], ['pop', 'pop']], params[:genre]),
+              options_for_select([[t('filters.any'), ''], [t('genres.classical'), 'classical'], [t('genres.folk'), 'folk'], [t('genres.jazz'), 'jazz'], [t('genres.rock'), 'rock'], [t('genres.pop'), 'pop']], params[:genre]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>

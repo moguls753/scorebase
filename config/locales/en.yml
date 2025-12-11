@@ -33,7 +33,7 @@ en:
   # Filters
   filters:
     key: "Key"
-    time: "Time"
+    time: "Time Signature"
     voicing: "Voicing"
     genre: "Genre"
     source: "Source"
@@ -46,6 +46,24 @@ en:
     newest: "Newest"
     title: "Title"
     composer: "Composer"
+
+  # Genres
+  genres:
+    classical: "Classical"
+    folk: "Folk"
+    jazz: "Jazz"
+    rock: "Rock"
+    pop: "Pop"
+
+  # Key signatures
+  keys:
+    d_major: "D major"
+    g_major: "G major"
+    a_major: "A major"
+    f_major: "F major"
+    c_major: "C major"
+    e_minor: "E minor"
+    a_minor: "A minor"
 
   # Voicing options
   voicing:
@@ -67,7 +85,7 @@ en:
     unknown_composer: "Unknown Composer"
     details: "Details"
     key: "Key"
-    time: "Time"
+    time: "Time Signature"
     parts: "Parts"
     complexity: "Complexity"
     rating: "Rating"
