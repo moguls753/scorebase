@@ -144,8 +144,8 @@
           <%= link_to score_path(score), data: { turbo_frame: "_top" }, class: "mm-card overflow-hidden group block" do %>
             <!-- Thumbnail -->
             <div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center relative overflow-hidden border-b-2 border-[var(--color-border)]">
-              <% if score.thumbnail_url.present? %>
-                <%= image_tag score.thumbnail_url,
+              <% if score.thumbnail_image.attached? %>
+                <%= image_tag score.thumbnail_image,
                     alt: score.title,
                     class: "w-full h-full object-cover",
                     loading: "lazy",

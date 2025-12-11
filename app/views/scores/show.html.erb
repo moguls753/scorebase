@@ -12,18 +12,25 @@
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
     <!-- Score Preview -->
     <div class="mm-card overflow-hidden h-[700px]">
-      <% if @score.thumbnail_url.present? %>
-        <%= image_tag @score.thumbnail_url,
-            alt: @score.title,
-            class: "w-full h-full object-contain bg-[var(--color-bg)]"
-        %>
-      <% elsif @score.has_pdf? && @score.pdmx? %>
+      <% if @score.has_pdf? && @score.pdmx? %>
         <!-- Local PDF preview via iframe -->
         <iframe
           src="<%= file_score_path(@score, 'pdf') %>"
           class="w-full h-full"
           title="<%= @score.title %> - Score Preview"
         ></iframe>
+      <% elsif @score.preview_image.attached? %>
+        <!-- High-res preview for external sources -->
+        <%= image_tag @score.preview_image,
+            alt: @score.title,
+            class: "w-full h-full object-contain bg-[var(--color-bg)]"
+        %>
+      <% elsif @score.thumbnail_image.attached? %>
+        <!-- Fallback to thumbnail -->
+        <%= image_tag @score.thumbnail_image,
+            alt: @score.title,
+            class: "w-full h-full object-contain bg-[var(--color-bg)]"
+        %>
       <% elsif @score.has_pdf? && @score.external? %>
         <!-- External PDF - show link instead of iframe (CORS issues) -->
         <div class="w-full h-full bg-[var(--color-bg)] flex flex-col items-center justify-center gap-6 p-8">

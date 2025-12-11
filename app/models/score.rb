@@ -2,6 +2,10 @@ class Score < ApplicationRecord
   # Sources
   SOURCES = %w[pdmx cpdl imslp].freeze
 
+  # Active Storage attachments
+  has_one_attached :thumbnail_image
+  has_one_attached :preview_image
+
   # Validations
   validates :title, presence: true
   validates :data_path, presence: true, uniqueness: true
