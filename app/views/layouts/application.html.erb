@@ -56,13 +56,15 @@
           <nav class="flex items-center gap-3">
             <%= link_to t('nav.about'), about_path, class: "mm-button mm-button-secondary text-xs px-4 py-2" %>
             <!-- Language Toggle -->
-            <% other_locale = I18n.locale == :en ? :de : :en %>
-            <%= link_to url_for(locale: other_locale),
-                class: "locale-toggle",
-                aria: { label: t('nav.toggle_language') },
-                data: { turbo_action: "replace" } do %>
-              <span><%= t("languages.#{other_locale}") %></span>
-            <% end %>
+            <div class="locale-toggle-wrapper">
+              <span class="locale-toggle-label"><%= I18n.locale == :en ? 'EN' : 'DE' %></span>
+              <%= link_to url_for(locale: I18n.locale == :en ? :de : :en),
+                  class: "locale-toggle-switch",
+                  aria: { label: t('nav.toggle_language') },
+                  data: { turbo_action: "replace", locale: I18n.locale } do %>
+                <span class="locale-toggle-knob"></span>
+              <% end %>
+            </div>
             <!-- Theme Toggle -->
             <div data-controller="theme" class="theme-toggle-wrapper">
               <span data-theme-target="label" class="theme-toggle-label" data-light="<%= t('nav.light') %>" data-dark="<%= t('nav.dark') %>"><%= t('nav.light') %></span>
