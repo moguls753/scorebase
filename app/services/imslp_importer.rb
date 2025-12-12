@@ -303,17 +303,11 @@ class ImslpImporter
   end
 
   def extract_file_entries(wikitext)
-    files = { pdf: [], musicxml: [], midi: [], thumbnails: [] }
+    files = { pdf: [], musicxml: [], midi: [] }
 
     # Match {{#fte:imslpfile ... }} blocks
     wikitext.scan(/\{\{#fte:imslpfile(.*?)\}\}/m).each do |match|
       block = match[0]
-
-      # Extract thumbnail filename for this file block
-      thumb_filename = extract_block_field(block, "Thumb Filename")
-      if thumb_filename.present?
-        files[:thumbnails] << thumb_filename
-      end
 
       # Try multiple filename fields (File Name 1, File Name 2, etc.)
       (1..25).each do |i|
@@ -331,8 +325,7 @@ class ImslpImporter
           editor: extract_editor(block),
           copyright: extract_block_field(block, "Copyright"),
           image_type: extract_block_field(block, "Image Type"),
-          date_submitted: extract_block_field(block, "Date Submitted"),
-          thumb_filename: thumb_filename
+          date_submitted: extract_block_field(block, "Date Submitted")
         }
 
         case ext
@@ -387,10 +380,8 @@ class ImslpImporter
     musicxml_file = select_best_file(files[:musicxml])
     midi_file = select_best_file(files[:midi])
 
-    # Get thumbnail URL (prefer from selected PDF file, then first available)
-    thumb_url = build_thumbnail_url(
-      pdf_file&.dig(:thumb_filename) || files[:thumbnails]&.first
-    )
+    # Get thumbnail URL from PDF preview (actual score page, not cover image)
+    thumb_url = build_thumbnail_url(pdf_file&.dig(:filename))
 
     # Extract voicing and num_parts from instrumentation
     voicing_info = parse_voicing(parsed[:instrumentation], parsed[:instr_detail])
@@ -439,16 +430,14 @@ class ImslpImporter
     }
   end
 
-  def build_thumbnail_url(thumb_filename)
-    return nil if thumb_filename.blank?
+  def build_thumbnail_url(pdf_filename)
+    # Fetch PDF preview from MediaWiki API - this generates an actual score page preview
+    return nil if pdf_filename.blank?
 
-    # Fetch the proper thumb URL from MediaWiki API at 400px width
-    # This gives us a URL pattern like: /images/thumb/X/XX/filename/400px-filename
-    # We can then modify the width to get different sizes (similar to PDMX @WIDTHxHEIGHT)
-    fetch_sized_thumbnail_url(thumb_filename, 400)
+    fetch_pdf_thumbnail_url(pdf_filename, 400)
   end
 
-  def fetch_sized_thumbnail_url(filename, width)
+  def fetch_pdf_thumbnail_url(filename, width)
     params = {
       action: "query",
       titles: "File:#{filename}",
@@ -465,9 +454,13 @@ class ImslpImporter
     page = pages.values.first
     return nil unless page && page["imageinfo"]
 
-    # Get the thumb URL at requested size, ensure https
+    # Get the thumb URL - this is a PNG preview of the PDF's first page
     thumb_url = page.dig("imageinfo", 0, "thumburl")
-    thumb_url&.sub("http://", "https://")
+    return nil if thumb_url.blank?
+
+    # Ensure https and convert protocol-relative URLs
+    thumb_url = "https:#{thumb_url}" if thumb_url.start_with?("//")
+    thumb_url.sub("http://", "https://")
   end
 
   def normalize_composer(composer_str)

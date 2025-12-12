@@ -170,13 +170,13 @@ class Score < ApplicationRecord
 
   # Get larger preview image URL from thumbnail URL
   # - PDMX/MuseScore: strips @WIDTHxHEIGHT suffix (score_0.png@300x420 -> score_0.png)
-  # - IMSLP: changes width in thumb URL (400px -> 1200px)
+  # - IMSLP: uses same URL (CDN generates one size per PDF)
   def thumbnail_url_original
     return nil unless thumbnail_url.present?
 
-    if imslp? && thumbnail_url.include?("/images/thumb/")
-      # IMSLP: change 400px to 1200px for larger preview
-      thumbnail_url.sub(%r{/\d+px-}, "/1200px-")
+    if imslp?
+      # IMSLP PDF previews: same URL for all sizes (CDN-generated)
+      thumbnail_url
     else
       # PDMX/MuseScore: remove @WIDTHxHEIGHT suffix
       thumbnail_url.sub(/@\d+x\d+/, "")
