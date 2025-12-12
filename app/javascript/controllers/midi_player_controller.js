@@ -2,103 +2,103 @@ import { Controller } from "@hotwired/stimulus"
 
 // Connects to data-controller="midi-player"
 export default class extends Controller {
-  static targets = ["player", "visualizer", "playButton", "stopButton", "progress", "time", "loading"]
+  static targets = ["container", "loading"]
   static values = { src: String }
 
   connect() {
-    this.isPlaying = false
     this.loadLibrary()
   }
 
   async loadLibrary() {
-    // Check if already loaded
-    if (window.midiPlayerLoaded) {
-      this.initPlayer()
-      return
-    }
-
     // Show loading state
     if (this.hasLoadingTarget) {
       this.loadingTarget.classList.remove("hidden")
     }
 
+    // Check if already loaded
+    if (window.midiPlayerReady) {
+      this.createPlayer()
+      return
+    }
+
+    // If currently loading, wait for it
+    if (window.midiPlayerLoading) {
+      window.midiPlayerCallbacks = window.midiPlayerCallbacks || []
+      window.midiPlayerCallbacks.push(() => this.createPlayer())
+      return
+    }
+
+    window.midiPlayerLoading = true
+
     // Load the html-midi-player library
     const script = document.createElement("script")
-    script.src = "https://cdn.jsdelivr.net/npm/html-midi-player@1.5.0/dist/midi-player.min.js"
+    script.src = "https://cdn.jsdelivr.net/combine/npm/tone@14.7.58,npm/@magenta/music@1.23.1/es6/core.js,npm/html-midi-player@1.5.0"
+
     script.onload = () => {
-      window.midiPlayerLoaded = true
-      this.initPlayer()
+      // Give a moment for custom elements to register
+      setTimeout(() => {
+        window.midiPlayerReady = true
+        window.midiPlayerLoading = false
+        this.createPlayer()
+
+        // Call any waiting callbacks
+        if (window.midiPlayerCallbacks) {
+          window.midiPlayerCallbacks.forEach(cb => cb())
+          window.midiPlayerCallbacks = []
+        }
+      }, 100)
     }
+
     script.onerror = () => {
-      console.error("Failed to load MIDI player library")
+      window.midiPlayerLoading = false
       if (this.hasLoadingTarget) {
-        this.loadingTarget.textContent = "Failed to load player"
+        this.loadingTarget.innerHTML = `
+          <span class="text-xs font-semibold text-[var(--color-text-muted)]">
+            Failed to load player
+          </span>
+        `
       }
     }
+
     document.head.appendChild(script)
   }
 
-  initPlayer() {
-    // Hide loading, show player
+  createPlayer() {
+    // Hide loading
     if (this.hasLoadingTarget) {
       this.loadingTarget.classList.add("hidden")
     }
-    if (this.hasPlayerTarget) {
-      this.playerTarget.classList.remove("hidden")
-    }
 
-    // Get the midi-player element
-    const player = this.element.querySelector("midi-player")
-    const visualizer = this.element.querySelector("midi-visualizer")
+    // Show container and create elements
+    if (this.hasContainerTarget) {
+      this.containerTarget.classList.remove("hidden")
 
-    if (player) {
-      // Link visualizer to player
-      if (visualizer) {
-        visualizer.setAttribute("src", this.srcValue)
-        player.addEventListener("load", () => {
-          visualizer.setAttribute("src", player.getAttribute("src"))
-        })
-      }
+      // Create the player elements dynamically
+      const visualizerId = `midi-viz-${Date.now()}`
 
-      // Update play/stop button states
-      player.addEventListener("start", () => {
-        this.isPlaying = true
-        this.updateButtonStates()
-      })
-
-      player.addEventListener("stop", () => {
-        this.isPlaying = false
-        this.updateButtonStates()
-      })
-    }
-  }
-
-  play() {
-    const player = this.element.querySelector("midi-player")
-    if (player) {
-      player.start()
-    }
-  }
-
-  stop() {
-    const player = this.element.querySelector("midi-player")
-    if (player) {
-      player.stop()
-    }
-  }
-
-  updateButtonStates() {
-    if (this.hasPlayButtonTarget) {
-      this.playButtonTarget.classList.toggle("hidden", this.isPlaying)
-    }
-    if (this.hasStopButtonTarget) {
-      this.stopButtonTarget.classList.toggle("hidden", !this.isPlaying)
+      this.containerTarget.innerHTML = `
+        <div class="midi-visualizer-container mb-4">
+          <midi-visualizer
+            id="${visualizerId}"
+            src="${this.srcValue}"
+            type="piano-roll">
+          </midi-visualizer>
+        </div>
+        <midi-player
+          src="${this.srcValue}"
+          sound-font
+          visualizer="#${visualizerId}">
+        </midi-player>
+        <p class="mt-3 text-[10px] text-[var(--color-text-muted)] text-center uppercase tracking-wide font-medium">
+          ${this.element.dataset.hint || "Click play to hear a synthesized preview"}
+        </p>
+      `
     }
   }
 
   disconnect() {
     const player = this.element.querySelector("midi-player")
-    if (player) {
+    if (player && player.stop) {
       player.stop()
     }
   }

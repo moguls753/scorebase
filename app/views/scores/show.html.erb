@@ -220,7 +220,10 @@
 
       <!-- MIDI Player Section -->
       <% if @score.has_midi? %>
-        <div class="mm-card p-4 sm:p-5 midi-player-card" data-controller="midi-player" data-midi-player-src-value="<%= file_score_path(@score, 'mid') %>">
+        <div class="mm-card p-4 sm:p-5 midi-player-card"
+             data-controller="midi-player"
+             data-midi-player-src-value="<%= file_score_path(@score, 'mid') %>"
+             data-hint="<%= t('score.midi_hint') %>">
           <h3 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-4 font-black uppercase tracking-tight flex items-center gap-2">
             <span class="text-[var(--color-accent)]">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -236,30 +239,8 @@
             <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"><%= t('score.loading_player') %></span>
           </div>
 
-          <!-- Player Container -->
-          <div data-midi-player-target="player" class="hidden">
-            <!-- Visualizer -->
-            <div class="midi-visualizer-container mb-4">
-              <midi-visualizer
-                src="<%= file_score_path(@score, 'mid') %>"
-                type="piano-roll"
-                class="midi-visualizer">
-              </midi-visualizer>
-            </div>
-
-            <!-- Player Controls -->
-            <midi-player
-              src="<%= file_score_path(@score, 'mid') %>"
-              sound-font
-              visualizer="#midi-visualizer-<%= @score.id %>"
-              class="midi-player-element">
-            </midi-player>
-
-            <!-- Playback hint -->
-            <p class="mt-3 text-[10px] text-[var(--color-text-muted)] text-center uppercase tracking-wide font-medium">
-              <%= t('score.midi_hint') %>
-            </p>
-          </div>
+          <!-- Player Container (populated dynamically) -->
+          <div data-midi-player-target="container" class="hidden"></div>
         </div>
       <% end %>
 
