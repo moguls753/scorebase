@@ -38,13 +38,16 @@ class HubPagesController < ApplicationController
   # === Single dimension show pages ===
 
   def composer
-    @composer_name = find_composer_by_slug(params[:slug])
-    not_found unless @composer_name
+    @composer_names = find_composers_by_slug(params[:slug])
+    not_found if @composer_names.empty?
 
-    @scores = Score.where(composer: @composer_name)
+    # Use the most common name variant for display
+    @composer_name = @composer_names.first
+
+    @scores = Score.where(composer: @composer_names)
     @scores = apply_sorting(@scores)
     @scores = @scores.page(params[:page])
-    @total_count = Score.where(composer: @composer_name).count
+    @total_count = Score.where(composer: @composer_names).count
 
     @page_title = t("hub.composer_page_title", name: @composer_name)
     @page_description = t("hub.composer_page_description", name: @composer_name, count: @total_count)
@@ -92,11 +95,13 @@ class HubPagesController < ApplicationController
   # === Combined pages ===
 
   def composer_instrument
-    @composer_name = find_composer_by_slug(params[:composer_slug])
+    @composer_names = find_composers_by_slug(params[:composer_slug])
     @instrument_name = find_instrument_by_slug(params[:instrument_slug])
-    not_found unless @composer_name && @instrument_name
+    not_found if @composer_names.empty? || @instrument_name.nil?
 
-    @scores = Score.where(composer: @composer_name)
+    @composer_name = @composer_names.first
+
+    @scores = Score.where(composer: @composer_names)
     @scores = scores_by_instrument_query(@scores, @instrument_name)
     @scores = apply_sorting(@scores)
     @total_count = @scores.count
@@ -149,12 +154,27 @@ class HubPagesController < ApplicationController
   # === Data aggregation methods ===
 
   def composers_with_counts
-    Score.where.not(composer: [nil, ""])
-         .group(:composer)
-         .count
-         .select { |_, count| count >= THRESHOLDS[:composer] }
-         .sort_by { |_, count| -count }
-         .map { |name, count| { name: name, slug: name.parameterize, count: count } }
+    # Group by parameterized slug to merge variants like "John Dowland" and "JOHN DOWLAND."
+    composer_counts = Score.where.not(composer: [nil, ""])
+                           .group(:composer)
+                           .count
+
+    # Aggregate by slug, keeping the most common name variant
+    by_slug = Hash.new { |h, k| h[k] = { names: [], total: 0 } }
+    composer_counts.each do |name, count|
+      slug = name.parameterize
+      by_slug[slug][:names] << { name: name, count: count }
+      by_slug[slug][:total] += count
+    end
+
+    by_slug
+      .select { |_, data| data[:total] >= THRESHOLDS[:composer] }
+      .sort_by { |_, data| -data[:total] }
+      .map do |slug, data|
+        # Use the variant with the most scores as display name
+        best_name = data[:names].max_by { |n| n[:count] }[:name]
+        { name: best_name, slug: slug, count: data[:total] }
+      end
   end
 
   def genres_with_counts
@@ -206,6 +226,16 @@ class HubPagesController < ApplicationController
          .distinct
          .pluck(:composer)
          .find { |name| name.parameterize == slug }
+  end
+
+  def find_composers_by_slug(slug)
+    # Find ALL composer name variants that match the slug, sorted by frequency
+    Score.where.not(composer: [nil, ""])
+         .group(:composer)
+         .count
+         .select { |name, _| name.parameterize == slug }
+         .sort_by { |_, count| -count }
+         .map(&:first)
   end
 
   def find_genre_by_slug(slug)
