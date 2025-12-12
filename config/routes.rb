@@ -9,17 +9,19 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  # Scores
-  resources :scores, only: [:index, :show] do
-    member do
-      get 'file/:file_type', to: 'scores#serve_file', as: 'file'
+  scope "(:locale)", locale: /en|de/ do
+    # Scores
+    resources :scores, only: [:index, :show] do
+      member do
+        get 'file/:file_type', to: 'scores#serve_file', as: 'file'
+      end
     end
+
+    # Pages
+    get "about", to: "pages#about"
+    get "impressum", to: "pages#impressum"
+
+    # Root path
+    root "scores#index"
   end
-
-  # Pages
-  get "about", to: "pages#about"
-  get "impressum", to: "pages#impressum"
-
-  # Root path
-  root "scores#index"
 end
