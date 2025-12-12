@@ -4,7 +4,8 @@ class SitemapRefreshJob < ApplicationJob
   def perform
     Rails.logger.info "[SitemapRefreshJob] Starting sitemap generation..."
 
-    SitemapGenerator::Sitemap.create
+    # Load and run config/sitemap.rb (equivalent to: rails sitemap:refresh:no_ping)
+    SitemapGenerator::Interpreter.run
 
     Rails.logger.info "[SitemapRefreshJob] Sitemap generation completed"
   rescue => e
