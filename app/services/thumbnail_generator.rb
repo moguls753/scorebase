@@ -58,7 +58,8 @@ class ThumbnailGenerator
 
   def with_downloaded_pdf
     Tempfile.create(["score", ".pdf"]) do |temp_pdf|
-      download_pdf(score.pdf_path, temp_pdf.path)
+      url = score.pdf_url || score.pdf_path
+      download_pdf(url, temp_pdf.path)
       yield temp_pdf.path
     end
   end
@@ -98,7 +99,9 @@ class ThumbnailGenerator
     FileUtils.mv(temp_output, output_path)
   end
 
-  def download_pdf(url, destination)
+  def download_pdf(url, destination, redirect_limit: 5)
+    raise "Too many redirects" if redirect_limit == 0
+
     uri = URI(url)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = (uri.scheme == "https")
@@ -109,11 +112,18 @@ class ThumbnailGenerator
 
     response = http.request(request)
 
-    unless response.is_a?(Net::HTTPSuccess)
+    case response
+    when Net::HTTPSuccess
+      File.binwrite(destination, response.body)
+    when Net::HTTPRedirection
+      # Follow redirect (IMSLP uses redirects for file serving)
+      redirect_url = response["location"]
+      # Handle relative redirects
+      redirect_url = URI.join(url, redirect_url).to_s unless redirect_url.start_with?("http")
+      download_pdf(redirect_url, destination, redirect_limit: redirect_limit - 1)
+    else
       raise "Failed to download PDF: #{response.code} - #{response.message}"
     end
-
-    File.binwrite(destination, response.body)
   end
 
   def local_pdf_path

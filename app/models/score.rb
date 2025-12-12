@@ -119,12 +119,68 @@ class Score < ApplicationRecord
     "https://www.cpdl.org/wiki/images/#{filename}"
   end
 
-  # Get original (full-size) thumbnail URL for MuseScore thumbnails
-  # Converts medium URL (score_0.png@300x420) to original (score_0.png)
+  # For IMSLP scores, generate file URLs via Special:ImagefromIndex
+  def imslp_file_url(filename)
+    return nil unless imslp? && filename.present? && external_id.present?
+    encoded_filename = URI.encode_www_form_component(filename)
+    "https://imslp.org/wiki/Special:ImagefromIndex/#{external_id}/#{encoded_filename}"
+  end
+
+  # Get the full PDF URL for external scores
+  def pdf_url
+    return nil unless has_pdf?
+
+    case source
+    when "cpdl"
+      cpdl_file_url(pdf_path)
+    when "imslp"
+      imslp_file_url(pdf_path)
+    else
+      pdf_path
+    end
+  end
+
+  # Get the full MusicXML URL for external scores
+  def mxl_url
+    return nil unless has_mxl?
+
+    case source
+    when "cpdl"
+      cpdl_file_url(mxl_path)
+    when "imslp"
+      imslp_file_url(mxl_path)
+    else
+      mxl_path
+    end
+  end
+
+  # Get the full MIDI URL for external scores
+  def mid_url
+    return nil unless has_midi?
+
+    case source
+    when "cpdl"
+      cpdl_file_url(mid_path)
+    when "imslp"
+      imslp_file_url(mid_path)
+    else
+      mid_path
+    end
+  end
+
+  # Get larger preview image URL from thumbnail URL
+  # - PDMX/MuseScore: strips @WIDTHxHEIGHT suffix (score_0.png@300x420 -> score_0.png)
+  # - IMSLP: changes width in thumb URL (400px -> 1200px)
   def thumbnail_url_original
     return nil unless thumbnail_url.present?
-    # Remove the @WIDTHxHEIGHT suffix to get original size
-    thumbnail_url.sub(/@\d+x\d+/, "")
+
+    if imslp? && thumbnail_url.include?("/images/thumb/")
+      # IMSLP: change 400px to 1200px for larger preview
+      thumbnail_url.sub(%r{/\d+px-}, "/1200px-")
+    else
+      # PDMX/MuseScore: remove @WIDTHxHEIGHT suffix
+      thumbnail_url.sub(/@\d+x\d+/, "")
+    end
   end
 
   # Unified thumbnail accessor - returns external URL or attached image
