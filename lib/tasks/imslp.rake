@@ -13,21 +13,61 @@ namespace :imslp do
     importer.import!
   end
 
-  desc "Sync a sample of IMSLP scores. Use imslp:sample[100] for limit."
-  task :sample, [:limit, :resume] => :environment do |_t, args|
+  desc "Sync a sample of IMSLP scores. Use imslp:sample[100] for limit, imslp:sample[100,1000] to start at offset 1000"
+  task :sample, [:limit, :start_offset] => :environment do |_t, args|
     limit = (args[:limit] || 100).to_i
-    resume = args[:resume] == "true" || args[:resume] == "1"
+    start_offset = args[:start_offset]&.to_i || load_progress
 
-    puts "Syncing #{limit} IMSLP scores..."
+    puts "Syncing #{limit} IMSLP scores starting at offset #{start_offset}..."
     puts ""
 
-    importer = ImslpImporter.new(limit: limit, resume: resume)
-    importer.import!
+    importer = ImslpImporter.new(limit: limit, start_offset: start_offset)
+    result = importer.import!
+
+    # Save progress for next run
+    next_offset = start_offset + limit
+    save_progress(next_offset)
+    puts ""
+    puts "Progress saved. Next run will start at offset #{next_offset}"
+    puts "To continue: bin/rails \"imslp:sample[#{limit}]\""
+  end
+
+  def load_progress
+    progress_file = Rails.root.join("tmp", "imslp_progress.txt")
+    if File.exist?(progress_file)
+      File.read(progress_file).to_i
+    else
+      0
+    end
+  end
+
+  def save_progress(offset)
+    progress_file = Rails.root.join("tmp", "imslp_progress.txt")
+    File.write(progress_file, offset.to_s)
+  end
+
+  desc "Show current import progress"
+  task progress: :environment do
+    offset = load_progress
+    total_scores = Score.from_imslp.count
+    puts "IMSLP Import Progress"
+    puts "  Next offset: #{offset}"
+    puts "  Scores imported: #{total_scores}"
+    puts ""
+    puts "To continue: bin/rails \"imslp:sample[1000]\""
+    puts "To reset:    bin/rails imslp:reset_progress"
+  end
+
+  desc "Reset import progress to start from beginning"
+  task reset_progress: :environment do
+    progress_file = Rails.root.join("tmp", "imslp_progress.txt")
+    File.delete(progress_file) if File.exist?(progress_file)
+    puts "Progress reset. Next import will start from offset 0."
   end
 
   desc "Queue a background job to sync IMSLP scores"
   task :enqueue, [:start_offset] => :environment do |_t, args|
-    start_offset = (args[:start_offset] || 0).to_i
+    start_offset = (args[:start_offset] || load_progress).to_i
 
     puts "Enqueueing IMSLP sync job (offset: #{start_offset})..."
     ImslpSyncJob.perform_later(resume: true, start_offset: start_offset)
