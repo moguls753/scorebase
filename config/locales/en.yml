@@ -122,6 +122,8 @@ en:
     listen: "Listen"
     loading_player: "Loading player..."
     midi_hint: "Click play to hear a synthesized preview"
+    play_pause: "Play / Pause"
+    volume: "Volume"
 
   # About Page
   about:

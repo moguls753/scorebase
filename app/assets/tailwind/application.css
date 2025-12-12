@@ -828,26 +828,11 @@ body.overflow-hidden {
 }
 
 /* ========================================
-   MIDI PLAYER - Neobrutalist Style
+   MIDI PLAYER - Custom Neobrutalist Style
    ======================================== */
 
 .midi-player-card {
-  background: linear-gradient(135deg, var(--color-bg-card) 0%, var(--color-bg-elevated) 100%);
-  position: relative;
   overflow: hidden;
-}
-
-/* Decorative corner accent */
-.midi-player-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 60px;
-  height: 60px;
-  background: var(--color-accent);
-  clip-path: polygon(100% 0, 0 0, 100% 100%);
-  opacity: 0.1;
 }
 
 /* Loading spinner */
@@ -864,161 +849,207 @@ body.overflow-hidden {
   to { transform: rotate(360deg); }
 }
 
-/* Staff notation container */
-.midi-staff-container {
-  background: #fffef8;
-  border: 2px solid var(--color-border);
-  border-radius: 2px;
-  padding: 8px;
-  margin-bottom: 12px;
-  overflow-x: auto;
-  overflow-y: hidden;
-  box-shadow: inset 2px 2px 0 var(--shadow-color);
-  /* Vintage paper texture */
-  background-image:
-    linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.01) 50%, transparent 100%),
-    linear-gradient(#fffef8 0%, #faf6e8 100%);
+/* Custom Player Layout */
+.midi-custom-player {
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-[data-theme="dark"] .midi-staff-container {
-  background: var(--color-bg);
-  background-image: none;
+.midi-player-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
 }
 
-/* Style the midi-visualizer web component - Staff mode */
-midi-visualizer {
-  display: block;
-  width: 100%;
-  min-height: 150px;
-  background: transparent;
-}
-
-midi-visualizer svg {
-  width: 100%;
-  height: auto;
-  min-height: 150px;
-}
-
-/* Staff notation SVG styling */
-midi-visualizer svg text {
-  font-family: var(--font-family-body) !important;
-}
-
-/* Note colors for staff view */
-midi-visualizer svg .note {
-  fill: var(--color-accent);
-}
-
-midi-visualizer svg .note.active {
-  fill: var(--color-accent-hover);
-}
-
-/* Style the midi-player web component */
-midi-player {
-  display: block;
-  width: 100%;
-  background: var(--color-bg-elevated);
-  border: 2px solid var(--color-border);
-  border-radius: 2px;
-  box-shadow: 4px 4px 0 var(--shadow-color);
-  overflow: hidden;
-  --primary-color: var(--color-accent);
-  --background-color: var(--color-bg-elevated);
-  --foreground-color: var(--color-text);
-  --note-color: var(--color-accent);
-}
-
-/* Override internal midi-player shadow DOM styles via CSS custom properties */
-midi-player::part(control-panel) {
-  background: var(--color-bg-elevated);
-  border: none;
-  padding: 12px 16px;
-}
-
-midi-player::part(play-button) {
+/* Play/Pause Button */
+.midi-play-btn {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--color-accent);
+  color: #ffffff;
   border: 2px solid var(--color-border);
   border-radius: 2px;
-  color: #ffffff;
-  width: 44px;
-  height: 44px;
-  box-shadow: 3px 3px 0 var(--shadow-color);
+  cursor: pointer;
+  box-shadow: 4px 4px 0 var(--shadow-color);
   transition: all 0.15s ease;
 }
 
-midi-player::part(play-button):hover {
+.midi-play-btn:hover {
   background: var(--color-accent-hover);
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--shadow-color);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--shadow-color);
 }
 
-midi-player::part(play-button):active {
-  transform: translate(1px, 1px);
+.midi-play-btn:active {
+  transform: translate(2px, 2px);
   box-shadow: 2px 2px 0 var(--shadow-color);
 }
 
-midi-player::part(time) {
+/* Progress Section */
+.midi-progress-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Progress Track */
+.midi-progress-track {
+  height: 12px;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 2px 2px 0 var(--shadow-color);
+}
+
+.midi-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--color-accent);
+  transition: width 0.1s linear;
+  position: relative;
+}
+
+/* Animated stripe pattern on progress */
+.midi-progress-fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 4px,
+    rgba(255,255,255,0.15) 4px,
+    rgba(255,255,255,0.15) 8px
+  );
+  animation: midi-progress-stripes 0.5s linear infinite;
+}
+
+@keyframes midi-progress-stripes {
+  0% { background-position: 0 0; }
+  100% { background-position: 11.3px 0; }
+}
+
+/* Time Display */
+.midi-time-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.midi-time {
   font-family: var(--font-family-display);
   font-size: 11px;
   font-weight: 700;
   color: var(--color-text-muted);
   letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
 }
 
-midi-player::part(seek-bar) {
-  background: var(--color-border-subtle);
+.midi-time-separator {
+  font-size: 10px;
+  color: var(--color-border-subtle);
+  font-weight: 600;
+}
+
+/* Volume Control */
+.midi-volume-control {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 2px solid var(--color-border-subtle);
+}
+
+.midi-volume-icon {
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  color: var(--color-text-muted);
+}
+
+/* Custom Volume Slider */
+.midi-volume-slider {
+  flex: 1;
   height: 8px;
-  border-radius: 2px;
-  border: 1px solid var(--color-border);
-}
-
-midi-player::part(seek-bar-fill) {
-  background: var(--color-accent);
-  border-radius: 2px;
-}
-
-midi-player::part(seek-bar-thumb) {
-  background: var(--color-accent);
+  appearance: none;
+  background: var(--color-bg);
   border: 2px solid var(--color-border);
+  border-radius: 2px;
+  cursor: pointer;
+  box-shadow: inset 1px 1px 0 var(--shadow-color);
+}
+
+.midi-volume-slider::-webkit-slider-thumb {
+  appearance: none;
   width: 16px;
   height: 16px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-border);
   border-radius: 2px;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  transition: all 0.15s ease;
+}
+
+.midi-volume-slider::-webkit-slider-thumb:hover {
+  background: var(--color-accent-hover);
+  transform: scale(1.1);
+}
+
+.midi-volume-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  cursor: pointer;
   box-shadow: 2px 2px 0 var(--shadow-color);
 }
 
-/* Loading indicator within player */
-midi-player::part(loading-overlay) {
-  background: var(--color-bg-elevated);
+.midi-volume-slider::-moz-range-track {
+  background: transparent;
+  border: none;
 }
 
-/* Dark mode adjustments */
-[data-theme="dark"] midi-player {
-  --primary-color: var(--color-accent);
-  --background-color: var(--color-bg-elevated);
-  --foreground-color: var(--color-text);
-}
-
-[data-theme="dark"] .midi-staff-container {
-  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.3);
+/* Focus styles */
+.midi-play-btn:focus-visible,
+.midi-volume-slider:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
-  .midi-staff-container {
-    padding: 4px;
-    margin-bottom: 10px;
+  .midi-custom-player {
+    padding: 14px 16px;
+    gap: 12px;
   }
 
-  midi-visualizer {
-    min-height: 120px;
+  .midi-player-main {
+    gap: 12px;
   }
 
-  midi-player::part(control-panel) {
-    padding: 10px 12px;
+  .midi-play-btn {
+    width: 44px;
+    height: 44px;
   }
 
-  midi-player::part(play-button) {
-    width: 40px;
-    height: 40px;
+  .midi-progress-track {
+    height: 10px;
+  }
+
+  .midi-volume-control {
+    gap: 8px;
   }
 }

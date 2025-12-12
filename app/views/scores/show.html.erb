@@ -220,26 +220,71 @@
 
       <!-- MIDI Player Section -->
       <% if @score.has_midi? %>
-        <div class="mm-card p-4 sm:p-5 midi-player-card"
+        <div class="mm-card midi-player-card"
              data-controller="midi-player"
              data-midi-player-src-value="<%= file_score_path(@score, 'mid') %>">
-          <h3 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-4 font-black uppercase tracking-tight flex items-center gap-2">
-            <span class="text-[var(--color-accent)]">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polygon points="5 3 19 12 5 21 5 3"></polygon>
-              </svg>
-            </span>
-            <%= t('score.listen') %>
-          </h3>
 
           <!-- Loading State -->
-          <div data-midi-player-target="loading" class="flex items-center justify-center gap-3 py-6">
+          <div data-midi-player-target="loading" class="flex items-center justify-center gap-3 p-6">
             <div class="midi-loading-spinner"></div>
             <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"><%= t('score.loading_player') %></span>
           </div>
 
-          <!-- Player Container (populated dynamically) -->
-          <div data-midi-player-target="container" class="hidden"></div>
+          <!-- Custom Player UI -->
+          <div data-midi-player-target="container" class="hidden">
+            <div class="midi-custom-player">
+              <!-- Top row: Play button + Progress -->
+              <div class="midi-player-main">
+                <!-- Play/Pause Button -->
+                <button type="button"
+                        class="midi-play-btn"
+                        data-action="click->midi-player#play"
+                        aria-label="<%= t('score.play_pause') %>">
+                  <!-- Play icon -->
+                  <svg data-midi-player-target="playBtn" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5.14v14l11-7-11-7z"/>
+                  </svg>
+                  <!-- Pause icon -->
+                  <svg data-midi-player-target="pauseBtn" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+                  </svg>
+                </button>
+
+                <!-- Progress Section -->
+                <div class="midi-progress-section">
+                  <!-- Progress Bar -->
+                  <div class="midi-progress-track"
+                       data-midi-player-target="progress"
+                       data-action="click->midi-player#seek">
+                    <div class="midi-progress-fill" data-midi-player-target="progressBar"></div>
+                  </div>
+
+                  <!-- Time Display -->
+                  <div class="midi-time-display">
+                    <span data-midi-player-target="currentTime" class="midi-time">0:00</span>
+                    <span class="midi-time-separator">/</span>
+                    <span data-midi-player-target="totalTime" class="midi-time">0:00</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Volume Control -->
+              <div class="midi-volume-control">
+                <svg data-midi-player-target="volumeIcon" class="midi-volume-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+                </svg>
+                <input type="range"
+                       class="midi-volume-slider"
+                       min="0"
+                       max="1"
+                       step="0.05"
+                       value="0.8"
+                       data-midi-player-target="volumeSlider"
+                       data-action="input->midi-player#updateVolume"
+                       aria-label="<%= t('score.volume') %>">
+              </div>
+            </div>
+          </div>
         </div>
       <% end %>
 
