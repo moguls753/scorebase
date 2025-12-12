@@ -33,17 +33,11 @@ namespace :imslp do
   end
 
   def load_progress
-    progress_file = Rails.root.join("tmp", "imslp_progress.txt")
-    if File.exist?(progress_file)
-      File.read(progress_file).to_i
-    else
-      0
-    end
+    Rails.cache.fetch("imslp_import_offset") { 0 }
   end
 
   def save_progress(offset)
-    progress_file = Rails.root.join("tmp", "imslp_progress.txt")
-    File.write(progress_file, offset.to_s)
+    Rails.cache.write("imslp_import_offset", offset, expires_in: 30.days)
   end
 
   desc "Show current import progress"
@@ -60,8 +54,7 @@ namespace :imslp do
 
   desc "Reset import progress to start from beginning"
   task reset_progress: :environment do
-    progress_file = Rails.root.join("tmp", "imslp_progress.txt")
-    File.delete(progress_file) if File.exist?(progress_file)
+    Rails.cache.delete("imslp_import_offset")
     puts "Progress reset. Next import will start from offset 0."
   end
 
