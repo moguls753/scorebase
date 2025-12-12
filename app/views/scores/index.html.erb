@@ -73,18 +73,6 @@
                 %>
               </div>
 
-              <!-- Filter: Time Signature -->
-              <div>
-                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                  <%= t('filters.time') %>
-                </label>
-                <%= f.select :time,
-                    options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['6/8', '6/8'], ['2/4', '2/4'], ['2/2', '2/2']], params[:time]),
-                    {},
-                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-                %>
-              </div>
-
               <!-- Filter: Forces -->
               <div>
                 <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
@@ -108,9 +96,7 @@
                     { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
                 %>
               </div>
-            </div>
 
-            <div class="grid grid-cols-2 gap-3 mb-4">
               <!-- Filter: Genre -->
               <div>
                 <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
@@ -118,6 +104,20 @@
                 </label>
                 <%= f.select :genre,
                     options_for_select([[t('filters.any'), ''], [t('genres.classical'), 'classical'], [t('genres.folk'), 'folk'], [t('genres.jazz'), 'jazz'], [t('genres.rock'), 'rock'], [t('genres.pop'), 'pop']], params[:genre]),
+                    {},
+                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+                %>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
+              <!-- Filter: Time Signature -->
+              <div>
+                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
+                  <%= t('filters.time') %>
+                </label>
+                <%= f.select :time,
+                    options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['6/8', '6/8'], ['2/4', '2/4'], ['2/2', '2/2']], params[:time]),
                     {},
                     { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
                 %>
@@ -164,18 +164,6 @@
           %>
         </div>
 
-        <!-- Filter: Time Signature -->
-        <div class="mb-4">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            <%= t('filters.time') %>
-          </label>
-          <%= f.select :time,
-              options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['6/8', '6/8'], ['2/4', '2/4'], ['2/2', '2/2']], params[:time]),
-              {},
-              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-          %>
-        </div>
-
         <!-- Filter: Forces -->
         <div class="mb-4">
           <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
@@ -207,6 +195,18 @@
           </label>
           <%= f.select :genre,
               options_for_select([[t('filters.any'), ''], [t('genres.classical'), 'classical'], [t('genres.folk'), 'folk'], [t('genres.jazz'), 'jazz'], [t('genres.rock'), 'rock'], [t('genres.pop'), 'pop']], params[:genre]),
+              {},
+              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+          %>
+        </div>
+
+        <!-- Filter: Time Signature -->
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
+            <%= t('filters.time') %>
+          </label>
+          <%= f.select :time,
+              options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['6/8', '6/8'], ['2/4', '2/4'], ['2/2', '2/2']], params[:time]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
@@ -299,10 +299,6 @@
                 <% if score.primary_key_signature.present? %>
                   <span class="mm-badge text-[10px] inline-block">
                     <%= score.primary_key_signature %>
-                  </span>
-                <% elsif score.primary_time_signature.present? %>
-                  <span class="mm-badge text-[10px] inline-block">
-                    <%= score.primary_time_signature %>
                   </span>
                 <% end %>
               </div>

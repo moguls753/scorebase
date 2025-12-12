@@ -73,14 +73,14 @@ class Score < ApplicationRecord
     time_signature&.split(",")&.first&.strip
   end
 
-  # Helper to parse genres array
+  # Helper to parse genres array (filters out NA/N/A values)
   def genre_list
-    genres&.split("-")&.map(&:strip) || []
+    (genres&.split("-")&.map(&:strip) || []).reject { |g| g.blank? || g.upcase.in?(%w[NA N/A]) }
   end
 
-  # Helper to parse tags array
+  # Helper to parse tags array (filters out NA/N/A values)
   def tag_list
-    tags&.split("-")&.map(&:strip) || []
+    (tags&.split("-")&.map(&:strip) || []).reject { |t| t.blank? || t.upcase.in?(%w[NA N/A]) }
   end
 
   # Check if downloadable files exist
