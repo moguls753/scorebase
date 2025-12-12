@@ -56,14 +56,19 @@ class ScoresController < ApplicationController
       return
     end
 
-    # Handle CPDL scores - redirect to external file URL
-    # For CPDL, file_path already contains the full URL
-    if @score.cpdl?
-      if file_path.start_with?('http')
-        redirect_to file_path, allow_other_host: true
+    # Handle external scores (CPDL, IMSLP) - redirect to external file URL
+    if @score.external?
+      external_url = case file_type
+      when 'pdf' then @score.pdf_url
+      when 'mxl' then @score.mxl_url
+      when 'mid' then @score.mid_url
+      end
+
+      if external_url.present?
+        redirect_to external_url, allow_other_host: true
         return
       else
-        render plain: "CPDL file URL unavailable", status: :not_found
+        render plain: "External file URL unavailable", status: :not_found
         return
       end
     end
