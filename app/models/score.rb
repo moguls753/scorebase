@@ -29,12 +29,22 @@ class Score < ApplicationRecord
   # Genre filter (genres stored as comma-separated text)
   scope :by_genre, ->(genre) { where("genres LIKE ?", "%#{sanitize_sql_like(genre)}%") if genre.present? }
 
-  # Voicing filters (maps UI labels to num_parts)
+  # Forces filters (maps UI labels to num_parts)
   scope :solo, -> { where(num_parts: 1) }
   scope :duet, -> { where(num_parts: 2) }
   scope :trio, -> { where(num_parts: 3) }
   scope :quartet, -> { where(num_parts: 4) }
   scope :ensemble, -> { where("num_parts >= ?", 5) }
+
+  # Voice type filters (choir type based on voicing field)
+  # Mixed: contains both soprano/alto AND tenor/bass voices (SATB, SAB, SATBB, etc.)
+  scope :mixed_voices, -> { where("voicing LIKE '%S%' AND (voicing LIKE '%T%' OR voicing LIKE '%B%')") }
+  # Treble/Women's: only soprano/alto, no tenor/bass (SA, SSA, SSAA)
+  scope :treble_voices, -> { where("voicing LIKE '%S%' AND voicing LIKE '%A%' AND voicing NOT LIKE '%T%' AND voicing NOT LIKE '%B%'") }
+  # Men's: only tenor/bass, no soprano/alto (TB, TTB, TTBB)
+  scope :mens_voices, -> { where("(voicing LIKE '%T%' OR voicing LIKE '%B%') AND voicing NOT LIKE '%S%' AND voicing NOT LIKE '%A%'") }
+  # Unison: single melodic line
+  scope :unison_voices, -> { where("LOWER(voicing) LIKE '%unison%' OR num_parts = 1") }
 
   # Search scope (simple SQLite LIKE search)
   scope :search, ->(query) {

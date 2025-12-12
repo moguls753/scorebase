@@ -34,7 +34,8 @@ en:
   filters:
     key: "Key"
     time: "Time Signature"
-    voicing: "Voicing"
+    forces: "Forces"
+    voice_type: "Voice Type"
     genre: "Genre"
     source: "Source"
     any: "Any"
@@ -65,13 +66,20 @@ en:
     e_minor: "E minor"
     a_minor: "A minor"
 
-  # Voicing options
-  voicing:
+  # Forces options (number of performers)
+  forces:
     solo: "Solo"
     duet: "Duet"
     trio: "Trio"
     quartet: "Quartet"
     ensemble: "Ensemble (5+)"
+
+  # Voice type options (choir type)
+  voice_type:
+    mixed: "Mixed"
+    treble: "Treble / Women's"
+    mens: "Men's"
+    unison: "Unison"
 
   # Score Detail Page
   score:

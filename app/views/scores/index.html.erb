@@ -19,6 +19,7 @@
         <%= f.hidden_field :time, value: params[:time] %>
         <%= f.hidden_field :genre, value: params[:genre] %>
         <%= f.hidden_field :voicing, value: params[:voicing] %>
+        <%= f.hidden_field :voice_type, value: params[:voice_type] %>
         <%= f.hidden_field :sort, value: params[:sort] %>
         <%= f.text_field :q,
           placeholder: t('search.placeholder'),
@@ -45,7 +46,7 @@
             <span class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight">
               <%= t('search.filters') %>
             </span>
-            <% active_filters = [params[:key], params[:time], params[:voicing], params[:genre], params[:source]].compact.reject(&:blank?).count %>
+            <% active_filters = [params[:key], params[:time], params[:voicing], params[:voice_type], params[:genre], params[:source]].compact.reject(&:blank?).count %>
             <% if active_filters > 0 %>
               <span class="filter-count"><%= active_filters %></span>
             <% end %>
@@ -84,18 +85,32 @@
                 %>
               </div>
 
-              <!-- Filter: Voicing -->
+              <!-- Filter: Forces -->
               <div>
                 <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                  <%= t('filters.voicing') %>
+                  <%= t('filters.forces') %>
                 </label>
                 <%= f.select :voicing,
-                    options_for_select([[t('filters.any'), ''], [t('voicing.solo'), 'solo'], [t('voicing.duet'), 'duet'], [t('voicing.trio'), 'trio'], [t('voicing.quartet'), 'quartet'], [t('voicing.ensemble'), 'ensemble']], params[:voicing]),
+                    options_for_select([[t('filters.any'), ''], [t('forces.solo'), 'solo'], [t('forces.duet'), 'duet'], [t('forces.trio'), 'trio'], [t('forces.quartet'), 'quartet'], [t('forces.ensemble'), 'ensemble']], params[:voicing]),
                     {},
                     { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
                 %>
               </div>
 
+              <!-- Filter: Voice Type -->
+              <div>
+                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
+                  <%= t('filters.voice_type') %>
+                </label>
+                <%= f.select :voice_type,
+                    options_for_select([[t('filters.any'), ''], [t('voice_type.mixed'), 'mixed'], [t('voice_type.treble'), 'treble'], [t('voice_type.mens'), 'mens'], [t('voice_type.unison'), 'unison']], params[:voice_type]),
+                    {},
+                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+                %>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3 mb-4">
               <!-- Filter: Genre -->
               <div>
                 <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
@@ -107,18 +122,18 @@
                     { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
                 %>
               </div>
-            </div>
 
-            <!-- Filter: Source (full width) -->
-            <div class="mb-4">
-              <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                <%= t('filters.source') %>
-              </label>
-              <%= f.select :source,
-                  options_for_select([[t('filters.any'), ''], ['PDMX', 'pdmx'], ['CPDL', 'cpdl'], ['IMSLP', 'imslp']], params[:source]),
-                  {},
-                  { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-              %>
+              <!-- Filter: Source -->
+              <div>
+                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
+                  <%= t('filters.source') %>
+                </label>
+                <%= f.select :source,
+                    options_for_select([[t('filters.any'), ''], ['PDMX', 'pdmx'], ['CPDL', 'cpdl'], ['IMSLP', 'imslp']], params[:source]),
+                    {},
+                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+                %>
+              </div>
             </div>
 
             <%= link_to t('search.clear'), scores_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
@@ -161,13 +176,25 @@
           %>
         </div>
 
-        <!-- Filter: Number of Parts -->
+        <!-- Filter: Forces -->
         <div class="mb-4">
           <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            <%= t('filters.voicing') %>
+            <%= t('filters.forces') %>
           </label>
           <%= f.select :voicing,
-              options_for_select([[t('filters.any'), ''], [t('voicing.solo'), 'solo'], [t('voicing.duet'), 'duet'], [t('voicing.trio'), 'trio'], [t('voicing.quartet'), 'quartet'], [t('voicing.ensemble'), 'ensemble']], params[:voicing]),
+              options_for_select([[t('filters.any'), ''], [t('forces.solo'), 'solo'], [t('forces.duet'), 'duet'], [t('forces.trio'), 'trio'], [t('forces.quartet'), 'quartet'], [t('forces.ensemble'), 'ensemble']], params[:voicing]),
+              {},
+              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+          %>
+        </div>
+
+        <!-- Filter: Voice Type -->
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
+            <%= t('filters.voice_type') %>
+          </label>
+          <%= f.select :voice_type,
+              options_for_select([[t('filters.any'), ''], [t('voice_type.mixed'), 'mixed'], [t('voice_type.treble'), 'treble'], [t('voice_type.mens'), 'mens'], [t('voice_type.unison'), 'unison']], params[:voice_type]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
@@ -219,6 +246,7 @@
           <%= f.hidden_field :time, value: params[:time] %>
           <%= f.hidden_field :genre, value: params[:genre] %>
           <%= f.hidden_field :voicing, value: params[:voicing] %>
+          <%= f.hidden_field :voice_type, value: params[:voice_type] %>
           <div class="sort-control">
             <label for="sort" class="sort-label">
               <span class="sort-icon">↕</span>

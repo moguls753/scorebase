@@ -13,8 +13,11 @@ class ScoresController < ApplicationController
     @scores = @scores.by_time_signature(params[:time]) if params[:time].present?
     @scores = @scores.by_genre(params[:genre]) if params[:genre].present?
 
-    # Voicing filter
-    @scores = apply_voicing_filter(@scores, params[:voicing]) if params[:voicing].present?
+    # Forces filter (number of parts)
+    @scores = apply_forces_filter(@scores, params[:voicing]) if params[:voicing].present?
+
+    # Voice type filter (choir type)
+    @scores = apply_voice_type_filter(@scores, params[:voice_type]) if params[:voice_type].present?
 
     # Sorting
     @scores = apply_sorting(@scores, params[:sort])
@@ -100,8 +103,8 @@ class ScoresController < ApplicationController
     end
   end
 
-  def apply_voicing_filter(scores, voicing)
-    case voicing
+  def apply_forces_filter(scores, forces)
+    case forces
     when "solo"
       scores.solo
     when "duet"
@@ -112,6 +115,21 @@ class ScoresController < ApplicationController
       scores.quartet
     when "ensemble"
       scores.ensemble
+    else
+      scores
+    end
+  end
+
+  def apply_voice_type_filter(scores, voice_type)
+    case voice_type
+    when "mixed"
+      scores.mixed_voices
+    when "treble"
+      scores.treble_voices
+    when "mens"
+      scores.mens_voices
+    when "unison"
+      scores.unison_voices
     else
       scores
     end

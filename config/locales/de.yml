@@ -34,7 +34,8 @@ de:
   filters:
     key: "Tonart"
     time: "Taktart"
-    voicing: "Besetzung"
+    forces: "Besetzung"
+    voice_type: "Chortyp"
     genre: "Genre"
     source: "Quelle"
     any: "Alle"
@@ -65,13 +66,20 @@ de:
     e_minor: "e-Moll"
     a_minor: "a-Moll"
 
-  # Voicing options
-  voicing:
+  # Forces options (number of performers)
+  forces:
     solo: "Solo"
     duet: "Duett"
     trio: "Trio"
     quartet: "Quartett"
     ensemble: "Ensemble (5+)"
+
+  # Voice type options (choir type)
+  voice_type:
+    mixed: "Gemischter Chor"
+    treble: "Frauenchor"
+    mens: "Männerchor"
+    unison: "Einstimmig"
 
   # Score Detail Page
   score:
