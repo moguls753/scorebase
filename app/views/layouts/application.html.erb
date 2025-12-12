@@ -25,10 +25,12 @@
     <meta property="og:type" content="website">
     <meta property="og:title" content="<%= content_for(:title) || t('meta.title') %>">
     <meta property="og:description" content="<%= t('meta.description') %>">
-    <meta property="og:image" content="/og-image.png">
+    <meta property="og:url" content="<%= request.original_url %>">
+    <meta property="og:image" content="<%= request.base_url %>/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="<%= request.base_url %>/og-image.png">
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
