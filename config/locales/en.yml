@@ -119,6 +119,9 @@ en:
     download_files: "Download Files"
     external_source: "External Source"
     lyrics_text: "Lyrics / Text"
+    listen: "Listen"
+    loading_player: "Loading player..."
+    midi_hint: "Click play to hear a synthesized preview"
 
   # About Page
   about:

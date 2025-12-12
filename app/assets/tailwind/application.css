@@ -826,3 +826,179 @@ body.overflow-hidden {
   position: fixed;
   width: 100%;
 }
+
+/* ========================================
+   MIDI PLAYER - Neobrutalist Style
+   ======================================== */
+
+.midi-player-card {
+  background: linear-gradient(135deg, var(--color-bg-card) 0%, var(--color-bg-elevated) 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Decorative corner accent */
+.midi-player-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 60px;
+  height: 60px;
+  background: var(--color-accent);
+  clip-path: polygon(100% 0, 0 0, 100% 100%);
+  opacity: 0.1;
+}
+
+/* Loading spinner */
+.midi-loading-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid var(--color-border-subtle);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: midi-spin 0.8s linear infinite;
+}
+
+@keyframes midi-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Visualizer container */
+.midi-visualizer-container {
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  padding: 2px;
+  overflow: hidden;
+  box-shadow: inset 2px 2px 0 var(--shadow-color);
+}
+
+/* Style the midi-visualizer web component */
+midi-visualizer {
+  display: block;
+  width: 100%;
+  height: 120px;
+  background: var(--color-bg);
+  --visualizer-background: var(--color-bg);
+}
+
+midi-visualizer svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Piano roll note colors - Light mode */
+midi-visualizer::part(piano-roll-visualizer) {
+  --note-color: var(--color-accent);
+  --active-note-color: var(--color-accent-hover);
+}
+
+/* Style the midi-player web component */
+midi-player {
+  display: block;
+  width: 100%;
+  background: var(--color-bg-elevated);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  box-shadow: 4px 4px 0 var(--shadow-color);
+  overflow: hidden;
+  --primary-color: var(--color-accent);
+  --background-color: var(--color-bg-elevated);
+  --foreground-color: var(--color-text);
+  --note-color: var(--color-accent);
+}
+
+/* Override internal midi-player shadow DOM styles via CSS custom properties */
+midi-player::part(control-panel) {
+  background: var(--color-bg-elevated);
+  border: none;
+  padding: 12px 16px;
+}
+
+midi-player::part(play-button) {
+  background: var(--color-accent);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  color: #ffffff;
+  width: 44px;
+  height: 44px;
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  transition: all 0.15s ease;
+}
+
+midi-player::part(play-button):hover {
+  background: var(--color-accent-hover);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+}
+
+midi-player::part(play-button):active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+midi-player::part(time) {
+  font-family: var(--font-family-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  letter-spacing: 0.5px;
+}
+
+midi-player::part(seek-bar) {
+  background: var(--color-border-subtle);
+  height: 8px;
+  border-radius: 2px;
+  border: 1px solid var(--color-border);
+}
+
+midi-player::part(seek-bar-fill) {
+  background: var(--color-accent);
+  border-radius: 2px;
+}
+
+midi-player::part(seek-bar-thumb) {
+  background: var(--color-accent);
+  border: 2px solid var(--color-border);
+  width: 16px;
+  height: 16px;
+  border-radius: 2px;
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+/* Loading indicator within player */
+midi-player::part(loading-overlay) {
+  background: var(--color-bg-elevated);
+}
+
+/* Dark mode adjustments */
+[data-theme="dark"] midi-player {
+  --primary-color: var(--color-accent);
+  --background-color: var(--color-bg-elevated);
+  --foreground-color: var(--color-text);
+}
+
+[data-theme="dark"] .midi-visualizer-container {
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] midi-visualizer {
+  --visualizer-background: var(--color-bg);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  midi-visualizer {
+    height: 80px;
+  }
+
+  midi-player::part(control-panel) {
+    padding: 10px 12px;
+  }
+
+  midi-player::part(play-button) {
+    width: 40px;
+    height: 40px;
+  }
+}
