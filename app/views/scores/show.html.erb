@@ -17,8 +17,15 @@
             alt: @score.title,
             class: "w-full h-full object-contain bg-[var(--color-bg)]"
         %>
+      <% elsif @score.has_pdf? && @score.external? %>
+        <!-- External score: embed PDF directly -->
+        <iframe
+          src="<%= @score.pdf_url %>"
+          class="w-full h-full border-0"
+          title="<%= @score.title %> PDF preview">
+        </iframe>
       <% elsif @score.has_pdf? %>
-        <!-- No preview available - show link to open PDF -->
+        <!-- Local score without preview - show link to open PDF -->
         <div class="w-full h-full bg-[var(--color-bg)] flex flex-col items-center justify-center gap-6 p-8">
           <div class="text-[120px] text-[var(--color-border-subtle)]">📄</div>
           <div class="text-center">
