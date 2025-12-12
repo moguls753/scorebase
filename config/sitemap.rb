@@ -6,7 +6,6 @@
 # For production, run as cron job (e.g., weekly):
 # 0 2 * * 0 cd /path/to/app && bin/rails sitemap:refresh RAILS_ENV=production
 
-SitemapGenerator::Sitemap.ping_search_engines = false
 SitemapGenerator::Sitemap.default_host = ENV.fetch("SITE_URL", "https://scorebase.org")
 
 # Store sitemaps in public/ directory (compressed)
