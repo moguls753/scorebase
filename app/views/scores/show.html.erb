@@ -297,14 +297,14 @@
           </h3>
           <div class="space-y-2">
             <% if @score.has_mxl? %>
-              <%= link_to file_score_path(@score, 'mxl', download: true), class: "mm-button mm-button-primary block w-full text-center py-3 text-xs" do %>
-                <span class="inline-flex items-center gap-2">
-                  <span>↓</span> <%= t('score.download_mxl') %>
-                </span>
-              <% end %>
-              <p class="mt-1.5 text-[10px] text-[var(--color-text-muted)] text-center opacity-70">
-                <%= t('score.mxl_hint') %>
-              </p>
+              <div class="mm-tooltip-wrap">
+                <%= link_to file_score_path(@score, 'mxl', download: true), class: "mm-button mm-button-primary block w-full text-center py-3 text-xs" do %>
+                  <span class="inline-flex items-center gap-2">
+                    <span>↓</span> <%= t('score.download_mxl') %>
+                  </span>
+                <% end %>
+                <span class="mm-tooltip"><%= t('score.mxl_hint') %></span>
+              </div>
             <% end %>
             <% if @score.has_pdf? %>
               <%= link_to file_score_path(@score, 'pdf', download: true), class: "mm-button mm-button-secondary block w-full text-center py-3 text-xs" do %>

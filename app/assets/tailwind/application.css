@@ -1053,3 +1053,70 @@ body.overflow-hidden {
     gap: 8px;
   }
 }
+
+/* ========================================
+   TOOLTIP - Neobrutalist Style
+   ======================================== */
+
+.mm-tooltip-wrap {
+  position: relative;
+}
+
+.mm-tooltip {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 10px);
+  transform: translateX(-50%) translateY(4px);
+  padding: 8px 12px;
+  background: var(--color-bg-card);
+  color: var(--color-text-muted);
+  font-size: 11px;
+  font-weight: 500;
+  font-family: var(--font-family-body);
+  white-space: nowrap;
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.15s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Tooltip arrow */
+.mm-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: var(--color-border);
+}
+
+.mm-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--color-bg-card);
+  z-index: 1;
+  margin-top: -2px;
+}
+
+/* Show on hover */
+.mm-tooltip-wrap:hover .mm-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Mobile: hide tooltips, not practical for touch */
+@media (max-width: 640px) {
+  .mm-tooltip {
+    display: none;
+  }
+}
