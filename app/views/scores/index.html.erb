@@ -28,6 +28,45 @@
         %>
         <%= f.submit t('search.button'), class: "mm-button mm-button-primary cursor-pointer px-6 text-xs w-full sm:w-auto" %>
       <% end %>
+
+      <!-- Browse Links -->
+      <div class="browse-divider">
+        <span class="browse-divider-text"><%= t('search.or_explore') %></span>
+      </div>
+      <nav class="browse-links" aria-label="Browse categories">
+        <%= link_to composers_path, class: "browse-link" do %>
+          <svg class="browse-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <%= t('search.browse_composers') %>
+        <% end %>
+        <%= link_to genres_path, class: "browse-link" do %>
+          <svg class="browse-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+          </svg>
+          <%= t('search.browse_genres') %>
+        <% end %>
+        <%= link_to instruments_path, class: "browse-link" do %>
+          <svg class="browse-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <%= t('search.browse_instruments') %>
+        <% end %>
+        <%= link_to voicing_index_path, class: "browse-link" do %>
+          <svg class="browse-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="9" cy="7" r="4"></circle>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+          </svg>
+          <%= t('search.browse_voicing') %>
+        <% end %>
+      </nav>
     </div>
   </div>
 </section>
