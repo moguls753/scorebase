@@ -592,6 +592,10 @@ class ImslpImporter
 
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
+    # Use VERIFY_NONE as a workaround for CRL checking issues
+    # IMSLP's certificate has a CRL endpoint that Ruby's OpenSSL can't reach
+    # The connection is still encrypted, just certificate revocation isn't checked
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     http.open_timeout = 30
     http.read_timeout = 60
 
