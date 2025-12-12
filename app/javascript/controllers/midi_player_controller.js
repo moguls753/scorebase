@@ -77,11 +77,11 @@ export default class extends Controller {
       const visualizerId = `midi-viz-${Date.now()}`
 
       this.containerTarget.innerHTML = `
-        <div class="midi-visualizer-container mb-4">
+        <div class="midi-staff-container">
           <midi-visualizer
             id="${visualizerId}"
             src="${this.srcValue}"
-            type="piano-roll">
+            type="staff">
           </midi-visualizer>
         </div>
         <midi-player
@@ -89,9 +89,6 @@ export default class extends Controller {
           sound-font
           visualizer="#${visualizerId}">
         </midi-player>
-        <p class="mt-3 text-[10px] text-[var(--color-text-muted)] text-center uppercase tracking-wide font-medium">
-          ${this.element.dataset.hint || "Click play to hear a synthesized preview"}
-        </p>
       `
     }
   }

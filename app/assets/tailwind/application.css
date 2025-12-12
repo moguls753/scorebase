@@ -864,34 +864,53 @@ body.overflow-hidden {
   to { transform: rotate(360deg); }
 }
 
-/* Visualizer container */
-.midi-visualizer-container {
-  background: var(--color-bg);
+/* Staff notation container */
+.midi-staff-container {
+  background: #fffef8;
   border: 2px solid var(--color-border);
   border-radius: 2px;
-  padding: 2px;
-  overflow: hidden;
+  padding: 8px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
   box-shadow: inset 2px 2px 0 var(--shadow-color);
+  /* Vintage paper texture */
+  background-image:
+    linear-gradient(90deg, transparent 0%, rgba(0,0,0,0.01) 50%, transparent 100%),
+    linear-gradient(#fffef8 0%, #faf6e8 100%);
 }
 
-/* Style the midi-visualizer web component */
+[data-theme="dark"] .midi-staff-container {
+  background: var(--color-bg);
+  background-image: none;
+}
+
+/* Style the midi-visualizer web component - Staff mode */
 midi-visualizer {
   display: block;
   width: 100%;
-  height: 120px;
-  background: var(--color-bg);
-  --visualizer-background: var(--color-bg);
+  min-height: 150px;
+  background: transparent;
 }
 
 midi-visualizer svg {
   width: 100%;
-  height: 100%;
+  height: auto;
+  min-height: 150px;
 }
 
-/* Piano roll note colors - Light mode */
-midi-visualizer::part(piano-roll-visualizer) {
-  --note-color: var(--color-accent);
-  --active-note-color: var(--color-accent-hover);
+/* Staff notation SVG styling */
+midi-visualizer svg text {
+  font-family: var(--font-family-body) !important;
+}
+
+/* Note colors for staff view */
+midi-visualizer svg .note {
+  fill: var(--color-accent);
+}
+
+midi-visualizer svg .note.active {
+  fill: var(--color-accent-hover);
 }
 
 /* Style the midi-player web component */
@@ -979,18 +998,19 @@ midi-player::part(loading-overlay) {
   --foreground-color: var(--color-text);
 }
 
-[data-theme="dark"] .midi-visualizer-container {
+[data-theme="dark"] .midi-staff-container {
   box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.3);
-}
-
-[data-theme="dark"] midi-visualizer {
-  --visualizer-background: var(--color-bg);
 }
 
 /* Responsive adjustments */
 @media (max-width: 640px) {
+  .midi-staff-container {
+    padding: 4px;
+    margin-bottom: 10px;
+  }
+
   midi-visualizer {
-    height: 80px;
+    min-height: 120px;
   }
 
   midi-player::part(control-panel) {

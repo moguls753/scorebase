@@ -222,8 +222,7 @@
       <% if @score.has_midi? %>
         <div class="mm-card p-4 sm:p-5 midi-player-card"
              data-controller="midi-player"
-             data-midi-player-src-value="<%= file_score_path(@score, 'mid') %>"
-             data-hint="<%= t('score.midi_hint') %>">
+             data-midi-player-src-value="<%= file_score_path(@score, 'mid') %>">
           <h3 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-4 font-black uppercase tracking-tight flex items-center gap-2">
             <span class="text-[var(--color-accent)]">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
