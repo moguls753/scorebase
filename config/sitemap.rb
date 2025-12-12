@@ -121,7 +121,7 @@ SitemapGenerator::Sitemap.create do
   # ===========================================
 
   Score.order_by_popularity.limit(10_000).find_each do |score|
-    add score_path(score), lastmod: score.updated_at, changefreq: "monthly", priority: 0.5
-    add score_path(score, locale: :de), lastmod: score.updated_at, changefreq: "monthly", priority: 0.5
+    add score_path(id: score.id), lastmod: score.updated_at, changefreq: "monthly", priority: 0.5
+    add score_path(id: score.id, locale: :de), lastmod: score.updated_at, changefreq: "monthly", priority: 0.5
   end
 end
