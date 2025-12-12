@@ -116,12 +116,13 @@ SitemapGenerator::Sitemap.create do
   end
 
   # ===========================================
-  # TOP POPULAR SCORES (medium priority)
-  # Only include top 10,000 by popularity to keep sitemap manageable
+  # INDIVIDUAL SCORES
   # ===========================================
-
-  Score.order_by_popularity.limit(10_000).find_each do |score|
-    add score_path(id: score.id), lastmod: score.updated_at, changefreq: "monthly", priority: 0.5
-    add score_path(id: score.id, locale: :de), lastmod: score.updated_at, changefreq: "monthly", priority: 0.5
-  end
+  # NOT included in sitemap by design.
+  # Individual scores are discovered by Google through:
+  # 1. Internal links from hub pages (/composers/bach, /genres/classical)
+  # 2. Natural crawling from the score index
+  #
+  # This keeps the sitemap focused on high-value landing pages
+  # that target actual search queries like "Bach sheet music".
 end
