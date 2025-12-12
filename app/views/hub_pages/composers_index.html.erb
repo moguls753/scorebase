@@ -1,0 +1,94 @@
+<% content_for :title, @page_title %>
+
+<!-- Hero Section -->
+<section class="hub-hero py-10 sm:py-14 lg:py-20 border-b-2 border-[var(--color-border)]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="max-w-3xl">
+      <!-- Breadcrumb -->
+      <nav class="flex items-center gap-2 text-xs font-medium text-[var(--color-text-muted)] mb-4">
+        <%= link_to root_path, class: "hover:text-[var(--color-accent)] transition-colors" do %>
+          ScoreBase
+        <% end %>
+        <span class="text-[var(--color-border-subtle)]">/</span>
+        <span class="text-[var(--color-accent)]"><%= t('sort.composer') %></span>
+      </nav>
+
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
+        <%= t('sort.composer') %>
+      </h1>
+      <p class="text-base sm:text-lg font-medium hero-subtitle mb-2">
+        <%= t('hub.composers_description', count: @composers.size) %>
+      </p>
+      <p class="text-sm text-[var(--color-text-muted)]">
+        <%= t('hub.browse_all') %>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Composers Grid -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <% if @composers.any? %>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+      <% @composers.each_with_index do |composer, i| %>
+        <%= link_to composer_path(slug: composer[:slug]),
+            class: "hub-card mm-card p-4 sm:p-5 group",
+            style: "animation-delay: #{i * 20}ms" do %>
+          <div class="flex flex-col h-full">
+            <!-- Composer Initial -->
+            <div class="w-12 h-12 sm:w-14 sm:h-14 mb-3 flex items-center justify-center bg-[var(--color-accent)] text-white font-[var(--font-family-display)] font-black text-xl sm:text-2xl border-2 border-[var(--color-border)] box-shadow-sm">
+              <%= composer[:name].first.upcase %>
+            </div>
+
+            <!-- Composer Name -->
+            <h3 class="text-sm sm:text-base font-[var(--font-family-display)] text-[var(--color-primary)] font-bold leading-tight mb-2 group-hover:text-[var(--color-accent)] transition-colors line-clamp-2">
+              <%= composer[:name] %>
+            </h3>
+
+            <!-- Score Count -->
+            <p class="text-xs text-[var(--color-text-muted)] font-semibold mt-auto">
+              <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(composer[:count]) %></span>
+              <%= t('search.results_count').downcase %>
+            </p>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="mm-card p-8 sm:p-12 text-center">
+      <div class="text-6xl mb-4 text-[var(--color-border-subtle)]">🎼</div>
+      <p class="text-[var(--color-text-muted)] font-medium">
+        <%= t('hub.no_scores_found') %>
+      </p>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .hub-hero {
+    background: linear-gradient(135deg, #ffffff 0%, #fefcf9 50%, #ffffff 100%);
+  }
+
+  [data-theme="dark"] .hub-hero {
+    background: linear-gradient(135deg, #2a2520 0%, #1f1b18 50%, #2d2823 100%);
+  }
+
+  .hub-card {
+    animation: hubCardFadeIn 0.4s ease both;
+  }
+
+  @keyframes hubCardFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .box-shadow-sm {
+    box-shadow: 3px 3px 0 var(--shadow-color);
+  }
+</style>

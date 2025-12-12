@@ -1,0 +1,39 @@
+<%= link_to score_path(score), class: "mm-card overflow-hidden group block" do %>
+  <!-- Thumbnail -->
+  <div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center relative overflow-hidden border-b-2 border-[var(--color-border)]">
+    <% if score.has_thumbnail? %>
+      <%= image_tag score.thumbnail,
+          alt: score.title,
+          class: "w-full h-full object-cover object-top",
+          loading: "lazy",
+          onerror: "this.onerror=null; this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 200 200%22%3E%3Ctext x=%2250%25%22 y=%2250%25%22 font-size=%2280%22 text-anchor=%22middle%22 dominant-baseline=%22middle%22 fill=%22%23333%22%3E♪%3C/text%3E%3C/svg%3E'"
+      %>
+    <% else %>
+      <div class="text-6xl text-[var(--color-border-subtle)]">♪</div>
+    <% end %>
+  </div>
+
+  <!-- Card Content -->
+  <div class="p-3">
+    <h4 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-1 leading-tight font-bold line-clamp-1">
+      <%= score.title %>
+    </h4>
+    <p class="text-xs text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
+      <%= score.composer.presence || t('search.unknown_composer') %>
+    </p>
+
+    <!-- Metadata Badges -->
+    <div class="flex items-center gap-1.5 flex-wrap">
+      <% if score.source.present? %>
+        <span class="mm-badge-source mm-badge-<%= score.source %> inline-block">
+          <%= score.source.upcase %>
+        </span>
+      <% end %>
+      <% if score.primary_key_signature.present? %>
+        <span class="mm-badge text-[10px] inline-block">
+          <%= score.primary_key_signature %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+<% end %>

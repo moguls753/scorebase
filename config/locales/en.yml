@@ -160,3 +160,39 @@ en:
   languages:
     en: "EN"
     de: "DE"
+
+  # Hub/Landing Pages (SEO)
+  hub:
+    # Index pages
+    composers_title: "Composers — Free Sheet Music"
+    composers_description: "Browse %{count} composers with free public domain sheet music downloads."
+    genres_title: "Music Genres — Free Sheet Music"
+    genres_description: "Browse %{count} genres with free public domain sheet music downloads."
+    instruments_title: "Instruments — Free Sheet Music"
+    instruments_description: "Browse %{count} instruments with free public domain sheet music downloads."
+    voicing_title: "Vocal Arrangements — Free Sheet Music"
+    voicing_description: "Browse %{count} vocal arrangements with free public domain sheet music downloads."
+
+    # Single dimension pages
+    composer_page_title: "%{name} — Free Sheet Music"
+    composer_page_description: "Download %{count} free sheet music scores by %{name}. Public domain PDF, MusicXML, and MIDI files."
+    genre_page_title: "%{name} Sheet Music — Free Downloads"
+    genre_page_description: "Download %{count} free %{name} sheet music scores. Public domain PDF, MusicXML, and MIDI files."
+    instrument_page_title: "%{name} Sheet Music — Free Downloads"
+    instrument_page_description: "Download %{count} free sheet music scores for %{name}. Public domain PDF, MusicXML, and MIDI files."
+    voicing_page_title: "%{name} Choral Music — Free Sheet Music"
+    voicing_page_description: "Download %{count} free %{name} choral sheet music scores. Public domain PDF, MusicXML, and MIDI files."
+
+    # Combined pages
+    composer_instrument_title: "%{composer} %{instrument} Sheet Music — Free Downloads"
+    composer_instrument_description: "Download %{count} free %{instrument} sheet music scores by %{composer}. Public domain PDF, MusicXML, and MIDI files."
+    genre_instrument_title: "%{genre} %{instrument} Sheet Music — Free Downloads"
+    genre_instrument_description: "Download %{count} free %{genre} sheet music for %{instrument}. Public domain PDF, MusicXML, and MIDI files."
+
+    # UI elements
+    scores_count: "%{count} scores"
+    browse_all: "Browse All"
+    back_to_list: "Back to List"
+    filter_results: "Filter Results"
+    no_scores_found: "No scores found matching your criteria."
+    view_all_by: "View all by %{name}"

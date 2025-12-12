@@ -1,1 +1,23 @@
-# See https://www.robotstxt.org/robotstxt.html for documentation on how to use the robots.txt file
+# robots.txt for ScoreBase
+# https://scorebase.org
+
+# Allow all crawlers
+User-agent: *
+
+# Allow everything
+Allow: /
+
+# Block query parameter variations to prevent duplicate content
+Disallow: /*?sort=
+Disallow: /*?page=
+Disallow: /*?q=
+
+# Block internal/admin paths (if any exist in future)
+Disallow: /admin/
+Disallow: /rails/
+
+# Crawl-delay for politeness (optional, respected by some bots)
+Crawl-delay: 1
+
+# Sitemap location
+Sitemap: https://scorebase.org/sitemap.xml.gz

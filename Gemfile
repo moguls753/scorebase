@@ -46,6 +46,9 @@ gem "tailwindcss-rails"
 # Pagination [https://github.com/kaminari/kaminari]
 gem "kaminari"
 
+# SEO: Sitemap generation [https://github.com/kjvarga/sitemap_generator]
+gem "sitemap_generator"
+
 # CSV parsing (required in Ruby 3.4+)
 gem "csv"
 

@@ -3,7 +3,7 @@
   <head>
     <title><%= content_for(:title) || t('meta.title') %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="<%= t('meta.description') %>">
+    <meta name="description" content="<%= content_for(:meta_description) || t('meta.description') %>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="application-name" content="ScoreBase">
     <meta name="mobile-web-app-capable" content="yes">
@@ -21,16 +21,31 @@
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+    <!-- Canonical URL -->
+    <% if content_for?(:canonical_url) %>
+      <link rel="canonical" href="<%= content_for(:canonical_url) %>">
+    <% else %>
+      <link rel="canonical" href="<%= request.base_url %><%= request.path %>">
+    <% end %>
+
+    <!-- Alternate language versions (hreflang) -->
+    <link rel="alternate" hreflang="en" href="<%= request.base_url %><%= request.path.gsub(%r{^/de(/|$)}, '/') %>">
+    <link rel="alternate" hreflang="de" href="<%= request.base_url %>/de<%= request.path.gsub(%r{^/de}, '') %>">
+    <link rel="alternate" hreflang="x-default" href="<%= request.base_url %><%= request.path.gsub(%r{^/de(/|$)}, '/') %>">
+
     <!-- Open Graph / Social Sharing -->
-    <meta property="og:type" content="website">
+    <meta property="og:type" content="<%= content_for(:og_type) || 'website' %>">
     <meta property="og:title" content="<%= content_for(:title) || t('meta.title') %>">
-    <meta property="og:description" content="<%= t('meta.description') %>">
+    <meta property="og:description" content="<%= content_for(:meta_description) || t('meta.description') %>">
     <meta property="og:url" content="<%= request.original_url %>">
-    <meta property="og:image" content="<%= request.base_url %>/og-image.png">
+    <meta property="og:image" content="<%= content_for(:og_image) || "#{request.base_url}/og-image.png" %>">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:image" content="<%= request.base_url %>/og-image.png">
+    <meta name="twitter:image" content="<%= content_for(:og_image) || "#{request.base_url}/og-image.png" %>">
+
+    <!-- JSON-LD Structured Data -->
+    <%= yield :json_ld %>
 
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>

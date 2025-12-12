@@ -1,0 +1,57 @@
+<% content_for :title, @page_title %>
+
+<!-- Hero Section -->
+<section class="hub-hero py-8 sm:py-12 lg:py-16 border-b-2 border-[var(--color-border)]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <nav class="flex items-center gap-2 text-xs font-medium text-[var(--color-text-muted)] mb-4">
+      <%= link_to root_path, class: "hover:text-[var(--color-accent)] transition-colors" do %>ScoreBase<% end %>
+      <span class="text-[var(--color-border-subtle)]">/</span>
+      <%= link_to genres_path, class: "hover:text-[var(--color-accent)] transition-colors" do %><%= t('filters.genre') %><% end %>
+      <span class="text-[var(--color-border-subtle)]">/</span>
+      <span class="text-[var(--color-accent)]"><%= @genre_name %></span>
+    </nav>
+
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] mb-2 leading-tight font-black uppercase tracking-tight hero-title">
+          <%= @genre_name %>
+        </h1>
+        <p class="text-sm sm:text-base font-medium hero-subtitle">
+          <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@total_count) %></span>
+          <%= t('search.results_count').downcase %>
+        </p>
+      </div>
+
+      <%= form_with url: genre_path(slug: params[:slug]), method: :get, class: "inline-block" do |f| %>
+        <div class="sort-control">
+          <label for="sort" class="sort-label"><span class="sort-icon">↕</span><span class="hidden xs:inline"><%= t('search.sort_by') %></span></label>
+          <%= f.select :sort, [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]], { selected: @sort }, { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" } %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</section>
+
+<!-- Scores Grid -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+  <% if @scores.any? %>
+    <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4 [&>*]:max-w-[280px]">
+      <% @scores.each do |score| %>
+        <%= render 'score_card', score: score %>
+      <% end %>
+    </div>
+    <% if @scores.total_pages > 1 %>
+      <div class="mt-10 sm:mt-12 flex justify-center"><%= paginate @scores %></div>
+    <% end %>
+  <% else %>
+    <div class="mm-card p-8 sm:p-12 text-center">
+      <div class="text-6xl mb-4 text-[var(--color-border-subtle)]">🎼</div>
+      <p class="text-[var(--color-text-muted)] font-medium"><%= t('hub.no_scores_found') %></p>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .hub-hero { background: linear-gradient(135deg, #ffffff 0%, #fefcf9 50%, #ffffff 100%); }
+  [data-theme="dark"] .hub-hero { background: linear-gradient(135deg, #2a2520 0%, #1f1b18 50%, #2d2823 100%); }
+</style>

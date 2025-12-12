@@ -17,6 +17,21 @@ Rails.application.routes.draw do
       end
     end
 
+    # Hub/Landing Pages (SEO vanity pages)
+    # Single dimension
+    get "composers", to: "hub_pages#composers_index", as: :composers
+    get "composers/:slug", to: "hub_pages#composer", as: :composer
+    get "genres", to: "hub_pages#genres_index", as: :genres
+    get "genres/:slug", to: "hub_pages#genre", as: :genre
+    get "instruments", to: "hub_pages#instruments_index", as: :instruments
+    get "instruments/:slug", to: "hub_pages#instrument", as: :instrument
+    get "voicing", to: "hub_pages#voicing_index", as: :voicing_index
+    get "voicing/:slug", to: "hub_pages#voicing", as: :voicing
+
+    # Combined pages (Tier 1 combinations)
+    get "composers/:composer_slug/:instrument_slug", to: "hub_pages#composer_instrument", as: :composer_instrument
+    get "genres/:genre_slug/:instrument_slug", to: "hub_pages#genre_instrument", as: :genre_instrument
+
     # Pages
     get "about", to: "pages#about"
     get "impressum", to: "pages#impressum"

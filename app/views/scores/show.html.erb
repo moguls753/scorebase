@@ -1,3 +1,58 @@
+<%# SEO Meta Tags %>
+<% content_for :title do %><%= @score.title %><%= " - #{@score.composer}" if @score.composer.present? %> | ScoreBase<% end %>
+<% content_for :meta_description do %><%= t('hub.composer_page_description', name: @score.composer || 'Unknown', count: 1).gsub(/\d+ free/, 'Free') %> <%= @score.title %>.<% end %>
+<% content_for :og_type, 'music.song' %>
+<% if @score.has_thumbnail? %>
+  <% content_for :og_image, @score.thumbnail.is_a?(String) ? @score.thumbnail : url_for(@score.thumbnail) %>
+<% end %>
+
+<%# JSON-LD Structured Data for MusicComposition %>
+<% content_for :json_ld do %>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "MusicComposition",
+  "name": "<%= j @score.title %>",
+  <% if @score.composer.present? %>
+  "composer": {
+    "@type": "Person",
+    "name": "<%= j @score.composer %>"
+  },
+  <% end %>
+  <% if @score.description.present? %>
+  "description": "<%= j @score.description.truncate(160) %>",
+  <% end %>
+  <% if @score.genre_list.any? %>
+  "genre": <%= @score.genre_list.to_json.html_safe %>,
+  <% end %>
+  <% if @score.key_signature.present? %>
+  "musicalKey": "<%= j @score.primary_key_signature %>",
+  <% end %>
+  <% if @score.lyrics.present? %>
+  "lyrics": {
+    "@type": "CreativeWork",
+    "text": "<%= j @score.lyrics.truncate(500) %>"
+  },
+  <% end %>
+  "url": "<%= request.original_url %>",
+  "isAccessibleForFree": true,
+  "inLanguage": "<%= @score.language.presence || 'en' %>",
+  <% if @score.has_pdf? %>
+  "encoding": {
+    "@type": "MediaObject",
+    "encodingFormat": "application/pdf",
+    "contentUrl": "<%= request.base_url %><%= file_score_path(@score, 'pdf') %>"
+  },
+  <% end %>
+  "provider": {
+    "@type": "Organization",
+    "name": "ScoreBase",
+    "url": "<%= request.base_url %>"
+  }
+}
+</script>
+<% end %>
+
 <div class="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 sm:py-10">
   <!-- Back button -->
   <div class="mb-4 sm:mb-6">

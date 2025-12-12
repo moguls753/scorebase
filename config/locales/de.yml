@@ -160,3 +160,39 @@ de:
   languages:
     en: "EN"
     de: "DE"
+
+  # Hub/Landing Pages (SEO)
+  hub:
+    # Index pages
+    composers_title: "Komponisten — Freie Noten"
+    composers_description: "Durchsuche %{count} Komponisten mit kostenlosen Noten zum Download."
+    genres_title: "Musikgenres — Freie Noten"
+    genres_description: "Durchsuche %{count} Genres mit kostenlosen Noten zum Download."
+    instruments_title: "Instrumente — Freie Noten"
+    instruments_description: "Durchsuche %{count} Instrumente mit kostenlosen Noten zum Download."
+    voicing_title: "Vokalbesetzungen — Freie Noten"
+    voicing_description: "Durchsuche %{count} Vokalbesetzungen mit kostenlosen Noten zum Download."
+
+    # Single dimension pages
+    composer_page_title: "%{name} — Freie Noten"
+    composer_page_description: "Lade %{count} kostenlose Noten von %{name} herunter. PDF, MusicXML und MIDI."
+    genre_page_title: "%{name} Noten — Kostenloser Download"
+    genre_page_description: "Lade %{count} kostenlose %{name}-Noten herunter. PDF, MusicXML und MIDI."
+    instrument_page_title: "%{name} Noten — Kostenloser Download"
+    instrument_page_description: "Lade %{count} kostenlose Noten für %{name} herunter. PDF, MusicXML und MIDI."
+    voicing_page_title: "%{name} Chornoten — Kostenloser Download"
+    voicing_page_description: "Lade %{count} kostenlose %{name}-Chornoten herunter. PDF, MusicXML und MIDI."
+
+    # Combined pages
+    composer_instrument_title: "%{composer} %{instrument} Noten — Kostenloser Download"
+    composer_instrument_description: "Lade %{count} kostenlose %{instrument}-Noten von %{composer} herunter. PDF, MusicXML und MIDI."
+    genre_instrument_title: "%{genre} %{instrument} Noten — Kostenloser Download"
+    genre_instrument_description: "Lade %{count} kostenlose %{genre}-Noten für %{instrument} herunter. PDF, MusicXML und MIDI."
+
+    # UI elements
+    scores_count: "%{count} Noten"
+    browse_all: "Alle durchsuchen"
+    back_to_list: "Zurück zur Liste"
+    filter_results: "Ergebnisse filtern"
+    no_scores_found: "Keine Noten gefunden."
+    view_all_by: "Alle von %{name} anzeigen"

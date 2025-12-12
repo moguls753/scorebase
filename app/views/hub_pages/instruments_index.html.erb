@@ -1,0 +1,71 @@
+<% content_for :title, @page_title %>
+
+<!-- Hero Section -->
+<section class="hub-hero py-10 sm:py-14 lg:py-20 border-b-2 border-[var(--color-border)]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="max-w-3xl">
+      <nav class="flex items-center gap-2 text-xs font-medium text-[var(--color-text-muted)] mb-4">
+        <%= link_to root_path, class: "hover:text-[var(--color-accent)] transition-colors" do %>ScoreBase<% end %>
+        <span class="text-[var(--color-border-subtle)]">/</span>
+        <span class="text-[var(--color-accent)]"><%= t('score.instruments') %></span>
+      </nav>
+
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
+        <%= t('score.instruments') %>
+      </h1>
+      <p class="text-base sm:text-lg font-medium hero-subtitle">
+        <%= t('hub.instruments_description', count: @instruments.size) %>
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Instruments Grid -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <% if @instruments.any? %>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+      <% @instruments.each_with_index do |instrument, i| %>
+        <%= link_to instrument_path(slug: instrument[:slug]),
+            class: "hub-card mm-card p-4 sm:p-5 group text-center",
+            style: "animation-delay: #{i * 20}ms" do %>
+          <!-- Instrument Icon -->
+          <div class="text-4xl mb-3">
+            <% icon = case instrument[:name].downcase
+               when /piano/ then "🎹"
+               when /violin|viola|cello|bass|string/ then "🎻"
+               when /guitar/ then "🎸"
+               when /flute|clarinet|oboe|bassoon/ then "🎵"
+               when /trumpet|trombone|horn|tuba/ then "🎺"
+               when /drum|percussion/ then "🥁"
+               when /organ/ then "⛪"
+               when /harp/ then "🪕"
+               when /voice|choir|soprano|alto|tenor/ then "🎤"
+               when /orchestra/ then "🎼"
+               else "🎵"
+               end %>
+            <%= icon %>
+          </div>
+
+          <h3 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-bold mb-2 group-hover:text-[var(--color-accent)] transition-colors">
+            <%= instrument[:name] %>
+          </h3>
+          <p class="text-xs text-[var(--color-text-muted)] font-semibold">
+            <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(instrument[:count]) %></span>
+          </p>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="mm-card p-8 sm:p-12 text-center">
+      <div class="text-6xl mb-4 text-[var(--color-border-subtle)]">🎵</div>
+      <p class="text-[var(--color-text-muted)] font-medium"><%= t('hub.no_scores_found') %></p>
+    </div>
+  <% end %>
+</div>
+
+<style>
+  .hub-hero { background: linear-gradient(135deg, #ffffff 0%, #fefcf9 50%, #ffffff 100%); }
+  [data-theme="dark"] .hub-hero { background: linear-gradient(135deg, #2a2520 0%, #1f1b18 50%, #2d2823 100%); }
+  .hub-card { animation: hubCardFadeIn 0.4s ease both; }
+  @keyframes hubCardFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+</style>
