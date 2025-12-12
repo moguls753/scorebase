@@ -82,10 +82,15 @@ class ScoresController < ApplicationController
     # Use disposition: 'inline' for PDFs (for preview), 'attachment' for downloads
     disposition = params[:download] == 'true' ? 'attachment' : 'inline'
 
+    # Build a nice filename from score title and composer
+    nice_filename = "#{@score.title.parameterize}"
+    nice_filename += "-#{@score.composer.parameterize}" if @score.composer.present?
+    nice_filename += ".#{file_type}"
+
     send_file absolute_path,
               disposition: disposition,
               type: content_type_for(file_type),
-              filename: File.basename(absolute_path)
+              filename: nice_filename
   end
 
   private
