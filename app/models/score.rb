@@ -118,4 +118,34 @@ class Score < ApplicationRecord
     return nil unless cpdl? && filename.present?
     "https://www.cpdl.org/wiki/images/#{filename}"
   end
+
+  # Get original (full-size) thumbnail URL for MuseScore thumbnails
+  # Converts medium URL (score_0.png@300x420) to original (score_0.png)
+  def thumbnail_url_original
+    return nil unless thumbnail_url.present?
+    # Remove the @WIDTHxHEIGHT suffix to get original size
+    thumbnail_url.sub(/@\d+x\d+/, "")
+  end
+
+  # Unified thumbnail accessor - returns external URL or attached image
+  def thumbnail
+    return thumbnail_url if thumbnail_url.present?
+    return thumbnail_image if thumbnail_image.attached?
+    nil
+  end
+
+  # Unified preview accessor - returns original external URL or attached image
+  def preview
+    return thumbnail_url_original if thumbnail_url.present?
+    return preview_image if preview_image.attached?
+    nil
+  end
+
+  def has_thumbnail?
+    thumbnail_url.present? || thumbnail_image.attached?
+  end
+
+  def has_preview?
+    thumbnail_url.present? || preview_image.attached?
+  end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_11_091645) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_12_095552) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -66,6 +66,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_11_091645) do
     t.decimal "rating", precision: 3, scale: 2
     t.string "source", default: "pdmx"
     t.text "tags"
+    t.string "thumbnail_url"
     t.string "time_signature"
     t.string "title"
     t.datetime "updated_at", null: false

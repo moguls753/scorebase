@@ -12,15 +12,8 @@
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
     <!-- Score Preview -->
     <div class="mm-card overflow-hidden h-[50vh] sm:h-[60vh] lg:h-[700px]">
-      <% if @score.preview_image.attached? %>
-        <!-- High-res preview (1200px) -->
-        <%= image_tag @score.preview_image,
-            alt: @score.title,
-            class: "w-full h-full object-contain bg-[var(--color-bg)]"
-        %>
-      <% elsif @score.thumbnail_image.attached? %>
-        <!-- Thumbnail fallback (400px) -->
-        <%= image_tag @score.thumbnail_image,
+      <% if @score.has_preview? %>
+        <%= image_tag @score.preview,
             alt: @score.title,
             class: "w-full h-full object-contain bg-[var(--color-bg)]"
         %>

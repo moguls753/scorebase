@@ -7,7 +7,6 @@ class GenerateThumbnailJob < ApplicationJob
     score = Score.find_by(id: score_id)
     return unless score
 
-    generator = ThumbnailGenerator.new(score)
-    generator.generate!
+    ThumbnailGenerator.new(score).generate(:thumbnail)
   end
 end

@@ -3,99 +3,80 @@ require "uri"
 require "tempfile"
 
 class ThumbnailGenerator
-  THUMBNAIL_WIDTH = 400
-  PREVIEW_WIDTH = 1200
+  SIZES = {
+    thumbnail: 400,
+    preview: 1200
+  }.freeze
+
+  attr_reader :score, :errors
 
   def initialize(score)
     @score = score
     @errors = []
   end
 
-  def generate!
-    generate_thumbnail!
-  end
+  def generate(type = :both)
+    return true if skip_generation?
 
-  def generate_thumbnail!
-    return false unless @score.has_pdf?
-    return true if @score.thumbnail_image.attached?
-
-    generate_and_attach(:thumbnail_image, THUMBNAIL_WIDTH)
-  rescue => e
-    @errors << "Failed to generate thumbnail: #{e.message}"
-    Rails.logger.error("Thumbnail generation failed for Score #{@score.id}: #{e.message}")
-    false
-  end
-
-  def generate_preview!
-    return false unless @score.has_pdf?
-    return true if @score.preview_image.attached?
-
-    generate_and_attach(:preview_image, PREVIEW_WIDTH)
-  rescue => e
-    @errors << "Failed to generate preview: #{e.message}"
-    Rails.logger.error("Preview generation failed for Score #{@score.id}: #{e.message}")
-    false
-  end
-
-  def generate_both!
-    thumbnail_ok = generate_thumbnail!
-    preview_ok = generate_preview!
-    thumbnail_ok && preview_ok
-  end
-
-  def errors
-    @errors
+    case type
+    when :thumbnail then generate_image(:thumbnail)
+    when :preview   then generate_image(:preview)
+    when :both      then generate_image(:thumbnail) && generate_image(:preview)
+    else
+      raise ArgumentError, "Unknown type: #{type}. Use :thumbnail, :preview, or :both"
+    end
   end
 
   private
 
-  def generate_and_attach(attachment_name, width)
-    Tempfile.create(["score_img", ".png"]) do |output_file|
-      if @score.external?
-        generate_from_url(@score.pdf_path, output_file.path, width)
-      else
-        local_pdf_path = get_local_pdf_path
-        raise "Local PDF not found" unless File.exist?(local_pdf_path)
-        generate_from_file(local_pdf_path, output_file.path, width)
-      end
+  def skip_generation?
+    score.pdmx? && score.thumbnail_url.present?
+  end
 
-      @score.public_send(attachment_name).attach(
-        io: File.open(output_file.path),
-        filename: "#{@score.id}_#{attachment_name}.png",
+  def generate_image(type)
+    attachment = :"#{type}_image"
+    return true if score.public_send(attachment).attached?
+    return false unless score.has_pdf?
+
+    with_pdf_file do |pdf_path|
+      attach_image(attachment, pdf_path, SIZES[type])
+    end
+  rescue => e
+    log_error(type, e)
+    false
+  end
+
+  def with_pdf_file
+    if score.external?
+      with_downloaded_pdf { |path| yield path }
+    else
+      path = local_pdf_path
+      raise "Local PDF not found: #{path}" unless File.exist?(path)
+      yield path
+    end
+  end
+
+  def with_downloaded_pdf
+    Tempfile.create(["score", ".pdf"]) do |temp_pdf|
+      download_pdf(score.pdf_path, temp_pdf.path)
+      yield temp_pdf.path
+    end
+  end
+
+  def attach_image(attachment, pdf_path, width)
+    Tempfile.create(["score_img", ".png"]) do |output|
+      render_first_page(pdf_path, output.path, width)
+      score.public_send(attachment).attach(
+        io: File.open(output.path),
+        filename: "#{score.id}_#{attachment}.png",
         content_type: "image/png"
       )
     end
-
     true
   end
 
-  def generate_from_url(pdf_url, output_path, width)
-    Tempfile.create(["score", ".pdf"]) do |temp_pdf|
-      download_pdf(pdf_url, temp_pdf.path)
-      generate_from_file(temp_pdf.path, output_path, width)
-    end
-  end
-
-  def download_pdf(url, destination)
-    uri = URI(url)
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true if uri.scheme == "https"
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE # FIXME: Proper SSL verification
-
-    request = Net::HTTP::Get.new(uri)
-    request["User-Agent"] = "ScorebaseBot/1.0"
-
-    response = http.request(request)
-
-    unless response.is_a?(Net::HTTPSuccess)
-      raise "Failed to download PDF: #{response.code} - #{response.message}"
-    end
-
-    File.binwrite(destination, response.body)
-  end
-
-  def generate_from_file(pdf_path, output_path, width)
-    temp_prefix = Rails.root.join("tmp", "img_#{@score.id}_#{width}_#{SecureRandom.hex(4)}")
+  def render_first_page(pdf_path, output_path, width)
+    temp_prefix = Rails.root.join("tmp", "img_#{score.id}_#{width}_#{SecureRandom.hex(4)}")
 
     result = system(
       "pdftoppm",
@@ -117,10 +98,36 @@ class ThumbnailGenerator
     FileUtils.mv(temp_output, output_path)
   end
 
-  def get_local_pdf_path
-    pdf_path = @score.pdf_path
+  def download_pdf(url, destination)
+    uri = URI(url)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = (uri.scheme == "https")
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE # TODO: Proper SSL verification
+
+    request = Net::HTTP::Get.new(uri)
+    request["User-Agent"] = "ScorebaseBot/1.0"
+
+    response = http.request(request)
+
+    unless response.is_a?(Net::HTTPSuccess)
+      raise "Failed to download PDF: #{response.code} - #{response.message}"
+    end
+
+    File.binwrite(destination, response.body)
+  end
+
+  def local_pdf_path
+    pdf_path = score.pdf_path
     return nil if pdf_path.blank? || pdf_path == "N/A"
 
-    File.join(ENV.fetch("PDMX_DATA_PATH", File.expand_path("~/data/pdmx")), pdf_path.sub(/^\.\//, ""))
+    File.join(
+      ENV.fetch("PDMX_DATA_PATH", File.expand_path("~/data/pdmx")),
+      pdf_path.sub(/^\.\//, "")
+    )
+  end
+
+  def log_error(type, error)
+    @errors << "Failed to generate #{type}: #{error.message}"
+    Rails.logger.error("#{type.capitalize} generation failed for Score #{score.id}: #{error.message}")
   end
 end
