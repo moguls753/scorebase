@@ -13,8 +13,7 @@ RSpec.describe ImslpImporter do
     allow(ENV).to receive(:[]).with("GEMINI_API_KEY").and_return(api_key)
 
     # Clear cache before each test
-    cache_file = Rails.root.join("tmp", "composer_normalizer_cache.json")
-    File.delete(cache_file) if File.exist?(cache_file)
+    AppSetting.find_by(key: "composer_cache")&.destroy
   end
 
   describe "#normalize_composer" do
@@ -24,8 +23,7 @@ RSpec.describe ImslpImporter do
     end
 
     it "returns cached value if exists" do
-      cache_file = Rails.root.join("tmp", "composer_normalizer_cache.json")
-      File.write(cache_file, { "Bach" => "Bach, Johann Sebastian" }.to_json)
+      AppSetting.set("composer_cache", { "Bach" => "Bach, Johann Sebastian" })
 
       expect(importer.send(:normalize_composer, "Bach")).to eq("Bach, Johann Sebastian")
     end

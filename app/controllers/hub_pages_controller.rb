@@ -154,8 +154,12 @@ class HubPagesController < ApplicationController
   # === Data aggregation methods ===
 
   def composers_with_counts
+    # Only show composers that have been normalized (exist in composer cache)
+    cache = AppSetting.fetch("composer_cache", {})
+    valid_composers = cache.values.compact.uniq
+
     # Group by parameterized slug to merge variants like "John Dowland" and "JOHN DOWLAND."
-    composer_counts = Score.where.not(composer: [nil, ""])
+    composer_counts = Score.where(composer: valid_composers)
                            .group(:composer)
                            .count
 

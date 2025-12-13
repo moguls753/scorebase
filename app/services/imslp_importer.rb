@@ -550,19 +550,12 @@ class ImslpImporter
     nil
   end
 
-  def composer_cache_file
-    Rails.root.join("tmp", "composer_normalizer_cache.json")
-  end
-
   def load_composer_cache
-    return {} unless File.exist?(composer_cache_file)
-    JSON.parse(File.read(composer_cache_file))
-  rescue
-    {}
+    AppSetting.get("composer_cache") || {}
   end
 
   def save_composer_cache
-    File.write(composer_cache_file, JSON.pretty_generate(@composer_cache))
+    AppSetting.set("composer_cache", @composer_cache)
   end
 
   def parse_voicing(instrumentation, instr_detail)
