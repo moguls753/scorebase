@@ -13,19 +13,23 @@ namespace :normalize do
     imslp_file = Rails.root.join("db", "canonical_composers_imslp.txt")
     imslp_set = File.exist?(imslp_file) ? Set.new(File.readlines(imslp_file, chomp: true)) : Set.new
 
-    composers = Score.distinct.pluck(:composer).compact
-    limit = ENV["LIMIT"]&.to_i
-    composers = composers.first(limit) if limit&.positive?
+    scores = Score.select(:id, :composer, :title, :editor, :genres, :language)
+                  .distinct
+                  .pluck(:composer, :title, :editor, :genres, :language)
+                  .uniq { |row| row[0] } # unique by composer field
 
-    puts "#{composers.count} composers to normalize#{limit ? " (limited)" : ""}"
+    limit = ENV["LIMIT"]&.to_i
+    scores = scores.first(limit) if limit&.positive?
+
+    puts "#{scores.count} unique composer fields to normalize#{limit ? " (limited)" : ""}"
     puts "IMSLP list: #{imslp_set.size} composers loaded\n\n"
 
     mappings = {}
     matched_imslp = 0
     batch_size = 40
 
-    composers.each_slice(batch_size).with_index do |batch, idx|
-      puts "Batch #{idx + 1}/#{(composers.count / batch_size.to_f).ceil}"
+    scores.each_slice(batch_size).with_index do |batch, idx|
+      puts "Batch #{idx + 1}/#{(scores.count / batch_size.to_f).ceil}"
 
       result = gemini_normalize(api_key, batch)
       result&.each do |item|
@@ -40,7 +44,7 @@ namespace :normalize do
         puts "  #{mark} #{item['original'][0..32].ljust(35)} -> #{normalized}"
       end
 
-      sleep 4 unless idx == (composers.count / batch_size.to_f).ceil - 1
+      sleep 4 unless idx == (scores.count / batch_size.to_f).ceil - 1
     end
 
     # Summary
@@ -104,19 +108,30 @@ namespace :normalize do
   def gemini_normalize(api_key, batch)
     uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=#{api_key}")
 
+    # Format batch with context
+    scores_data = batch.map do |composer, title, editor, genres, language|
+      { composer: composer, title: title, editor: editor, genres: genres, language: language }
+    end
+
     prompt = <<~PROMPT
-      Normalize these composer names to "LastName, FirstName" format (standard music library format).
+      Identify the COMPOSER for each music score. Return normalized as "LastName, FirstName".
+
+      Use ALL fields to identify the composer:
+      - composer field may contain the composer, arranger, piece title, or garbage
+      - title often contains composer name (e.g., "Sonata by Mozart")
+      - editor might be the arranger (original composer may be famous)
+      - genres/language can hint at likely composers
 
       Rules:
       - "J.S. Bach" -> "Bach, Johann Sebastian"
       - "Mozart" -> "Mozart, Wolfgang Amadeus"
-      - "Arr. by X" -> return the arranger name normalized
-      - Garbage like "Op. 25" or key signatures -> return null
-      - Unknown -> return null
+      - If composer field is garbage but title says "by Mozart" -> "Mozart, Wolfgang Amadeus"
+      - Traditional/folk music with no composer -> null
+      - If truly unknown -> null
 
-      Input: #{batch.to_json}
+      Input: #{scores_data.to_json}
 
-      Return JSON: [{"original": "input", "normalized": "LastName, FirstName" or null}]
+      Return JSON: [{"original": "composer field value", "normalized": "LastName, FirstName" or null}]
     PROMPT
 
     body = {
