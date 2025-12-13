@@ -102,7 +102,7 @@ namespace :normalize do
   private
 
   def gemini_normalize(api_key, batch)
-    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=#{api_key}")
+    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=#{api_key}")
 
     prompt = <<~PROMPT
       Normalize these composer names to "LastName, FirstName" format (standard music library format).
@@ -137,12 +137,23 @@ namespace :normalize do
     req.body = body.to_json
 
     res = http.request(req)
-    return nil unless res.code == "200"
 
-    text = JSON.parse(res.body).dig("candidates", 0, "content", "parts", 0, "text")
+    unless res.code == "200"
+      puts "  API Error #{res.code}: #{res.body[0..200]}"
+      return nil
+    end
+
+    body = JSON.parse(res.body)
+    text = body.dig("candidates", 0, "content", "parts", 0, "text")
+
+    unless text
+      puts "  No text in response: #{body.keys}"
+      return nil
+    end
+
     JSON.parse(text)
   rescue => e
-    puts "  Error: #{e.message}"
+    puts "  Error: #{e.class} - #{e.message}"
     nil
   end
 end
