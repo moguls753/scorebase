@@ -6,7 +6,7 @@ require "webmock/rspec"
 RSpec.describe ImslpImporter do
   let(:importer) { described_class.new }
   let(:api_key) { "test-api-key" }
-  let(:gemini_url) { "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent" }
+  let(:gemini_url) { "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent" }
 
   before do
     allow(ENV).to receive(:[]).and_call_original
