@@ -516,7 +516,7 @@ class ImslpImporter
   end
 
   def gemini_normalize_batch(api_key, composers)
-    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent?key=#{api_key}")
+    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=#{api_key}")
 
     prompt = <<~PROMPT
       Normalize these composer names to "LastName, FirstName" format.

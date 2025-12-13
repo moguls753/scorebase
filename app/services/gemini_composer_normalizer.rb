@@ -6,7 +6,14 @@ require "json"
 class GeminiComposerNormalizer
   BATCH_SIZE = 100
   BATCH_DELAY = 4 # seconds between batches
-  API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent"
+
+  # Gemini API
+  # API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+
+  # Claude API
+  API_ENDPOINT = "https://api.anthropic.com/v1/messages"
+  ANTHROPIC_VERSION = "2023-06-01"
+  MODEL = "claude-3-5-haiku-20241022" # Fast and cheap
 
   class QuotaExceededError < StandardError; end
 
@@ -86,7 +93,11 @@ class GeminiComposerNormalizer
   end
 
   def gemini_request(batch)
-    uri = URI("#{API_ENDPOINT}?key=#{@api_key}")
+    # Gemini
+    # uri = URI("#{API_ENDPOINT}?key=#{@api_key}")
+
+    # Claude
+    uri = URI(API_ENDPOINT)
 
     scores_data = batch.map do |composer, title, editor, genres, language|
       { composer: composer, title: title, editor: editor, genres: genres, language: language }
@@ -122,9 +133,20 @@ class GeminiComposerNormalizer
       Return JSON: [{"original": "composer field value", "normalized": "LastName, FirstName" or null}]
     PROMPT
 
+    # Gemini format
+    # {
+    #   contents: [{ parts: [{ text: prompt }] }],
+    #   generationConfig: { responseMimeType: "application/json", temperature: 0.1 }
+    # }
+
+    # Claude format
     {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.1 }
+      model: MODEL,
+      max_tokens: 4096,
+      temperature: 0.1,
+      messages: [
+        { role: "user", content: prompt }
+      ]
     }
   end
 
@@ -137,6 +159,14 @@ class GeminiComposerNormalizer
 
     req = Net::HTTP::Post.new(uri)
     req["Content-Type"] = "application/json"
+
+    # Gemini auth
+    # API key passed in URL
+
+    # Claude auth
+    req["x-api-key"] = @api_key
+    req["anthropic-version"] = ANTHROPIC_VERSION
+
     req.body = payload.to_json
 
     http.request(req)
@@ -151,7 +181,12 @@ class GeminiComposerNormalizer
     end
 
     body = JSON.parse(response.body)
-    text = body.dig("candidates", 0, "content", "parts", 0, "text")
+
+    # Gemini format
+    # text = body.dig("candidates", 0, "content", "parts", 0, "text")
+
+    # Claude format
+    text = body.dig("content", 0, "text")
 
     unless text
       puts "  No text in response: #{body.keys}"
