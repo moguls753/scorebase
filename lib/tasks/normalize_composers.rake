@@ -9,10 +9,6 @@ namespace :normalize do
     api_key = ENV["GEMINI_API_KEY"]
     abort "Set GEMINI_API_KEY" if api_key.blank?
 
-    # Load IMSLP for inline validation
-    imslp_file = Rails.root.join("db", "canonical_composers_imslp.txt")
-    imslp_set = File.exist?(imslp_file) ? Set.new(File.readlines(imslp_file, chomp: true)) : Set.new
-
     scores = Score.select(:id, :composer, :title, :editor, :genres, :language)
                   .distinct
                   .pluck(:composer, :title, :editor, :genres, :language)
@@ -21,87 +17,68 @@ namespace :normalize do
     limit = ENV["LIMIT"]&.to_i
     scores = scores.first(limit) if limit&.positive?
 
-    puts "#{scores.count} unique composer fields to normalize#{limit ? " (limited)" : ""}"
-    puts "IMSLP list: #{imslp_set.size} composers loaded\n\n"
+    puts "#{scores.count} unique composer fields to normalize#{limit ? " (limited)" : ""}\n\n"
 
-    mappings = {}
-    matched_imslp = 0
+    # Resume support (shared cache with IMSLP importer)
+    output = Rails.root.join("tmp", "composer_normalizer_cache.json")
+    mappings = File.exist?(output) ? JSON.parse(File.read(output)) : {}
+    puts "Resuming with #{mappings.count} existing mappings\n" if mappings.any?
+
+    # Filter already processed
+    remaining = scores.reject { |row| mappings.key?(row[0]) }
+    puts "Remaining: #{remaining.count} composers\n\n"
+
     batch_size = 40
-
-    scores.each_slice(batch_size).with_index do |batch, idx|
-      puts "Batch #{idx + 1}/#{(scores.count / batch_size.to_f).ceil}"
+    remaining.each_slice(batch_size).with_index do |batch, idx|
+      puts "Batch #{idx + 1}/#{(remaining.count / batch_size.to_f).ceil}"
 
       result = gemini_normalize(api_key, batch)
-      result&.each do |item|
-        normalized = item["normalized"]
-        mappings[item["original"]] = normalized
 
-        # Check IMSLP match
-        in_imslp = normalized && imslp_set.include?(normalized)
-        matched_imslp += 1 if in_imslp
-        mark = in_imslp ? "✓" : " "
-
-        puts "  #{mark} #{item['original'][0..32].ljust(35)} -> #{normalized}"
+      if result == :quota_exceeded
+        puts "\n⚠️  Quota exceeded! Progress saved. Run again tomorrow."
+        break
       end
 
-      sleep 4 unless idx == (scores.count / batch_size.to_f).ceil - 1
+      result&.each do |item|
+        original = item["original"]
+        normalized = item["normalized"]
+        mappings[original] = normalized
+
+        # Apply immediately
+        if normalized
+          updated = Score.where(composer: original).update_all(composer: normalized)
+          puts "  [#{updated}] #{original[0..30].ljust(33)} -> #{normalized}"
+        else
+          puts "       #{original[0..30].ljust(33)} -> (unknown)"
+        end
+      end
+
+      # Save progress after each batch
+      File.write(output, JSON.pretty_generate(mappings))
+
+      sleep 4 unless idx == (remaining.count / batch_size.to_f).ceil - 1
     end
 
     # Summary
     puts "\n#{"=" * 50}"
-    puts "Total: #{mappings.count}"
-    puts "IMSLP matches: #{matched_imslp} (#{(matched_imslp * 100.0 / mappings.count).round(1)}%)"
-    puts "No match: #{mappings.count { |_, v| v.nil? }}"
-
-    # Save
-    output = Rails.root.join("tmp", "composer_mappings_#{Time.now.strftime('%Y%m%d_%H%M%S')}.json")
-    File.write(output, JSON.pretty_generate(mappings))
-    puts "\nSaved to: #{output}"
+    puts "Total processed: #{mappings.count}"
+    puts "Normalized & applied: #{mappings.count { |_, v| v }}"
+    puts "Unknown (unchanged): #{mappings.count { |_, v| v.nil? }}"
+    puts "\nProgress saved to: #{output}"
+    puts "Run again to continue if quota was exceeded."
   end
 
-  desc "Validate mappings against IMSLP list"
-  task validate: :environment do
-    file = ENV["FILE"]
-    abort "Specify FILE=path/to/mappings.json" if file.blank?
-
-    imslp = File.readlines(Rails.root.join("db", "canonical_composers_imslp.txt"), chomp: true)
-    imslp_set = Set.new(imslp)
-    imslp_downcase = imslp.map { |c| [c.downcase, c] }.to_h
-
-    mappings = JSON.parse(File.read(file))
-
-    matched = 0
-    unmatched = []
-
-    mappings.each do |orig, norm|
-      if imslp_set.include?(norm) || imslp_downcase[norm&.downcase]
-        matched += 1
-      else
-        unmatched << [orig, norm]
-      end
+  desc "Reset normalization cache"
+  task reset: :environment do
+    file = Rails.root.join("tmp", "composer_normalizer_cache.json")
+    if File.exist?(file)
+      File.delete(file)
+      puts "Progress reset."
+    else
+      puts "No progress file found."
     end
-
-    puts "Matched to IMSLP: #{matched}/#{mappings.count}"
-    puts "\nUnmatched (#{unmatched.count}):"
-    unmatched.first(30).each { |o, n| puts "  #{o[0..30]} -> #{n}" }
   end
 
-  desc "Apply mappings"
-  task apply: :environment do
-    file = ENV["FILE"]
-    abort "Specify FILE=path/to/mappings.json" if file.blank?
-
-    mappings = JSON.parse(File.read(file))
-    count = 0
-
-    mappings.each do |original, normalized|
-      next unless normalized
-      updated = Score.where(composer: original).update_all(composer: normalized)
-      count += updated
-    end
-
-    puts "Updated #{count} scores"
-  end
 
   private
 
@@ -123,10 +100,14 @@ namespace :normalize do
       - genres/language can hint at likely composers
 
       Rules:
+      - Use the composer's ORIGINAL native language name, not anglicized versions
+      - German composer -> German name: "Händel, Georg Friedrich" (not "Handel, George Frideric")
       - "J.S. Bach" -> "Bach, Johann Sebastian"
       - "Mozart" -> "Mozart, Wolfgang Amadeus"
-      - If composer field is garbage but title says "by Mozart" -> "Mozart, Wolfgang Amadeus"
-      - Traditional/folk music with no composer -> null
+      - "Handel" -> "Händel, Georg Friedrich"
+      - "Tchaikovsky" -> "Чайковский, Пётр Ильич" or "Tschaikowski, Pjotr Iljitsch" (use Latin script)
+      - If composer field is garbage but title hints at composer -> extract it
+      - Traditional/folk music with no known composer -> null
       - If truly unknown -> null
 
       Input: #{scores_data.to_json}
@@ -152,6 +133,11 @@ namespace :normalize do
     req.body = body.to_json
 
     res = http.request(req)
+
+    if res.code == "429"
+      puts "  Rate limited (429)"
+      return :quota_exceeded
+    end
 
     unless res.code == "200"
       puts "  API Error #{res.code}: #{res.body[0..200]}"

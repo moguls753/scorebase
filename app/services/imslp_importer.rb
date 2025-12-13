@@ -106,6 +106,10 @@ class ImslpImporter
       end
     end
 
+    # Batch normalize all composers at the end
+    puts "\nPhase 3: Normalizing composers..."
+    normalize_composers_batch!
+
     report_results
   rescue RateLimitError => e
     puts "\n[ERROR] Rate limit exceeded!"
@@ -466,13 +470,99 @@ class ImslpImporter
   def normalize_composer(composer_str)
     return nil if composer_str.blank?
 
-    # IMSLP format: "Last, First" -> "First Last"
-    if composer_str.include?(",")
-      parts = composer_str.split(",", 2)
-      "#{parts[1].strip} #{parts[0].strip}"
-    else
-      composer_str
+    # Check cache first
+    @composer_cache ||= load_composer_cache
+    return @composer_cache[composer_str] if @composer_cache.key?(composer_str)
+
+    # Queue for batch processing
+    @composer_queue ||= []
+    @composer_queue << composer_str
+
+    # Fallback for now - batch will update later
+    composer_str
+  end
+
+  def normalize_composers_batch!
+    return if @composer_queue.blank?
+
+    api_key = ENV["GEMINI_API_KEY"]
+    return unless api_key.present?
+
+    @composer_cache ||= load_composer_cache
+    uncached = @composer_queue.uniq - @composer_cache.keys
+    return if uncached.empty?
+
+    puts "  Normalizing #{uncached.size} composers via Gemini..."
+
+    uncached.each_slice(40) do |batch|
+      results = gemini_normalize_batch(api_key, batch)
+      next unless results
+
+      results.each do |item|
+        @composer_cache[item["original"]] = item["normalized"]
+      end
+
+      sleep 4 # Rate limit
     end
+
+    save_composer_cache
+    @composer_queue = []
+
+    # Update scores with normalized composers
+    @composer_cache.each do |original, normalized|
+      next unless normalized
+      Score.where(source: "imslp", composer: original).update_all(composer: normalized)
+    end
+  end
+
+  def gemini_normalize_batch(api_key, composers)
+    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=#{api_key}")
+
+    prompt = <<~PROMPT
+      Normalize these composer names to "LastName, FirstName" format.
+      Use native language names (German composers get German names).
+      Return JSON: [{"original": "input", "normalized": "Name" or null}]
+
+      Input: #{composers.to_json}
+    PROMPT
+
+    body = {
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: "application/json", temperature: 0.1 }
+    }
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+    http.verify_callback = ->(_ok, _ctx) { true }
+    http.read_timeout = 60
+
+    req = Net::HTTP::Post.new(uri)
+    req["Content-Type"] = "application/json"
+    req.body = body.to_json
+
+    res = http.request(req)
+    return nil unless res.code == "200"
+
+    JSON.parse(JSON.parse(res.body).dig("candidates", 0, "content", "parts", 0, "text"))
+  rescue => e
+    puts "  Batch normalization failed: #{e.message}"
+    nil
+  end
+
+  def composer_cache_file
+    Rails.root.join("tmp", "composer_normalizer_cache.json")
+  end
+
+  def load_composer_cache
+    return {} unless File.exist?(composer_cache_file)
+    JSON.parse(File.read(composer_cache_file))
+  rescue
+    {}
+  end
+
+  def save_composer_cache
+    File.write(composer_cache_file, JSON.pretty_generate(@composer_cache))
   end
 
   def parse_voicing(instrumentation, instr_detail)
