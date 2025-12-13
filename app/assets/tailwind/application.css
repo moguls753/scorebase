@@ -1175,24 +1175,6 @@ body.overflow-hidden {
   text-decoration: none;
   box-shadow: 4px 4px 0 var(--shadow-color);
   transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-  position: relative;
-  overflow: hidden;
-  /* Staggered entrance animation */
-  opacity: 0;
-  transform: translateY(12px);
-  animation: browseEnter 0.4s ease forwards;
-}
-
-.browse-link:nth-child(1) { animation-delay: 0.1s; }
-.browse-link:nth-child(2) { animation-delay: 0.18s; }
-.browse-link:nth-child(3) { animation-delay: 0.26s; }
-.browse-link:nth-child(4) { animation-delay: 0.34s; }
-
-@keyframes browseEnter {
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 .browse-link-icon {
