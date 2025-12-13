@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
 
   # Set locale from URL path or browser preference
   around_action :switch_locale
+  after_action :track_visit
 
   private
 
@@ -37,6 +38,16 @@ class ApplicationController < ActionController::Base
 
   def default_url_options
     { locale: I18n.locale == I18n.default_locale ? nil : I18n.locale }
+  end
+
+  def track_visit
+    return if bot?
+    DailyStat.track_visit!
+  end
+
+  def bot?
+    user_agent = request.user_agent.to_s.downcase
+    user_agent.match?(/bot|crawl|spider|slurp|bingpreview|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|curl|wget|python|ruby|java|php|go-http|axios|postman/i)
   end
 
   # Protect production site during testing phase

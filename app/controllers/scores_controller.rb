@@ -32,6 +32,7 @@ class ScoresController < ApplicationController
 
   def show
     @score = Score.find(params[:id])
+    @score.increment!(:views) unless bot?
   end
 
   def serve_file
