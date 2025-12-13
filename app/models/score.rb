@@ -77,7 +77,38 @@ class Score < ApplicationRecord
   scope :by_num_parts, ->(parts) { where(num_parts: parts) if parts.present? }
 
   # Genre filter (genres stored as comma-separated text)
-  scope :by_genre, ->(genre) { where("genres LIKE ?", "%#{sanitize_sql_like(genre)}%") if genre.present? }
+  # Special handling for "Sacred" to match both "Sacred" and "religiousmusic"
+  scope :by_genre, ->(genre) {
+    return all if genre.blank?
+
+    if genre.downcase == "sacred"
+      where("genres LIKE ? OR genres LIKE ?", "%Sacred%", "%religiousmusic%")
+    else
+      where("genres LIKE ?", "%#{sanitize_sql_like(genre)}%")
+    end
+  }
+
+  # Period filter (historical period from genre tags)
+  scope :by_period, ->(period) {
+    return all if period.blank?
+
+    case period.downcase
+    when "medieval"
+      where("genres LIKE ?", "%Medieval%")
+    when "renaissance"
+      where("genres LIKE ?", "%Renaissance music%")
+    when "baroque"
+      where("genres LIKE ?", "%Baroque music%")
+    when "classical"
+      where("genres LIKE ?", "%Classical music%")
+    when "romantic"
+      where("genres LIKE ?", "%Romantic music%")
+    when "modern"
+      where("genres LIKE ? OR genres LIKE ?", "%Modern music%", "%20th century%")
+    else
+      all
+    end
+  }
 
   # Forces filters (maps UI labels to num_parts)
   scope :solo, -> { where(num_parts: 1) }

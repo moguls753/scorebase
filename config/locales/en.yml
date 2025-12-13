@@ -41,8 +41,11 @@ en:
     time: "Time Signature"
     forces: "Forces"
     voice_type: "Voice Type"
+    difficulty: "Difficulty"
     genre: "Genre"
+    period: "Period"
     source: "Source"
+    language: "Language"
     any: "Any"
 
   # Sort options
@@ -55,21 +58,29 @@ en:
 
   # Genres
   genres:
+    sacred: "Sacred / Religious"
     classical: "Classical"
     folk: "Folk"
+    soundtrack: "Soundtrack"
     jazz: "Jazz"
     rock: "Rock"
     pop: "Pop"
 
   # Key signatures
   keys:
-    d_major: "D major"
+    c_major: "C major"
     g_major: "G major"
+    d_major: "D major"
     a_major: "A major"
     f_major: "F major"
-    c_major: "C major"
-    e_minor: "E minor"
+    bb_major: "Bb major"
+    eb_major: "Eb major"
     a_minor: "A minor"
+    e_minor: "E minor"
+    d_minor: "D minor"
+    g_minor: "G minor"
+    b_minor: "B minor"
+    c_minor: "C minor"
 
   # Forces options (number of performers)
   forces:
@@ -85,6 +96,22 @@ en:
     treble: "Treble / Women's"
     mens: "Men's"
     unison: "Unison"
+
+  # Difficulty levels
+  difficulty:
+    beginner: "Beginner"
+    easy: "Easy"
+    intermediate: "Intermediate"
+    advanced: "Advanced"
+
+  # Historical periods
+  periods:
+    medieval: "Medieval"
+    renaissance: "Renaissance"
+    baroque: "Baroque"
+    classical: "Classical"
+    romantic: "Romantic"
+    modern: "Modern / 20th Century"
 
   # Score Detail Page
   score:
@@ -161,10 +188,16 @@ en:
     functional_cookie_desc: "Language preference only"
     back_to_search: "Back to Search"
 
-  # Language names (for the toggle)
+  # Language names (for the toggle and filter)
   languages:
     en: "EN"
     de: "DE"
+    latin: "Latin"
+    english: "English"
+    italian: "Italian"
+    german: "German"
+    french: "French"
+    spanish: "Spanish"
 
   # Hub/Landing Pages (SEO)
   hub:

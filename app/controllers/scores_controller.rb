@@ -12,6 +12,9 @@ class ScoresController < ApplicationController
     @scores = @scores.by_key_signature(params[:key]) if params[:key].present?
     @scores = @scores.by_time_signature(params[:time]) if params[:time].present?
     @scores = @scores.by_genre(params[:genre]) if params[:genre].present?
+    @scores = @scores.by_period(params[:period]) if params[:period].present?
+    @scores = @scores.by_complexity(params[:difficulty]) if params[:difficulty].present?
+    @scores = @scores.where(language: params[:language]) if params[:language].present?
 
     # Forces filter (number of parts)
     @scores = apply_forces_filter(@scores, params[:voicing]) if params[:voicing].present?

@@ -18,8 +18,11 @@
         <%= f.hidden_field :key, value: params[:key] %>
         <%= f.hidden_field :time, value: params[:time] %>
         <%= f.hidden_field :genre, value: params[:genre] %>
+        <%= f.hidden_field :period, value: params[:period] %>
         <%= f.hidden_field :voicing, value: params[:voicing] %>
         <%= f.hidden_field :voice_type, value: params[:voice_type] %>
+        <%= f.hidden_field :difficulty, value: params[:difficulty] %>
+        <%= f.hidden_field :language, value: params[:language] %>
         <%= f.hidden_field :sort, value: params[:sort] %>
         <%= f.text_field :q,
           placeholder: t('search.placeholder'),
@@ -85,7 +88,7 @@
             <span class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight">
               <%= t('search.filters') %>
             </span>
-            <% active_filters = [params[:key], params[:time], params[:voicing], params[:voice_type], params[:genre], params[:source]].compact.reject(&:blank?).count %>
+            <% active_filters = [params[:key], params[:time], params[:voicing], params[:voice_type], params[:genre], params[:period], params[:source], params[:difficulty], params[:language]].compact.reject(&:blank?).count %>
             <% if active_filters > 0 %>
               <span class="filter-count"><%= active_filters %></span>
             <% end %>
@@ -106,7 +109,7 @@
                   <%= t('filters.key') %>
                 </label>
                 <%= f.select :key,
-                    options_for_select([[t('filters.any'), ''], [t('keys.d_major'), 'D major'], [t('keys.g_major'), 'G major'], [t('keys.a_major'), 'A major'], [t('keys.f_major'), 'F major'], [t('keys.c_major'), 'C major'], [t('keys.e_minor'), 'E minor'], [t('keys.a_minor'), 'A minor']], params[:key]),
+                    options_for_select([[t('filters.any'), ''], [t('keys.c_major'), 'C major'], [t('keys.g_major'), 'G major'], [t('keys.d_major'), 'D major'], [t('keys.a_major'), 'A major'], [t('keys.f_major'), 'F major'], [t('keys.bb_major'), 'Bb major'], [t('keys.eb_major'), 'Eb major'], [t('keys.a_minor'), 'A minor'], [t('keys.e_minor'), 'E minor'], [t('keys.d_minor'), 'D minor'], [t('keys.g_minor'), 'G minor'], [t('keys.b_minor'), 'B minor'], [t('keys.c_minor'), 'C minor']], params[:key]),
                     {},
                     { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
                 %>
@@ -136,13 +139,37 @@
                 %>
               </div>
 
+              <!-- Filter: Difficulty -->
+              <div>
+                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
+                  <%= t('filters.difficulty') %>
+                </label>
+                <%= f.select :difficulty,
+                    options_for_select([[t('filters.any'), ''], [t('difficulty.beginner'), '0'], [t('difficulty.easy'), '1'], [t('difficulty.intermediate'), '2'], [t('difficulty.advanced'), '3']], params[:difficulty]),
+                    {},
+                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+                %>
+              </div>
+
               <!-- Filter: Genre -->
               <div>
                 <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
                   <%= t('filters.genre') %>
                 </label>
                 <%= f.select :genre,
-                    options_for_select([[t('filters.any'), ''], [t('genres.classical'), 'classical'], [t('genres.folk'), 'folk'], [t('genres.jazz'), 'jazz'], [t('genres.rock'), 'rock'], [t('genres.pop'), 'pop']], params[:genre]),
+                    options_for_select([[t('filters.any'), ''], [t('genres.sacred'), 'sacred'], [t('genres.classical'), 'classical'], [t('genres.folk'), 'folk'], [t('genres.soundtrack'), 'soundtrack'], [t('genres.jazz'), 'jazz'], [t('genres.rock'), 'rock'], [t('genres.pop'), 'pop']], params[:genre]),
+                    {},
+                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+                %>
+              </div>
+
+              <!-- Filter: Period -->
+              <div>
+                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
+                  <%= t('filters.period') %>
+                </label>
+                <%= f.select :period,
+                    options_for_select([[t('filters.any'), ''], [t('periods.medieval'), 'medieval'], [t('periods.renaissance'), 'renaissance'], [t('periods.baroque'), 'baroque'], [t('periods.classical'), 'classical'], [t('periods.romantic'), 'romantic'], [t('periods.modern'), 'modern']], params[:period]),
                     {},
                     { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
                 %>
@@ -156,7 +183,19 @@
                   <%= t('filters.time') %>
                 </label>
                 <%= f.select :time,
-                    options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['6/8', '6/8'], ['2/4', '2/4'], ['2/2', '2/2']], params[:time]),
+                    options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['2/4', '2/4'], ['6/8', '6/8'], ['9/8', '9/8'], ['12/8', '12/8'], ['3/8', '3/8'], ['2/2', '2/2']], params[:time]),
+                    {},
+                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+                %>
+              </div>
+
+              <!-- Filter: Language -->
+              <div>
+                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
+                  <%= t('filters.language') %>
+                </label>
+                <%= f.select :language,
+                    options_for_select([[t('filters.any'), ''], [t('languages.latin'), 'Latin'], [t('languages.english'), 'English'], [t('languages.italian'), 'Italian'], [t('languages.german'), 'German'], [t('languages.french'), 'French'], [t('languages.spanish'), 'Spanish']], params[:language]),
                     {},
                     { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
                 %>
@@ -197,7 +236,7 @@
             <%= t('filters.key') %>
           </label>
           <%= f.select :key,
-              options_for_select([[t('filters.any'), ''], [t('keys.d_major'), 'D major'], [t('keys.g_major'), 'G major'], [t('keys.a_major'), 'A major'], [t('keys.f_major'), 'F major'], [t('keys.c_major'), 'C major'], [t('keys.e_minor'), 'E minor'], [t('keys.a_minor'), 'A minor']], params[:key]),
+              options_for_select([[t('filters.any'), ''], [t('keys.c_major'), 'C major'], [t('keys.g_major'), 'G major'], [t('keys.d_major'), 'D major'], [t('keys.a_major'), 'A major'], [t('keys.f_major'), 'F major'], [t('keys.bb_major'), 'Bb major'], [t('keys.eb_major'), 'Eb major'], [t('keys.a_minor'), 'A minor'], [t('keys.e_minor'), 'E minor'], [t('keys.d_minor'), 'D minor'], [t('keys.g_minor'), 'G minor'], [t('keys.b_minor'), 'B minor'], [t('keys.c_minor'), 'C minor']], params[:key]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
@@ -227,13 +266,37 @@
           %>
         </div>
 
+        <!-- Filter: Difficulty -->
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
+            <%= t('filters.difficulty') %>
+          </label>
+          <%= f.select :difficulty,
+              options_for_select([[t('filters.any'), ''], [t('difficulty.beginner'), '0'], [t('difficulty.easy'), '1'], [t('difficulty.intermediate'), '2'], [t('difficulty.advanced'), '3']], params[:difficulty]),
+              {},
+              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+          %>
+        </div>
+
         <!-- Filter: Genre -->
         <div class="mb-4">
           <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
             <%= t('filters.genre') %>
           </label>
           <%= f.select :genre,
-              options_for_select([[t('filters.any'), ''], [t('genres.classical'), 'classical'], [t('genres.folk'), 'folk'], [t('genres.jazz'), 'jazz'], [t('genres.rock'), 'rock'], [t('genres.pop'), 'pop']], params[:genre]),
+              options_for_select([[t('filters.any'), ''], [t('genres.sacred'), 'sacred'], [t('genres.classical'), 'classical'], [t('genres.folk'), 'folk'], [t('genres.soundtrack'), 'soundtrack'], [t('genres.jazz'), 'jazz'], [t('genres.rock'), 'rock'], [t('genres.pop'), 'pop']], params[:genre]),
+              {},
+              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+          %>
+        </div>
+
+        <!-- Filter: Period -->
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
+            <%= t('filters.period') %>
+          </label>
+          <%= f.select :period,
+              options_for_select([[t('filters.any'), ''], [t('periods.medieval'), 'medieval'], [t('periods.renaissance'), 'renaissance'], [t('periods.baroque'), 'baroque'], [t('periods.classical'), 'classical'], [t('periods.romantic'), 'romantic'], [t('periods.modern'), 'modern']], params[:period]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
@@ -245,7 +308,19 @@
             <%= t('filters.time') %>
           </label>
           <%= f.select :time,
-              options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['6/8', '6/8'], ['2/4', '2/4'], ['2/2', '2/2']], params[:time]),
+              options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['2/4', '2/4'], ['6/8', '6/8'], ['9/8', '9/8'], ['12/8', '12/8'], ['3/8', '3/8'], ['2/2', '2/2']], params[:time]),
+              {},
+              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
+          %>
+        </div>
+
+        <!-- Filter: Language -->
+        <div class="mb-4">
+          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
+            <%= t('filters.language') %>
+          </label>
+          <%= f.select :language,
+              options_for_select([[t('filters.any'), ''], [t('languages.latin'), 'Latin'], [t('languages.english'), 'English'], [t('languages.italian'), 'Italian'], [t('languages.german'), 'German'], [t('languages.french'), 'French'], [t('languages.spanish'), 'Spanish']], params[:language]),
               {},
               { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
           %>
@@ -284,8 +359,11 @@
           <%= f.hidden_field :key, value: params[:key] %>
           <%= f.hidden_field :time, value: params[:time] %>
           <%= f.hidden_field :genre, value: params[:genre] %>
+          <%= f.hidden_field :period, value: params[:period] %>
           <%= f.hidden_field :voicing, value: params[:voicing] %>
           <%= f.hidden_field :voice_type, value: params[:voice_type] %>
+          <%= f.hidden_field :difficulty, value: params[:difficulty] %>
+          <%= f.hidden_field :language, value: params[:language] %>
           <div class="sort-control">
             <label for="sort" class="sort-label">
               <span class="sort-icon">↕</span>

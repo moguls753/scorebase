@@ -41,8 +41,11 @@ de:
     time: "Taktart"
     forces: "Besetzung"
     voice_type: "Chortyp"
+    difficulty: "Schwierigkeit"
     genre: "Genre"
+    period: "Epoche"
     source: "Quelle"
+    language: "Sprache"
     any: "Alle"
 
   # Sort options
@@ -55,21 +58,29 @@ de:
 
   # Genres
   genres:
+    sacred: "Geistliche Musik"
     classical: "Klassik"
     folk: "Volksmusik"
+    soundtrack: "Filmmusik"
     jazz: "Jazz"
     rock: "Rock"
     pop: "Pop"
 
   # Key signatures
   keys:
-    d_major: "D-Dur"
+    c_major: "C-Dur"
     g_major: "G-Dur"
+    d_major: "D-Dur"
     a_major: "A-Dur"
     f_major: "F-Dur"
-    c_major: "C-Dur"
-    e_minor: "e-Moll"
+    bb_major: "B-Dur"
+    eb_major: "Es-Dur"
     a_minor: "a-Moll"
+    e_minor: "e-Moll"
+    d_minor: "d-Moll"
+    g_minor: "g-Moll"
+    b_minor: "h-Moll"
+    c_minor: "c-Moll"
 
   # Forces options (number of performers)
   forces:
@@ -85,6 +96,22 @@ de:
     treble: "Frauenchor"
     mens: "Männerchor"
     unison: "Einstimmig"
+
+  # Difficulty levels
+  difficulty:
+    beginner: "Anfänger"
+    easy: "Leicht"
+    intermediate: "Mittel"
+    advanced: "Fortgeschritten"
+
+  # Historical periods
+  periods:
+    medieval: "Mittelalter"
+    renaissance: "Renaissance"
+    baroque: "Barock"
+    classical: "Klassik"
+    romantic: "Romantik"
+    modern: "Moderne / 20. Jahrhundert"
 
   # Score Detail Page
   score:
@@ -161,10 +188,16 @@ de:
     functional_cookie_desc: "Nur für Spracheinstellung"
     back_to_search: "Zurück zur Suche"
 
-  # Language names (for the toggle)
+  # Language names (for the toggle and filter)
   languages:
     en: "EN"
     de: "DE"
+    latin: "Latein"
+    english: "Englisch"
+    italian: "Italienisch"
+    german: "Deutsch"
+    french: "Französisch"
+    spanish: "Spanisch"
 
   # Hub/Landing Pages (SEO)
   hub:

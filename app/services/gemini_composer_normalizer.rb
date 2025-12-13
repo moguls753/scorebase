@@ -6,7 +6,7 @@ require "json"
 class GeminiComposerNormalizer
   BATCH_SIZE = 100
   BATCH_DELAY = 4 # seconds between batches
-  API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent"
+  API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent"
 
   class QuotaExceededError < StandardError; end
 
