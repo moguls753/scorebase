@@ -1,3 +1,53 @@
+# == Schema Information
+#
+# Table name: scores
+#
+#  id             :integer          not null, primary key
+#  complexity     :integer
+#  composer       :string
+#  cpdl_number    :string
+#  data_path      :string
+#  description    :text
+#  editor         :string
+#  external_url   :string
+#  favorites      :integer          default(0)
+#  genres         :text
+#  instruments    :string
+#  key_signature  :string
+#  language       :string
+#  license        :string
+#  lyrics         :text
+#  metadata_path  :string
+#  mid_path       :string
+#  mxl_path       :string
+#  num_parts      :integer
+#  page_count     :integer
+#  pdf_path       :string
+#  posted_date    :date
+#  rating         :decimal(3, 2)
+#  source         :string           default("pdmx")
+#  tags           :text
+#  thumbnail_url  :string
+#  time_signature :string
+#  title          :string
+#  views          :integer          default(0)
+#  voicing        :string
+#  created_at     :datetime         not null
+#  updated_at     :datetime         not null
+#  external_id    :string
+#
+# Indexes
+#
+#  index_scores_on_complexity      (complexity)
+#  index_scores_on_composer        (composer)
+#  index_scores_on_external_id     (external_id)
+#  index_scores_on_key_signature   (key_signature)
+#  index_scores_on_num_parts       (num_parts)
+#  index_scores_on_rating          (rating)
+#  index_scores_on_source          (source)
+#  index_scores_on_time_signature  (time_signature)
+#  index_scores_on_views           (views)
+#
 class Score < ApplicationRecord
   # Sources
   SOURCES = %w[pdmx cpdl imslp].freeze
