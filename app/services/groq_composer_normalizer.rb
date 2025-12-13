@@ -3,15 +3,18 @@
 require "net/http"
 require "json"
 
-class GeminiComposerNormalizer
+class GroqComposerNormalizer
   BATCH_SIZE = 100
   BATCH_DELAY = 4 # seconds between batches
-  API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent"
+  API_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
+  MODEL = "llama-3.3-70b-versatile" # Good reasoning, fast
 
   class QuotaExceededError < StandardError; end
 
-  def initialize(api_key:, limit: nil)
-    @api_key = api_key
+  def initialize(limit: nil)
+    @api_key = ENV["GROQ_API_KEY"]
+    raise "GROQ_API_KEY environment variable not set" if @api_key.nil?
+
     @limit = limit
     @mappings = AppSetting.get("composer_cache") || {}
   end
@@ -45,11 +48,11 @@ class GeminiComposerNormalizer
       puts "Batch #{idx + 1}/#{total_batches}"
 
       begin
-        result = gemini_request(batch)
+        result = groq_request(batch)
         apply_results(result)
         save_progress
       rescue QuotaExceededError
-        puts "\n⚠️  Quota exceeded! Progress saved. Run again tomorrow."
+        puts "\n⚠️  Quota exceeded! Progress saved. Run again later."
         break
       end
 
@@ -85,8 +88,8 @@ class GeminiComposerNormalizer
     puts "Run again to continue if quota was exceeded."
   end
 
-  def gemini_request(batch)
-    uri = URI("#{API_ENDPOINT}?key=#{@api_key}")
+  def groq_request(batch)
+    uri = URI(API_ENDPOINT)
 
     scores_data = batch.map do |composer, title, editor, genres, language|
       { composer: composer, title: title, editor: editor, genres: genres, language: language }
@@ -119,12 +122,15 @@ class GeminiComposerNormalizer
 
       Input: #{scores_data.to_json}
 
-      Return JSON: [{"original": "composer field value", "normalized": "LastName, FirstName" or null}]
+      Return ONLY valid JSON (no markdown, no code blocks): [{"original": "composer field value", "normalized": "LastName, FirstName" or null}]
     PROMPT
 
     {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.1 }
+      model: MODEL,
+      temperature: 0.1,
+      messages: [
+        { role: "user", content: prompt }
+      ]
     }
   end
 
@@ -137,6 +143,7 @@ class GeminiComposerNormalizer
 
     req = Net::HTTP::Post.new(uri)
     req["Content-Type"] = "application/json"
+    req["Authorization"] = "Bearer #{@api_key}"
     req.body = payload.to_json
 
     http.request(req)
@@ -151,16 +158,25 @@ class GeminiComposerNormalizer
     end
 
     body = JSON.parse(response.body)
-    text = body.dig("candidates", 0, "content", "parts", 0, "text")
+    text = body.dig("choices", 0, "message", "content")
 
     unless text
       puts "  No text in response: #{body.keys}"
       return nil
     end
 
-    JSON.parse(text)
+    puts "\n=== DEBUG: Groq Response ===" if ENV["DEBUG"]
+    puts text[0..500] if ENV["DEBUG"]
+    puts "=== END DEBUG ===\n" if ENV["DEBUG"]
+
+    # Parse the JSON array from the response
+    parsed = JSON.parse(text)
+
+    # Handle if Groq wrapped it in an object with a key
+    parsed.is_a?(Array) ? parsed : parsed.values.first
   rescue JSON::ParserError => e
     puts "  JSON parse error: #{e.message}"
+    puts "  Response text: #{text[0..500]}" if text
     nil
   rescue => e
     puts "  Error: #{e.class} - #{e.message}"
