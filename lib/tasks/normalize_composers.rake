@@ -28,7 +28,7 @@ namespace :normalize do
     remaining = scores.reject { |row| mappings.key?(row[0]) }
     puts "Remaining: #{remaining.count} composers\n\n"
 
-    batch_size = 40
+    batch_size = 100
     remaining.each_slice(batch_size).with_index do |batch, idx|
       puts "Batch #{idx + 1}/#{(remaining.count / batch_size.to_f).ceil}"
 
