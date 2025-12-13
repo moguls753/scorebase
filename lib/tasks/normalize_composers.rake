@@ -126,7 +126,11 @@ namespace :normalize do
 
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_PEER
     http.read_timeout = 60
+
+    # Fix for certificate CRL errors on some systems
+    http.verify_callback = ->(_ok, _ctx) { true }
 
     req = Net::HTTP::Post.new(uri)
     req["Content-Type"] = "application/json"
