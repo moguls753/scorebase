@@ -15,8 +15,7 @@ namespace :normalize do
 
     migrated = 0
     cache.each do |original_composer, normalized_composer|
-      scores = Score.where(composer_attempted: false)
-                    .where("composer = ? OR composer = ?", original_composer, normalized_composer)
+      scores = Score.where(composer_attempted: false, composer: original_composer)
 
       count = scores.count
       next if count.zero?
