@@ -1,10 +1,5 @@
 class HubPagesController < ApplicationController
-  THRESHOLDS = {
-    composer: 12,
-    genre: 20,
-    instrument: 15,
-    voicing: 20
-  }.freeze
+  THRESHOLD = 10
 
   before_action :set_page_params
 
@@ -99,7 +94,7 @@ class HubPagesController < ApplicationController
     @total_count = @scores.count
     @scores = @scores.page(params[:page])
 
-    not_found if @total_count < THRESHOLDS[:composer]
+    not_found if @total_count < THRESHOLD
 
     @page_title = t("hub.composer_instrument_title", composer: @composer_name, instrument: @instrument_name)
     @page_description = t("hub.composer_instrument_description",
@@ -117,7 +112,7 @@ class HubPagesController < ApplicationController
     @total_count = @scores.count
     @scores = @scores.page(params[:page])
 
-    not_found if @total_count < THRESHOLDS[:genre]
+    not_found if @total_count < THRESHOLD
 
     @page_title = t("hub.genre_instrument_title", genre: @genre_name, instrument: @instrument_name)
     @page_description = t("hub.genre_instrument_description",
@@ -157,7 +152,7 @@ class HubPagesController < ApplicationController
     end
 
     by_slug
-      .select { |_, data| data[:total] >= THRESHOLDS[:composer] }
+      .select { |_, data| data[:total] >= THRESHOLD }
       .sort_by { |_, data| -data[:total] }
       .map do |slug, data|
         best_name = data[:names].max_by { |n| n[:count] }[:name]
@@ -174,7 +169,7 @@ class HubPagesController < ApplicationController
     end
 
     genre_counts
-      .select { |_, count| count >= THRESHOLDS[:genre] }
+      .select { |_, count| count >= THRESHOLD }
       .sort_by { |_, count| -count }
       .map { |name, count| { name: name, slug: name.parameterize, count: count } }
   end
@@ -189,7 +184,7 @@ class HubPagesController < ApplicationController
     end
 
     instrument_counts
-      .select { |_, count| count >= THRESHOLDS[:instrument] }
+      .select { |_, count| count >= THRESHOLD }
       .sort_by { |_, count| -count }
       .map { |name, count| { name: name.titleize, slug: name.parameterize, count: count } }
   end
@@ -198,7 +193,7 @@ class HubPagesController < ApplicationController
     Score.where.not(voicing: [nil, ""])
          .group(:voicing)
          .count
-         .select { |_, count| count >= THRESHOLDS[:voicing] }
+         .select { |_, count| count >= THRESHOLD }
          .sort_by { |_, count| -count }
          .map { |name, count| { name: name, slug: name.parameterize, count: count } }
   end

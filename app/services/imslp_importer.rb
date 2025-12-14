@@ -150,9 +150,11 @@ class ImslpImporter
     works = fetch_all_works
     puts "Found #{works.size} works"
 
-    # Phase 2: Filter if resume mode
+    # Phase 2: Prepare existing IDs set for deduplication
+    existing_ids = Score.where(source: "imslp").pluck(:external_id).to_set
+
+    # Filter if resume mode
     if @resume
-      existing_ids = Score.where(source: "imslp").pluck(:external_id).to_set
       original_count = works.size
       works = works.reject { |w| existing_ids.include?(w.dig("intvals", "pageid").to_s) }
       puts "Skipping #{original_count - works.size} already-imported works (#{works.size} remaining)"
@@ -167,7 +169,7 @@ class ImslpImporter
 
     works.each_slice(BATCH_SIZE).with_index do |batch, batch_index|
       puts "Batch #{batch_index + 1}/#{total_batches} (#{@imported_count + @updated_count + @skipped_count}/#{works.size})..."
-      process_batch(batch)
+      process_batch(batch, existing_ids)
 
       # Don't sleep after last batch
       sleep(BATCH_DELAY) unless batch_index == total_batches - 1
@@ -214,8 +216,7 @@ class ImslpImporter
 
       total_batches = (new_works.size.to_f / BATCH_SIZE).ceil
       new_works.each_slice(BATCH_SIZE).with_index do |batch, i|
-        process_batch(batch)
-        batch.each { |w| existing_ids.add(w.dig("intvals", "pageid").to_s) }
+        process_batch(batch, existing_ids)
         sleep(BATCH_DELAY) unless i == total_batches - 1
       end
 
@@ -319,10 +320,21 @@ class ImslpImporter
     response&.dig("parse")
   end
 
-  def process_batch(works)
+  def process_batch(works, existing_ids = nil)
     works.each do |work|
       begin
+        page_id = work.dig("intvals", "pageid").to_s
+
+        # Skip duplicates within batch
+        if existing_ids&.include?(page_id)
+          @skipped_count += 1
+          next
+        end
+
         process_work(work)
+
+        # Mark as processed immediately to prevent duplicates
+        existing_ids&.add(page_id)
       rescue => e
         work_id = work.dig("intvals", "pageid") || work["id"]
         @errors << "#{work_id}: #{e.message}"
