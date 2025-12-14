@@ -16,6 +16,78 @@ class ImslpImporter
   # Required by MediaWiki API etiquette - see https://www.mediawiki.org/wiki/API:Etiquette
   USER_AGENT = "ScorebaseBot/1.0 (https://github.com/scorebase; contact@scorebase.app) Ruby/#{RUBY_VERSION}"
 
+  # Priority composers to import first (IMSLP category format)
+  PRIORITY_COMPOSERS = %w[
+    Bach,_Johann_Sebastian
+    Beethoven,_Ludwig_van
+    Mozart,_Wolfgang_Amadeus
+    Handel,_George_Frideric
+    Haydn,_Joseph
+    Schubert,_Franz
+    Brahms,_Johannes
+    Chopin,_Frédéric
+    Mendelssohn,_Felix
+    Schumann,_Robert
+    Liszt,_Franz
+    Tchaikovsky,_Pyotr
+    Vivaldi,_Antonio
+    Debussy,_Claude
+    Ravel,_Maurice
+    Wagner,_Richard
+    Verdi,_Giuseppe
+    Puccini,_Giacomo
+    Dvořák,_Antonín
+    Mahler,_Gustav
+    Rachmaninoff,_Sergei
+    Prokofiev,_Sergei
+    Shostakovich,_Dmitri
+    Stravinsky,_Igor
+    Bartók,_Béla
+    Grieg,_Edvard
+    Sibelius,_Jean
+    Elgar,_Edward
+    Vaughan_Williams,_Ralph
+    Britten,_Benjamin
+    Palestrina,_Giovanni_Pierluigi_da
+    Monteverdi,_Claudio
+    Purcell,_Henry
+    Corelli,_Arcangelo
+    Telemann,_Georg_Philipp
+    Scarlatti,_Domenico
+    Couperin,_François
+    Rameau,_Jean-Philippe
+    Gluck,_Christoph_Willibald
+    Saint-Saëns,_Camille
+    Fauré,_Gabriel
+    Franck,_César
+    Bruckner,_Anton
+    Wolf,_Hugo
+    Strauss,_Richard
+    Poulenc,_Francis
+    Satie,_Erik
+    Mussorgsky,_Modest
+    Rimsky-Korsakov,_Nikolai
+    Borodin,_Alexander
+    Giuliani,_Mauro
+    Sor,_Fernando
+    Carulli,_Ferdinando
+    Tárrega,_Francisco
+    Barrios,_Agustín
+    Villa-Lobos,_Heitor
+    Brouwer,_Leo
+    Carcassi,_Matteo
+    Aguado,_Dionisio
+    Ponce,_Manuel
+    Segovia,_Andrés
+    Dowland,_John
+    Milan,_Luys_de
+    Narváez,_Luys_de
+    Mudarra,_Alonso
+    Sanz,_Gaspar
+    Visée,_Robert_de
+    Weiss,_Silvius_Leopold
+  ].freeze
+
   class RateLimitError < StandardError; end
   class ApiError < StandardError; end
 
@@ -119,7 +191,72 @@ class ImslpImporter
     raise
   end
 
+  # Import works from priority composers first
+  def import_priority!
+    puts "Starting IMSLP priority import (#{PRIORITY_COMPOSERS.size} composers)..."
+
+    completed = AppSetting.get("imslp_priority_completed") || []
+    remaining = PRIORITY_COMPOSERS - completed
+
+    puts "Completed: #{completed.size}, Remaining: #{remaining.size}"
+    return report_results if remaining.empty?
+
+    existing_ids = Score.where(source: "imslp").pluck(:external_id).to_set
+
+    remaining.each_with_index do |composer, idx|
+      puts "\n[#{idx + 1}/#{remaining.size}] #{composer.tr('_', ' ')}"
+
+      works = fetch_composer_works(composer)
+      puts "  Found #{works.size} works"
+
+      new_works = works.reject { |w| existing_ids.include?(w.dig("intvals", "pageid").to_s) }
+      puts "  New: #{new_works.size}"
+
+      total_batches = (new_works.size.to_f / BATCH_SIZE).ceil
+      new_works.each_slice(BATCH_SIZE).with_index do |batch, i|
+        process_batch(batch)
+        batch.each { |w| existing_ids.add(w.dig("intvals", "pageid").to_s) }
+        sleep(BATCH_DELAY) unless i == total_batches - 1
+      end
+
+      completed << composer
+      AppSetting.set("imslp_priority_completed", completed)
+    end
+
+    normalize_composers_batch!
+    report_results
+  end
+
   private
+
+  # Fetch works for a composer via category API, return in worklist format
+  def fetch_composer_works(composer)
+    works = []
+    cmcontinue = nil
+
+    loop do
+      params = { action: "query", list: "categorymembers", cmtitle: "Category:#{composer}",
+                 cmtype: "page", cmlimit: 500, format: "json" }
+      params[:cmcontinue] = cmcontinue if cmcontinue
+
+      response = api_request(MEDIAWIKI_API, params)
+      break unless response
+
+      (response.dig("query", "categorymembers") || []).each do |m|
+        next unless m["title"]&.include?("(#{composer.tr('_', ' ')})") # Only works, not subcategories
+        # Match worklist API format so process_work can handle it
+        works << {
+          "intvals" => { "pageid" => m["pageid"], "composer" => composer.tr("_", " ") },
+          "permlink" => "https://imslp.org/wiki/#{URI.encode_www_form_component(m['title'])}"
+        }
+      end
+
+      cmcontinue = response.dig("continue", "cmcontinue")
+      break unless cmcontinue
+    end
+
+    works
+  end
 
   def fetch_all_works
     works = []
