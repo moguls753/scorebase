@@ -8,8 +8,11 @@ class GroqComposerNormalizer
   BATCH_DELAY = 4 # seconds between batches
   API_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
   MODEL = "llama-3.3-70b-versatile" # Good reasoning, fast
+  MAX_RETRIES = 3
+  RETRY_DELAY = 2 # seconds between retries
 
   class QuotaExceededError < StandardError; end
+  class JsonParseError < StandardError; end
 
   def initialize(limit: nil)
     @api_key = ENV["GROQ_API_KEY"]
@@ -116,8 +119,23 @@ class GroqComposerNormalizer
       { composer: composer, title: title, editor: editor, genres: genres, language: language }
     end
 
-    response = send_request(uri, build_payload(scores_data))
-    parse_response(response)
+    payload = build_payload(scores_data)
+    retries = 0
+
+    begin
+      response = send_request(uri, payload)
+      parse_response(response)
+    rescue JsonParseError => e
+      retries += 1
+      if retries <= MAX_RETRIES
+        puts "  Retry #{retries}/#{MAX_RETRIES} after JSON parse error..."
+        sleep RETRY_DELAY
+        retry
+      else
+        puts "  Failed after #{MAX_RETRIES} retries: #{e.message}"
+        nil
+      end
+    end
   end
 
   def build_payload(scores_data)
@@ -198,7 +216,7 @@ class GroqComposerNormalizer
   rescue JSON::ParserError => e
     puts "  JSON parse error: #{e.message}"
     puts "  Response text: #{text[0..500]}" if text
-    nil
+    raise JsonParseError, e.message
   rescue => e
     puts "  Error: #{e.class} - #{e.message}"
     nil
