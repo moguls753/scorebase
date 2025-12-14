@@ -7,10 +7,10 @@ class ImslpImporter
   WORKLIST_API = "https://imslp.org/imslpscripts/API.ISCR.php"
   MEDIAWIKI_API = "https://imslp.org/api.php"
 
-  # Conservative rate limiting (2s per user preference)
+  # Rate limiting - serial requests are fine per MediaWiki etiquette
   BATCH_SIZE = 10           # Process 10 works per batch
-  BATCH_DELAY = 30.0        # 30 seconds between batches
-  API_CALL_DELAY = 2.0      # 2 seconds between individual API calls
+  BATCH_DELAY = 5.0         # 5 seconds between batches
+  API_CALL_DELAY = 0.5      # 500ms between individual API calls
   WORKLIST_PAGE_SIZE = 1000 # IMSLP returns 1000 per page
 
   # Required by MediaWiki API etiquette - see https://www.mediawiki.org/wiki/API:Etiquette
