@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_13_131224) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_14_115527) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -58,6 +58,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_13_131224) do
   create_table "scores", force: :cascade do |t|
     t.integer "complexity"
     t.string "composer"
+    t.boolean "composer_attempted", default: false, null: false
+    t.boolean "composer_normalized", default: false, null: false
     t.string "cpdl_number"
     t.datetime "created_at", null: false
     t.string "data_path"
@@ -90,6 +92,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_13_131224) do
     t.string "voicing"
     t.index ["complexity"], name: "index_scores_on_complexity"
     t.index ["composer"], name: "index_scores_on_composer"
+    t.index ["composer_attempted"], name: "index_scores_on_composer_attempted"
+    t.index ["composer_normalized"], name: "index_scores_on_composer_normalized"
     t.index ["external_id"], name: "index_scores_on_external_id"
     t.index ["key_signature"], name: "index_scores_on_key_signature"
     t.index ["num_parts"], name: "index_scores_on_num_parts"

@@ -13,25 +13,25 @@ class GeminiComposerNormalizer
   def initialize(api_key:, limit: nil)
     @api_key = api_key
     @limit = limit
-    @mappings = AppSetting.get("composer_cache") || {}
+    @processed_count = 0
+    @normalized_count = 0
   end
 
   def normalize!
     scores = fetch_scores
-    puts "#{scores.count} unique composer fields to normalize#{@limit ? " (limited)" : ""}\n\n"
-    puts "Resuming with #{@mappings.count} existing mappings\n" if @mappings.any?
+    total_pending = Score.where(composer_attempted: false).count
+    puts "Total pending scores: #{total_pending}"
+    puts "Processing: #{scores.count} unique composer fields#{@limit ? " (limited to #{@limit})" : ""}\n\n"
 
-    remaining = scores.reject { |row| @mappings.key?(row[0]) }
-    puts "Remaining: #{remaining.count} composers\n\n"
-
-    process_batches(remaining)
+    process_batches(scores)
     print_summary
   end
 
   private
 
   def fetch_scores
-    scores = Score.distinct
+    scores = Score.where(composer_attempted: false)
+                  .distinct
                   .pluck(:composer, :title, :editor, :genres, :language)
                   .uniq { |row| row[0] }
 
@@ -61,28 +61,49 @@ class GeminiComposerNormalizer
     results&.each do |item|
       original = item["original"]
       normalized = item["normalized"]
-      @mappings[original] = normalized
+
+      scores_to_update = Score.where(composer: original, composer_attempted: false)
+      count = scores_to_update.count
 
       if normalized
-        updated = Score.where(composer: original).update_all(composer: normalized)
-        puts "  [#{updated}] #{original[0..30].ljust(33)} -> #{normalized}"
+        scores_to_update.update_all(
+          composer: normalized,
+          composer_normalized: true,
+          composer_attempted: true
+        )
+        puts "  [#{count}] #{original[0..30].ljust(33)} -> #{normalized}"
+        @normalized_count += count
       else
-        puts "       #{original[0..30].ljust(33)} -> (unknown)"
+        scores_to_update.update_all(
+          composer_normalized: false,
+          composer_attempted: true
+        )
+        puts "  [#{count}] #{original[0..30].ljust(33)} -> (unknown, not normalizable)"
       end
+
+      @processed_count += count
     end
   end
 
   def save_progress
-    AppSetting.set("composer_cache", @mappings)
+    # Progress is now saved in the database via composer_normalized flag
+    # No need for AppSetting cache
   end
 
   def print_summary
+    total_pending = Score.where(composer_attempted: false).count
+    total_normalized = Score.where(composer_normalized: true).count
+    total_unknown = Score.where(composer_attempted: true, composer_normalized: false).count
+
     puts "\n#{"=" * 50}"
-    puts "Total processed: #{@mappings.count}"
-    puts "Normalized & applied: #{@mappings.count { |_, v| v }}"
-    puts "Unknown (unchanged): #{@mappings.count { |_, v| v.nil? }}"
-    puts "\nProgress saved to database (app_settings.composer_cache)"
-    puts "Run again to continue if quota was exceeded."
+    puts "Scores processed this run: #{@processed_count}"
+    puts "  - Successfully normalized: #{@normalized_count}"
+    puts "  - Unknown (not normalizable): #{@processed_count - @normalized_count}"
+    puts "\nDatabase totals:"
+    puts "  - Normalized: #{total_normalized}"
+    puts "  - Unknown: #{total_unknown}"
+    puts "  - Pending: #{total_pending}"
+    puts "\nRun again with LIMIT=<number> to continue in controlled batches."
   end
 
   def gemini_request(batch)

@@ -2,51 +2,55 @@
 #
 # Table name: scores
 #
-#  id             :integer          not null, primary key
-#  complexity     :integer
-#  composer       :string
-#  cpdl_number    :string
-#  data_path      :string
-#  description    :text
-#  editor         :string
-#  external_url   :string
-#  favorites      :integer          default(0)
-#  genres         :text
-#  instruments    :string
-#  key_signature  :string
-#  language       :string
-#  license        :string
-#  lyrics         :text
-#  metadata_path  :string
-#  mid_path       :string
-#  mxl_path       :string
-#  num_parts      :integer
-#  page_count     :integer
-#  pdf_path       :string
-#  posted_date    :date
-#  rating         :decimal(3, 2)
-#  source         :string           default("pdmx")
-#  tags           :text
-#  thumbnail_url  :string
-#  time_signature :string
-#  title          :string
-#  views          :integer          default(0)
-#  voicing        :string
-#  created_at     :datetime         not null
-#  updated_at     :datetime         not null
-#  external_id    :string
+#  id                  :integer          not null, primary key
+#  complexity          :integer
+#  composer            :string
+#  composer_attempted  :boolean          default(FALSE), not null
+#  composer_normalized :boolean          default(FALSE), not null
+#  cpdl_number         :string
+#  data_path           :string
+#  description         :text
+#  editor              :string
+#  external_url        :string
+#  favorites           :integer          default(0)
+#  genres              :text
+#  instruments         :string
+#  key_signature       :string
+#  language            :string
+#  license             :string
+#  lyrics              :text
+#  metadata_path       :string
+#  mid_path            :string
+#  mxl_path            :string
+#  num_parts           :integer
+#  page_count          :integer
+#  pdf_path            :string
+#  posted_date         :date
+#  rating              :decimal(3, 2)
+#  source              :string           default("pdmx")
+#  tags                :text
+#  thumbnail_url       :string
+#  time_signature      :string
+#  title               :string
+#  views               :integer          default(0)
+#  voicing             :string
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
+#  external_id         :string
 #
 # Indexes
 #
-#  index_scores_on_complexity      (complexity)
-#  index_scores_on_composer        (composer)
-#  index_scores_on_external_id     (external_id)
-#  index_scores_on_key_signature   (key_signature)
-#  index_scores_on_num_parts       (num_parts)
-#  index_scores_on_rating          (rating)
-#  index_scores_on_source          (source)
-#  index_scores_on_time_signature  (time_signature)
-#  index_scores_on_views           (views)
+#  index_scores_on_complexity           (complexity)
+#  index_scores_on_composer             (composer)
+#  index_scores_on_composer_attempted   (composer_attempted)
+#  index_scores_on_composer_normalized  (composer_normalized)
+#  index_scores_on_external_id          (external_id)
+#  index_scores_on_key_signature        (key_signature)
+#  index_scores_on_num_parts            (num_parts)
+#  index_scores_on_rating               (rating)
+#  index_scores_on_source               (source)
+#  index_scores_on_time_signature       (time_signature)
+#  index_scores_on_views                (views)
 #
 class Score < ApplicationRecord
   # Sources
@@ -69,6 +73,11 @@ class Score < ApplicationRecord
   scope :from_cpdl, -> { where(source: "cpdl") }
   scope :from_imslp, -> { where(source: "imslp") }
   scope :by_source, ->(source) { where(source: source) if source.present? }
+
+  # Composer normalization scopes
+  scope :composer_pending, -> { where(composer_attempted: false) }
+  scope :composer_normalized, -> { where(composer_normalized: true) }
+  scope :composer_unknown, -> { where(composer_attempted: true, composer_normalized: false) }
 
   # Scopes for filtering
   scope :by_key_signature, ->(key) { where(key_signature: key) if key.present? }
