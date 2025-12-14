@@ -116,6 +116,62 @@ SitemapGenerator::Sitemap.create do
   end
 
   # ===========================================
+  # COMBINED HUB PAGES (Tier 1 - important for SEO)
+  # ===========================================
+
+  # Composer + Instrument combinations
+  # e.g., "Bach Piano", "Mozart Violin"
+  composer_counts.each do |composer_name, _|
+    composer_slug = composer_name.parameterize
+
+    # Find instruments that have enough scores with this composer
+    instrument_for_composer = Hash.new(0)
+    Score.where("composer LIKE ?", "%#{composer_name}%")
+         .where.not(instruments: [nil, ""])
+         .pluck(:instruments).each do |instruments_str|
+      instruments_str.split(/[;,]/).map(&:strip).reject(&:blank?).each do |instrument|
+        normalized = instrument.gsub(/\s*\(.*\)/, "").strip.downcase
+        instrument_for_composer[normalized] += 1
+      end
+    end
+
+    # Add combined pages with at least 5 scores
+    instrument_for_composer.select { |_, count| count >= 5 }.each do |instrument_name, _|
+      instrument_slug = instrument_name.parameterize
+      add composer_instrument_path(composer_slug: composer_slug, instrument_slug: instrument_slug),
+          changefreq: "weekly", priority: 0.7
+      add composer_instrument_path(composer_slug: composer_slug, instrument_slug: instrument_slug, locale: :de),
+          changefreq: "weekly", priority: 0.7
+    end
+  end
+
+  # Genre + Instrument combinations
+  # e.g., "Classical Piano", "Jazz Saxophone"
+  genre_counts.select { |_, count| count >= THRESHOLDS[:genre] }.each do |genre_name, _|
+    genre_slug = genre_name.parameterize
+
+    # Find instruments that have enough scores with this genre
+    instrument_for_genre = Hash.new(0)
+    Score.where("genres LIKE ?", "%#{genre_name}%")
+         .where.not(instruments: [nil, ""])
+         .pluck(:instruments).each do |instruments_str|
+      instruments_str.split(/[;,]/).map(&:strip).reject(&:blank?).each do |instrument|
+        normalized = instrument.gsub(/\s*\(.*\)/, "").strip.downcase
+        instrument_for_genre[normalized] += 1
+      end
+    end
+
+    # Add combined pages with at least 5 scores
+    instrument_for_genre.select { |_, count| count >= 5 }.each do |instrument_name, _|
+      instrument_slug = instrument_name.parameterize
+      add genre_instrument_path(genre_slug: genre_slug, instrument_slug: instrument_slug),
+          changefreq: "weekly", priority: 0.7
+      add genre_instrument_path(genre_slug: genre_slug, instrument_slug: instrument_slug, locale: :de),
+          changefreq: "weekly", priority: 0.7
+    end
+  end
+
+  # ===========================================
   # INDIVIDUAL SCORES
   # ===========================================
   # NOT included in sitemap by design.

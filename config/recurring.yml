@@ -17,4 +17,4 @@ production:
   sitemap_refresh:
     class: SitemapRefreshJob
     queue: default
-    schedule: every Sunday at 3am
+    schedule: every day at 3am  # Daily during active imports; switch to "every Sunday at 3am" once stable
