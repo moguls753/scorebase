@@ -14,9 +14,9 @@
 :root {
   --color-primary: #0f0d0a;
   --color-primary-dark: #1a1612;
-  --color-accent: #c45a10;
-  --color-accent-hover: #a84c0c;
-  --color-accent-dark: #8a3f0a;
+  --color-accent: #0f766e;
+  --color-accent-hover: #0d9488;
+  --color-accent-dark: #115e59;
   --color-text: #0f0d0a;
   --color-text-muted: #3d3128;
   --color-border: #1a1612;
@@ -155,7 +155,7 @@ a.mm-card:hover {
 .mm-input:focus {
   outline: none;
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(196, 90, 16, 0.18);
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.18);
   background: var(--color-bg-elevated);
 }
 
@@ -402,7 +402,7 @@ button, input, select {
 }
 
 .hero-accent {
-  color: #c45a10;
+  color: #0f766e;
 }
 
 [data-theme="dark"] .hero-section {
@@ -418,7 +418,7 @@ button, input, select {
 }
 
 [data-theme="dark"] .hero-accent {
-  color: #e8a060;
+  color: #00d97e;
 }
 
 /* Visual interest: accent underlines for text links */
