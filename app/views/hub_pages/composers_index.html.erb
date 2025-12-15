@@ -42,9 +42,6 @@
         autocomplete="off"
         spellcheck="false"
       >
-      <div class="finder-shortcut" id="finder-shortcut">
-        <kbd class="kbd-modifier"></kbd><kbd>K</kbd>
-      </div>
       <button type="button" class="finder-clear" id="finder-clear" aria-label="Clear search">
         <svg viewBox="0 0 20 20" fill="currentColor">
           <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
@@ -196,43 +193,8 @@
     transform: translate(-2px, -2px);
   }
 
-  .finder-input:focus + .finder-shortcut {
-    opacity: 0;
-  }
-
-  .finder-input:focus ~ .finder-icon,
   .finder-input-wrap:focus-within .finder-icon {
     color: var(--color-accent);
-  }
-
-  .finder-shortcut {
-    position: absolute;
-    right: 14px;
-    display: flex;
-    align-items: center;
-    pointer-events: none;
-    transition: opacity 0.15s ease;
-  }
-
-  .finder-shortcut kbd {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 20px;
-    height: 24px;
-    padding: 0 6px;
-    font-family: var(--font-family-display);
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--color-text-muted);
-    background: var(--color-bg);
-    border: 2px solid var(--color-border-subtle);
-    border-radius: 2px;
-    box-shadow: 2px 2px 0 var(--shadow-color);
-  }
-
-  .finder-shortcut kbd + kbd {
-    margin-left: 3px;
   }
 
   .finder-clear {
@@ -399,10 +361,6 @@
       padding: 12px 44px 12px 44px;
     }
 
-    .finder-shortcut {
-      display: none;
-    }
-
     .alphabet-nav {
       gap: 4px;
     }
@@ -429,7 +387,6 @@
 document.addEventListener('DOMContentLoaded', function() {
   const searchInput = document.getElementById('composer-search');
   const clearBtn = document.getElementById('finder-clear');
-  const shortcutHint = document.getElementById('finder-shortcut');
   const resultsCount = document.getElementById('finder-results-count');
   const noResults = document.getElementById('no-results');
   const alphabetNav = document.getElementById('alphabet-nav');
@@ -450,22 +407,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Detect Mac for modifier key display
-  const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-  const modifierEl = document.querySelector('.kbd-modifier');
-  if (modifierEl) {
-    modifierEl.textContent = isMac ? '⌘' : 'Ctrl';
-  }
-
-  // Keyboard shortcut: Cmd+K / Ctrl+K to focus search
+  // Escape to clear search and blur
   document.addEventListener('keydown', function(e) {
-    // Cmd+K (Mac) or Ctrl+K (Windows/Linux)
-    if (e.key === 'k' && (isMac ? e.metaKey : e.ctrlKey)) {
-      e.preventDefault();
-      searchInput.focus();
-      searchInput.select();
-    }
-    // Escape to clear and blur
     if (e.key === 'Escape' && document.activeElement === searchInput) {
       clearSearch();
       searchInput.blur();
@@ -553,7 +496,6 @@ document.addEventListener('DOMContentLoaded', function() {
   function clearSearch() {
     searchInput.value = '';
     clearBtn.classList.remove('visible');
-    shortcutHint.style.opacity = '1';
     resultsCount.textContent = '';
 
     // Show all cards and groups
@@ -605,7 +547,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     clearBtn.classList.add('visible');
-    shortcutHint.style.opacity = '0';
 
     let matchCount = 0;
     const matchResults = [];
