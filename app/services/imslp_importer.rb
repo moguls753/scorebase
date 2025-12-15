@@ -628,98 +628,12 @@ class ImslpImporter
       return composer_str
     end
 
-    # Queue for batch AI processing
-    @composer_queue ||= []
-    @composer_queue << composer_str
-
-    # Return original for now - batch will update later
+    # Return original - ComposerNormalizer will handle pending scores later
     composer_str
   end
 
   def normalize_composers_batch!
-    return if @composer_queue.blank?
-
-    api_key = ENV["GEMINI_API_KEY"]
-    unless api_key.present?
-      puts "  Skipping normalization (no GEMINI_API_KEY)"
-      return
-    end
-
-    # Filter to only cacheable composers not yet in ComposerMapping
-    uncached = @composer_queue.uniq.select do |c|
-      ComposerMapping.cacheable?(c) && !ComposerMapping.attempted?(c)
-    end
-
-    if uncached.empty?
-      puts "  All composers already in ComposerMapping"
-      @composer_queue = []
-      return
-    end
-
-    puts "  Normalizing #{uncached.size} composers via Gemini..."
-
-    uncached.each_slice(40) do |batch|
-      results = gemini_normalize_batch(api_key, batch)
-      next unless results
-
-      results.each do |item|
-        original = item["original"]
-        normalized = item["normalized"]
-
-        # Register in ComposerMapping (respects cacheability rules)
-        ComposerMapping.register(
-          original: original,
-          normalized: normalized,
-          source: "gemini_imslp"
-        )
-
-        # Update scores with normalized composer
-        next unless normalized
-        Score.where(source: "imslp", composer: original).update_all(
-          composer: normalized,
-          normalization_status: "normalized"
-        )
-      end
-
-      sleep 4 # Rate limit
-    end
-
-    @composer_queue = []
-  end
-
-  def gemini_normalize_batch(api_key, composers)
-    uri = URI("https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=#{api_key}")
-
-    prompt = <<~PROMPT
-      Normalize these composer names to "LastName, FirstName" format.
-      Use native language names (German composers get German names).
-      Return JSON: [{"original": "input", "normalized": "Name" or null}]
-
-      Input: #{composers.to_json}
-    PROMPT
-
-    body = {
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: "application/json", temperature: 0.1 }
-    }
-
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-    http.verify_callback = ->(_ok, _ctx) { true }
-    http.read_timeout = 60
-
-    req = Net::HTTP::Post.new(uri)
-    req["Content-Type"] = "application/json"
-    req.body = body.to_json
-
-    res = http.request(req)
-    return nil unless res.code == "200"
-
-    JSON.parse(JSON.parse(res.body).dig("candidates", 0, "content", "parts", 0, "text"))
-  rescue => e
-    puts "  Batch normalization failed: #{e.message}"
-    nil
+    ComposerNormalizer.new.normalize!
   end
 
 
