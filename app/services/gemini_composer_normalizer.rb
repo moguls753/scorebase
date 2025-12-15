@@ -2,6 +2,10 @@
 
 class GeminiComposerNormalizer < ComposerNormalizerBase
   API_ENDPOINT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-lite:generateContent"
+  MAX_RETRIES = 3
+  RETRY_DELAY = 2
+
+  class JsonParseError < StandardError; end
 
   def initialize(limit: nil)
     super
@@ -20,11 +24,24 @@ class GeminiComposerNormalizer < ComposerNormalizerBase
       { composer: composer, title: title, editor: editor, genres: genres, language: language }
     end
 
-    response = send_http_request(
-      URI("#{API_ENDPOINT}?key=#{@api_key}"),
-      build_payload(scores_data)
-    )
-    parse_response(response)
+    retries = 0
+    begin
+      response = send_http_request(
+        URI("#{API_ENDPOINT}?key=#{@api_key}"),
+        build_payload(scores_data)
+      )
+      parse_response(response)
+    rescue JsonParseError => e
+      retries += 1
+      if retries <= MAX_RETRIES
+        puts "  Retry #{retries}/#{MAX_RETRIES} after JSON parse error..."
+        sleep RETRY_DELAY
+        retry
+      else
+        puts "  Failed after #{MAX_RETRIES} retries: #{e.message}"
+        nil
+      end
+    end
   end
 
   def build_payload(scores_data)
@@ -50,10 +67,15 @@ class GeminiComposerNormalizer < ComposerNormalizerBase
       return nil
     end
 
+    # Strip markdown code fences if present (just in case)
+    text = text.gsub(/\A```(?:json)?\s*/, "").gsub(/\s*```\z/, "").strip
+
     JSON.parse(text)
+  rescue QuotaExceededError
+    raise # Re-raise to trigger provider switch
   rescue JSON::ParserError => e
     puts "  JSON parse error: #{e.message}"
-    nil
+    raise JsonParseError, e.message
   rescue => e
     puts "  Error: #{e.class} - #{e.message}"
     nil

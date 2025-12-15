@@ -105,28 +105,37 @@ class ComposerNormalizerBase
 
   def build_prompt(scores_data)
     <<~PROMPT
-      Identify the COMPOSER for each music score. Return normalized as "LastName, FirstName".
+      Task: Identify the classical music COMPOSER for each score entry.
 
-      Use ALL fields to identify the composer:
-      - composer field may contain the composer, arranger, piece title, or garbage
-      - title often contains composer name (e.g., "Sonata by Mozart")
-      - editor might be the arranger (original composer may be famous)
-      - genres/language can hint at likely composers
+      Input fields (use ALL to identify composer):
+      - composer: may contain composer, arranger, title, or garbage data
+      - title: often contains composer name ("Sonata by Mozart", "Bach - Prelude")
+      - editor: might be arranger (original composer could be famous)
+      - genres/language: hints for likely composers
 
-      Rules:
-      - Use the composer's ORIGINAL native language name, not anglicized versions
-      - German composer -> German name: "Händel, Georg Friedrich" (not "Handel, George Frideric")
-      - "J.S. Bach" -> "Bach, Johann Sebastian"
-      - "Mozart" -> "Mozart, Wolfgang Amadeus"
-      - "Handel" -> "Händel, Georg Friedrich"
-      - "Tchaikovsky" -> "Tschaikowski, Pjotr Iljitsch" (use Latin script)
-      - If composer field is garbage but title hints at composer -> extract it
-      - Traditional/folk music with no known composer -> null
-      - If truly unknown -> null
+      Output format - JSON array:
+      [{"original": "<exact composer field value>", "normalized": "<LastName, FirstName>" or null}]
+
+      Normalization rules:
+      - Format: "LastName, FirstName" (e.g., "Bach, Johann Sebastian")
+      - Use standard musicological Latin-alphabet spelling
+      - Expand abbreviations: "J.S. Bach" → "Bach, Johann Sebastian"
+      - Use well-known forms: "Mozart, Wolfgang Amadeus", "Beethoven, Ludwig van"
+      - Tchaikovsky → "Tchaikovsky, Pyotr Ilyich" (standard English transliteration)
+      - Handel → "Handel, George Frideric" (his Anglicized name he used professionally)
+
+      Return null for:
+      - Anonymous, Traditional, Folk (no known composer)
+      - "Various", "Various Artists", compilations
+      - Truly unidentifiable or garbage data
+      - Arrangers/editors when original composer unknown
+
+      Important:
+      - "original" must be the EXACT input composer field value
+      - Only identify the ORIGINAL composer, not arrangers
+      - When uncertain, return null rather than guess
 
       Input: #{scores_data.to_json}
-
-      Return ONLY valid JSON: [{"original": "composer field value", "normalized": "LastName, FirstName" or null}]
     PROMPT
   end
 

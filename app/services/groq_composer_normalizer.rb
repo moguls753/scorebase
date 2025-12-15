@@ -50,6 +50,7 @@ class GroqComposerNormalizer < ComposerNormalizerBase
     {
       model: MODEL,
       temperature: 0.1,
+      response_format: { type: "json_object" },
       messages: [{ role: "user", content: build_prompt(scores_data) }]
     }
   end
@@ -70,8 +71,13 @@ class GroqComposerNormalizer < ComposerNormalizerBase
       return nil
     end
 
+    # Strip markdown code fences if present
+    text = text.gsub(/\A```(?:json)?\s*/, "").gsub(/\s*```\z/, "").strip
+
     parsed = JSON.parse(text)
     parsed.is_a?(Array) ? parsed : parsed.values.first
+  rescue QuotaExceededError
+    raise # Re-raise to trigger provider switch
   rescue JSON::ParserError => e
     puts "  JSON parse error: #{e.message}"
     raise JsonParseError, e.message
