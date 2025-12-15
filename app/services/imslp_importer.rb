@@ -180,9 +180,11 @@ class ImslpImporter
       end
     end
 
-    # Batch normalize all composers at the end
-    puts "\nPhase 3: Normalizing composers..."
-    normalize_composers_batch!
+    # Batch normalize all composers at the end (only if we imported something)
+    if @imported_count > 0 || @updated_count > 0
+      puts "\nPhase 3: Normalizing composers..."
+      normalize_composers_batch!
+    end
 
     report_results
   rescue RateLimitError => e
@@ -217,7 +219,11 @@ class ImslpImporter
       end
     end
 
-    normalize_composers_batch!
+    if @imported_count > 0 || @updated_count > 0
+      puts "\nNormalizing composers..."
+      normalize_composers_batch!
+    end
+
     report_results
   end
 
