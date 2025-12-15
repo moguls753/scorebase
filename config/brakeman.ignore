@@ -1,0 +1,30 @@
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "37142ce421f0f4371d999d22d95febd101ca6a8b804680e6c8007e5d19d3da79",
+      "note": "Reviewed - SSL bypass needed for CPDL API"
+    },
+    {
+      "fingerprint": "3edf98f040eb99daa87080aafe447b1df2f75e8cc5cb3aef6883b1539ee0a2c4",
+      "note": "Reviewed - SSL bypass needed for IMSLP API"
+    },
+    {
+      "fingerprint": "752441d360a8b4122e952ba991d7ba6261922a9482fe33933b56f5e4ccc4681c",
+      "note": "Reviewed - SSL bypass needed for thumbnail downloads"
+    },
+    {
+      "fingerprint": "a9262a5338fb9cc23c64bf6a08083fb509ab288e059361a8e23bd0bc07ce7a08",
+      "note": "Reviewed - redirect to external score URL is intentional"
+    },
+    {
+      "fingerprint": "af85eebc507474c1fc046bd4964ce386c4f1231cae9a96df1d976b1f4ffc2d15",
+      "note": "Reviewed - external URL link is user-facing and intentional"
+    },
+    {
+      "fingerprint": "c5215d45338f56df13ee914c3c795fb2149f9196b47f257d966703d71a7e71ab",
+      "note": "Reviewed - file path from DB is validated by source check"
+    }
+  ],
+  "updated": "2025-12-15",
+  "brakeman_version": "7.1.1"
+}

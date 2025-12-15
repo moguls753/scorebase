@@ -17,7 +17,7 @@ RSpec.describe "Gemini Composer Normalizer" do
     end
 
     body = {
-      contents: [{ parts: [{ text: "test prompt #{scores_data.to_json}" }] }],
+      contents: [ { parts: [ { text: "test prompt #{scores_data.to_json}" } ] } ],
       generationConfig: { responseMimeType: "application/json", temperature: 0.1 }
     }
 
@@ -44,13 +44,13 @@ RSpec.describe "Gemini Composer Normalizer" do
   describe "#gemini_normalize" do
     let(:success_response) do
       {
-        candidates: [{
+        candidates: [ {
           content: {
-            parts: [{
+            parts: [ {
               text: '[{"original":"J.S. Bach","normalized":"Bach, Johann Sebastian"}]'
-            }]
+            } ]
           }
-        }]
+        } ]
       }.to_json
     end
 
@@ -58,7 +58,7 @@ RSpec.describe "Gemini Composer Normalizer" do
       stub_request(:post, /#{gemini_url}/)
         .to_return(status: 200, body: success_response)
 
-      batch = [["J.S. Bach", "Toccata", nil, nil, nil]]
+      batch = [ [ "J.S. Bach", "Toccata", nil, nil, nil ] ]
       result = gemini_normalize(api_key, batch)
 
       expect(result.first["original"]).to eq("J.S. Bach")
@@ -69,7 +69,7 @@ RSpec.describe "Gemini Composer Normalizer" do
       stub_request(:post, /#{gemini_url}/)
         .to_return(status: 429, body: "Rate limited")
 
-      batch = [["Bach", nil, nil, nil, nil]]
+      batch = [ [ "Bach", nil, nil, nil, nil ] ]
       result = gemini_normalize(api_key, batch)
 
       expect(result).to eq(:quota_exceeded)
@@ -79,7 +79,7 @@ RSpec.describe "Gemini Composer Normalizer" do
       stub_request(:post, /#{gemini_url}/)
         .to_return(status: 500, body: "Server Error")
 
-      batch = [["Bach", nil, nil, nil, nil]]
+      batch = [ [ "Bach", nil, nil, nil, nil ] ]
       result = gemini_normalize(api_key, batch)
 
       expect(result).to be_nil
@@ -87,9 +87,9 @@ RSpec.describe "Gemini Composer Normalizer" do
 
     it "returns nil on malformed JSON response" do
       stub_request(:post, /#{gemini_url}/)
-        .to_return(status: 200, body: { candidates: [{ content: { parts: [{ text: "invalid json" }] } }] }.to_json)
+        .to_return(status: 200, body: { candidates: [ { content: { parts: [ { text: "invalid json" } ] } } ] }.to_json)
 
-      batch = [["Bach", nil, nil, nil, nil]]
+      batch = [ [ "Bach", nil, nil, nil, nil ] ]
       result = gemini_normalize(api_key, batch)
 
       expect(result).to be_nil
