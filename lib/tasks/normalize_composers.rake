@@ -12,10 +12,5 @@ namespace :normalize do
   task reset: :environment do
     count = Score.update_all(normalization_status: "pending")
     puts "Reset #{count} scores to pending."
-
-    # Optional: also clear old cache if it exists
-    if AppSetting.find_by(key: "composer_cache")&.destroy
-      puts "Cleared old composer_cache."
-    end
   end
 end
