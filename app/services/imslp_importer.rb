@@ -197,16 +197,10 @@ class ImslpImporter
   def import_priority!
     puts "Starting IMSLP priority import (#{PRIORITY_COMPOSERS.size} composers)..."
 
-    completed = AppSetting.get("imslp_priority_completed") || []
-    remaining = PRIORITY_COMPOSERS - completed
-
-    puts "Completed: #{completed.size}, Remaining: #{remaining.size}"
-    return report_results if remaining.empty?
-
     existing_ids = Score.where(source: "imslp").pluck(:external_id).to_set
 
-    remaining.each_with_index do |composer, idx|
-      puts "\n[#{idx + 1}/#{remaining.size}] #{composer.tr('_', ' ')}"
+    PRIORITY_COMPOSERS.each_with_index do |composer, idx|
+      puts "\n[#{idx + 1}/#{PRIORITY_COMPOSERS.size}] #{composer.tr('_', ' ')}"
 
       works = fetch_composer_works(composer)
       puts "  Found #{works.size} works"
@@ -214,14 +208,13 @@ class ImslpImporter
       new_works = works.reject { |w| existing_ids.include?(w.dig("intvals", "pageid").to_s) }
       puts "  New: #{new_works.size}"
 
+      next if new_works.empty?
+
       total_batches = (new_works.size.to_f / BATCH_SIZE).ceil
       new_works.each_slice(BATCH_SIZE).with_index do |batch, i|
         process_batch(batch, existing_ids)
         sleep(BATCH_DELAY) unless i == total_batches - 1
       end
-
-      completed << composer
-      AppSetting.set("imslp_priority_completed", completed)
     end
 
     normalize_composers_batch!

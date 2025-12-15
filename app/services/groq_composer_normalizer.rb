@@ -100,8 +100,7 @@ class GroqComposerNormalizer
   end
 
   def save_progress
-    # Progress is now saved in the database via normalization_status
-    # No need for AppSetting cache
+    # Progress is saved in the database via normalization_status
   end
 
   def print_summary

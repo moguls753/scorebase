@@ -6,12 +6,6 @@ namespace :imslp do
     importer.import_priority!
   end
 
-  desc "Reset priority import progress"
-  task reset_priority: :environment do
-    AppSetting.set("imslp_priority_completed", [])
-    puts "Priority import progress reset."
-  end
-
   desc "Sync all scores from IMSLP (runs synchronously). Use resume=true to skip existing."
   task :sync, [:resume, :start_offset] => :environment do |_t, args|
     resume = args[:resume] == "true" || args[:resume] == "1"
