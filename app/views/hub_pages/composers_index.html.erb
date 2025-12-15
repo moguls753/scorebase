@@ -26,33 +26,88 @@
   </div>
 </section>
 
-<!-- Composers Grid -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+<!-- Search & Navigation -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
+  <!-- Fuzzy Finder -->
+  <div class="composer-finder mb-6">
+    <div class="finder-input-wrap">
+      <svg class="finder-icon" viewBox="0 0 20 20" fill="currentColor">
+        <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
+      </svg>
+      <input
+        type="text"
+        id="composer-search"
+        class="finder-input"
+        placeholder="<%= t('hub.search_composers', default: 'Find a composer...') %>"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <div class="finder-shortcut" id="finder-shortcut">
+        <kbd>/</kbd>
+      </div>
+      <button type="button" class="finder-clear" id="finder-clear" aria-label="Clear search">
+        <svg viewBox="0 0 20 20" fill="currentColor">
+          <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
+        </svg>
+      </button>
+    </div>
+    <div class="finder-results-count" id="finder-results-count"></div>
+  </div>
+
+  <!-- Alphabet Jump Links -->
+  <nav class="alphabet-nav" id="alphabet-nav" aria-label="Jump to letter">
+    <% ('A'..'Z').each do |letter| %>
+      <a href="#letter-<%= letter %>" class="alphabet-link" data-letter="<%= letter %>"><%= letter %></a>
+    <% end %>
+  </nav>
+</div>
+
+<!-- Composers Grid (grouped by letter) -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8" id="composers-container">
   <% if @composers.any? %>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-      <% @composers.each_with_index do |composer, i| %>
-        <%= link_to composer_path(slug: composer[:slug]),
-            class: "hub-card mm-card p-4 sm:p-5 group",
-            style: "animation-delay: #{i * 20}ms" do %>
-          <div class="flex flex-col h-full">
-            <!-- Composer Initial -->
-            <div class="w-12 h-12 sm:w-14 sm:h-14 mb-3 flex items-center justify-center bg-[var(--color-accent)] text-white font-[var(--font-family-display)] font-black text-xl sm:text-2xl border-2 border-[var(--color-border)] box-shadow-sm">
-              <%= composer[:name].first.upcase %>
-            </div>
+    <% @composers.group_by { |c| c[:name].first.upcase }.sort.each do |letter, composers_in_group| %>
+      <section class="composer-letter-group" id="letter-<%= letter %>" data-letter="<%= letter %>">
+        <div class="letter-header">
+          <span class="letter-badge"><%= letter %></span>
+          <span class="letter-count"><%= composers_in_group.size %></span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+          <% composers_in_group.each do |composer| %>
+            <%= link_to composer_path(slug: composer[:slug]),
+                class: "hub-card mm-card p-4 sm:p-5 group",
+                data: { composer_name: composer[:name].downcase, composer_slug: composer[:slug] } do %>
+              <div class="flex flex-col h-full">
+                <!-- Composer Initial -->
+                <div class="w-12 h-12 sm:w-14 sm:h-14 mb-3 flex items-center justify-center bg-[var(--color-accent)] text-white font-[var(--font-family-display)] font-black text-xl sm:text-2xl border-2 border-[var(--color-border)] box-shadow-sm">
+                  <%= composer[:name].first.upcase %>
+                </div>
 
-            <!-- Composer Name -->
-            <h3 class="text-sm sm:text-base font-[var(--font-family-display)] text-[var(--color-primary)] font-bold leading-tight mb-2 group-hover:text-[var(--color-accent)] transition-colors line-clamp-2">
-              <%= composer[:name] %>
-            </h3>
+                <!-- Composer Name -->
+                <h3 class="composer-card-name text-sm sm:text-base font-[var(--font-family-display)] text-[var(--color-primary)] font-bold leading-tight mb-2 group-hover:text-[var(--color-accent)] transition-colors line-clamp-2">
+                  <%= composer[:name] %>
+                </h3>
 
-            <!-- Score Count -->
-            <p class="text-xs text-[var(--color-text-muted)] font-semibold mt-auto">
-              <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(composer[:count]) %></span>
-              <%= t('search.results_count').downcase %>
-            </p>
-          </div>
-        <% end %>
-      <% end %>
+                <!-- Score Count -->
+                <p class="text-xs text-[var(--color-text-muted)] font-semibold mt-auto">
+                  <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(composer[:count]) %></span>
+                  <%= t('search.results_count').downcase %>
+                </p>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+
+    <!-- No Results Message -->
+    <div class="no-results-message mm-card p-8 sm:p-12 text-center hidden" id="no-results">
+      <div class="text-5xl mb-4">🔍</div>
+      <p class="text-[var(--color-text-muted)] font-medium text-lg mb-2" id="no-results-text">
+        No composers found
+      </p>
+      <p class="text-sm text-[var(--color-text-muted)]">
+        Try a different spelling or browse alphabetically
+      </p>
     </div>
   <% else %>
     <div class="mm-card p-8 sm:p-12 text-center">
@@ -91,4 +146,546 @@
   .box-shadow-sm {
     box-shadow: 3px 3px 0 var(--shadow-color);
   }
+
+  /* ========================================
+     FUZZY FINDER
+     ======================================== */
+  .composer-finder {
+    max-width: 480px;
+  }
+
+  .finder-input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .finder-icon {
+    position: absolute;
+    left: 16px;
+    width: 20px;
+    height: 20px;
+    color: var(--color-text-muted);
+    pointer-events: none;
+    transition: color 0.15s ease;
+  }
+
+  .finder-input {
+    width: 100%;
+    padding: 14px 48px 14px 48px;
+    font-family: var(--font-family-body);
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--color-text);
+    background: var(--color-bg-card);
+    border: 2px solid var(--color-border);
+    border-radius: 2px;
+    box-shadow: 4px 4px 0 var(--shadow-color);
+    transition: all 0.2s ease;
+  }
+
+  .finder-input::placeholder {
+    color: var(--color-text-muted);
+    font-weight: 400;
+  }
+
+  .finder-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 6px 6px 0 var(--color-accent);
+    transform: translate(-2px, -2px);
+  }
+
+  .finder-input:focus + .finder-shortcut {
+    opacity: 0;
+  }
+
+  .finder-input:focus ~ .finder-icon,
+  .finder-input-wrap:focus-within .finder-icon {
+    color: var(--color-accent);
+  }
+
+  .finder-shortcut {
+    position: absolute;
+    right: 14px;
+    display: flex;
+    align-items: center;
+    pointer-events: none;
+    transition: opacity 0.15s ease;
+  }
+
+  .finder-shortcut kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 8px;
+    font-family: var(--font-family-display);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    background: var(--color-bg);
+    border: 2px solid var(--color-border-subtle);
+    border-radius: 2px;
+    box-shadow: 2px 2px 0 var(--shadow-color);
+  }
+
+  .finder-clear {
+    position: absolute;
+    right: 12px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    color: var(--color-text-muted);
+    background: var(--color-bg);
+    border: 2px solid var(--color-border-subtle);
+    border-radius: 2px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .finder-clear svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .finder-clear:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: var(--color-bg-elevated);
+  }
+
+  .finder-clear.visible {
+    display: flex;
+  }
+
+  .finder-results-count {
+    margin-top: 8px;
+    font-family: var(--font-family-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+    min-height: 20px;
+  }
+
+  .finder-results-count .highlight {
+    color: var(--color-accent);
+    font-weight: 700;
+  }
+
+  /* ========================================
+     ALPHABET NAVIGATION
+     ======================================== */
+  .alphabet-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 16px 0;
+    border-bottom: 2px solid var(--color-border-subtle);
+  }
+
+  .alphabet-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    font-family: var(--font-family-display);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    background: var(--color-bg-card);
+    border: 2px solid var(--color-border-subtle);
+    border-radius: 2px;
+    transition: all 0.15s ease;
+  }
+
+  .alphabet-link:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: var(--color-bg-elevated);
+    transform: translateY(-2px);
+    box-shadow: 3px 3px 0 var(--color-accent);
+  }
+
+  .alphabet-link.active {
+    color: #fff;
+    background: var(--color-accent);
+    border-color: var(--color-border);
+    box-shadow: 3px 3px 0 var(--shadow-color);
+  }
+
+  .alphabet-link.disabled {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  /* ========================================
+     LETTER GROUP SECTIONS
+     ======================================== */
+  .composer-letter-group {
+    margin-bottom: 32px;
+    scroll-margin-top: 100px;
+  }
+
+  .composer-letter-group.hidden {
+    display: none;
+  }
+
+  .letter-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--color-border-subtle);
+  }
+
+  .letter-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    font-family: var(--font-family-display);
+    font-size: 22px;
+    font-weight: 900;
+    color: #fff;
+    background: var(--color-accent);
+    border: 2px solid var(--color-border);
+    border-radius: 2px;
+    box-shadow: 4px 4px 0 var(--shadow-color);
+  }
+
+  .letter-count {
+    font-family: var(--font-family-body);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--color-text-muted);
+  }
+
+  /* Hidden card state for filtering */
+  .hub-card.filtered-out {
+    display: none;
+  }
+
+  /* Match highlight */
+  .composer-card-name mark {
+    background: transparent;
+    color: var(--color-accent);
+    font-weight: 900;
+  }
+
+  /* No results */
+  .no-results-message.hidden {
+    display: none;
+  }
+
+  /* ========================================
+     RESPONSIVE
+     ======================================== */
+  @media (max-width: 640px) {
+    .finder-input {
+      font-size: 16px; /* Prevents iOS zoom */
+      padding: 12px 44px 12px 44px;
+    }
+
+    .finder-shortcut {
+      display: none;
+    }
+
+    .alphabet-nav {
+      gap: 4px;
+    }
+
+    .alphabet-link {
+      width: 28px;
+      height: 28px;
+      font-size: 11px;
+    }
+
+    .letter-badge {
+      width: 36px;
+      height: 36px;
+      font-size: 18px;
+    }
+
+    .composer-letter-group {
+      margin-bottom: 24px;
+    }
+  }
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const searchInput = document.getElementById('composer-search');
+  const clearBtn = document.getElementById('finder-clear');
+  const shortcutHint = document.getElementById('finder-shortcut');
+  const resultsCount = document.getElementById('finder-results-count');
+  const noResults = document.getElementById('no-results');
+  const alphabetNav = document.getElementById('alphabet-nav');
+  const letterGroups = document.querySelectorAll('.composer-letter-group');
+  const composerCards = document.querySelectorAll('.hub-card[data-composer-name]');
+  const alphabetLinks = document.querySelectorAll('.alphabet-link');
+
+  // Build available letters set
+  const availableLetters = new Set();
+  letterGroups.forEach(group => {
+    availableLetters.add(group.dataset.letter);
+  });
+
+  // Disable letters that have no composers
+  alphabetLinks.forEach(link => {
+    if (!availableLetters.has(link.dataset.letter)) {
+      link.classList.add('disabled');
+    }
+  });
+
+  // Keyboard shortcut: "/" to focus search
+  document.addEventListener('keydown', function(e) {
+    if (e.key === '/' && document.activeElement !== searchInput) {
+      e.preventDefault();
+      searchInput.focus();
+    }
+    // Escape to clear and blur
+    if (e.key === 'Escape' && document.activeElement === searchInput) {
+      clearSearch();
+      searchInput.blur();
+    }
+  });
+
+  // Simple fuzzy match function
+  function fuzzyMatch(text, query) {
+    const textLower = text.toLowerCase();
+    const queryLower = query.toLowerCase();
+
+    // Direct substring match (higher priority)
+    if (textLower.includes(queryLower)) {
+      return { match: true, score: 100, indices: getSubstringIndices(textLower, queryLower) };
+    }
+
+    // Fuzzy character match
+    let queryIdx = 0;
+    let indices = [];
+    let consecutiveBonus = 0;
+    let score = 0;
+
+    for (let i = 0; i < text.length && queryIdx < query.length; i++) {
+      if (textLower[i] === queryLower[queryIdx]) {
+        indices.push(i);
+        // Bonus for consecutive matches
+        if (indices.length > 1 && indices[indices.length - 1] === indices[indices.length - 2] + 1) {
+          consecutiveBonus += 5;
+        }
+        // Bonus for matching at word boundaries
+        if (i === 0 || text[i - 1] === ' ' || text[i - 1] === '-') {
+          score += 10;
+        }
+        queryIdx++;
+      }
+    }
+
+    if (queryIdx === query.length) {
+      // All query characters found
+      score += 50 - indices.length + consecutiveBonus;
+      return { match: true, score: score, indices: indices };
+    }
+
+    return { match: false, score: 0, indices: [] };
+  }
+
+  function getSubstringIndices(text, query) {
+    const start = text.indexOf(query);
+    if (start === -1) return [];
+    return Array.from({ length: query.length }, (_, i) => start + i);
+  }
+
+  function highlightText(text, indices) {
+    if (!indices.length) return text;
+
+    let result = '';
+    let lastIdx = 0;
+
+    // Group consecutive indices
+    const groups = [];
+    let currentGroup = [indices[0]];
+
+    for (let i = 1; i < indices.length; i++) {
+      if (indices[i] === indices[i - 1] + 1) {
+        currentGroup.push(indices[i]);
+      } else {
+        groups.push(currentGroup);
+        currentGroup = [indices[i]];
+      }
+    }
+    groups.push(currentGroup);
+
+    groups.forEach(group => {
+      const start = group[0];
+      const end = group[group.length - 1] + 1;
+      result += text.slice(lastIdx, start);
+      result += '<mark>' + text.slice(start, end) + '</mark>';
+      lastIdx = end;
+    });
+
+    result += text.slice(lastIdx);
+    return result;
+  }
+
+  function clearSearch() {
+    searchInput.value = '';
+    clearBtn.classList.remove('visible');
+    shortcutHint.style.opacity = '1';
+    resultsCount.textContent = '';
+
+    // Show all cards and groups
+    composerCards.forEach(card => {
+      card.classList.remove('filtered-out');
+      const nameEl = card.querySelector('.composer-card-name');
+      if (nameEl) {
+        nameEl.innerHTML = nameEl.textContent;
+      }
+    });
+
+    letterGroups.forEach(group => {
+      group.classList.remove('hidden');
+    });
+
+    noResults.classList.add('hidden');
+    updateAlphabetNav();
+  }
+
+  function updateAlphabetNav() {
+    const query = searchInput.value.trim();
+    if (!query) {
+      // Reset to initial state
+      alphabetLinks.forEach(link => {
+        link.classList.remove('disabled');
+        if (!availableLetters.has(link.dataset.letter)) {
+          link.classList.add('disabled');
+        }
+      });
+      return;
+    }
+
+    // Disable letters with no visible results
+    alphabetLinks.forEach(link => {
+      const letter = link.dataset.letter;
+      const group = document.getElementById('letter-' + letter);
+      if (group && !group.classList.contains('hidden')) {
+        link.classList.remove('disabled');
+      } else {
+        link.classList.add('disabled');
+      }
+    });
+  }
+
+  function performSearch(query) {
+    if (!query) {
+      clearSearch();
+      return;
+    }
+
+    clearBtn.classList.add('visible');
+    shortcutHint.style.opacity = '0';
+
+    let matchCount = 0;
+    const matchResults = [];
+
+    // Score all cards
+    composerCards.forEach(card => {
+      const name = card.dataset.composerName;
+      const result = fuzzyMatch(name, query);
+
+      if (result.match) {
+        matchCount++;
+        matchResults.push({ card, result, name });
+        card.classList.remove('filtered-out');
+
+        // Highlight matching characters
+        const nameEl = card.querySelector('.composer-card-name');
+        if (nameEl) {
+          const originalText = nameEl.textContent;
+          const highlighted = highlightText(originalText, result.indices.map(i =>
+            // Map lowercase indices to original case
+            originalText.toLowerCase().indexOf(name[i]) === i ? i : i
+          ));
+          nameEl.innerHTML = highlightText(originalText, result.indices);
+        }
+      } else {
+        card.classList.add('filtered-out');
+        const nameEl = card.querySelector('.composer-card-name');
+        if (nameEl) {
+          nameEl.innerHTML = nameEl.textContent;
+        }
+      }
+    });
+
+    // Hide empty letter groups
+    letterGroups.forEach(group => {
+      const visibleCards = group.querySelectorAll('.hub-card:not(.filtered-out)');
+      if (visibleCards.length === 0) {
+        group.classList.add('hidden');
+      } else {
+        group.classList.remove('hidden');
+      }
+    });
+
+    // Update results count
+    if (matchCount > 0) {
+      resultsCount.innerHTML = '<span class="highlight">' + matchCount + '</span> composer' + (matchCount === 1 ? '' : 's') + ' found';
+      noResults.classList.add('hidden');
+    } else {
+      resultsCount.innerHTML = '';
+      noResults.classList.remove('hidden');
+      document.getElementById('no-results-text').textContent = 'No composers matching "' + query + '"';
+    }
+
+    updateAlphabetNav();
+  }
+
+  // Debounce helper
+  function debounce(fn, delay) {
+    let timeoutId;
+    return function(...args) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => fn.apply(this, args), delay);
+    };
+  }
+
+  // Event listeners
+  searchInput.addEventListener('input', debounce(function() {
+    performSearch(this.value.trim());
+  }, 150));
+
+  clearBtn.addEventListener('click', function() {
+    clearSearch();
+    searchInput.focus();
+  });
+
+  // Smooth scroll for alphabet links
+  alphabetLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      if (this.classList.contains('disabled')) {
+        e.preventDefault();
+        return;
+      }
+
+      // If searching, clear search first
+      if (searchInput.value.trim()) {
+        clearSearch();
+      }
+
+      // Highlight active letter briefly
+      alphabetLinks.forEach(l => l.classList.remove('active'));
+      this.classList.add('active');
+      setTimeout(() => this.classList.remove('active'), 1000);
+    });
+  });
+});
+</script>

@@ -234,3 +234,4 @@ en:
     filter_results: "Filter Results"
     no_scores_found: "No scores found matching your criteria."
     view_all_by: "View all by %{name}"
+    search_composers: "Find a composer..."
