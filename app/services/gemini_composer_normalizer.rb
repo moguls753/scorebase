@@ -35,6 +35,9 @@ class GeminiComposerNormalizer
                   .pluck(:composer, :title, :editor, :genres, :language)
                   .uniq { |row| row[0] }
 
+    # Filter out composers already in ComposerMapping
+    scores = scores.reject { |row| ComposerMapping.attempted?(row[0]) }
+
     @limit&.positive? ? scores.first(@limit) : scores
   end
 
@@ -61,6 +64,13 @@ class GeminiComposerNormalizer
     results&.each do |item|
       original = item["original"]
       normalized = item["normalized"]
+
+      # Register in ComposerMapping (respects cacheability rules)
+      ComposerMapping.register(
+        original: original,
+        normalized: normalized,
+        source: "gemini"
+      )
 
       scores_to_update = Score.where(composer: original, composer_attempted: false)
       count = scores_to_update.count

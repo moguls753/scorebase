@@ -11,9 +11,7 @@ RSpec.describe ImslpImporter do
   before do
     allow(ENV).to receive(:[]).and_call_original
     allow(ENV).to receive(:[]).with("GEMINI_API_KEY").and_return(api_key)
-
-    # Clear cache before each test
-    AppSetting.find_by(key: "composer_cache")&.destroy
+    ComposerMapping.delete_all
   end
 
   describe "#normalize_composer" do
@@ -22,9 +20,8 @@ RSpec.describe ImslpImporter do
       expect(importer.send(:normalize_composer, "")).to be_nil
     end
 
-    it "returns cached value if exists" do
-      AppSetting.set("composer_cache", { "Bach" => "Bach, Johann Sebastian" })
-
+    it "returns cached value from ComposerMapping" do
+      ComposerMapping.create!(original_name: "Bach", normalized_name: "Bach, Johann Sebastian", source: "test")
       expect(importer.send(:normalize_composer, "Bach")).to eq("Bach, Johann Sebastian")
     end
 

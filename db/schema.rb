@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_14_115527) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_15_135007) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -45,6 +45,17 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_14_115527) do
     t.datetime "updated_at", null: false
     t.json "value", default: {}
     t.index ["key"], name: "index_app_settings_on_key", unique: true
+  end
+
+  create_table "composer_mappings", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "normalized_name"
+    t.string "original_name", null: false
+    t.string "source"
+    t.datetime "updated_at", null: false
+    t.boolean "verified", default: false, null: false
+    t.index ["normalized_name"], name: "index_composer_mappings_on_normalized_name"
+    t.index ["original_name"], name: "index_composer_mappings_on_original_name", unique: true
   end
 
   create_table "daily_stats", force: :cascade do |t|

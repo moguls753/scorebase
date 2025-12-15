@@ -137,8 +137,8 @@ class HubPagesController < ApplicationController
   end
 
   def composers_with_counts
-    cache = AppSetting.fetch("composer_cache", {})
-    valid_composers = cache.values.compact.uniq
+    # Get valid composers from ComposerMapping
+    valid_composers = ComposerMapping.normalizable.pluck(:normalized_name).uniq
 
     composer_counts = Score.where(composer: valid_composers)
                            .group(:composer)

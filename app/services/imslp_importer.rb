@@ -619,15 +619,27 @@ class ImslpImporter
   def normalize_composer(composer_str)
     return nil if composer_str.blank?
 
-    # Check cache first
-    @composer_cache ||= load_composer_cache
-    return @composer_cache[composer_str] if @composer_cache.key?(composer_str)
+    # Check ComposerMapping first
+    if (normalized = ComposerMapping.normalize(composer_str))
+      return normalized
+    end
 
-    # Queue for batch processing
+    # For priority composers (already in LastName, FirstName format), register immediately
+    if PRIORITY_COMPOSERS.map { |c| c.tr("_", " ") }.include?(composer_str)
+      ComposerMapping.register(
+        original: composer_str,
+        normalized: composer_str,
+        source: "imslp_priority",
+        verified: true
+      )
+      return composer_str
+    end
+
+    # Queue for batch AI processing
     @composer_queue ||= []
     @composer_queue << composer_str
 
-    # Fallback for now - batch will update later
+    # Return original for now - batch will update later
     composer_str
   end
 
@@ -635,11 +647,21 @@ class ImslpImporter
     return if @composer_queue.blank?
 
     api_key = ENV["GEMINI_API_KEY"]
-    return unless api_key.present?
+    unless api_key.present?
+      puts "  Skipping normalization (no GEMINI_API_KEY)"
+      return
+    end
 
-    @composer_cache ||= load_composer_cache
-    uncached = @composer_queue.uniq - @composer_cache.keys
-    return if uncached.empty?
+    # Filter to only cacheable composers not yet in ComposerMapping
+    uncached = @composer_queue.uniq.select do |c|
+      ComposerMapping.cacheable?(c) && !ComposerMapping.attempted?(c)
+    end
+
+    if uncached.empty?
+      puts "  All composers already in ComposerMapping"
+      @composer_queue = []
+      return
+    end
 
     puts "  Normalizing #{uncached.size} composers via Gemini..."
 
@@ -648,20 +670,29 @@ class ImslpImporter
       next unless results
 
       results.each do |item|
-        @composer_cache[item["original"]] = item["normalized"]
+        original = item["original"]
+        normalized = item["normalized"]
+
+        # Register in ComposerMapping (respects cacheability rules)
+        ComposerMapping.register(
+          original: original,
+          normalized: normalized,
+          source: "gemini_imslp"
+        )
+
+        # Update scores with normalized composer
+        next unless normalized
+        Score.where(source: "imslp", composer: original).update_all(
+          composer: normalized,
+          composer_attempted: true,
+          composer_normalized: true
+        )
       end
 
       sleep 4 # Rate limit
     end
 
-    save_composer_cache
     @composer_queue = []
-
-    # Update scores with normalized composers
-    @composer_cache.each do |original, normalized|
-      next unless normalized
-      Score.where(source: "imslp", composer: original).update_all(composer: normalized)
-    end
   end
 
   def gemini_normalize_batch(api_key, composers)
@@ -699,13 +730,6 @@ class ImslpImporter
     nil
   end
 
-  def load_composer_cache
-    AppSetting.get("composer_cache") || {}
-  end
-
-  def save_composer_cache
-    AppSetting.set("composer_cache", @composer_cache)
-  end
 
   def parse_voicing(instrumentation, instr_detail)
     return { voicing: nil, num_parts: nil } if instrumentation.blank?
