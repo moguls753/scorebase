@@ -115,13 +115,6 @@ jobs:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: [test, lint, scan_ruby]
 
-    env:
-      DOCKER_BUILDKIT: 1
-      RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-      KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
-      GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v5
@@ -151,8 +144,13 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H 46.224.124.123 > ~/.ssh/known_hosts
 
-      - name: Deploy with Kamal
-        run: bin/kamal deploy
+      - name: Deploy
+        run: bin/deploy
+        env:
+          RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
+          KAMAL_REGISTRY_PASSWORD: ${{ secrets.KAMAL_REGISTRY_PASSWORD }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API_KEY }}
 
   # system-test:
   #   runs-on: ubuntu-latest
