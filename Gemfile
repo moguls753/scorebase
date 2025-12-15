@@ -83,4 +83,18 @@ group :test do
   # RSpec testing framework
   gem "rspec-rails"
   gem "webmock"  # Mock HTTP requests
+
+  # Test data generation
+  gem "factory_bot_rails"
+  gem "faker"
+
+  # Better matchers for Rails testing
+  gem "shoulda-matchers"
+
+  # Code coverage
+  gem "simplecov", require: false
+  gem "simplecov-cobertura", require: false  # For CI coverage reporting
+
+  # JUnit XML formatter for CI
+  gem "rspec_junit_formatter"
 end
