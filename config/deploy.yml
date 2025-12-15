@@ -1,6 +1,9 @@
 # Name of your application. Used to uniquely configure containers.
 service: scorebase
 
+# How long to wait for container to become ready (default 30 seconds)
+deploy_timeout: 90
+
 # Name of the container image (use your-user/app-name on external registries).
 image: moguls753/scorebase
 
