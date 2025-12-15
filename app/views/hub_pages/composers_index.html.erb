@@ -80,6 +80,7 @@
   <!-- Composers Grid (grouped by letter) -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
     <% if @composers.any? %>
+      <% global_index = 0 %>
       <% @composers.group_by { |c| c[:name].first.upcase }.sort.each do |letter, composers_in_group| %>
         <section class="composer-letter-group"
                  id="letter-<%= letter %>"
@@ -91,12 +92,15 @@
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
             <% composers_in_group.each do |composer| %>
+              <% delay = global_index < 30 ? global_index * 20 : 0 %>
               <%= link_to composer_path(slug: composer[:slug]),
                   class: "composer-card-simple hub-card mm-card group",
+                  style: delay > 0 ? "animation-delay: #{delay}ms" : nil,
                   data: {
                     list_filter_target: "item",
                     composer_name: composer[:name].downcase
                   } do %>
+              <% global_index += 1 %>
                 <!-- Composer Name -->
                 <h3 class="composer-card-name"
                     data-list-filter-target="itemName">
@@ -145,12 +149,26 @@
   }
 
   .hub-card {
-    animation: hubCardFadeIn 0.4s ease forwards;
+    animation: hubCardFadeIn 0.4s ease both;
   }
 
   @keyframes hubCardFadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .hub-card {
+      animation: none;
+      opacity: 1;
+    }
   }
 
   .box-shadow-sm {
