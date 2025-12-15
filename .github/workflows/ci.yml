@@ -110,40 +110,28 @@ jobs:
           path: tmp/rspec_results.xml
           if-no-files-found: ignore
 
-  system-test:
-    runs-on: ubuntu-latest
-
-    # services:
-    #  redis:
-    #    image: valkey/valkey:8
-    #    ports:
-    #      - 6379:6379
-    #    options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v5
-
-      - name: Set up Ruby
-        uses: ruby/setup-ruby@v1
-        with:
-          bundler-cache: true
-
-      - name: Prepare test database
-        env:
-          RAILS_ENV: test
-        run: bin/rails db:test:prepare
-
-      - name: Run RSpec system tests
-        env:
-          RAILS_ENV: test
-          # RAILS_MASTER_KEY: ${{ secrets.RAILS_MASTER_KEY }}
-          # REDIS_URL: redis://localhost:6379/0
-        run: bundle exec rspec spec/system --format progress
-
-      - name: Keep screenshots from failed system tests
-        uses: actions/upload-artifact@v4
-        if: failure()
-        with:
-          name: screenshots
-          path: ${{ github.workspace }}/tmp/screenshots
-          if-no-files-found: ignore
+  # system-test:
+  #   runs-on: ubuntu-latest
+  #   # Uncomment when you have system tests in spec/system/
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v5
+  #     - name: Set up Ruby
+  #       uses: ruby/setup-ruby@v1
+  #       with:
+  #         bundler-cache: true
+  #     - name: Prepare test database
+  #       env:
+  #         RAILS_ENV: test
+  #       run: bin/rails db:test:prepare
+  #     - name: Run RSpec system tests
+  #       env:
+  #         RAILS_ENV: test
+  #       run: bundle exec rspec spec/system --format progress
+  #     - name: Keep screenshots from failed system tests
+  #       uses: actions/upload-artifact@v4
+  #       if: failure()
+  #       with:
+  #         name: screenshots
+  #         path: ${{ github.workspace }}/tmp/screenshots
+  #         if-no-files-found: ignore
