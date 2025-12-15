@@ -448,7 +448,11 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Keyboard shortcut: "/" to focus search
   document.addEventListener('keydown', function(e) {
-    if (e.key === '/' && document.activeElement !== searchInput) {
+    const activeTag = document.activeElement.tagName;
+    const isEditing = ['INPUT', 'TEXTAREA', 'SELECT'].includes(activeTag) ||
+                      document.activeElement.isContentEditable;
+
+    if (e.key === '/' && !isEditing) {
       e.preventDefault();
       searchInput.focus();
     }
