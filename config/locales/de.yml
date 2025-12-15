@@ -234,3 +234,4 @@ de:
     filter_results: "Ergebnisse filtern"
     no_scores_found: "Keine Noten gefunden."
     view_all_by: "Alle von %{name} anzeigen"
+    search_composers: "Komponist suchen..."
