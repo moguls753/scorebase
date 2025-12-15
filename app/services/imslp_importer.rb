@@ -684,8 +684,7 @@ class ImslpImporter
         next unless normalized
         Score.where(source: "imslp", composer: original).update_all(
           composer: normalized,
-          composer_attempted: true,
-          composer_normalized: true
+          normalization_status: "normalized"
         )
       end
 

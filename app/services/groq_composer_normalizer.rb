@@ -25,7 +25,7 @@ class GroqComposerNormalizer
 
   def normalize!
     scores = fetch_scores
-    total_pending = Score.where(composer_attempted: false).count
+    total_pending = Score.pending.count
     puts "Total pending scores: #{total_pending}"
     puts "Processing: #{scores.count} unique composer fields#{@limit ? " (limited to #{@limit})" : ""}\n\n"
 
@@ -36,7 +36,7 @@ class GroqComposerNormalizer
   private
 
   def fetch_scores
-    scores = Score.where(composer_attempted: false)
+    scores = Score.pending
                   .distinct
                   .pluck(:composer, :title, :editor, :genres, :language)
                   .uniq { |row| row[0] }
@@ -78,21 +78,19 @@ class GroqComposerNormalizer
         source: "groq"
       )
 
-      scores_to_update = Score.where(composer: original, composer_attempted: false)
+      scores_to_update = Score.pending.where(composer: original)
       count = scores_to_update.count
 
       if normalized
         scores_to_update.update_all(
           composer: normalized,
-          composer_normalized: true,
-          composer_attempted: true
+          normalization_status: "normalized"
         )
         puts "  [#{count}] #{original[0..30].ljust(33)} -> #{normalized}"
         @normalized_count += count
       else
         scores_to_update.update_all(
-          composer_normalized: false,
-          composer_attempted: true
+          normalization_status: "failed"
         )
         puts "  [#{count}] #{original[0..30].ljust(33)} -> (unknown, not normalizable)"
       end
@@ -102,14 +100,14 @@ class GroqComposerNormalizer
   end
 
   def save_progress
-    # Progress is now saved in the database via composer_normalized flag
+    # Progress is now saved in the database via normalization_status
     # No need for AppSetting cache
   end
 
   def print_summary
-    total_pending = Score.where(composer_attempted: false).count
-    total_normalized = Score.where(composer_normalized: true).count
-    total_unknown = Score.where(composer_attempted: true, composer_normalized: false).count
+    total_pending = Score.pending.count
+    total_normalized = Score.normalized.count
+    total_unknown = Score.failed.count
 
     puts "\n#{"=" * 50}"
     puts "Scores processed this run: #{@processed_count}"

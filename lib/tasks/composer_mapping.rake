@@ -23,10 +23,10 @@ namespace :composers do
 
   desc "Backfill ComposerMapping from existing normalized scores"
   task backfill: :environment do
-    puts "Backfilling from scores with composer_normalized: true..."
+    puts "Backfilling from normalized scores..."
 
     # Get all distinct composers from normalized scores
-    composers = Score.where(composer_normalized: true)
+    composers = Score.normalized
                      .where.not(composer: nil)
                      .distinct
                      .pluck(:composer)
@@ -64,10 +64,10 @@ namespace :composers do
 
     puts "Found #{known_composers.size} known composers in mapping"
 
-    # Update scores that have these composers but aren't marked as normalized
-    updated = Score.where(composer: known_composers)
-                   .where(composer_normalized: false)
-                   .update_all(composer_normalized: true, composer_attempted: true)
+    # Update pending scores that have these composers
+    updated = Score.pending
+                   .where(composer: known_composers)
+                   .update_all(normalization_status: "normalized")
 
     puts "Marked #{updated} scores as normalized"
   end

@@ -8,10 +8,10 @@ namespace :normalize do
     GroqComposerNormalizer.new(limit: limit).normalize!
   end
 
-  desc "Reset normalization progress (marks all scores as unattempted)"
+  desc "Reset normalization progress (marks all scores as pending)"
   task reset: :environment do
-    count = Score.update_all(composer_normalized: false, composer_attempted: false)
-    puts "Reset #{count} scores to unattempted."
+    count = Score.update_all(normalization_status: "pending")
+    puts "Reset #{count} scores to pending."
 
     # Optional: also clear old cache if it exists
     if AppSetting.find_by(key: "composer_cache")&.destroy
