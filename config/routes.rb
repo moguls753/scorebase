@@ -13,7 +13,7 @@ Rails.application.routes.draw do
     # Scores
     resources :scores, only: [:index, :show] do
       member do
-        get 'file/:file_type', to: 'scores#serve_file', as: 'file'
+        get "file/:file_type", to: "scores#serve_file", as: "file"
       end
     end
 

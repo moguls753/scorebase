@@ -74,7 +74,7 @@ namespace :cpdl do
 
     # Find CPDL scores with PDFs but no thumbnails
     scores = Score.from_cpdl
-                  .where.not(pdf_path: [nil, ''])
+                  .where.not(pdf_path: [nil, ""])
                   .left_joins(:thumbnail_image_attachment)
                   .where(active_storage_attachments: { id: nil })
 
@@ -112,7 +112,7 @@ namespace :cpdl do
     limit = args[:limit]&.to_i
 
     scores = Score.from_cpdl
-                  .where.not(pdf_path: [nil, ''])
+                  .where.not(pdf_path: [nil, ""])
                   .left_joins(:thumbnail_image_attachment)
                   .where(active_storage_attachments: { id: nil })
 
@@ -133,7 +133,7 @@ namespace :cpdl do
     limit = args[:limit]&.to_i
 
     scores = Score.from_cpdl
-                  .where.not(pdf_path: [nil, ''])
+                  .where.not(pdf_path: [nil, ""])
                   .left_joins(:preview_image_attachment)
                   .where(active_storage_attachments: { id: nil })
 
@@ -170,7 +170,7 @@ namespace :cpdl do
     limit = args[:limit]&.to_i
 
     scores = Score.from_cpdl
-                  .where.not(pdf_path: [nil, ''])
+                  .where.not(pdf_path: [nil, ""])
                   .left_joins(:preview_image_attachment)
                   .where(active_storage_attachments: { id: nil })
 

@@ -26,7 +26,7 @@ class ComposerMapping < ApplicationRecord
     /\bunknown\b/i,
     /\btraditional\b/i,
     /\bfolk\b/i,
-    /\bvarious\b/i,
+    /\bvarious\b/i
   ].freeze
 
   scope :verified, -> { where(verified: true) }

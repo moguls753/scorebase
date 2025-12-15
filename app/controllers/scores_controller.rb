@@ -44,18 +44,18 @@ class ScoresController < ApplicationController
 
     # Get the file path based on type
     file_path = case file_type
-    when 'pdf'
+    when "pdf"
       @score.pdf_path
-    when 'mxl'
+    when "mxl"
       @score.mxl_path
-    when 'mid'
+    when "mid"
       @score.mid_path
     else
       nil
     end
 
     # Validate file path exists and is not N/A
-    if file_path.blank? || file_path == 'N/A'
+    if file_path.blank? || file_path == "N/A"
       render plain: "File not available", status: :not_found
       return
     end
@@ -63,9 +63,9 @@ class ScoresController < ApplicationController
     # Handle external scores (CPDL, IMSLP) - redirect to external file URL
     if @score.external?
       external_url = case file_type
-      when 'pdf' then @score.pdf_url
-      when 'mxl' then @score.mxl_url
-      when 'mid' then @score.mid_url
+      when "pdf" then @score.pdf_url
+      when "mxl" then @score.mxl_url
+      when "mid" then @score.mid_url
       end
 
       if external_url.present?
@@ -79,7 +79,7 @@ class ScoresController < ApplicationController
 
     # Handle PDMX scores - serve from local filesystem
     # Convert relative path to absolute path (PDMX data location)
-    absolute_path = File.join(ENV.fetch('PDMX_DATA_PATH', File.expand_path('~/data/pdmx')), file_path.sub(/^\.\//, ''))
+    absolute_path = File.join(ENV.fetch("PDMX_DATA_PATH", File.expand_path("~/data/pdmx")), file_path.sub(/^\.\//, ""))
 
     # Check if file exists
     unless File.exist?(absolute_path)
@@ -89,7 +89,7 @@ class ScoresController < ApplicationController
 
     # Serve the file
     # Use disposition: 'inline' for PDFs (for preview), 'attachment' for downloads
-    disposition = params[:download] == 'true' ? 'attachment' : 'inline'
+    disposition = params[:download] == "true" ? "attachment" : "inline"
 
     # Build a nice filename from score title and composer
     nice_filename = "#{@score.title.parameterize}"
@@ -106,14 +106,14 @@ class ScoresController < ApplicationController
 
   def content_type_for(file_type)
     case file_type
-    when 'pdf'
-      'application/pdf'
-    when 'mxl'
-      'application/vnd.recordare.musicxml'
-    when 'mid'
-      'audio/midi'
+    when "pdf"
+      "application/pdf"
+    when "mxl"
+      "application/vnd.recordare.musicxml"
+    when "mid"
+      "audio/midi"
     else
-      'application/octet-stream'
+      "application/octet-stream"
     end
   end
 
