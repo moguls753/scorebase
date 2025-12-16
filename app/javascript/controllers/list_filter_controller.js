@@ -195,7 +195,7 @@ export default class extends Controller {
         }
 
         // Bonus for word boundary matches
-        if (i === 0 || text[i - 1] === " " || text[i - 1] === "-") {
+        if (i === 0 || textNormalized[i - 1] === " " || textNormalized[i - 1] === "-") {
           score += 10
         }
 
