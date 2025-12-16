@@ -118,11 +118,15 @@ class ComposerNormalizerBase
 
       Normalization rules:
       - Format: "LastName, FirstName" (e.g., "Bach, Johann Sebastian")
-      - Use standard musicological Latin-alphabet spelling
+      - Use ASCII-only characters - NO accents/diacritics (ü→u, é→e, ø→o)
       - Expand abbreviations: "J.S. Bach" → "Bach, Johann Sebastian"
-      - Use well-known forms: "Mozart, Wolfgang Amadeus", "Beethoven, Ludwig van"
-      - Tchaikovsky → "Tchaikovsky, Pyotr Ilyich" (standard English transliteration)
-      - Handel → "Handel, George Frideric" (his Anglicized name he used professionally)
+      - Use standard English musicological spellings:
+        - "Handel, George Frideric" (not Händel)
+        - "Schutz, Heinrich" (not Schütz)
+        - "Dvorak, Antonin" (not Dvořák)
+        - "Tchaikovsky, Pyotr Ilyich" (not Чайковский)
+        - "Mozart, Wolfgang Amadeus"
+        - "Beethoven, Ludwig van"
 
       Return null for:
       - Anonymous, Traditional, Folk (no known composer)
