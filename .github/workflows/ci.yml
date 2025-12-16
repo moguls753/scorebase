@@ -147,7 +147,11 @@ jobs:
       - name: Add server to known_hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H 46.224.124.123 > ~/.ssh/known_hosts
+          chmod 700 ~/.ssh
+          ssh-keyscan 46.224.124.123 > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          echo "Known hosts content:"
+          cat ~/.ssh/known_hosts
 
       - name: Deploy
         run: bin/deploy
