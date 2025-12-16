@@ -182,10 +182,8 @@ de:
     title: "Impressum"
     contact: "Kontakt"
     privacy: "Datenschutz"
-    no_tracking: "Kein Tracking"
-    no_tracking_desc: "Keine Analyse- oder Drittanbieter-Cookies"
-    functional_cookie: "Funktionaler Cookie"
-    functional_cookie_desc: "Nur für Spracheinstellung"
+    privacy_title: "Keine Datenerfassung"
+    privacy_desc: "Keine Analyse, keine Cookies, keine Drittanbieter."
     back_to_search: "Zurück zur Suche"
 
   # Language names (for the toggle and filter)
