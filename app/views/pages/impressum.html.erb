@@ -24,7 +24,7 @@
               Eike Rackwitz
             </p>
             <p class="text-sm text-[var(--color-text-muted)] mt-1">
-              Halle (Saale), Germany
+              Halle, Germany
             </p>
           </div>
 
@@ -43,15 +43,15 @@
           <%= t('impressum.privacy') %>
         </h2>
 
-        <div class="grid grid-cols-2 gap-4">
-          <div class="p-4 bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-sm">
-            <p class="text-xs font-bold uppercase tracking-wide text-[var(--color-text)] mb-1"><%= t('impressum.no_tracking') %></p>
-            <p class="text-xs text-[var(--color-text-muted)]"><%= t('impressum.no_tracking_desc') %></p>
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-sm bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/30 flex items-center justify-center">
+            <svg class="w-6 h-6 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
           </div>
-
-          <div class="p-4 bg-[var(--color-bg)] border border-[var(--color-border-subtle)] rounded-sm">
-            <p class="text-xs font-bold uppercase tracking-wide text-[var(--color-text)] mb-1"><%= t('impressum.functional_cookie') %></p>
-            <p class="text-xs text-[var(--color-text-muted)]"><%= t('impressum.functional_cookie_desc') %></p>
+          <div>
+            <p class="text-sm font-semibold text-[var(--color-primary)] mb-1"><%= t('impressum.privacy_title') %></p>
+            <p class="text-sm text-[var(--color-text-muted)] leading-relaxed"><%= t('impressum.privacy_desc') %></p>
           </div>
         </div>
       </div>
