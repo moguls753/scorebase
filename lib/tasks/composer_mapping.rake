@@ -21,39 +21,9 @@ namespace :composers do
     puts "Created #{created} new mappings (#{priority.size - created} already existed)"
   end
 
-  desc "Backfill ComposerMapping from existing normalized scores"
-  task backfill: :environment do
-    puts "Backfilling from normalized scores..."
-
-    # Get all distinct composers from normalized scores
-    composers = Score.normalized
-                     .where.not(composer: nil)
-                     .distinct
-                     .pluck(:composer)
-
-    puts "Found #{composers.size} distinct normalized composers"
-
-    created = 0
-    skipped = 0
-    composers.each do |composer|
-      next unless ComposerMapping.cacheable?(composer)
-
-      mapping = ComposerMapping.find_or_create_by!(original_name: composer) do |m|
-        m.normalized_name = composer
-        m.source = "backfill"
-        m.verified = false
-      end
-      if mapping.previously_new_record?
-        created += 1
-      else
-        skipped += 1
-      end
-    rescue ActiveRecord::RecordNotUnique
-      skipped += 1
-    end
-
-    puts "Created #{created} new mappings, #{skipped} already existed"
-  end
+  # NOTE: backfill task was removed - it created problematic self-mappings
+  # that caused slug collisions (e.g., "Händel" vs "Handel").
+  # Use AI normalization (ComposerNormalizer) instead.
 
   desc "Mark scores as normalized if composer is in ComposerMapping"
   task mark_normalized: :environment do
@@ -72,10 +42,9 @@ namespace :composers do
     puts "Marked #{updated} scores as normalized"
   end
 
-  desc "Run all composer mapping tasks: seed, backfill, mark"
+  desc "Run composer mapping setup: seed priority composers, mark normalized"
   task setup: :environment do
     Rake::Task["composers:seed_priority"].invoke
-    Rake::Task["composers:backfill"].invoke
     Rake::Task["composers:mark_normalized"].invoke
   end
 end
