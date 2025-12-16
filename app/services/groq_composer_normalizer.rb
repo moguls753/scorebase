@@ -2,7 +2,9 @@
 
 class GroqComposerNormalizer < ComposerNormalizerBase
   API_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions"
-  MODEL = "llama-3.3-70b-versatile"
+  # 8B model: ~$0.05/1M input, $0.08/1M output (~$0.21 total for 27k composers)
+  # 70B model: ~$0.59/1M input, $0.79/1M output (~$2.23 total)
+  MODEL = ENV.fetch("GROQ_MODEL", "llama-3.1-8b-instant")
   MAX_RETRIES = 3
   RETRY_DELAY = 2
 
