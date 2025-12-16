@@ -20,10 +20,14 @@
 class ComposerMapping < ApplicationRecord
   validates :original_name, presence: true, uniqueness: true
 
-  # Patterns that ALWAYS map to nil - cache immediately, no AI needed
-  KNOWN_UNCACHEABLE = [
-    /an[oóô]n/i,                  # anonymous, anonymus, anónimo, anônimo, etc.
-    /\bunknown\b/i,
+  # Patterns that can NEVER be normalized to a real composer.
+  # These get cached with nil to avoid re-processing.
+  # Be conservative: "Dowland, Unknown" has a real composer, don't match it.
+  UNNORMALIZABLE_PATTERNS = [
+    /an[oóô]n/i,                              # anonymous, anonymus, anónimo, anônimo
+    /\A\s*\(?unknown\)?\s*\.?\s*\z/i,         # "unknown", "(unknown)", "Unknown." alone
+    /\bunknown\s+(composer|artist|piece)/i,   # "unknown composer", "unknown artist"
+    /\b(composer|music)[:\s-]+unknown\b/i,    # "composer: unknown", "music - unknown"
     /\btraditional\b/i,
     /\bfolk\b/i,
     /\bvarious\b/i
@@ -33,48 +37,52 @@ class ComposerMapping < ApplicationRecord
   scope :normalizable, -> { where.not(normalized_name: nil) }
 
   class << self
+    # Matches patterns that can never be normalized (anonymous, traditional, etc.)
+    # These are cached with nil to prevent re-processing.
+    def known_unnormalizable?(name)
+      return false if name.blank?
+      UNNORMALIZABLE_PATTERNS.any? { |pattern| name.match?(pattern) }
+    end
+
     # Does this look like a real composer name?
-    # Only Unicode letters, spaces, dots, commas, hyphens, apostrophes
-    # Must start with capital, reasonable length, not too many words
+    # Used to filter garbage that shouldn't be cached.
     def looks_like_name?(str)
       return false if str.blank?
       return false if str.length > 50
-      return false if str.split.size > 5              # names rarely exceed 5 words
+      return false if str.split.size > 5
       return false unless str.match?(/\A[\p{L}\s.\-,'']+\z/)
       return false unless str.match?(/\A\p{Lu}/)
       true
     end
 
-    def known_uncacheable?(name)
-      return false if name.blank?
-      KNOWN_UNCACHEABLE.any? { |p| name.match?(p) }
-    end
-
+    # Should this original string be cached in ComposerMapping?
+    # - Unnormalizable patterns: YES (cached with nil)
+    # - Name-like strings: YES (cached with AI result)
+    # - Garbage: NO (context-dependent, don't pollute cache)
     def cacheable?(original)
       return false if original.blank?
-      return true if known_uncacheable?(original)
-      looks_like_name?(original)
+      known_unnormalizable?(original) || looks_like_name?(original)
     end
 
-    # Look up normalized form
-    def normalize(name)
-      return nil if name.blank?
+    # Look up cached normalized form. Returns nil if not found OR if cached as nil.
+    def lookup(name)
       find_by(original_name: name)&.normalized_name
     end
 
-    # Check if already processed
-    def attempted?(name)
+    # Check if we've already processed this name (regardless of result)
+    def processed?(name)
       exists?(original_name: name)
     end
 
-    # Register a mapping (respects cacheability)
+    # Register a mapping result. Only caches if cacheable.
+    # Returns the mapping record, or nil if not cacheable.
     def register(original:, normalized:, source:, verified: false)
       return nil unless cacheable?(original)
 
-      find_or_create_by!(original_name: original) do |m|
-        m.normalized_name = normalized
-        m.source = source
-        m.verified = verified
+      find_or_create_by!(original_name: original) do |mapping|
+        mapping.normalized_name = normalized
+        mapping.source = source
+        mapping.verified = verified
       end
     rescue ActiveRecord::RecordNotUnique
       find_by(original_name: original)
