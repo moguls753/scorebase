@@ -12,7 +12,6 @@ SimpleCov.start 'rails' do
   add_group 'Services', 'app/services'
   add_group 'Jobs', 'app/jobs'
   add_group 'Helpers', 'app/helpers'
-
 end
 
 require 'spec_helper'
