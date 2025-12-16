@@ -18,3 +18,8 @@ production:
     class: SitemapRefreshJob
     queue: default
     schedule: every day at 3am  # Daily during active imports; switch to "every Sunday at 3am" once stable
+
+  hub_cache_warm:
+    class: HubCacheWarmJob
+    queue: default
+    schedule: every day at 4am

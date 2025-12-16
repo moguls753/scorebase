@@ -13,11 +13,6 @@ SimpleCov.start 'rails' do
   add_group 'Jobs', 'app/jobs'
   add_group 'Helpers', 'app/helpers'
 
-  # Generate Cobertura XML for CI coverage reporting
-  if ENV['CI']
-    require 'simplecov-cobertura'
-    formatter SimpleCov::Formatter::CoberturaFormatter
-  end
 end
 
 require 'spec_helper'

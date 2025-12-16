@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_15_154524) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_16_103617) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -95,6 +95,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_154524) do
     t.index ["complexity"], name: "index_scores_on_complexity"
     t.index ["composer"], name: "index_scores_on_composer"
     t.index ["external_id"], name: "index_scores_on_external_id"
+    t.index ["genres"], name: "index_scores_on_genres"
+    t.index ["instruments"], name: "index_scores_on_instruments"
     t.index ["key_signature"], name: "index_scores_on_key_signature"
     t.index ["normalization_status"], name: "index_scores_on_normalization_status"
     t.index ["num_parts"], name: "index_scores_on_num_parts"
@@ -102,6 +104,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_15_154524) do
     t.index ["source"], name: "index_scores_on_source"
     t.index ["time_signature"], name: "index_scores_on_time_signature"
     t.index ["views"], name: "index_scores_on_views"
+    t.index ["voicing"], name: "index_scores_on_voicing"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

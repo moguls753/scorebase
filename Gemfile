@@ -93,7 +93,6 @@ group :test do
 
   # Code coverage
   gem "simplecov", require: false
-  gem "simplecov-cobertura", require: false  # For CI coverage reporting
 
   # JUnit XML formatter for CI
   gem "rspec_junit_formatter"

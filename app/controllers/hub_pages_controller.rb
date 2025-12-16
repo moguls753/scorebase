@@ -34,9 +34,8 @@ class HubPagesController < ApplicationController
     @composer_name = @composer_names.first
 
     @scores = Score.where(composer: @composer_names)
-    @scores = apply_sorting(@scores)
-    @scores = @scores.page(params[:page])
-    @total_count = Score.where(composer: @composer_names).count
+    @scores = apply_sorting(@scores).page(params[:page])
+    @total_count = @scores.total_count
 
     @page_title = t("hub.composer_page_title", name: @composer_name)
     @page_description = t("hub.composer_page_description", name: @composer_name, count: @total_count)
@@ -47,9 +46,8 @@ class HubPagesController < ApplicationController
     not_found unless @genre_name
 
     @scores = Score.by_genre(@genre_name)
-    @scores = apply_sorting(@scores)
-    @scores = @scores.page(params[:page])
-    @total_count = Score.by_genre(@genre_name).count
+    @scores = apply_sorting(@scores).page(params[:page])
+    @total_count = @scores.total_count
 
     @page_title = t("hub.genre_page_title", name: @genre_name)
     @page_description = t("hub.genre_page_description", name: @genre_name, count: @total_count)
@@ -60,9 +58,8 @@ class HubPagesController < ApplicationController
     not_found unless @instrument_name
 
     @scores = scores_by_instrument(@instrument_name)
-    @scores = apply_sorting(@scores)
-    @scores = @scores.page(params[:page])
-    @total_count = scores_by_instrument(@instrument_name).count
+    @scores = apply_sorting(@scores).page(params[:page])
+    @total_count = @scores.total_count
 
     @page_title = t("hub.instrument_page_title", name: @instrument_name)
     @page_description = t("hub.instrument_page_description", name: @instrument_name, count: @total_count)
@@ -73,9 +70,8 @@ class HubPagesController < ApplicationController
     not_found unless @voicing_name
 
     @scores = scores_by_voicing(@voicing_name)
-    @scores = apply_sorting(@scores)
-    @scores = @scores.page(params[:page])
-    @total_count = scores_by_voicing(@voicing_name).count
+    @scores = apply_sorting(@scores).page(params[:page])
+    @total_count = @scores.total_count
 
     @page_title = t("hub.voicing_page_title", name: @voicing_name)
     @page_description = t("hub.voicing_page_description", name: @voicing_name, count: @total_count)
@@ -136,31 +132,58 @@ class HubPagesController < ApplicationController
     end
   end
 
+  # Cached index methods - read from cache, fallback to building
+  # Job refreshes daily at 4am; 1.day expiry ensures fallback data doesn't persist forever
   def composers_with_counts
-    # Get valid composers from ComposerMapping
-    valid_composers = ComposerMapping.normalizable.pluck(:normalized_name).uniq
-
-    composer_counts = Score.where(composer: valid_composers)
-                           .group(:composer)
-                           .count
-
-    by_slug = Hash.new { |h, k| h[k] = { names: [], total: 0 } }
-    composer_counts.each do |name, count|
-      slug = name.parameterize
-      by_slug[slug][:names] << { name: name, count: count }
-      by_slug[slug][:total] += count
-    end
-
-    by_slug
-      .select { |_, data| data[:total] >= THRESHOLD }
-      .sort_by { |_, data| -data[:total] }
-      .map do |slug, data|
-        best_name = data[:names].max_by { |n| n[:count] }[:name]
-        { name: best_name, slug: slug, count: data[:total] }
-      end
+    Rails.cache.fetch("hub/composers", expires_in: 1.day) { build_composers_with_counts }
   end
 
   def genres_with_counts
+    Rails.cache.fetch("hub/genres", expires_in: 1.day) { build_genres_with_counts }
+  end
+
+  def instruments_with_counts
+    Rails.cache.fetch("hub/instruments", expires_in: 1.day) { build_instruments_with_counts }
+  end
+
+  def voicings_with_counts
+    Rails.cache.fetch("hub/voicings", expires_in: 1.day) { build_voicings_with_counts }
+  end
+
+  # Slug lookups - O(n) scan of cached array, but array is small (~1000 items max)
+  def find_composer_by_slug(slug)
+    composers_with_counts.find { |c| c[:slug] == slug }&.dig(:name)
+  end
+
+  def find_composers_by_slug(slug)
+    name = find_composer_by_slug(slug)
+    name ? [name] : []
+  end
+
+  def find_genre_by_slug(slug)
+    genres_with_counts.find { |g| g[:slug] == slug }&.dig(:name)
+  end
+
+  def find_instrument_by_slug(slug)
+    instruments_with_counts.find { |i| i[:slug] == slug }&.dig(:name)
+  end
+
+  def find_voicing_by_slug(slug)
+    voicings_with_counts.find { |v| v[:slug] == slug }&.dig(:name)
+  end
+
+  # Build methods - expensive, only called on cache miss
+  def build_composers_with_counts
+    valid_composers = ComposerMapping.normalizable.pluck(:normalized_name).uniq
+    composer_counts = Score.where(composer: valid_composers).group(:composer).count
+
+    composer_counts
+      .select { |_, count| count >= THRESHOLD }
+      .sort_by { |_, count| -count }
+      .map { |name, count| { name: name, slug: name.parameterize, count: count } }
+  end
+
+  def build_genres_with_counts
     genre_counts = Hash.new(0)
     Score.where.not(genres: [nil, ""]).pluck(:genres).each do |genres_str|
       genres_str.split("-").map(&:strip).reject(&:blank?).each do |genre|
@@ -174,7 +197,7 @@ class HubPagesController < ApplicationController
       .map { |name, count| { name: name, slug: name.parameterize, count: count } }
   end
 
-  def instruments_with_counts
+  def build_instruments_with_counts
     instrument_counts = Hash.new(0)
     Score.where.not(instruments: [nil, ""]).pluck(:instruments).each do |instruments_str|
       instruments_str.split(/[;,]/).map(&:strip).reject(&:blank?).each do |instrument|
@@ -189,41 +212,13 @@ class HubPagesController < ApplicationController
       .map { |name, count| { name: name.titleize, slug: name.parameterize, count: count } }
   end
 
-  def voicings_with_counts
+  def build_voicings_with_counts
     Score.where.not(voicing: [nil, ""])
          .group(:voicing)
          .count
          .select { |_, count| count >= THRESHOLD }
          .sort_by { |_, count| -count }
          .map { |name, count| { name: name, slug: name.parameterize, count: count } }
-  end
-
-  def find_composer_by_slug(slug)
-    Score.where.not(composer: [nil, ""])
-         .distinct
-         .pluck(:composer)
-         .find { |name| name.parameterize == slug }
-  end
-
-  def find_composers_by_slug(slug)
-    Score.where.not(composer: [nil, ""])
-         .group(:composer)
-         .count
-         .select { |name, _| name.parameterize == slug }
-         .sort_by { |_, count| -count }
-         .map(&:first)
-  end
-
-  def find_genre_by_slug(slug)
-    genres_with_counts.find { |g| g[:slug] == slug }&.dig(:name)
-  end
-
-  def find_instrument_by_slug(slug)
-    instruments_with_counts.find { |i| i[:slug] == slug }&.dig(:name)
-  end
-
-  def find_voicing_by_slug(slug)
-    voicings_with_counts.find { |v| v[:slug] == slug }&.dig(:name)
   end
 
   def scores_by_instrument(instrument_name)
