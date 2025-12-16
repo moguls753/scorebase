@@ -157,16 +157,25 @@ export default class extends Controller {
   // Private: Fuzzy Matching
   // ─────────────────────────────────────────────────────────────
 
+  /**
+   * Normalize text for search: strip accents, lowercase
+   * "Händel" -> "handel", "Dvořák" -> "dvorak"
+   */
+  normalizeForSearch(text) {
+    if (!text) return ""
+    return text.normalize("NFKD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
+  }
+
   fuzzyMatch(text, query) {
     if (!text) return { match: false, score: 0, indices: [] }
 
-    const textLower = text.toLowerCase()
-    const queryLower = query.toLowerCase()
+    const textNormalized = this.normalizeForSearch(text)
+    const queryNormalized = this.normalizeForSearch(query)
 
     // Direct substring match (higher priority)
-    if (textLower.includes(queryLower)) {
-      const start = textLower.indexOf(queryLower)
-      const indices = Array.from({ length: query.length }, (_, i) => start + i)
+    if (textNormalized.includes(queryNormalized)) {
+      const start = textNormalized.indexOf(queryNormalized)
+      const indices = Array.from({ length: queryNormalized.length }, (_, i) => start + i)
       return { match: true, score: 100, indices }
     }
 
@@ -176,8 +185,8 @@ export default class extends Controller {
     let consecutiveBonus = 0
     let score = 0
 
-    for (let i = 0; i < text.length && queryIdx < query.length; i++) {
-      if (textLower[i] === queryLower[queryIdx]) {
+    for (let i = 0; i < textNormalized.length && queryIdx < queryNormalized.length; i++) {
+      if (textNormalized[i] === queryNormalized[queryIdx]) {
         indices.push(i)
 
         // Bonus for consecutive matches
@@ -194,7 +203,7 @@ export default class extends Controller {
       }
     }
 
-    if (queryIdx === query.length) {
+    if (queryIdx === queryNormalized.length) {
       score += 50 - indices.length + consecutiveBonus
       return { match: true, score, indices }
     }

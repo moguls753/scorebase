@@ -136,15 +136,25 @@ class Score < ApplicationRecord
   # Unison: single melodic line
   scope :unison_voices, -> { where("LOWER(voicing) LIKE '%unison%' OR num_parts = 1") }
 
-  # Search scope (simple SQLite LIKE search)
+  # Search scope (simple SQLite LIKE search with accent normalization)
   scope :search, ->(query) {
     return all if query.blank?
 
+    # Normalize query: "Händel" -> "Handel", "Dvořák" -> "Dvorak"
+    normalized = normalize_for_search(query)
+
     where(
       "title LIKE :q OR composer LIKE :q OR genres LIKE :q",
-      q: "%#{sanitize_sql_like(query)}%"
+      q: "%#{sanitize_sql_like(normalized)}%"
     )
   }
+
+  # Normalize text for search: strip accents, preserve case
+  # "Händel" -> "Handel", "Dvořák" -> "Dvorak", "Café" -> "Cafe"
+  def self.normalize_for_search(text)
+    return "" if text.blank?
+    text.unicode_normalize(:nfkd).gsub(/\p{M}/, "")
+  end
 
   # Sorting scopes
   scope :order_by_popularity, -> { order(views: :desc, favorites: :desc) }
