@@ -10,6 +10,17 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <%# Prevent dark mode flash by applying theme before page renders %>
+    <script>
+      (function() {
+        const savedTheme = localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        if (savedTheme === "dark") {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
+
     <%= yield :head %>
 
     <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
