@@ -619,7 +619,7 @@ class ImslpImporter
     return nil if composer_str.blank?
 
     # Check ComposerMapping first
-    if (normalized = ComposerMapping.normalize(composer_str))
+    if (normalized = ComposerMapping.lookup(composer_str))
       return normalized
     end
 
