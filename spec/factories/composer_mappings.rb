@@ -1,3 +1,20 @@
+# == Schema Information
+#
+# Table name: composer_mappings
+#
+#  id              :integer          not null, primary key
+#  normalized_name :string
+#  original_name   :string           not null
+#  source          :string
+#  verified        :boolean          default(FALSE), not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#
+# Indexes
+#
+#  index_composer_mappings_on_normalized_name  (normalized_name)
+#  index_composer_mappings_on_original_name    (original_name) UNIQUE
+#
 FactoryBot.define do
   factory :composer_mapping do
     original_name { Faker::Name.name }

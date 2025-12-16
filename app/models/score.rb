@@ -42,6 +42,8 @@
 #  index_scores_on_complexity            (complexity)
 #  index_scores_on_composer              (composer)
 #  index_scores_on_external_id           (external_id)
+#  index_scores_on_genres                (genres)
+#  index_scores_on_instruments           (instruments)
 #  index_scores_on_key_signature         (key_signature)
 #  index_scores_on_normalization_status  (normalization_status)
 #  index_scores_on_num_parts             (num_parts)
@@ -49,6 +51,7 @@
 #  index_scores_on_source                (source)
 #  index_scores_on_time_signature        (time_signature)
 #  index_scores_on_views                 (views)
+#  index_scores_on_voicing               (voicing)
 #
 class Score < ApplicationRecord
   # Sources
