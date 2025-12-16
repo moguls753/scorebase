@@ -3,12 +3,7 @@ import { Controller } from "@hotwired/stimulus"
 export default class extends Controller {
   static targets = ["toggle"]
 
-  connect() {
-    // Check for saved theme preference, fall back to system preference
-    const savedTheme = localStorage.getItem("theme") ||
-      (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
-    this.setTheme(savedTheme)
-  }
+  // No connect() needed - inline script in <head> already sets initial theme
 
   toggle() {
     const currentTheme = document.documentElement.getAttribute("data-theme")
