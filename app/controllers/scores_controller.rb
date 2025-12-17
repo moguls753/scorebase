@@ -30,7 +30,7 @@ class ScoresController < ApplicationController
     @filtered_count = @scores.count
 
     # Pagination (without_count skips redundant COUNT query)
-    @scores = @scores.page(params[:page]).without_count
+    @scores = @scores.with_attached_thumbnail_image.page(params[:page]).without_count
   end
 
   def show
