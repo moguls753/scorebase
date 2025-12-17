@@ -3,10 +3,8 @@ require "uri"
 require "tempfile"
 
 class ThumbnailGenerator
-  SIZES = {
-    thumbnail: 400,
-    preview: 1200
-  }.freeze
+  THUMBNAIL_SIZE = 280  # Matches card max-width
+  WEBP_QUALITY = 75     # Good balance of quality/size (~10-15KB per image)
 
   attr_reader :score, :errors
 
@@ -15,97 +13,44 @@ class ThumbnailGenerator
     @errors = []
   end
 
-  def generate(type = :both)
-    return true if skip_generation?
+  # Generate cached thumbnail from external thumbnail_url
+  # Returns true on success, false on failure
+  def generate
+    return true if score.thumbnail_image.attached?
 
-    case type
-    when :thumbnail then generate_image(:thumbnail)
-    when :preview   then generate_image(:preview)
-    when :both      then generate_image(:thumbnail) && generate_image(:preview)
-    else
-      raise ArgumentError, "Unknown type: #{type}. Use :thumbnail, :preview, or :both"
+    unless score.thumbnail_url.present?
+      @errors << "No thumbnail_url available"
+      return false
     end
+
+    cache_thumbnail
+  rescue => e
+    log_error(e)
+    false
   end
 
   private
 
-  def skip_generation?
-    score.pdmx? && score.thumbnail_url.present?
-  end
+  def cache_thumbnail
+    Dir.mktmpdir("thumb_cache") do |tmpdir|
+      src_path = File.join(tmpdir, "source")
+      webp_path = File.join(tmpdir, "thumb.webp")
 
-  def generate_image(type)
-    attachment = :"#{type}_image"
-    return true if score.public_send(attachment).attached?
-    return false unless score.has_pdf?
-
-    with_pdf_file do |pdf_path|
-      attach_image(attachment, pdf_path, SIZES[type])
-    end
-  rescue => e
-    log_error(type, e)
-    false
-  end
-
-  def with_pdf_file
-    if score.external?
-      with_downloaded_pdf { |path| yield path }
-    else
-      path = local_pdf_path
-      raise "Local PDF not found: #{path}" unless File.exist?(path)
-      yield path
-    end
-  end
-
-  def with_downloaded_pdf
-    Tempfile.create(["score", ".pdf"]) do |temp_pdf|
-      url = score.pdf_url || score.pdf_path
-      download_pdf(url, temp_pdf.path)
-      yield temp_pdf.path
-    end
-  end
-
-  def attach_image(attachment, pdf_path, width)
-    Tempfile.create(["score_img", ".png"]) do |output|
-      render_first_page(pdf_path, output.path, width)
-      score.public_send(attachment).attach(
-        io: File.open(output.path),
-        filename: "#{score.id}_#{attachment}.png",
-        content_type: "image/png"
-      )
+      download_image(score.thumbnail_url, src_path)
+      convert_to_webp(src_path, webp_path)
+      attach_thumbnail(webp_path)
     end
     true
   end
 
-  def render_first_page(pdf_path, output_path, width)
-    temp_prefix = Rails.root.join("tmp", "img_#{score.id}_#{width}_#{SecureRandom.hex(4)}")
-
-    result = system(
-      "pdftoppm",
-      "-png",
-      "-f", "1",
-      "-singlefile",
-      "-scale-to-x", width.to_s,
-      "-scale-to-y", "-1",
-      pdf_path.to_s,
-      temp_prefix.to_s,
-      [:out, :err] => "/dev/null"
-    )
-
-    raise "pdftoppm command failed" unless result
-
-    temp_output = "#{temp_prefix}.png"
-    raise "Image file not created" unless File.exist?(temp_output)
-
-    FileUtils.mv(temp_output, output_path)
-  end
-
-  def download_pdf(url, destination, redirect_limit: 5)
+  def download_image(url, destination, redirect_limit: 5)
     raise "Too many redirects" if redirect_limit == 0
 
     uri = URI(url)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = (uri.scheme == "https")
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE # TODO: Proper SSL verification
+    http.open_timeout = 10
+    http.read_timeout = 30
 
     request = Net::HTTP::Get.new(uri)
     request["User-Agent"] = "ScorebaseBot/1.0"
@@ -116,28 +61,38 @@ class ThumbnailGenerator
     when Net::HTTPSuccess
       File.binwrite(destination, response.body)
     when Net::HTTPRedirection
-      # Follow redirect (IMSLP uses redirects for file serving)
       redirect_url = response["location"]
-      # Handle relative redirects
       redirect_url = URI.join(url, redirect_url).to_s unless redirect_url.start_with?("http")
-      download_pdf(redirect_url, destination, redirect_limit: redirect_limit - 1)
+      download_image(redirect_url, destination, redirect_limit: redirect_limit - 1)
     else
-      raise "Failed to download PDF: #{response.code} - #{response.message}"
+      raise "Download failed: #{response.code} #{response.message}"
     end
   end
 
-  def local_pdf_path
-    pdf_path = score.pdf_path
-    return nil if pdf_path.blank? || pdf_path == "N/A"
+  def convert_to_webp(source_path, output_path)
+    # Resize to THUMBNAIL_SIZE width, maintain aspect ratio, convert to WebP
+    result = system(
+      "convert",
+      source_path,
+      "-resize", "#{THUMBNAIL_SIZE}x>",  # Resize width, keep aspect ratio, only shrink
+      "-quality", WEBP_QUALITY.to_s,
+      output_path,
+      [:out, :err] => "/dev/null"
+    )
 
-    File.join(
-      ENV.fetch("PDMX_DATA_PATH", File.expand_path("~/data/pdmx")),
-      pdf_path.sub(/^\.\//, "")
+    raise "ImageMagick convert failed" unless result && File.exist?(output_path)
+  end
+
+  def attach_thumbnail(webp_path)
+    score.thumbnail_image.attach(
+      io: File.open(webp_path),
+      filename: "#{score.id}.webp",
+      content_type: "image/webp"
     )
   end
 
-  def log_error(type, error)
-    @errors << "Failed to generate #{type}: #{error.message}"
-    Rails.logger.error("#{type.capitalize} generation failed for Score #{score.id}: #{error.message}")
+  def log_error(error)
+    @errors << error.message
+    Rails.logger.error("Thumbnail generation failed for Score #{score.id}: #{error.message}")
   end
 end

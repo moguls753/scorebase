@@ -314,10 +314,10 @@ class Score < ApplicationRecord
     end
   end
 
-  # Unified thumbnail accessor - returns external URL or attached image
+  # Unified thumbnail accessor - prefers cached local thumbnail over external URL
   def thumbnail
-    return thumbnail_url if thumbnail_url.present?
     return thumbnail_image if thumbnail_image.attached?
+    return thumbnail_url if thumbnail_url.present?
     nil
   end
 
