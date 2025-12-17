@@ -28,6 +28,7 @@ class ComposerMapping < ApplicationRecord
     /\A\s*\(?unknown\)?\s*\.?\s*\z/i,         # "unknown", "(unknown)", "Unknown." alone
     /\bunknown\s+(composer|artist|piece)/i,   # "unknown composer", "unknown artist"
     /\b(composer|music)[:\s-]+unknown\b/i,    # "composer: unknown", "music - unknown"
+    /\burheber\s*unbekannt/i,                  # German: "author unknown"
     /\btraditional\b/i,
     /\bfolk\b/i,
     /\bvarious\b/i
