@@ -120,7 +120,7 @@ class ComposerNormalizerBase
 
       begin
         results = request_batch(batch)
-        apply_api_results(results)
+        apply_api_results(results, batch)
       rescue QuotaExceededError
         puts "\n  ⚠ Quota exceeded! Remaining #{scores.count - (idx * BATCH_SIZE)} scores left pending."
         raise
@@ -130,15 +130,23 @@ class ComposerNormalizerBase
     end
   end
 
-  def apply_api_results(results)
+  def apply_api_results(results, batch)
     return if results.blank?
 
     results.each do |item|
-      original = item["original"]
-      next if original.nil?
-
+      index = item["index"]
       normalized = item["normalized"]
 
+      # Coerce index to integer (AI might return string "0" instead of 0)
+      index = index.to_i if index.is_a?(String) && index.match?(/\A\d+\z/)
+
+      # Look up original from batch using index (don't trust AI to copy exact string)
+      if !index.is_a?(Integer) || index < 0 || index >= batch.size
+        puts "    [?] Invalid index #{index.inspect}, skipping"
+        next
+      end
+
+      original = batch[index][0] # First element is composer
       scores = Score.pending.where(composer: original)
 
       if normalized.present?
@@ -192,13 +200,14 @@ class ComposerNormalizerBase
       Task: Identify the classical music COMPOSER for each score entry.
 
       Input fields (use ALL to identify composer):
+      - index: position in array (return this exact number in output)
       - composer: may contain composer, arranger, title, or garbage data
       - title: often contains composer name ("Sonata by Mozart", "Bach - Prelude")
       - editor: might be arranger (original composer could be famous)
       - genres/language: hints for likely composers
 
       Output format - JSON array:
-      [{"original": "<exact composer field value>", "normalized": "<LastName, FirstName>" or null}]
+      [{"index": <number>, "normalized": "<LastName, FirstName>" or null}]
 
       Normalization rules:
       - Format: "LastName, FirstName" (e.g., "Bach, Johann Sebastian")
@@ -217,14 +226,14 @@ class ComposerNormalizerBase
         - "Mozart, Wolfgang Amadeus"
         - "Beethoven, Ludwig van"
 
-      Return null for:
+      Return null for normalized when:
       - Anonymous, Traditional, Folk (no known composer)
       - "Various", "Various Artists", compilations
       - Truly unidentifiable or garbage data
       - Arrangers/editors when original composer unknown
 
       Important:
-      - "original" must be the EXACT input composer field value
+      - Return the exact "index" number from input
       - Only identify the ORIGINAL composer, not arrangers
       - When uncertain, return null rather than guess
 
