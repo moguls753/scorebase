@@ -1,4 +1,7 @@
 <% content_for :title, @page_title %>
+<% content_for :head do %>
+  <meta name="turbo-cache-control" content="no-preview">
+<% end %>
 
 <!-- Hero Section -->
 <section class="hub-hero py-10 sm:py-14 lg:py-20 border-b-2 border-[var(--color-border)]">
