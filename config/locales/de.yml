@@ -11,6 +11,11 @@ de:
   footer:
     public_domain_scores: "freie Noten"
 
+  # Pagination
+  pagination:
+    prev: "← Zurück"
+    next: "Weiter →"
+
   # Meta
   meta:
     title: "ScoreBase — Freie Noten"

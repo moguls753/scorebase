@@ -11,6 +11,11 @@ en:
   footer:
     public_domain_scores: "public domain scores"
 
+  # Pagination
+  pagination:
+    prev: "← Prev"
+    next: "Next →"
+
   # Meta
   meta:
     title: "ScoreBase — Public Domain Music Scores"
