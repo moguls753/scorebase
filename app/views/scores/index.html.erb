@@ -5,7 +5,7 @@
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-[var(--font-family-display)] mb-2 sm:mb-3 leading-tight font-black uppercase tracking-tight hero-title">
         <%= t('search.hero_title_line1') %>
       </h2>
-      <p class="text-base sm:text-lg mb-2 sm:mb-3 font-medium hero-subtitle">
+      <p class="hidden sm:block text-base sm:text-lg mb-2 sm:mb-3 font-medium hero-subtitle">
         <%= t('search.hero_title_line2') %>
       </p>
       <p class="text-sm sm:text-base mb-6 sm:mb-10 font-medium hero-subtitle opacity-75">
@@ -29,14 +29,42 @@
           value: params[:q],
           class: "flex-1 mm-input text-sm"
         %>
-        <%= f.submit t('search.button'), class: "mm-button mm-button-primary cursor-pointer px-6 text-xs w-full sm:w-auto" %>
+
+        <!-- Mobile: Search Button + Browse Dropdown -->
+        <div class="flex gap-2 sm:hidden">
+          <%= f.submit t('search.button'), class: "mm-button mm-button-primary cursor-pointer text-xs flex-1" %>
+
+          <details class="relative">
+            <summary class="mm-button mm-button-secondary text-xs cursor-pointer text-center list-none">
+              <%= t('search.browse') %>
+            </summary>
+            <div class="absolute right-0 mt-2 w-48 bg-[var(--color-bg-card)] border-2 border-[var(--color-border)] shadow-lg z-10">
+              <%= link_to composers_path, class: "block px-4 py-3 text-xs font-semibold uppercase hover:bg-[var(--color-bg-hover)] border-b border-[var(--color-border)]" do %>
+                <%= t('search.browse_composers') %>
+              <% end %>
+              <%= link_to genres_path, class: "block px-4 py-3 text-xs font-semibold uppercase hover:bg-[var(--color-bg-hover)] border-b border-[var(--color-border)]" do %>
+                <%= t('search.browse_genres') %>
+              <% end %>
+              <%= link_to instruments_path, class: "block px-4 py-3 text-xs font-semibold uppercase hover:bg-[var(--color-bg-hover)] border-b border-[var(--color-border)]" do %>
+                <%= t('search.browse_instruments') %>
+              <% end %>
+              <%= link_to voicing_index_path, class: "block px-4 py-3 text-xs font-semibold uppercase hover:bg-[var(--color-bg-hover)]" do %>
+                <%= t('search.browse_voicing') %>
+              <% end %>
+            </div>
+          </details>
+        </div>
+
+        <!-- Desktop: Full Width Search Button -->
+        <%= f.submit t('search.button'), class: "hidden sm:block mm-button mm-button-primary cursor-pointer px-6 text-xs w-full sm:w-auto" %>
       <% end %>
 
-      <!-- Browse Links -->
-      <div class="browse-divider">
-        <span class="browse-divider-text"><%= t('search.or_explore') %></span>
-      </div>
-      <nav class="browse-links" aria-label="Browse categories">
+      <!-- Desktop Browse Links (hidden on mobile) -->
+      <div class="hidden sm:block">
+        <div class="browse-divider">
+          <span class="browse-divider-text"><%= t('search.or_explore') %></span>
+        </div>
+        <nav class="browse-links" aria-label="Browse categories">
         <%= link_to composers_path, class: "browse-link" do %>
           <svg class="browse-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
@@ -69,156 +97,60 @@
           </svg>
           <%= t('search.browse_voicing') %>
         <% end %>
-      </nav>
+        </nav>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- Main Content: Filters + Grid -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-12">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-12" data-controller="filter-modal">
   <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
-    <!-- Mobile Filters (collapsible) -->
-    <aside class="lg:hidden">
-      <details class="filter-details mm-card">
-        <summary class="filter-summary">
-          <div class="flex items-center gap-2">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+    <!-- Mobile Filter Modal (hidden by default) -->
+    <div data-filter-modal-target="modal"
+         data-action="click->filter-modal#closeOnBackdrop"
+         class="lg:hidden fixed inset-0 z-50 hidden"
+         style="background: rgba(0,0,0,0.7);"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="filter-modal-title">
+      <div class="absolute inset-x-0 bottom-0 bg-[var(--color-bg-card)] border-t-2 border-[var(--color-border)]"
+           style="max-height: 70vh; border-radius: 12px 12px 0 0;">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-4 border-b-2 border-[var(--color-border)]">
+          <h3 id="filter-modal-title" class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight">
+            <%= t('search.filters') %>
+          </h3>
+          <button type="button"
+                  data-action="click->filter-modal#close"
+                  class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
+                  aria-label="<%= t('search.close_filters') %>">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
             </svg>
-            <span class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight">
-              <%= t('search.filters') %>
-            </span>
-            <% active_filters = [params[:key], params[:time], params[:voicing], params[:voice_type], params[:genre], params[:period], params[:source], params[:difficulty], params[:language]].compact.reject(&:blank?).count %>
-            <% if active_filters > 0 %>
-              <span class="filter-count"><%= active_filters %></span>
-            <% end %>
-          </div>
-          <svg class="filter-chevron" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <polyline points="6 9 12 15 18 9"></polyline>
-          </svg>
-        </summary>
-        <div class="filter-content">
+          </button>
+        </div>
+
+        <!-- Scrollable Filter Content -->
+        <div style="max-height: calc(70vh - 120px); overflow-y: auto; padding: 16px;">
           <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" } do |f| %>
             <%= f.hidden_field :q, value: params[:q] %>
             <%= f.hidden_field :sort, value: params[:sort] %>
 
-            <div class="grid grid-cols-2 gap-3 mb-4">
-              <!-- Filter: Key Signature -->
-              <div>
-                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                  <%= t('filters.key') %>
-                </label>
-                <%= f.select :key,
-                    options_for_select([[t('filters.any'), ''], [t('keys.c_major'), 'C major'], [t('keys.g_major'), 'G major'], [t('keys.d_major'), 'D major'], [t('keys.a_major'), 'A major'], [t('keys.f_major'), 'F major'], [t('keys.bb_major'), 'Bb major'], [t('keys.eb_major'), 'Eb major'], [t('keys.a_minor'), 'A minor'], [t('keys.e_minor'), 'E minor'], [t('keys.d_minor'), 'D minor'], [t('keys.g_minor'), 'G minor'], [t('keys.b_minor'), 'B minor'], [t('keys.c_minor'), 'C minor']], params[:key]),
-                    {},
-                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-                %>
-              </div>
-
-              <!-- Filter: Forces -->
-              <div>
-                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                  <%= t('filters.forces') %>
-                </label>
-                <%= f.select :voicing,
-                    options_for_select([[t('filters.any'), ''], [t('forces.solo'), 'solo'], [t('forces.duet'), 'duet'], [t('forces.trio'), 'trio'], [t('forces.quartet'), 'quartet'], [t('forces.ensemble'), 'ensemble']], params[:voicing]),
-                    {},
-                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-                %>
-              </div>
-
-              <!-- Filter: Voice Type -->
-              <div>
-                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                  <%= t('filters.voice_type') %>
-                </label>
-                <%= f.select :voice_type,
-                    options_for_select([[t('filters.any'), ''], [t('voice_type.mixed'), 'mixed'], [t('voice_type.treble'), 'treble'], [t('voice_type.mens'), 'mens'], [t('voice_type.unison'), 'unison']], params[:voice_type]),
-                    {},
-                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-                %>
-              </div>
-
-              <!-- Filter: Difficulty -->
-              <div>
-                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                  <%= t('filters.difficulty') %>
-                </label>
-                <%= f.select :difficulty,
-                    options_for_select([[t('filters.any'), ''], [t('difficulty.beginner'), '0'], [t('difficulty.easy'), '1'], [t('difficulty.intermediate'), '2'], [t('difficulty.advanced'), '3']], params[:difficulty]),
-                    {},
-                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-                %>
-              </div>
-
-              <!-- Filter: Genre -->
-              <div>
-                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                  <%= t('filters.genre') %>
-                </label>
-                <%= f.select :genre,
-                    options_for_select([[t('filters.any'), ''], [t('genres.sacred'), 'sacred'], [t('genres.classical'), 'classical'], [t('genres.folk'), 'folk'], [t('genres.soundtrack'), 'soundtrack'], [t('genres.jazz'), 'jazz'], [t('genres.rock'), 'rock'], [t('genres.pop'), 'pop']], params[:genre]),
-                    {},
-                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-                %>
-              </div>
-
-              <!-- Filter: Period -->
-              <div>
-                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                  <%= t('filters.period') %>
-                </label>
-                <%= f.select :period,
-                    options_for_select([[t('filters.any'), ''], [t('periods.medieval'), 'medieval'], [t('periods.renaissance'), 'renaissance'], [t('periods.baroque'), 'baroque'], [t('periods.classical'), 'classical'], [t('periods.romantic'), 'romantic'], [t('periods.modern'), 'modern']], params[:period]),
-                    {},
-                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-                %>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-2 gap-3 mb-4">
-              <!-- Filter: Time Signature -->
-              <div>
-                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                  <%= t('filters.time') %>
-                </label>
-                <%= f.select :time,
-                    options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['2/4', '2/4'], ['6/8', '6/8'], ['9/8', '9/8'], ['12/8', '12/8'], ['3/8', '3/8'], ['2/2', '2/2']], params[:time]),
-                    {},
-                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-                %>
-              </div>
-
-              <!-- Filter: Language -->
-              <div>
-                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                  <%= t('filters.language') %>
-                </label>
-                <%= f.select :language,
-                    options_for_select([[t('filters.any'), ''], [t('languages.latin'), 'Latin'], [t('languages.english'), 'English'], [t('languages.italian'), 'Italian'], [t('languages.german'), 'German'], [t('languages.french'), 'French'], [t('languages.spanish'), 'Spanish']], params[:language]),
-                    {},
-                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-                %>
-              </div>
-
-              <!-- Filter: Source -->
-              <div>
-                <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-1.5 block uppercase tracking-wide">
-                  <%= t('filters.source') %>
-                </label>
-                <%= f.select :source,
-                    options_for_select([[t('filters.any'), ''], ['PDMX', 'pdmx'], ['CPDL', 'cpdl'], ['IMSLP', 'imslp']], params[:source]),
-                    {},
-                    { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-                %>
-              </div>
-            </div>
-
-            <%= link_to t('search.clear'), scores_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
+            <%# Mobile filter fields (2-column grid) %>
+            <%= render 'filter_fields', f: f, mobile: true %>
           <% end %>
         </div>
-      </details>
-    </aside>
+
+        <!-- Modal Footer -->
+        <div class="p-4 border-t-2 border-[var(--color-border)]">
+          <%= link_to t('search.clear'), scores_path,
+              data: { turbo_frame: "scores", action: "click->filter-modal#close" },
+              class: "mm-button mm-button-secondary w-full text-center text-xs" %>
+        </div>
+      </div>
+    </div>
 
     <!-- Desktop Filters Sidebar -->
     <aside class="hidden lg:block w-64 flex-shrink-0">
@@ -230,113 +162,8 @@
         <%= f.hidden_field :q, value: params[:q] %>
         <%= f.hidden_field :sort, value: params[:sort] %>
 
-        <!-- Filter: Key Signature -->
-        <div class="mb-4">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            <%= t('filters.key') %>
-          </label>
-          <%= f.select :key,
-              options_for_select([[t('filters.any'), ''], [t('keys.c_major'), 'C major'], [t('keys.g_major'), 'G major'], [t('keys.d_major'), 'D major'], [t('keys.a_major'), 'A major'], [t('keys.f_major'), 'F major'], [t('keys.bb_major'), 'Bb major'], [t('keys.eb_major'), 'Eb major'], [t('keys.a_minor'), 'A minor'], [t('keys.e_minor'), 'E minor'], [t('keys.d_minor'), 'D minor'], [t('keys.g_minor'), 'G minor'], [t('keys.b_minor'), 'B minor'], [t('keys.c_minor'), 'C minor']], params[:key]),
-              {},
-              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-          %>
-        </div>
-
-        <!-- Filter: Forces -->
-        <div class="mb-4">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            <%= t('filters.forces') %>
-          </label>
-          <%= f.select :voicing,
-              options_for_select([[t('filters.any'), ''], [t('forces.solo'), 'solo'], [t('forces.duet'), 'duet'], [t('forces.trio'), 'trio'], [t('forces.quartet'), 'quartet'], [t('forces.ensemble'), 'ensemble']], params[:voicing]),
-              {},
-              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-          %>
-        </div>
-
-        <!-- Filter: Voice Type -->
-        <div class="mb-4">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            <%= t('filters.voice_type') %>
-          </label>
-          <%= f.select :voice_type,
-              options_for_select([[t('filters.any'), ''], [t('voice_type.mixed'), 'mixed'], [t('voice_type.treble'), 'treble'], [t('voice_type.mens'), 'mens'], [t('voice_type.unison'), 'unison']], params[:voice_type]),
-              {},
-              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-          %>
-        </div>
-
-        <!-- Filter: Difficulty -->
-        <div class="mb-4">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            <%= t('filters.difficulty') %>
-          </label>
-          <%= f.select :difficulty,
-              options_for_select([[t('filters.any'), ''], [t('difficulty.beginner'), '0'], [t('difficulty.easy'), '1'], [t('difficulty.intermediate'), '2'], [t('difficulty.advanced'), '3']], params[:difficulty]),
-              {},
-              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-          %>
-        </div>
-
-        <!-- Filter: Genre -->
-        <div class="mb-4">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            <%= t('filters.genre') %>
-          </label>
-          <%= f.select :genre,
-              options_for_select([[t('filters.any'), ''], [t('genres.sacred'), 'sacred'], [t('genres.classical'), 'classical'], [t('genres.folk'), 'folk'], [t('genres.soundtrack'), 'soundtrack'], [t('genres.jazz'), 'jazz'], [t('genres.rock'), 'rock'], [t('genres.pop'), 'pop']], params[:genre]),
-              {},
-              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-          %>
-        </div>
-
-        <!-- Filter: Period -->
-        <div class="mb-4">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            <%= t('filters.period') %>
-          </label>
-          <%= f.select :period,
-              options_for_select([[t('filters.any'), ''], [t('periods.medieval'), 'medieval'], [t('periods.renaissance'), 'renaissance'], [t('periods.baroque'), 'baroque'], [t('periods.classical'), 'classical'], [t('periods.romantic'), 'romantic'], [t('periods.modern'), 'modern']], params[:period]),
-              {},
-              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-          %>
-        </div>
-
-        <!-- Filter: Time Signature -->
-        <div class="mb-4">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            <%= t('filters.time') %>
-          </label>
-          <%= f.select :time,
-              options_for_select([[t('filters.any'), ''], ['4/4', '4/4'], ['3/4', '3/4'], ['2/4', '2/4'], ['6/8', '6/8'], ['9/8', '9/8'], ['12/8', '12/8'], ['3/8', '3/8'], ['2/2', '2/2']], params[:time]),
-              {},
-              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-          %>
-        </div>
-
-        <!-- Filter: Language -->
-        <div class="mb-4">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            <%= t('filters.language') %>
-          </label>
-          <%= f.select :language,
-              options_for_select([[t('filters.any'), ''], [t('languages.latin'), 'Latin'], [t('languages.english'), 'English'], [t('languages.italian'), 'Italian'], [t('languages.german'), 'German'], [t('languages.french'), 'French'], [t('languages.spanish'), 'Spanish']], params[:language]),
-              {},
-              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-          %>
-        </div>
-
-        <!-- Filter: Source -->
-        <div class="mb-5">
-          <label class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 block uppercase tracking-wide">
-            <%= t('filters.source') %>
-          </label>
-          <%= f.select :source,
-              options_for_select([[t('filters.any'), ''], ['PDMX', 'pdmx'], ['CPDL', 'cpdl'], ['IMSLP', 'imslp']], params[:source]),
-              {},
-              { class: "mm-input w-full text-xs", onchange: "this.form.requestSubmit()" }
-          %>
-        </div>
+        <%# Desktop filter fields (stacked layout) %>
+        <%= render 'filter_fields', f: f, mobile: false %>
 
         <%= link_to t('search.clear'), scores_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
       <% end %>
@@ -346,7 +173,55 @@
     <turbo-frame id="scores" data-turbo-action="advance" class="flex-1 contents">
     <main class="flex-1 min-w-0">
       <!-- Results Header -->
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 mb-4 sm:mb-6">
+      <!-- Mobile: Compact control bar -->
+      <div class="lg:hidden mb-4">
+        <!-- Results count -->
+        <p class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wide mb-2">
+          <span class="text-[var(--color-accent)]"><%= @filtered_count %></span> / <%= @total_count %> <%= t('search.results_count') %>
+        </p>
+
+        <!-- Filters + Sort side-by-side -->
+        <div class="grid grid-cols-2 gap-2">
+          <!-- Filters button -->
+          <button type="button"
+                  data-action="click->filter-modal#open"
+                  class="mm-button mm-button-secondary text-xs flex items-center justify-center gap-1.5"
+                  style="padding: 10px 12px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span class="font-black uppercase"><%= t('search.filters') %></span>
+            <% if active_filters_count > 0 %>
+              <span class="filter-count"><%= active_filters_count %></span>
+            <% end %>
+          </button>
+
+          <!-- Sort dropdown -->
+          <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "w-full" } do |f| %>
+            <%= f.hidden_field :q, value: params[:q] %>
+            <%= f.hidden_field :source, value: params[:source] %>
+            <%= f.hidden_field :key, value: params[:key] %>
+            <%= f.hidden_field :time, value: params[:time] %>
+            <%= f.hidden_field :genre, value: params[:genre] %>
+            <%= f.hidden_field :period, value: params[:period] %>
+            <%= f.hidden_field :voicing, value: params[:voicing] %>
+            <%= f.hidden_field :voice_type, value: params[:voice_type] %>
+            <%= f.hidden_field :difficulty, value: params[:difficulty] %>
+            <%= f.hidden_field :language, value: params[:language] %>
+            <%= f.select :sort,
+                [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
+                { selected: params[:sort] || "popularity" },
+                { class: "mm-button mm-button-secondary text-xs w-full font-black uppercase",
+                  id: "sort-mobile",
+                  onchange: "this.form.requestSubmit()",
+                  style: "padding: 10px 12px; text-align: center; text-align-last: center;" }
+            %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Desktop: Original layout -->
+      <div class="hidden lg:flex flex-row items-center justify-between gap-4 mb-6">
         <div>
           <p class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wide">
             <span class="text-[var(--color-accent)]"><%= @filtered_count %></span> / <%= @total_count %> <%= t('search.results_count') %>
@@ -360,14 +235,13 @@
           <%= f.hidden_field :time, value: params[:time] %>
           <%= f.hidden_field :genre, value: params[:genre] %>
           <%= f.hidden_field :period, value: params[:period] %>
-          <%= f.hidden_field :voicing, value: params[:voicing] %>
-          <%= f.hidden_field :voice_type, value: params[:voice_type] %>
+          <%= f.hidden_field :voicing, value: params[:voice_type] %>
           <%= f.hidden_field :difficulty, value: params[:difficulty] %>
           <%= f.hidden_field :language, value: params[:language] %>
           <div class="sort-control">
             <label for="sort" class="sort-label">
               <span class="sort-icon">↕</span>
-              <span class="hidden xs:inline"><%= t('search.sort_by') %></span>
+              <span><%= t('search.sort_by') %></span>
             </label>
             <%= f.select :sort,
                 [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
