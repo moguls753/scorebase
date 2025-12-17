@@ -225,8 +225,8 @@
         <% end %>
       </div>
 
-      <!-- Score Cards Grid: 3 cols mobile, 4 cols lg, max-width cards on 4K -->
-      <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-4 [&>*]:max-w-[280px]">
+      <!-- Score Cards Grid: 2 cols small phones, 3 cols tablets, 4 cols desktop -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-4 [&>*]:max-w-[280px]">
         <% @scores.each_with_index do |score, i| %>
           <%= link_to score_path(score), data: { turbo_frame: "_top" }, class: "mm-card overflow-hidden group block" do %>
             <!-- Thumbnail -->
@@ -249,7 +249,7 @@
               <h4 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-1 leading-tight font-bold line-clamp-1">
                 <%= score.title %>
               </h4>
-              <p class="text-xs text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
+              <p class="text-sm sm:text-xs text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
                 <%= score.composer.presence || t('search.unknown_composer') %>
               </p>
 
@@ -261,7 +261,7 @@
                   </span>
                 <% end %>
                 <% if score.primary_key_signature.present? %>
-                  <span class="mm-badge text-[10px] inline-block">
+                  <span class="mm-badge text-xs inline-block">
                     <%= score.primary_key_signature %>
                   </span>
                 <% end %>
@@ -274,9 +274,31 @@
       <!-- Pagination -->
       <% if @scores.total_pages > 1 %>
         <div class="mt-12 flex justify-center">
-          <div class="flex items-center gap-2">
-            <%= paginate @scores %>
-          </div>
+          <nav class="pagination-nav" aria-label="Pagination">
+            <% unless @scores.first_page? %>
+              <%= link_to "« First", url_for(page: 1), class: "pagination-link pagination-link--nav", data: { turbo_frame: "scores" } %>
+              <%= link_to "‹ Prev", url_for(page: @scores.prev_page), class: "pagination-link pagination-link--nav", rel: "prev", data: { turbo_frame: "scores" } %>
+            <% end %>
+
+            <% # Show page numbers with smart truncation %>
+            <% window = 2 %>
+            <% (1..@scores.total_pages).each do |page| %>
+              <% if page == 1 || page == @scores.total_pages || (page >= @scores.current_page - window && page <= @scores.current_page + window) %>
+                <% if page == @scores.current_page %>
+                  <span class="pagination-link pagination-link--current" aria-current="page"><%= page %></span>
+                <% else %>
+                  <%= link_to page, url_for(page: page), class: "pagination-link", data: { turbo_frame: "scores" } %>
+                <% end %>
+              <% elsif page == @scores.current_page - window - 1 || page == @scores.current_page + window + 1 %>
+                <span class="pagination-gap">…</span>
+              <% end %>
+            <% end %>
+
+            <% unless @scores.last_page? %>
+              <%= link_to "Next ›", url_for(page: @scores.next_page), class: "pagination-link pagination-link--nav", rel: "next", data: { turbo_frame: "scores" } %>
+              <%= link_to "Last »", url_for(page: @scores.total_pages), class: "pagination-link pagination-link--nav", data: { turbo_frame: "scores" } %>
+            <% end %>
+          </nav>
         </div>
       <% end %>
     </main>
