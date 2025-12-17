@@ -139,8 +139,7 @@ class ComposerNormalizerBase
 
       scores = Score.pending.where(composer: original)
 
-      if normalized
-        # Cache successful normalization
+      if normalized.present?
         ComposerMapping.register(original: original, normalized: normalized, source: provider_name)
         count = scores.update_all(composer: normalized, normalization_status: "normalized")
         @stats[:api_normalized] += count
