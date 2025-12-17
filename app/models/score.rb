@@ -82,6 +82,17 @@ class Score < ApplicationRecord
     failed: "failed"
   }, default: :pending
 
+  # Filter out corrupted encoding (mojibake) that breaks AI JSON generation
+  scope :safe_for_ai, -> {
+    where.not("composer LIKE ?", '%Ð%Ð%')         # Cyrillic mojibake
+         .where.not("composer LIKE ?", '%ààà%')   # Corrupted Thai
+         .where.not("composer LIKE ?", '%ä%ä%')   # Double-encoded CJK
+         .where.not("composer LIKE ?", '%å%å%')   # Double-encoded CJK
+         .where.not("composer LIKE ?", '%ã%ã%')   # Double-encoded Japanese
+         .where.not("composer LIKE ?", '%Å%')     # Double-encoded European
+         .where.not("composer LIKE ?", '%Î%Î%')   # Corrupted Greek
+  }
+
   # Scopes for filtering
   scope :by_key_signature, ->(key) { where(key_signature: key) if key.present? }
   scope :by_time_signature, ->(time) { where(time_signature: time) if time.present? }
