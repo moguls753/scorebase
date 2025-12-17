@@ -20,8 +20,8 @@ class GeminiComposerNormalizer < ComposerNormalizerBase
   private
 
   def request_batch(batch)
-    scores_data = batch.each_with_index.map do |(composer, title, editor, genres, language), idx|
-      { index: idx, composer: composer, title: title, editor: editor, genres: genres, language: language }
+    scores_data = batch.map do |composer, title, editor, genres, language|
+      { composer: composer, title: title, editor: editor, genres: genres, language: language }
     end
 
     retries = 0

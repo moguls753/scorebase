@@ -120,7 +120,7 @@ class ComposerNormalizerBase
 
       begin
         results = request_batch(batch)
-        apply_api_results(results, batch)
+        apply_api_results(results)
       rescue QuotaExceededError
         puts "\n  ⚠ Quota exceeded! Remaining #{scores.count - (idx * BATCH_SIZE)} scores left pending."
         raise
@@ -130,23 +130,14 @@ class ComposerNormalizerBase
     end
   end
 
-  def apply_api_results(results, batch)
+  def apply_api_results(results)
     return if results.blank?
 
     results.each do |item|
-      index = item["index"]
+      original = item["original"]
+      next if original.nil?
+
       normalized = item["normalized"]
-
-      # Coerce index to integer (AI might return string "0" instead of 0)
-      index = index.to_i if index.is_a?(String) && index.match?(/\A\d+\z/)
-
-      # Look up original from batch using index (don't trust AI to copy exact string)
-      if !index.is_a?(Integer) || index < 0 || index >= batch.size
-        puts "    [?] Invalid index #{index.inspect}, skipping"
-        next
-      end
-
-      original = batch[index][0] # First element is composer
       scores = Score.pending.where(composer: original)
 
       if normalized.present?
@@ -200,31 +191,26 @@ class ComposerNormalizerBase
       Task: Identify the classical music COMPOSER for each score entry.
 
       Input fields (use ALL to identify composer):
-      - index: position in array (return this exact number in output)
       - composer: may contain composer, arranger, title, or garbage data
       - title: often contains composer name ("Sonata by Mozart", "Bach - Prelude")
       - editor: might be arranger (original composer could be famous)
       - genres/language: hints for likely composers
 
       Output format - JSON array:
-      [{"index": <number>, "normalized": "<LastName, FirstName>" or null}]
+      [{"original": "<EXACT composer field value>", "normalized": "<LastName, FirstName>" or null}]
+
+      CRITICAL: The "original" field must be a VERBATIM COPY of the input "composer" field.
+      Do NOT clean, trim, or modify it in any way. Copy it exactly, character for character,
+      including URLs, garbage text, extra spaces, or anything else. Examples:
+      - Input: "Tom Brierhttps://musescore.com/xyz" → original: "Tom Brierhttps://musescore.com/xyz"
+      - Input: "E MajorSamuel Babcock 1800" → original: "E MajorSamuel Babcock 1800"
+      - Input: "Ludwig van BeethovenArranged by Someone" → original: "Ludwig van BeethovenArranged by Someone"
 
       Normalization rules:
       - Format: "LastName, FirstName" (e.g., "Bach, Johann Sebastian")
-      - Preserve diacritics for Latin-alphabet names (IMSLP/Library of Congress standard)
+      - Preserve diacritics (Dvořák, Bartók, Fauré, Chopin, Tárrega)
       - Expand abbreviations: "J.S. Bach" → "Bach, Johann Sebastian"
-      - Transliterate Cyrillic to standard English spellings
-      - Examples of correct forms:
-        - "Dvořák, Antonín" (preserve Czech háčky/čárky)
-        - "Bartók, Béla" (preserve Hungarian accents)
-        - "Fauré, Gabriel" (preserve French accents)
-        - "Chopin, Frédéric" (preserve French accents)
-        - "Tárrega, Francisco" (preserve Spanish accents)
-        - "Handel, George Frideric" (Anglicized - he became British)
-        - "Tchaikovsky, Pyotr" (transliterate Cyrillic)
-        - "Rachmaninoff, Sergei" (American spelling)
-        - "Mozart, Wolfgang Amadeus"
-        - "Beethoven, Ludwig van"
+      - Transliterate Cyrillic to English (Tchaikovsky, Rachmaninoff)
 
       Return null for normalized when:
       - Anonymous, Traditional, Folk (no known composer)
@@ -233,7 +219,6 @@ class ComposerNormalizerBase
       - Arrangers/editors when original composer unknown
 
       Important:
-      - Return the exact "index" number from input
       - Only identify the ORIGINAL composer, not arrangers
       - When uncertain, return null rather than guess
 

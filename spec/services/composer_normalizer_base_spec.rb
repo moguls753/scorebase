@@ -25,12 +25,11 @@ RSpec.describe ComposerNormalizerBase do
 
   describe "#apply_api_results" do
     let!(:score) { create(:score, composer: "Smith, John", normalization_status: "pending") }
-    let(:batch) { [["Smith, John", "Sonata", nil, nil, nil]] }
 
     it "caches and normalizes when AI returns a result" do
-      results = [{ "index" => 0, "normalized" => "Smith, John Francis" }]
+      results = [{ "original" => "Smith, John", "normalized" => "Smith, John Francis" }]
 
-      expect { normalizer.send(:apply_api_results, results, batch) }
+      expect { normalizer.send(:apply_api_results, results) }
         .to change { ComposerMapping.count }.by(1)
 
       expect(ComposerMapping.lookup("Smith, John")).to eq("Smith, John Francis")
@@ -39,9 +38,9 @@ RSpec.describe ComposerNormalizerBase do
     end
 
     it "does NOT cache when AI returns nil (allows retry)" do
-      results = [{ "index" => 0, "normalized" => nil }]
+      results = [{ "original" => "Smith, John", "normalized" => nil }]
 
-      expect { normalizer.send(:apply_api_results, results, batch) }
+      expect { normalizer.send(:apply_api_results, results) }
         .not_to change { ComposerMapping.count }
 
       expect(ComposerMapping.processed?("Smith, John")).to be false
@@ -49,19 +48,10 @@ RSpec.describe ComposerNormalizerBase do
       expect(score.composer).to eq("Smith, John") # unchanged
     end
 
-    it "handles string index from AI" do
-      results = [{ "index" => "0", "normalized" => "Smith, John Francis" }]
+    it "skips results with nil original" do
+      results = [{ "original" => nil, "normalized" => "Smith, John Francis" }]
 
-      expect { normalizer.send(:apply_api_results, results, batch) }
-        .to change { ComposerMapping.count }.by(1)
-
-      expect(score.reload.normalization_status).to eq("normalized")
-    end
-
-    it "skips invalid index" do
-      results = [{ "index" => 99, "normalized" => "Smith, John Francis" }]
-
-      expect { normalizer.send(:apply_api_results, results, batch) }
+      expect { normalizer.send(:apply_api_results, results) }
         .not_to change { ComposerMapping.count }
 
       expect(score.reload.normalization_status).to eq("pending")
