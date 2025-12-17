@@ -135,6 +135,8 @@ class ComposerNormalizerBase
 
     results.each do |item|
       original = item["original"]
+      next if original.nil?
+
       normalized = item["normalized"]
 
       scores = Score.pending.where(composer: original)
@@ -166,6 +168,7 @@ class ComposerNormalizerBase
   end
 
   def truncate(str, length)
+    return "(nil)" if str.nil?
     str.length > length ? "#{str[0...length]}..." : str.ljust(length)
   end
 
