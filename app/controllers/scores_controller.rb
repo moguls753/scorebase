@@ -25,12 +25,12 @@ class ScoresController < ApplicationController
     # Sorting
     @scores = apply_sorting(@scores, params[:sort])
 
-    # Pagination
-    @scores = @scores.page(params[:page])
-
-    # Stats for filters
+    # Stats for filters (count before pagination)
     @total_count = Score.count
-    @filtered_count = @scores.total_count
+    @filtered_count = @scores.count
+
+    # Pagination (without_count skips redundant COUNT query)
+    @scores = @scores.page(params[:page]).without_count
   end
 
   def show

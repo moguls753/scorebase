@@ -35,7 +35,7 @@
         </p>
       </div>
 
-      <%= form_with url: genre_instrument_path(genre_slug: params[:genre_slug], instrument_slug: params[:instrument_slug]), method: :get, class: "inline-block" do |f| %>
+      <%= form_with url: genre_instrument_path(genre_slug: params[:genre_slug], instrument_slug: params[:instrument_slug]), method: :get, data: { turbo_frame: "scores" }, class: "inline-block" do |f| %>
         <div class="sort-control">
           <label for="sort" class="sort-label"><span class="sort-icon">↕</span><span class="hidden xs:inline"><%= t('search.sort_by') %></span></label>
           <%= f.select :sort, [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]], { selected: @sort }, { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" } %>
@@ -46,16 +46,15 @@
 </section>
 
 <!-- Scores Grid -->
+<turbo-frame id="scores" data-turbo-action="advance">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
   <% if @scores.any? %>
-    <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2 sm:gap-4 [&>*]:max-w-[280px]">
+    <div class="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 [&>*]:max-w-[280px]">
       <% @scores.each do |score| %>
         <%= render 'score_card', score: score %>
       <% end %>
     </div>
-    <% if @scores.total_pages > 1 %>
-      <div class="mt-10 sm:mt-12 flex justify-center"><%= paginate @scores %></div>
-    <% end %>
+    <%= render 'shared/pagination', scores: @scores, turbo_frame: 'scores' %>
   <% else %>
     <div class="mm-card p-8 sm:p-12 text-center">
       <div class="text-6xl mb-4 text-[var(--color-border-subtle)]">🎼</div>
@@ -63,6 +62,7 @@
     </div>
   <% end %>
 </div>
+</turbo-frame>
 
 <style>
   .hub-hero { background: linear-gradient(135deg, #ffffff 0%, #fefcf9 50%, #ffffff 100%); }

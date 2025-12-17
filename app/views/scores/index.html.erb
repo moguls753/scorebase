@@ -271,24 +271,7 @@
         <% end %>
       </div>
 
-      <!-- Pagination -->
-      <% if @scores.total_pages > 1 %>
-        <div class="mt-12 flex justify-center">
-          <nav class="pagination-nav" aria-label="Pagination">
-            <% if @scores.first_page? %>
-              <span class="pagination-link pagination-link--disabled"><%= t('pagination.prev') %></span>
-            <% else %>
-              <%= link_to t('pagination.prev'), url_for(request.query_parameters.merge(page: @scores.prev_page)), class: "pagination-link", rel: "prev", data: { turbo_frame: "scores" } %>
-            <% end %>
-
-            <% if @scores.last_page? %>
-              <span class="pagination-link pagination-link--disabled"><%= t('pagination.next') %></span>
-            <% else %>
-              <%= link_to t('pagination.next'), url_for(request.query_parameters.merge(page: @scores.next_page)), class: "pagination-link", rel: "next", data: { turbo_frame: "scores" } %>
-            <% end %>
-          </nav>
-        </div>
-      <% end %>
+      <%= render 'shared/pagination', scores: @scores, turbo_frame: 'scores' %>
     </main>
     </turbo-frame>
   </div>

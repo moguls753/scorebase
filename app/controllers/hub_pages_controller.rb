@@ -32,10 +32,7 @@ class HubPagesController < ApplicationController
     not_found if @composer_names.empty?
 
     @composer_name = @composer_names.first
-
-    @scores = Score.where(composer: @composer_names)
-    @scores = apply_sorting(@scores).page(params[:page])
-    @total_count = @scores.total_count
+    @scores = paginate_with_count(apply_sorting(Score.where(composer: @composer_names)))
 
     @page_title = t("hub.composer_page_title", name: @composer_name)
     @page_description = t("hub.composer_page_description", name: @composer_name, count: @total_count)
@@ -45,9 +42,7 @@ class HubPagesController < ApplicationController
     @genre_name = find_genre_by_slug(params[:slug])
     not_found unless @genre_name
 
-    @scores = Score.by_genre(@genre_name)
-    @scores = apply_sorting(@scores).page(params[:page])
-    @total_count = @scores.total_count
+    @scores = paginate_with_count(apply_sorting(Score.by_genre(@genre_name)))
 
     @page_title = t("hub.genre_page_title", name: @genre_name)
     @page_description = t("hub.genre_page_description", name: @genre_name, count: @total_count)
@@ -57,9 +52,7 @@ class HubPagesController < ApplicationController
     @instrument_name = find_instrument_by_slug(params[:slug])
     not_found unless @instrument_name
 
-    @scores = scores_by_instrument(@instrument_name)
-    @scores = apply_sorting(@scores).page(params[:page])
-    @total_count = @scores.total_count
+    @scores = paginate_with_count(apply_sorting(scores_by_instrument(@instrument_name)))
 
     @page_title = t("hub.instrument_page_title", name: @instrument_name)
     @page_description = t("hub.instrument_page_description", name: @instrument_name, count: @total_count)
@@ -69,9 +62,7 @@ class HubPagesController < ApplicationController
     @voicing_name = find_voicing_by_slug(params[:slug])
     not_found unless @voicing_name
 
-    @scores = scores_by_voicing(@voicing_name)
-    @scores = apply_sorting(@scores).page(params[:page])
-    @total_count = @scores.total_count
+    @scores = paginate_with_count(apply_sorting(scores_by_voicing(@voicing_name)))
 
     @page_title = t("hub.voicing_page_title", name: @voicing_name)
     @page_description = t("hub.voicing_page_description", name: @voicing_name, count: @total_count)
@@ -83,12 +74,8 @@ class HubPagesController < ApplicationController
     not_found if @composer_names.empty? || @instrument_name.nil?
 
     @composer_name = @composer_names.first
-
-    @scores = Score.where(composer: @composer_names)
-    @scores = scores_by_instrument_query(@scores, @instrument_name)
-    @scores = apply_sorting(@scores)
-    @total_count = @scores.count
-    @scores = @scores.page(params[:page])
+    scope = scores_by_instrument_query(Score.where(composer: @composer_names), @instrument_name)
+    @scores = paginate_with_count(apply_sorting(scope))
 
     not_found if @total_count < THRESHOLD
 
@@ -102,11 +89,8 @@ class HubPagesController < ApplicationController
     @instrument_name = find_instrument_by_slug(params[:instrument_slug])
     not_found unless @genre_name && @instrument_name
 
-    @scores = Score.by_genre(@genre_name)
-    @scores = scores_by_instrument_query(@scores, @instrument_name)
-    @scores = apply_sorting(@scores)
-    @total_count = @scores.count
-    @scores = @scores.page(params[:page])
+    scope = scores_by_instrument_query(Score.by_genre(@genre_name), @instrument_name)
+    @scores = paginate_with_count(apply_sorting(scope))
 
     not_found if @total_count < THRESHOLD
 
@@ -130,6 +114,12 @@ class HubPagesController < ApplicationController
     when "composer" then scores.order_by_composer
     else scores.order_by_popularity
     end
+  end
+
+  # Count before pagination, skip redundant COUNT in Kaminari
+  def paginate_with_count(scope)
+    @total_count = scope.count
+    scope.page(params[:page]).without_count
   end
 
   # Cached index methods - read from cache, fallback to building
