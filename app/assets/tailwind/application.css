@@ -250,10 +250,10 @@ a.mm-button {
 
 /* Source badges - distinct styling for each platform */
 .mm-badge-source {
-  font-size: 9px;
+  font-size: 11px; /* Bumped from 9px for mobile readability */
   font-weight: 700;
-  padding: 3px 8px;
-  letter-spacing: 0.6px;
+  padding: 4px 8px;
+  letter-spacing: 0.5px;
   font-family: var(--font-family-display);
   border-width: 2px;
   box-shadow: 2px 2px 0 var(--shadow-color);
@@ -543,8 +543,8 @@ main a:not(.mm-button):not(.mm-card):hover {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 44px;  /* 44px minimum touch target */
+  height: 44px;
   background: var(--color-bg-card);
   border: 2px solid var(--color-border);
   border-radius: 2px;
@@ -610,8 +610,8 @@ main a:not(.mm-button):not(.mm-card):hover {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 42px;
-  height: 42px;
+  width: 44px;  /* 44px minimum touch target */
+  height: 44px;
   background: var(--color-bg-card);
   border: 2px solid var(--color-border);
   border-radius: 2px;
@@ -1291,5 +1291,98 @@ body.overflow-hidden {
   .browse-divider {
     margin-top: 20px;
     margin-bottom: 16px;
+  }
+}
+
+/* ========================================
+   PAGINATION - Mobile-First Touch Targets
+   ======================================== */
+
+.pagination-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pagination-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;  /* 44px minimum touch target */
+  min-height: 44px;
+  padding: 8px 12px;
+  font-family: var(--font-family-display);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text);
+  text-decoration: none;
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  transition: all 0.15s ease;
+}
+
+.pagination-link:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translate(-2px, -2px);
+  box-shadow: 5px 5px 0 var(--color-accent);
+}
+
+.pagination-link:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+.pagination-link--current {
+  background: var(--color-accent);
+  color: #ffffff;
+  border-color: var(--color-border);
+  cursor: default;
+}
+
+.pagination-link--current:hover {
+  background: var(--color-accent);
+  color: #ffffff;
+  border-color: var(--color-border);
+  transform: none;
+  box-shadow: 3px 3px 0 var(--shadow-color);
+}
+
+.pagination-link--nav {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pagination-gap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 44px;
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+
+/* Mobile: Compact pagination */
+@media (max-width: 640px) {
+  .pagination-nav {
+    gap: 4px;
+  }
+
+  .pagination-link {
+    min-width: 44px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .pagination-link--nav {
+    font-size: 11px;
+    padding: 8px;
   }
 }
