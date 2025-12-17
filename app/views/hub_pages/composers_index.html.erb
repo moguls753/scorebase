@@ -8,7 +8,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="max-w-3xl">
       <!-- Breadcrumb -->
-      <nav class="flex items-center gap-2 text-xs font-medium text-[var(--color-text-muted)] mb-4">
+      <nav class="flex items-center gap-2 text-sm sm:text-xs font-medium text-[var(--color-text-muted)] mb-4">
         <%= link_to root_path, class: "hover:text-[var(--color-accent)] transition-colors" do %>
           ScoreBase
         <% end %>
@@ -68,7 +68,7 @@
       <div class="finder-results-count" data-list-filter-target="resultsCount"></div>
     </div>
 
-    <!-- Alphabet Jump Links -->
+    <!-- Alphabet Jump Links - Hidden on mobile, visible on tablet+ -->
     <nav class="alphabet-nav" aria-label="<%= t('hub.jump_to_letter', default: 'Jump to letter') %>">
       <% ('A'..'Z').each do |letter| %>
         <a href="#letter-<%= letter %>"
@@ -81,7 +81,7 @@
   </div>
 
   <!-- Composers Grid (grouped by letter) -->
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-0 sm:py-8">
     <% if @composers.any? %>
       <% global_index = 0 %>
       <% @composers.group_by { |c| c[:name].first.upcase }.sort.each do |letter, composers_in_group| %>
@@ -245,12 +245,13 @@
 
   .finder-clear {
     position: absolute;
-    right: 12px;
+    right: 8px;
     display: none;
     align-items: center;
     justify-content: center;
-    width: 28px;
-    height: 28px;
+    /* 44px minimum touch target for mobile */
+    width: 44px;
+    height: 44px;
     padding: 0;
     color: var(--color-text-muted);
     background: var(--color-bg);
@@ -261,14 +262,22 @@
   }
 
   .finder-clear svg {
-    width: 16px;
-    height: 16px;
+    width: 20px;
+    height: 20px;
   }
 
   .finder-clear:hover {
     color: var(--color-accent);
     border-color: var(--color-accent);
     background: var(--color-bg-elevated);
+  }
+
+  /* Touch feedback for mobile */
+  .finder-clear:active {
+    transform: scale(0.95);
+    background: var(--color-accent);
+    color: white;
+    border-color: var(--color-accent);
   }
 
   .finder-clear.visible {
@@ -278,7 +287,7 @@
   .finder-results-count {
     margin-top: 8px;
     font-family: var(--font-family-body);
-    font-size: 13px;
+    font-size: 14px; /* Minimum 14px for mobile readability */
     font-weight: 600;
     color: var(--color-text-muted);
     min-height: 20px;
@@ -290,15 +299,23 @@
   }
 
   /* ========================================
-     ALPHABET NAVIGATION - Centered
+     ALPHABET NAVIGATION - Hidden on mobile, visible on tablet+
      ======================================== */
   .alphabet-nav {
-    display: flex;
+    /* Hidden by default on mobile */
+    display: none;
     flex-wrap: wrap;
     justify-content: center;
     gap: 6px;
     padding: 16px 0;
     border-bottom: 2px solid var(--color-border-subtle);
+  }
+
+  /* Show on tablet and up (640px+) */
+  @media (min-width: 640px) {
+    .alphabet-nav {
+      display: flex;
+    }
   }
 
   .alphabet-link {
@@ -336,6 +353,13 @@
   .alphabet-link.disabled {
     opacity: 0.35;
     pointer-events: none;
+  }
+
+  /* Touch feedback for tablet+ */
+  .alphabet-link:active:not(.disabled) {
+    transform: scale(0.95);
+    background: var(--color-accent);
+    color: white;
   }
 
   /* ========================================
@@ -418,11 +442,11 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 32px;
-    height: 24px;
+    min-width: 36px;
+    height: 26px;
     padding: 0 8px;
     font-family: var(--font-family-display);
-    font-size: 11px;
+    font-size: 12px; /* Minimum readable size */
     font-weight: 700;
     color: var(--color-accent);
     background: var(--color-bg);
@@ -453,22 +477,12 @@
   }
 
   /* ========================================
-     RESPONSIVE
+     RESPONSIVE - Mobile First Fixes
      ======================================== */
   @media (max-width: 640px) {
     .finder-input {
-      font-size: 16px;
-      padding: 12px 44px 12px 44px;
-    }
-
-    .alphabet-nav {
-      gap: 4px;
-    }
-
-    .alphabet-link {
-      width: 28px;
-      height: 28px;
-      font-size: 11px;
+      font-size: 16px; /* Prevents iOS zoom on focus */
+      padding: 14px 56px 14px 44px; /* Extra right padding for larger clear button */
     }
 
     .letter-badge {
@@ -481,20 +495,27 @@
       margin-bottom: 40px;
     }
 
+    /* Ensure minimum 44px touch targets for composer cards */
     .composer-card-simple {
-      padding: 12px 14px;
-      min-height: 48px;
+      padding: 14px 16px;
+      min-height: 52px; /* Comfortable touch target */
     }
 
     .composer-card-simple .composer-card-name {
-      font-size: 13px;
+      font-size: 14px; /* Minimum readable size */
     }
 
     .composer-card-count {
-      min-width: 28px;
-      height: 22px;
-      font-size: 10px;
+      min-width: 32px;
+      height: 24px;
+      font-size: 12px; /* Bumped from 10px */
       padding: 0 6px;
     }
+  }
+
+  /* Touch feedback for composer cards */
+  .composer-card-simple:active {
+    transform: scale(0.98);
+    box-shadow: 2px 2px 0 var(--shadow-color);
   }
 </style>
