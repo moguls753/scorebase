@@ -88,6 +88,9 @@ jobs:
           RAILS_ENV: test
         run: bin/rails db:test:prepare
 
+      - name: Build Tailwind CSS
+        run: bin/rails tailwindcss:build
+
       - name: Run RSpec tests
         env:
           RAILS_ENV: test
