@@ -84,4 +84,14 @@
     from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
   }
+  /* Respect reduced motion preference */
+  @media (prefers-reduced-motion: reduce) {
+    .hub-card { animation: none; opacity: 1; }
+  }
+  /* Disable animations during Turbo cache preview to prevent double animation */
+  html[data-turbo-preview] .hub-card {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
 </style>

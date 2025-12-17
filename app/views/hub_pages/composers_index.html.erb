@@ -171,6 +171,13 @@
     }
   }
 
+  /* Disable animations during Turbo cache preview to prevent double animation */
+  html[data-turbo-preview] .hub-card {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
   .box-shadow-sm {
     box-shadow: 3px 3px 0 var(--shadow-color);
   }
