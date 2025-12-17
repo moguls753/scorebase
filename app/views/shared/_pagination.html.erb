@@ -1,0 +1,22 @@
+<%# Pagination without COUNT query - detects next by full page, prev by page param %>
+<%# Optional: turbo_frame parameter for Turbo Frame support %>
+<% has_prev = !scores.first_page? %>
+<% has_next = scores.size == scores.limit_value %>
+<% link_data = local_assigns[:turbo_frame] ? { turbo_frame: turbo_frame } : {} %>
+<% if has_prev || has_next %>
+  <div class="mt-10 sm:mt-12 flex justify-center">
+    <nav class="pagination-nav" aria-label="Pagination">
+      <% if has_prev %>
+        <%= link_to t('pagination.prev'), url_for(request.query_parameters.merge(page: scores.prev_page)), class: "pagination-link", rel: "prev", data: link_data %>
+      <% else %>
+        <span class="pagination-link pagination-link--disabled"><%= t('pagination.prev') %></span>
+      <% end %>
+
+      <% if has_next %>
+        <%= link_to t('pagination.next'), url_for(request.query_parameters.merge(page: scores.next_page)), class: "pagination-link", rel: "next", data: link_data %>
+      <% else %>
+        <span class="pagination-link pagination-link--disabled"><%= t('pagination.next') %></span>
+      <% end %>
+    </nav>
+  </div>
+<% end %>
