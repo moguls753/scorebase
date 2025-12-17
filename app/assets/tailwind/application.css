@@ -250,7 +250,7 @@ a.mm-button {
 
 /* Source badges - distinct styling for each platform */
 .mm-badge-source {
-  font-size: 11px; /* Bumped from 9px for mobile readability */
+  font-size: 12px; /* Minimum readable size on mobile */
   font-weight: 700;
   padding: 4px 8px;
   letter-spacing: 0.5px;

@@ -226,9 +226,9 @@
       </div>
 
       <!-- Score Cards Grid -->
-      <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-4 [&>*]:max-w-[280px]">
-        <% @scores.each_with_index do |score, i| %>
-          <%= link_to score_path(score), data: { turbo_frame: "_top" }, class: "mm-card overflow-hidden group block" do %>
+      <div class="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 [&>*]:max-w-[280px]">
+        <% @scores.each do |score| %>
+          <%= link_to score_path(score), data: { turbo_frame: "_top" }, class: "mm-card overflow-hidden block" do %>
             <!-- Thumbnail -->
             <div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center relative overflow-hidden border-b-2 border-[var(--color-border)]">
               <% if score.has_thumbnail? %>
@@ -245,11 +245,11 @@
             </div>
 
             <!-- Card Content -->
-            <div class="p-3">
-              <h4 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-1 leading-tight font-bold line-clamp-1">
+            <div class="p-2.5 sm:p-3">
+              <h4 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-1 leading-tight font-bold line-clamp-2 xs:line-clamp-1">
                 <%= score.title %>
               </h4>
-              <p class="text-xs text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
+              <p class="text-sm text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
                 <%= score.composer.presence || t('search.unknown_composer') %>
               </p>
 
