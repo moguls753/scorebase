@@ -25,8 +25,8 @@ Rails.application.routes.draw do
     get "genres/:slug", to: "hub_pages#genre", as: :genre
     get "instruments", to: "hub_pages#instruments_index", as: :instruments
     get "instruments/:slug", to: "hub_pages#instrument", as: :instrument
-    get "voicing", to: "hub_pages#voicing_index", as: :voicing_index
-    get "voicing/:slug", to: "hub_pages#voicing", as: :voicing
+    get "periods", to: "hub_pages#periods_index", as: :periods
+    get "periods/:slug", to: "hub_pages#period", as: :period
 
     # Combined pages (Tier 1 combinations)
     get "composers/:composer_slug/:instrument_slug", to: "hub_pages#composer_instrument", as: :composer_instrument

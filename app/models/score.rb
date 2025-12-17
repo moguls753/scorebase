@@ -111,7 +111,7 @@ class Score < ApplicationRecord
     end
   }
 
-  # Period filter (historical period from genre tags)
+  # Period filter (historical period from genre tags) - case-insensitive for UI filters
   scope :by_period, ->(period) {
     return all if period.blank?
 
@@ -131,6 +131,23 @@ class Score < ApplicationRecord
     else
       all
     end
+  }
+
+  # Period filter with case-sensitive matching (GLOB) for hub pages.
+  # Distinguishes "Classical" period from "classical" PDMX pop tag.
+  scope :by_period_strict, ->(period_name) {
+    variants = HubDataBuilder::PERIODS[period_name]
+    return none unless variants
+
+    conditions = variants.map { "genres GLOB ?" }.join(" OR ")
+    values = variants.map { |v| "*#{v}*" }
+    where(conditions, *values)
+  }
+
+  # Instrument filter for hub pages
+  scope :by_instrument, ->(instrument_name) {
+    return all if instrument_name.blank?
+    where("LOWER(instruments) LIKE ?", "%#{sanitize_sql_like(instrument_name.downcase)}%")
   }
 
   # Forces filters (maps UI labels to num_parts)

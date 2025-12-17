@@ -34,7 +34,7 @@ de:
     browse_composers: "Komponisten"
     browse_genres: "Genres"
     browse_instruments: "Instrumente"
-    browse_voicing: "Besetzung"
+    browse_periods: "Epochen"
     filters: "Filter"
     close_filters: "Filter schließen"
     clear: "Zurücksetzen"
@@ -213,8 +213,9 @@ de:
     genres_description: "Durchsuche %{count} Genres mit kostenlosen Noten zum Download."
     instruments_title: "Instrumente — Freie Noten"
     instruments_description: "Durchsuche %{count} Instrumente mit kostenlosen Noten zum Download."
-    voicing_title: "Vokalbesetzungen — Freie Noten"
-    voicing_description: "Durchsuche %{count} Vokalbesetzungen mit kostenlosen Noten zum Download."
+    periods_title: "Epochen — Freie Noten"
+    periods_description: "Durchsuche %{count} Epochen mit kostenlosen Noten zum Download."
+    periods: "Epochen"
 
     # Single dimension pages
     composer_page_title: "%{name} — Freie Noten"
@@ -223,8 +224,8 @@ de:
     genre_page_description: "Lade %{count} kostenlose %{name}-Noten herunter. PDF, MusicXML und MIDI."
     instrument_page_title: "%{name} Noten — Kostenloser Download"
     instrument_page_description: "Lade %{count} kostenlose Noten für %{name} herunter. PDF, MusicXML und MIDI."
-    voicing_page_title: "%{name} Chornoten — Kostenloser Download"
-    voicing_page_description: "Lade %{count} kostenlose %{name}-Chornoten herunter. PDF, MusicXML und MIDI."
+    period_page_title: "%{name} — Freie Noten"
+    period_page_description: "Lade %{count} kostenlose Noten aus der %{name} herunter. PDF, MusicXML und MIDI."
 
     # Combined pages
     composer_instrument_title: "%{composer} %{instrument} Noten — Kostenloser Download"

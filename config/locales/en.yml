@@ -34,7 +34,7 @@ en:
     browse_composers: "Composers"
     browse_genres: "Genres"
     browse_instruments: "Instruments"
-    browse_voicing: "Voicing"
+    browse_periods: "Periods"
     filters: "Filters"
     close_filters: "Close filters"
     clear: "Clear"
@@ -213,8 +213,9 @@ en:
     genres_description: "Browse %{count} genres with free public domain sheet music downloads."
     instruments_title: "Instruments — Free Sheet Music"
     instruments_description: "Browse %{count} instruments with free public domain sheet music downloads."
-    voicing_title: "Vocal Arrangements — Free Sheet Music"
-    voicing_description: "Browse %{count} vocal arrangements with free public domain sheet music downloads."
+    periods_title: "Historical Periods — Free Sheet Music"
+    periods_description: "Browse %{count} historical periods with free public domain sheet music downloads."
+    periods: "Periods"
 
     # Single dimension pages
     composer_page_title: "%{name} — Free Sheet Music"
@@ -223,8 +224,8 @@ en:
     genre_page_description: "Download %{count} free %{name} sheet music scores. Public domain PDF, MusicXML, and MIDI files."
     instrument_page_title: "%{name} Sheet Music — Free Downloads"
     instrument_page_description: "Download %{count} free sheet music scores for %{name}. Public domain PDF, MusicXML, and MIDI files."
-    voicing_page_title: "%{name} Choral Music — Free Sheet Music"
-    voicing_page_description: "Download %{count} free %{name} choral sheet music scores. Public domain PDF, MusicXML, and MIDI files."
+    period_page_title: "%{name} Period — Free Sheet Music"
+    period_page_description: "Download %{count} free sheet music scores from the %{name} period. Public domain PDF, MusicXML, and MIDI files."
 
     # Combined pages
     composer_instrument_title: "%{composer} %{instrument} Sheet Music — Free Downloads"
