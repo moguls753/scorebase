@@ -464,6 +464,49 @@ main a:not(.mm-button):not(.mm-card):hover {
   color: var(--color-accent);
 }
 
+/* Grid Density Toggle */
+.grid-density-toggle {
+  display: inline-flex;
+  align-items: center;
+  background: var(--color-bg-elevated);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 3px 3px 0 var(--shadow-color);
+}
+
+.grid-density-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 28px;
+  background: transparent;
+  border: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.grid-density-btn:not(:last-child) {
+  border-right: 1px solid var(--color-border-subtle);
+}
+
+.grid-density-btn:hover {
+  background: var(--color-bg-card);
+  color: var(--color-accent);
+}
+
+.grid-density-btn--active {
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+.grid-density-btn--active:hover {
+  background: var(--color-accent-hover);
+  color: #ffffff;
+}
+
 /* Sort Control - Compact Brutalist Style */
 .sort-control {
   display: inline-flex;

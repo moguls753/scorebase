@@ -161,7 +161,7 @@
 
     <!-- Results Grid -->
     <turbo-frame id="scores" data-turbo-action="advance" class="flex-1 contents">
-    <main class="flex-1 min-w-0">
+    <main class="flex-1 min-w-0" data-controller="grid-density">
       <!-- Results Header -->
       <!-- Mobile: Compact control bar -->
       <div class="lg:hidden mb-4">
@@ -208,25 +208,41 @@
           </p>
         </div>
 
-        <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "inline-block" } do |f| %>
-          <%= f.hidden_field :q, value: params[:q] %>
-          <%= filter_hidden_fields(f) %>
-          <div class="sort-control">
-            <label for="sort" class="sort-label">
-              <span class="sort-icon">↕</span>
-              <span><%= t('search.sort_by') %></span>
-            </label>
-            <%= f.select :sort,
-                [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
-                { selected: params[:sort] || "popularity" },
-                { class: "sort-select", id: "sort", data: { action: "change->url-sync#submit" } }
-            %>
+        <div class="flex items-center gap-3">
+          <!-- Grid Density Toggle -->
+          <div class="grid-density-toggle" aria-label="Grid density">
+            <button type="button" class="grid-density-btn" data-grid-density-target="button" data-density="2" data-action="click->grid-density#set" title="Large cards">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="0" width="6" height="6"/><rect x="8" y="0" width="6" height="6"/><rect x="0" y="8" width="6" height="6"/><rect x="8" y="8" width="6" height="6"/></svg>
+            </button>
+            <button type="button" class="grid-density-btn" data-grid-density-target="button" data-density="3" data-action="click->grid-density#set" title="Medium cards">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="0" width="4" height="4"/><rect x="5" y="0" width="4" height="4"/><rect x="10" y="0" width="4" height="4"/><rect x="0" y="5" width="4" height="4"/><rect x="5" y="5" width="4" height="4"/><rect x="10" y="5" width="4" height="4"/><rect x="0" y="10" width="4" height="4"/><rect x="5" y="10" width="4" height="4"/><rect x="10" y="10" width="4" height="4"/></svg>
+            </button>
+            <button type="button" class="grid-density-btn" data-grid-density-target="button" data-density="4" data-action="click->grid-density#set" title="Compact cards">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor"><rect x="0" y="0" width="3" height="3"/><rect x="3.67" y="0" width="3" height="3"/><rect x="7.33" y="0" width="3" height="3"/><rect x="11" y="0" width="3" height="3"/><rect x="0" y="3.67" width="3" height="3"/><rect x="3.67" y="3.67" width="3" height="3"/><rect x="7.33" y="3.67" width="3" height="3"/><rect x="11" y="3.67" width="3" height="3"/><rect x="0" y="7.33" width="3" height="3"/><rect x="3.67" y="7.33" width="3" height="3"/><rect x="7.33" y="7.33" width="3" height="3"/><rect x="11" y="7.33" width="3" height="3"/><rect x="0" y="11" width="3" height="3"/><rect x="3.67" y="11" width="3" height="3"/><rect x="7.33" y="11" width="3" height="3"/><rect x="11" y="11" width="3" height="3"/></svg>
+            </button>
           </div>
-        <% end %>
+
+          <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "inline-block" } do |f| %>
+            <%= f.hidden_field :q, value: params[:q] %>
+            <%= filter_hidden_fields(f) %>
+            <div class="sort-control">
+              <label for="sort" class="sort-label">
+                <span class="sort-icon">↕</span>
+                <span><%= t('search.sort_by') %></span>
+              </label>
+              <%= f.select :sort,
+                  [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
+                  { selected: params[:sort] || "popularity" },
+                  { class: "sort-select", id: "sort", data: { action: "change->url-sync#submit" } }
+              %>
+            </div>
+          <% end %>
+        </div>
       </div>
 
-      <!-- Score Cards Grid: 2 cols small phones, 3 cols tablets, 4 cols desktop -->
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-4 [&>*]:max-w-[280px]">
+      <!-- Score Cards Grid -->
+      <div class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-2 sm:gap-4 [&>*]:max-w-[280px]"
+           data-grid-density-target="grid">
         <% @scores.each_with_index do |score, i| %>
           <%= link_to score_path(score), data: { turbo_frame: "_top" }, class: "mm-card overflow-hidden group block" do %>
             <!-- Thumbnail -->
@@ -249,7 +265,7 @@
               <h4 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-1 leading-tight font-bold line-clamp-1">
                 <%= score.title %>
               </h4>
-              <p class="text-sm sm:text-xs text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
+              <p class="text-xs text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
                 <%= score.composer.presence || t('search.unknown_composer') %>
               </p>
 
