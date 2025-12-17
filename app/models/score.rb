@@ -84,13 +84,13 @@ class Score < ApplicationRecord
 
   # Filter out corrupted encoding (mojibake) that breaks AI JSON generation
   scope :safe_for_ai, -> {
-    where.not("composer LIKE ?", '%Ð%Ð%')         # Cyrillic mojibake
-         .where.not("composer LIKE ?", '%ààà%')   # Corrupted Thai
-         .where.not("composer LIKE ?", '%ä%ä%')   # Double-encoded CJK
-         .where.not("composer LIKE ?", '%å%å%')   # Double-encoded CJK
-         .where.not("composer LIKE ?", '%ã%ã%')   # Double-encoded Japanese
-         .where.not("composer LIKE ?", '%Å%')     # Double-encoded European
-         .where.not("composer LIKE ?", '%Î%Î%')   # Corrupted Greek
+    where.not("composer LIKE ?", "%Ð%Ð%")         # Cyrillic mojibake
+         .where.not("composer LIKE ?", "%ààà%")   # Corrupted Thai
+         .where.not("composer LIKE ?", "%ä%ä%")   # Double-encoded CJK
+         .where.not("composer LIKE ?", "%å%å%")   # Double-encoded CJK
+         .where.not("composer LIKE ?", "%ã%ã%")   # Double-encoded Japanese
+         .where.not("composer LIKE ?", "%Å%")     # Double-encoded European
+         .where.not("composer LIKE ?", "%Î%Î%")   # Corrupted Greek
   }
 
   # Scopes for filtering
