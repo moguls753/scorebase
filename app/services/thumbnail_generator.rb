@@ -1,7 +1,7 @@
 # Generates WebP thumbnails from external thumbnail URLs and stores in Active Storage (R2)
 # Falls back to PDF first page if thumbnail URL is unavailable or broken
 class ThumbnailGenerator
-  include HttpDownloadable
+  include PdfFetchable
 
   THUMBNAIL_SIZE = 280  # Matches card max-width
   WEBP_QUALITY = 75     # Good balance of quality/size (~5-10KB per image)
@@ -98,35 +98,6 @@ class ThumbnailGenerator
   def clear_broken_url
     score.update_column(:thumbnail_url, nil)
     Rails.logger.info("[ThumbnailGenerator] Cleared broken thumbnail_url for Score ##{score.id}")
-  end
-
-  # Fetches PDF to temp directory from local disk, R2, or external URL
-  def fetch_pdf_to(tmpdir)
-    dest_path = File.join(tmpdir, "source.pdf")
-
-    # 1. R2-synced PDF (IMSLP/CPDL)
-    if score.pdf_file.attached?
-      File.binwrite(dest_path, score.pdf_file.download)
-      return dest_path
-    end
-
-    # 2. Local disk (PDMX)
-    if score.pdmx? && score.pdf_path.present?
-      base_path = ENV.fetch("PDMX_DATA_PATH", File.expand_path("~/data/pdmx"))
-      local_path = File.expand_path(File.join(base_path, score.pdf_path.sub(/^\.\//, "")))
-      if File.exist?(local_path)
-        FileUtils.cp(local_path, dest_path)
-        return dest_path
-      end
-    end
-
-    # 3. External URL (not yet synced)
-    if score.external? && score.pdf_url.present?
-      http_download(score.pdf_url, dest_path, timeout: 60)
-      return dest_path
-    end
-
-    nil
   end
 
   def convert_pdf_to_webp(pdf_path, output_path)

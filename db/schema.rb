@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_16_103617) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_18_200604) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -56,6 +56,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_16_103617) do
     t.datetime "updated_at", null: false
     t.integer "visits", default: 0
     t.index ["date"], name: "index_daily_stats_on_date", unique: true
+  end
+
+  create_table "score_pages", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "page_number", null: false
+    t.integer "score_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["score_id", "page_number"], name: "index_score_pages_on_score_id_and_page_number", unique: true
   end
 
   create_table "scores", force: :cascade do |t|
@@ -109,4 +117,5 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_16_103617) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "score_pages", "scores", on_delete: :cascade
 end

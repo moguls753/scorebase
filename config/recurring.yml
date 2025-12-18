@@ -17,9 +17,24 @@ production:
   sitemap_refresh:
     class: SitemapRefreshJob
     queue: default
-    schedule: every day at 3am  # Daily during active imports; switch to "every Sunday at 3am" once stable
+    schedule: every day at 3am
 
   hub_cache_warm:
     class: HubCacheWarmJob
     queue: default
     schedule: every day at 4am
+
+  generate_missing_thumbnails:
+    class: GenerateMissingThumbnailsJob
+    queue: default
+    schedule: every day at 2am
+
+  generate_missing_galleries:
+    class: GenerateMissingGalleriesJob
+    queue: default
+    schedule: every day at 5am
+
+  sync_missing_pdfs:
+    class: SyncMissingPdfsJob
+    queue: default
+    schedule: every day at 1am

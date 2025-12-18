@@ -34,7 +34,10 @@ class ScoresController < ApplicationController
   end
 
   def show
-    @score = Score.find(params[:id])
+    @score = Score
+      .with_attached_thumbnail_image
+      .includes(score_pages: { image_attachment: :blob })
+      .find(params[:id])
     @score.increment!(:views) unless bot?
   end
 

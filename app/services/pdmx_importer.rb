@@ -19,6 +19,7 @@ class PdmxImporter
     puts "Subset: #{@subset}"
     puts "Limit: #{@limit || 'none'}"
     puts "PDMX root: #{PDMX_ROOT}"
+    puts "(Existing scores are always skipped - never overwritten)"
 
     # Get list of files to import from subset
     subset_files = load_subset_paths
@@ -37,6 +38,13 @@ class PdmxImporter
 
     # Filter to only subset files
     csv_data = csv_data.select { |row| subset_files.include?(row["path"]) }
+
+    # Pre-filter existing to avoid duplicates
+    existing_paths = Score.where(source: "pdmx").pluck(:data_path).to_set
+    original_count = csv_data.size
+    csv_data = csv_data.reject { |row| existing_paths.include?(row["path"]) }
+    puts "Skipping #{original_count - csv_data.size} already-imported scores (#{csv_data.size} remaining)"
+
     csv_data = csv_data.first(@limit) if @limit
 
     puts "Will import #{csv_data.size} scores"
