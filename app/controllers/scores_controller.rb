@@ -38,29 +38,35 @@ class ScoresController < ApplicationController
     @score.increment!(:views) unless bot?
   end
 
+  # NOTE: Hybrid file serving - two approaches by design:
+  # 1. IMSLP/CPDL: Active Storage (R2) - CDN speed + cheaper than Hetzner disk
+  # 2. PDMX: Local disk (/opt/pdmx) - 16GB already there, no migration needed
+  # Thumbnails always go to R2 for CDN benefit on grid views.
   def serve_file
     @score = Score.find(params[:id])
     file_type = params[:file_type]
+    disposition = params[:download] == "true" ? "attachment" : "inline"
+    nice_filename = nice_filename_for(file_type)
 
-    # Get the file path based on type
-    file_path = case file_type
-    when "pdf"
-      @score.pdf_path
-    when "mxl"
-      @score.mxl_path
-    when "mid"
-      @score.mid_path
-    else
-      nil
+    # 1. Active Storage (R2) - synced IMSLP/CPDL files
+    attachment = attachment_for(file_type)
+    if attachment&.attached?
+      redirect_to rails_blob_path(attachment, disposition: disposition, filename: nice_filename)
+      return
     end
 
-    # Validate file path exists and is not N/A
+    file_path = case file_type
+    when "pdf" then @score.pdf_path
+    when "mxl" then @score.mxl_path
+    when "mid" then @score.mid_path
+    end
+
     if file_path.blank? || file_path == "N/A"
       render plain: "File not available", status: :not_found
       return
     end
 
-    # Handle external scores (CPDL, IMSLP) - redirect to external file URL
+    # 2. External fallback - redirect to source if not synced yet
     if @score.external?
       external_url = case file_type
       when "pdf" then @score.pdf_url
@@ -70,31 +76,26 @@ class ScoresController < ApplicationController
 
       if external_url.present?
         redirect_to external_url, allow_other_host: true
-        return
       else
         render plain: "External file URL unavailable", status: :not_found
-        return
       end
-    end
-
-    # Handle PDMX scores - serve from local filesystem
-    # Convert relative path to absolute path (PDMX data location)
-    absolute_path = File.join(ENV.fetch("PDMX_DATA_PATH", File.expand_path("~/data/pdmx")), file_path.sub(/^\.\//, ""))
-
-    # Check if file exists
-    unless File.exist?(absolute_path)
-      render plain: "File not found: #{file_path}", status: :not_found
       return
     end
 
-    # Serve the file
-    # Use disposition: 'inline' for PDFs (for preview), 'attachment' for downloads
-    disposition = params[:download] == "true" ? "attachment" : "inline"
+    # 3. Local disk - PDMX files (pdf/mxl/mid)
+    base_path = ENV.fetch("PDMX_DATA_PATH", File.expand_path("~/data/pdmx"))
+    absolute_path = File.expand_path(File.join(base_path, file_path.sub(/^\.\//, "")))
 
-    # Build a nice filename from score title and composer
-    nice_filename = "#{@score.title.parameterize}"
-    nice_filename += "-#{@score.composer.parameterize}" if @score.composer.present?
-    nice_filename += ".#{file_type}"
+    # Prevent path traversal attacks
+    unless absolute_path.start_with?(File.expand_path(base_path))
+      render plain: "Invalid file path", status: :forbidden
+      return
+    end
+
+    unless File.exist?(absolute_path)
+      render plain: "File not found", status: :not_found
+      return
+    end
 
     send_file absolute_path,
               disposition: disposition,
@@ -103,6 +104,18 @@ class ScoresController < ApplicationController
   end
 
   private
+
+  def attachment_for(file_type)
+    case file_type
+    when "pdf" then @score.pdf_file
+    end
+  end
+
+  def nice_filename_for(file_type)
+    name = @score.title.parameterize.presence || "score"
+    name += "-#{@score.composer.parameterize}" if @score.composer.present?
+    "#{name}.#{file_type}"
+  end
 
   def content_type_for(file_type)
     case file_type

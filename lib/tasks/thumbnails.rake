@@ -1,5 +1,5 @@
 namespace :thumbnails do
-  desc "Cache thumbnails from external URLs to local WebP (PDMX + IMSLP)"
+  desc "Cache thumbnails from external URLs to R2 as WebP (PDMX + IMSLP)"
   task cache: :environment do
     batch_size = ENV.fetch("BATCH_SIZE", 100).to_i
     delay_ms = ENV.fetch("DELAY_MS", 50).to_i  # Rate limiting between requests
@@ -54,10 +54,10 @@ namespace :thumbnails do
 
     puts "Thumbnail Stats"
     puts "---------------"
-    puts "Total scores:     #{total}"
+    puts "Total scores:      #{total}"
     puts "With external URL: #{with_url}"
-    puts "Cached locally:   #{cached}"
-    puts "Remaining:        #{with_url - cached}"
+    puts "Cached (R2):       #{cached}"
+    puts "Remaining:         #{with_url - cached}"
     puts
     puts "By source:"
     Score::SOURCES.each do |src|
@@ -72,28 +72,32 @@ namespace :thumbnails do
                                  .where(active_storage_attachments: { name: "thumbnail_image" })
                                  .limit(1000)
                                  .pluck(:byte_size)
-      avg_kb = (sizes.sum / sizes.count.to_f / 1024).round(2)
-      total_mb = (sizes.sum / 1024.0 / 1024).round(2)
-      estimated_gb = (avg_kb * with_url / 1024 / 1024).round(2)
 
-      puts
-      puts "Storage (sampled from #{sizes.count} thumbnails):"
-      puts "  Avg size: #{avg_kb} KB"
-      puts "  Sample total: #{total_mb} MB"
-      puts "  Estimated full cache: #{estimated_gb} GB"
+      if sizes.any?
+        avg_kb = (sizes.sum / sizes.count.to_f / 1024).round(2)
+        total_mb = (sizes.sum / 1024.0 / 1024).round(2)
+        estimated_gb = (avg_kb * with_url / 1024 / 1024).round(2)
+
+        puts
+        puts "Storage (sampled from #{sizes.count} thumbnails):"
+        puts "  Avg size: #{avg_kb} KB"
+        puts "  Sample total: #{total_mb} MB"
+        puts "  Estimated full cache: #{estimated_gb} GB"
+      end
     end
   end
 
   desc "Clear all cached thumbnails"
   task clear: :environment do
-    count = Score.joins(:thumbnail_image_attachment).count
+    attachments = ActiveStorage::Attachment.where(name: "thumbnail_image", record_type: "Score")
+    count = attachments.count
+
     print "This will delete #{count} cached thumbnails. Continue? [y/N] "
     confirm = $stdin.gets.chomp.downcase
     if confirm == "y"
-      Score.find_each do |score|
-        score.thumbnail_image.purge if score.thumbnail_image.attached?
-      end
-      puts "Cleared all cached thumbnails."
+      # Bulk delete: destroy_all handles both attachments and associated blobs
+      attachments.destroy_all
+      puts "Cleared #{count} cached thumbnails."
     else
       puts "Aborted."
     end
