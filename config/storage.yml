@@ -16,6 +16,9 @@ cloudflare:
   bucket: <%= Rails.application.credentials.dig(:cloudflare, :bucket) || "scorebase" %>
   endpoint: <%= Rails.application.credentials.dig(:cloudflare, :endpoint) %>
   public: true
+  # Required for Rails 8 + Cloudflare R2 compatibility (prevents dual checksum conflict)
+  request_checksum_calculation: when_required
+  response_checksum_validation: when_required
   upload:
     public_url: https://cdn.scorebase.org
 
