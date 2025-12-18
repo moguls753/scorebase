@@ -238,7 +238,7 @@ a.mm-button {
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   border-radius: 2px;
   background: var(--color-bg-elevated);
@@ -246,6 +246,14 @@ a.mm-button {
   border: 1px solid var(--color-border-subtle);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+/* MOBILE FIX: Larger badges for readability */
+@media (max-width: 640px) {
+  .mm-badge {
+    font-size: 12px;
+    padding: 6px 12px;
+  }
 }
 
 /* Source badges - distinct styling for each platform */
@@ -341,7 +349,7 @@ a.mm-button {
 }
 
 .score-detail-item dt {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -349,9 +357,20 @@ a.mm-button {
 }
 
 .score-detail-item dd {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 700;
   color: var(--color-text);
+}
+
+/* MOBILE FIX: Ensure readable text on mobile */
+@media (max-width: 640px) {
+  .score-detail-item dt {
+    font-size: 12px;
+  }
+
+  .score-detail-item dd {
+    font-size: 14px;
+  }
 }
 
 /* Lyrics accordion */
@@ -367,10 +386,52 @@ a.mm-button {
   transform: rotate(180deg);
 }
 
+.score-lyrics-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  min-height: 48px;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.15s ease;
+}
+
+.score-lyrics-summary:active,
+.score-lyrics-summary:focus {
+  background: var(--color-bg-elevated);
+}
+
+@media (hover: hover) {
+  .score-lyrics-summary:hover {
+    background: var(--color-bg-elevated);
+  }
+}
+
+.score-lyrics-summary .score-section-header {
+  margin-bottom: 0;
+}
+
+.lyrics-chevron {
+  width: 1.25rem;
+  height: 1.25rem;
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: transform 0.2s ease;
+}
+
+.score-lyrics-content {
+  padding: 0 1rem 1rem;
+  border-top: 2px solid var(--color-border-subtle);
+}
+
 .lyrics-content {
+  padding-top: 0.75rem;
   font-family: 'Georgia', 'Times New Roman', serif;
+  font-size: 0.875rem;
   line-height: 1.8;
   color: var(--color-text);
+  white-space: pre-wrap;
 }
 
 /* Score description quote styling */
@@ -897,6 +958,27 @@ body.overflow-hidden {
 
 .midi-player-card {
   overflow: hidden;
+}
+
+/* Loading state */
+.midi-player-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+}
+
+.midi-player-loading.hidden {
+  display: none;
+}
+
+.midi-loading-text {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
 }
 
 /* Loading spinner */
@@ -1451,18 +1533,362 @@ html[data-turbo-preview] .hub-card {
   position: absolute;
   right: 8px;
   display: none;
+}
+
+/* ========================================
+   GALLERY - Sheet Music Page Viewer
+   Neobrutalist page-flip gallery with
+   keyboard, touch, and fullscreen support
+   ======================================== */
+
+.gallery-container {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+/* Page Counter - Bold Brutalist Typography */
+.gallery-counter {
+  font-family: var(--font-family-display);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: var(--color-text);
+  user-select: none;
+}
+
+/* Navigation Buttons - Chunky Brutalist Style */
+.gallery-btn {
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 44px;
   height: 44px;
   padding: 0;
-  color: var(--color-text-muted);
-  background: var(--color-bg);
-  border: 2px solid var(--color-border-subtle);
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
   border-radius: 2px;
+  color: var(--color-text);
   cursor: pointer;
   transition: all 0.15s ease;
+  box-shadow: 3px 3px 0 var(--shadow-color);
 }
+
+.gallery-btn:hover:not(:disabled) {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--color-accent);
+}
+
+.gallery-btn:active:not(:disabled) {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+.gallery-btn-disabled,
+.gallery-btn:disabled {
+  color: var(--color-border-subtle);
+  background: var(--color-bg);
+  border-color: var(--color-border-subtle);
+  box-shadow: none;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.gallery-btn-disabled:hover,
+.gallery-btn:disabled:hover {
+  transform: none;
+  box-shadow: none;
+  color: var(--color-border-subtle);
+  background: var(--color-bg);
+  border-color: var(--color-border-subtle);
+}
+
+.gallery-btn svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2.5;
+}
+
+/* ─────────────────────────────────────────
+   Floating Fullscreen Button (Mobile)
+   Neobrutalist solid style, top-right
+   ───────────────────────────────────────── */
+
+.gallery-fullscreen-float {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  color: var(--color-text);
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  transition: all 0.1s ease;
+  opacity: 0.9;
+}
+
+.gallery-fullscreen-float svg {
+  width: 18px;
+  height: 18px;
+}
+
+.gallery-fullscreen-float:hover {
+  opacity: 1;
+  background: var(--color-accent);
+  color: #ffffff;
+  border-color: var(--color-border);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+}
+
+.gallery-fullscreen-float:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+/* ─────────────────────────────────────────
+   Gallery Footer Nav (New compact layout)
+   Prev + Dots + Counter + Next
+   ───────────────────────────────────────── */
+
+.gallery-footer-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: var(--color-bg-card);
+  border-top: 2px solid var(--color-border);
+  gap: 8px;
+}
+
+.gallery-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: all 0.1s ease;
+  flex-shrink: 0;
+}
+
+.gallery-nav-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.gallery-nav-btn:hover:not(:disabled) {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.gallery-nav-btn:active:not(:disabled) {
+  transform: scale(0.9);
+  background: var(--color-accent);
+  color: #ffffff;
+}
+
+.gallery-nav-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.gallery-footer-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex: 1;
+}
+
+/* ─────────────────────────────────────────
+   Gallery Dots - Mobile-First Design
+   Wrapper provides 44px touch target
+   Inner dot is small visual indicator
+   ───────────────────────────────────────── */
+
+.gallery-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px; /* Tight—wrappers provide spacing */
+}
+
+/* Invisible 44px touch wrapper */
+.gallery-dot-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Visual dot indicator - circles, not squares */
+.gallery-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-border-subtle);
+  border: none;
+  transition: all 0.15s ease;
+  pointer-events: none; /* Parent handles interaction */
+}
+
+/* Active state */
+.gallery-dot.is-active {
+  width: 10px;
+  height: 10px;
+  background: var(--color-accent);
+}
+
+/* Hover/focus on wrapper affects dot */
+.gallery-dot-wrap:hover .gallery-dot,
+.gallery-dot-wrap:focus-visible .gallery-dot {
+  background: var(--color-text-muted);
+  transform: scale(1.2);
+}
+
+.gallery-dot-wrap:hover .gallery-dot.is-active,
+.gallery-dot-wrap:focus-visible .gallery-dot.is-active {
+  background: var(--color-accent-hover);
+  transform: scale(1.1);
+}
+
+/* Touch feedback */
+.gallery-dot-wrap:active .gallery-dot {
+  transform: scale(0.9);
+  background: var(--color-accent);
+}
+
+/* Focus ring on wrapper, not dot */
+.gallery-dot-wrap:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: -4px;
+  border-radius: 50%;
+}
+
+/* Many pages: tighter spacing */
+.gallery-dots-many {
+  gap: 0;
+}
+
+.gallery-dots-many .gallery-dot-wrap {
+  width: 36px;
+}
+
+.gallery-dots-many .gallery-dot {
+  width: 6px;
+  height: 6px;
+}
+
+.gallery-dots-many .gallery-dot.is-active {
+  width: 8px;
+  height: 8px;
+}
+
+/* Desktop keyboard hints */
+.gallery-hints-desktop {
+  display: none;
+  padding: 6px 12px;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-border-subtle);
+  font-size: 11px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.gallery-hints-desktop kbd {
+  display: inline-block;
+  padding: 2px 5px;
+  margin: 0 2px;
+  font-family: var(--font-family-mono, monospace);
+  font-size: 10px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 2px;
+}
+
+@media (min-width: 1024px) {
+  .gallery-hints-desktop {
+    display: block;
+  }
+}
+
+/* Image Container */
+.gallery-image-wrap {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  background: var(--color-bg);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.gallery-image {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  transition: opacity 0.2s ease;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Loading State */
+.gallery-loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-bg);
+}
+
+.gallery-loading-spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--color-border-subtle);
+  border-top-color: var(--color-accent);
+  border-radius: 2px;
+  animation: gallery-spin 0.8s linear infinite;
+}
+
+@keyframes gallery-spin {
+  to { transform: rotate(360deg); }
+}
+
 
 .hub-finder__clear svg {
   width: 20px;
@@ -1830,5 +2256,690 @@ html[data-turbo-preview] .hub-card {
 
   .hub-card__meta {
     font-size: 12px;
+  }
+}
+
+
+/* ========================================
+   GALLERY FULLSCREEN MODE
+   ======================================== */
+
+.gallery-fullscreen .gallery-container,
+.gallery-container:fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  border: none;
+  border-radius: 0;
+  background: #0a0a0a;
+  height: 100vh !important;
+  max-height: none !important;
+}
+
+.gallery-container:fullscreen .gallery-image-wrap {
+  background: #0a0a0a;
+  min-height: auto;
+  flex: 1;
+}
+
+/* Floating fullscreen button in fullscreen mode */
+.gallery-container:fullscreen .gallery-fullscreen-float {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+  color: #ffffff;
+  box-shadow: none;
+}
+
+.gallery-container:fullscreen .gallery-fullscreen-float:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+/* Footer nav in fullscreen mode */
+.gallery-container:fullscreen .gallery-footer-nav {
+  background: rgba(15, 13, 10, 0.95);
+  border-color: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(8px);
+}
+
+.gallery-container:fullscreen .gallery-nav-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.gallery-container:fullscreen .gallery-nav-btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.gallery-container:fullscreen .gallery-nav-btn:disabled {
+  opacity: 0.2;
+}
+
+.gallery-container:fullscreen .gallery-counter {
+  color: #ffffff;
+}
+
+/* Fullscreen dots */
+.gallery-container:fullscreen .gallery-dot {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.gallery-container:fullscreen .gallery-dot.is-active {
+  background: var(--color-accent);
+}
+
+.gallery-container:fullscreen .gallery-dot-wrap:hover .gallery-dot {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.gallery-container:fullscreen .gallery-dot-wrap:hover .gallery-dot.is-active {
+  background: var(--color-accent-hover);
+}
+
+/* Hide desktop hints in fullscreen */
+.gallery-container:fullscreen .gallery-hints-desktop {
+  display: none;
+}
+
+/* ========================================
+   GALLERY RESPONSIVE
+   ======================================== */
+
+/* Touch devices: No pointer cursor on image */
+@media (hover: none) and (pointer: coarse) {
+  .gallery-image-wrap {
+    cursor: default;
+  }
+}
+
+
+/* Fixed Height Gallery (for show page) */
+/* Mobile: 55vh gives room to see downloads below */
+.gallery-fixed-height {
+  height: 55vh;
+  min-height: 280px;
+  max-height: 450px;
+}
+
+@media (min-width: 640px) {
+  .gallery-fixed-height {
+    height: 55vh;
+    min-height: 350px;
+    max-height: none;
+  }
+}
+
+/* Desktop: Balanced height - prominent but not dominating */
+@media (min-width: 1024px) {
+  .gallery-fixed-height {
+    height: calc(100vh - 320px);
+    min-height: 450px;
+    max-height: 700px;
+  }
+}
+
+/* Tall screens (1200px+ height): allow slightly more */
+@media (min-width: 1024px) and (min-height: 900px) {
+  .gallery-fixed-height {
+    height: calc(100vh - 360px);
+    max-height: 800px;
+  }
+}
+
+/* Portrait monitors: don't let gallery dominate */
+@media (min-width: 1024px) and (orientation: portrait) {
+  .gallery-fixed-height {
+    max-height: 55vh;
+  }
+}
+
+/* Focus Styles */
+.gallery-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+
+/* ========================================
+   SCORE SHOW PAGE LAYOUT
+   50/50 grid with A4-constrained gallery
+   Downloads prioritized in sidebar
+   ======================================== */
+
+.score-show-container {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 1rem 1rem 2rem;
+}
+
+@media (min-width: 640px) {
+  .score-show-container {
+    padding: 1.25rem 1.5rem 3rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .score-show-container {
+    padding: 1.5rem 2rem 4rem;
+  }
+}
+
+/* ─────────────────────────────────────────
+   Header: Back Button + Masthead
+   ───────────────────────────────────────── */
+
+.score-show-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid var(--color-border-subtle);
+}
+
+@media (min-width: 640px) {
+  .score-show-header {
+    padding: 1.25rem 0;
+    margin-bottom: 1.5rem;
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .score-show-header {
+    padding: 1.5rem 0;
+    gap: 1.5rem;
+  }
+}
+
+/* Back Button */
+.score-back-button {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: var(--color-bg-elevated);
+  border: 2px solid var(--color-border);
+  color: var(--color-text);
+  transition: all 0.15s ease;
+}
+
+.score-back-button svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2.5;
+}
+
+.score-back-button:hover {
+  background: var(--color-bg-card);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translateX(-2px);
+  box-shadow: 4px 4px 0 var(--color-accent);
+}
+
+.score-back-button:active {
+  transform: translateX(0);
+  box-shadow: 2px 2px 0 var(--color-accent);
+}
+
+.score-back-button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Masthead: Title + Composer */
+.score-masthead {
+  flex: 1;
+  min-width: 0; /* Allow text truncation */
+}
+
+.score-masthead-title {
+  font-family: var(--font-family-display);
+  font-size: 1.25rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: var(--color-primary);
+  /* Truncate very long titles */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+@media (min-width: 640px) {
+  .score-masthead-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .score-masthead-title {
+    font-size: 1.75rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .score-masthead-title {
+    font-size: 2rem;
+  }
+}
+
+.score-masthead-composer {
+  font-family: var(--font-family-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-top: 0.25rem;
+  /* Truncate */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (min-width: 640px) {
+  .score-masthead-composer {
+    font-size: 1rem;
+    margin-top: 0.375rem;
+  }
+}
+
+/* Source Badge in Header */
+.score-masthead-badge {
+  flex-shrink: 0;
+  align-self: center;
+  display: none; /* Hidden on mobile to save space */
+}
+
+@media (min-width: 640px) {
+  .score-masthead-badge {
+    display: inline-flex;
+  }
+}
+
+/* ─────────────────────────────────────────
+   Main Grid: 50/50 Equal Columns
+   ───────────────────────────────────────── */
+
+.score-show-grid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 1024px) {
+  .score-show-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    align-items: start;
+    /* Center the content block under header */
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 1280px) {
+  .score-show-grid {
+    gap: 2.5rem;
+  }
+}
+
+@media (min-width: 1536px) {
+  .score-show-grid {
+    gap: 3rem;
+  }
+}
+
+/* Gallery Column - A4 Portrait Friendly */
+.score-gallery-column {
+  min-width: 0; /* Prevent overflow */
+}
+
+/* Constrain gallery to A4-friendly width */
+.score-gallery-column .gallery-container,
+.score-gallery-column .gallery-fixed-height {
+  width: 100%;
+  max-width: 550px; /* Approximate A4 width at reasonable height */
+}
+
+/* ─────────────────────────────────────────
+   Sidebar: Sticky Metadata
+   ───────────────────────────────────────── */
+
+@media (min-width: 1024px) {
+  .score-sidebar {
+    position: sticky;
+    top: 1.5rem;
+    max-height: calc(100vh - 3rem);
+    overflow-y: auto;
+    /* Subtle scrollbar */
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-subtle) transparent;
+  }
+
+  .score-sidebar::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .score-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .score-sidebar::-webkit-scrollbar-thumb {
+    background: var(--color-border-subtle);
+    border-radius: 3px;
+  }
+
+  .score-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--color-text-muted);
+  }
+}
+
+.score-sidebar-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+@media (min-width: 1024px) {
+  .score-sidebar-inner {
+    gap: 0.75rem; /* Tighter on desktop */
+  }
+}
+
+/* ─────────────────────────────────────────
+   Stats Section
+   ───────────────────────────────────────── */
+
+.score-stats {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 1rem;
+  border-top: 2px solid var(--color-border-subtle);
+}
+
+.score-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+}
+
+.score-stat-value {
+  font-family: var(--font-family-display);
+  font-size: 0.875rem;
+  font-weight: 900;
+  color: var(--color-accent);
+}
+
+.score-stat-label {
+  font-family: var(--font-family-body);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+}
+
+/* ─────────────────────────────────────────
+   Section Headers (consolidated)
+   ───────────────────────────────────────── */
+
+.score-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-family: var(--font-family-display);
+  font-size: 0.875rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  color: var(--color-primary);
+}
+
+.score-section-icon {
+  color: var(--color-accent);
+}
+
+/* ─────────────────────────────────────────
+   Download Buttons - Compact Industrial Style
+   Single row layout, file-extension tags
+   ───────────────────────────────────────── */
+
+/* Row container - horizontal by default */
+.dl-row {
+  display: flex;
+  gap: 6px;
+}
+
+/* Stack container - for sidebar */
+.dl-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Base button - 44px touch target */
+.dl-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 44px;
+  padding: 0 14px;
+  font-family: var(--font-family-display);
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.1s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Primary (PDF) - accent color, takes more space */
+.dl-btn--primary {
+  flex: 2;
+  min-width: 0;
+  background: var(--color-accent);
+  color: #ffffff;
+  box-shadow: 3px 3px 0 var(--shadow-color);
+}
+
+.dl-btn--primary:hover {
+  background: var(--color-accent-hover);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--shadow-color);
+}
+
+.dl-btn--primary:active {
+  transform: translate(1px, 1px);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+/* Secondary (MIDI, MXL) - subtle, equal size */
+.dl-btn--secondary {
+  flex: 1;
+  min-width: 0;
+  background: var(--color-bg-card);
+  color: var(--color-text);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+.dl-btn--secondary:hover {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--color-accent);
+}
+
+.dl-btn--secondary:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--shadow-color);
+}
+
+/* Full-width variant for sidebar */
+.dl-btn--full {
+  flex: none;
+  width: 100%;
+}
+
+/* Download icon */
+.dl-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  stroke-width: 2;
+}
+
+/* Label */
+.dl-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Focus states */
+.dl-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Touch feedback */
+@media (hover: none) and (pointer: coarse) {
+  .dl-btn--primary:active {
+    background: var(--color-accent-dark);
+    transform: scale(0.97);
+    box-shadow: 2px 2px 0 var(--shadow-color);
+  }
+
+  .dl-btn--secondary:active {
+    background: var(--color-bg-elevated);
+    transform: scale(0.97);
+    box-shadow: 1px 1px 0 var(--shadow-color);
+  }
+}
+
+/* ─────────────────────────────────────────
+   Tags/Genres Section
+   ───────────────────────────────────────── */
+
+.score-tags-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.score-tags-header {
+  margin-bottom: 0.5rem;
+  font-family: var(--font-family-display);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+}
+
+.score-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ========================================
+   MOBILE DOWNLOADS - Compact, below gallery
+   ======================================== */
+
+.score-mobile-downloads {
+  display: block;
+  padding: 0 0 0.5rem;
+}
+
+@media (min-width: 1024px) {
+  .score-mobile-downloads {
+    display: none;
+  }
+}
+
+/* ─────────────────────────────────────────
+   MOBILE SIDEBAR ADJUSTMENTS
+   Hide duplicate download card on mobile
+   ───────────────────────────────────────── */
+
+@media (max-width: 1023px) {
+  /* Hide sidebar downloads card on mobile (shown in mobile-actions instead) */
+  .score-sidebar .score-downloads-card {
+    display: none;
+  }
+
+  /* Section headers - readable on mobile */
+  .score-sidebar .score-section-header {
+    font-size: 13px;
+  }
+
+  /* Tighter sidebar spacing on mobile */
+  .score-sidebar-inner {
+    gap: 1rem;
+  }
+}
+
+/* ─────────────────────────────────────────
+   MOBILE TOUCH FEEDBACK
+   Visible active states for touch devices
+   ───────────────────────────────────────── */
+
+@media (hover: none) and (pointer: coarse) {
+  /* Lyrics accordion touch feedback */
+  .lyrics-accordion summary:active {
+    background: var(--color-bg-elevated);
+  }
+
+  /* Download buttons - visible press effect */
+  .mm-button:active {
+    transform: scale(0.92);
+    opacity: 0.95;
+  }
+
+  .mm-button-primary:active {
+    background: var(--color-accent-hover) !important;
+  }
+
+  .mm-button-secondary:active {
+    background: var(--color-bg-elevated) !important;
+    border-color: var(--color-accent) !important;
+  }
+
+  /* Gallery nav buttons - strong feedback */
+  .gallery-nav-btn:active:not(:disabled) {
+    transform: scale(0.85);
+    background: var(--color-accent);
+    color: #ffffff;
+    border-color: var(--color-accent);
+  }
+
+  /* Floating fullscreen - press down effect */
+  .gallery-fullscreen-float:active {
+    transform: translate(2px, 2px) scale(0.95);
+    box-shadow: none;
+    background: var(--color-accent);
+    color: #ffffff;
+  }
+
+  /* Gallery dots - visible tap */
+  .gallery-dot:active {
+    transform: scale(1.3);
+    background: var(--color-accent);
   }
 }

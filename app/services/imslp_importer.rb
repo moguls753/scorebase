@@ -127,12 +127,10 @@ class ImslpImporter
     "ab-" => "A-flat minor", "Abm" => "A-flat minor"
   }.freeze
 
-  def initialize(limit: nil, resume: false, start_offset: 0)
+  def initialize(limit: nil, start_offset: 0)
     @limit = limit
-    @resume = resume
     @start_offset = start_offset
     @imported_count = 0
-    @updated_count = 0
     @skipped_count = 0
     @errors = []
     @current_offset = start_offset
@@ -141,8 +139,8 @@ class ImslpImporter
   def import!
     puts "Starting IMSLP import..."
     puts "Limit: #{@limit || 'none'}"
-    puts "Resume mode: #{@resume ? 'enabled (skip existing)' : 'disabled (update existing)'}"
     puts "Start offset: #{@start_offset}"
+    puts "(Existing scores are always skipped - never overwritten)"
     puts ""
 
     # Phase 1: Fetch work list from IMSLP API
@@ -153,12 +151,10 @@ class ImslpImporter
     # Phase 2: Prepare existing IDs set for deduplication
     existing_ids = Score.where(source: "imslp").pluck(:external_id).to_set
 
-    # Filter if resume mode
-    if @resume
-      original_count = works.size
-      works = works.reject { |w| existing_ids.include?(w.dig("intvals", "pageid").to_s) }
-      puts "Skipping #{original_count - works.size} already-imported works (#{works.size} remaining)"
-    end
+    # Pre-filter existing to reduce API calls
+    original_count = works.size
+    works = works.reject { |w| existing_ids.include?(w.dig("intvals", "pageid").to_s) }
+    puts "Skipping #{original_count - works.size} already-imported works (#{works.size} remaining)"
 
     return report_results if works.empty?
 
@@ -168,7 +164,7 @@ class ImslpImporter
     total_batches = (works.size.to_f / BATCH_SIZE).ceil
 
     works.each_slice(BATCH_SIZE).with_index do |batch, batch_index|
-      puts "Batch #{batch_index + 1}/#{total_batches} (#{@imported_count + @updated_count + @skipped_count}/#{works.size})..."
+      puts "Batch #{batch_index + 1}/#{total_batches} (#{@imported_count + @skipped_count}/#{works.size})..."
       process_batch(batch, existing_ids)
 
       # Don't sleep after last batch
@@ -176,12 +172,12 @@ class ImslpImporter
 
       # Periodic progress report for long imports
       if (batch_index + 1) % 50 == 0
-        puts "  Checkpoint: #{@imported_count} imported, #{@updated_count} updated, #{@errors.size} errors"
+        puts "  Checkpoint: #{@imported_count} imported, #{@skipped_count} skipped, #{@errors.size} errors"
       end
     end
 
     # Batch normalize all composers at the end (only if we imported something)
-    if @imported_count > 0 || @updated_count > 0
+    if @imported_count > 0
       puts "\nPhase 3: Normalizing composers..."
       normalize_composers_batch!
     end
@@ -219,7 +215,7 @@ class ImslpImporter
       end
     end
 
-    if @imported_count > 0 || @updated_count > 0
+    if @imported_count > 0
       puts "\nNormalizing composers..."
       normalize_composers_batch!
     end
@@ -383,16 +379,15 @@ class ImslpImporter
       return
     end
 
-    # Create or update
+    # Skip existing scores - never overwrite user data
     existing = Score.find_by(source: "imslp", external_id: page_id)
-
     if existing
-      existing.update!(attributes.except(:source, :external_id, :data_path))
-      @updated_count += 1
-    else
-      Score.create!(attributes)
-      @imported_count += 1
+      @skipped_count += 1
+      return
     end
+
+    Score.create!(attributes)
+    @imported_count += 1
   end
 
   def extract_page_title(permlink)
@@ -803,7 +798,6 @@ class ImslpImporter
     puts "=" * 50
     puts "IMSLP import complete!"
     puts "Imported: #{@imported_count}"
-    puts "Updated: #{@updated_count}"
     puts "Skipped: #{@skipped_count}"
     puts "Errors: #{@errors.size}"
 
@@ -815,7 +809,6 @@ class ImslpImporter
 
     {
       imported: @imported_count,
-      updated: @updated_count,
       skipped: @skipped_count,
       errors: @errors.size,
       last_offset: @current_offset

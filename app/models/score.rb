@@ -54,12 +54,14 @@
 #  index_scores_on_voicing               (voicing)
 #
 class Score < ApplicationRecord
+  include Thumbnailable
+  include Galleried
+  include PdfSyncable
+
   # Sources
   SOURCES = %w[pdmx cpdl imslp].freeze
 
   # Active Storage attachments
-  has_one_attached :thumbnail_image
-  has_one_attached :preview_image
   has_one_attached :pdf_file
 
   # Validations
@@ -315,26 +317,44 @@ class Score < ApplicationRecord
     end
   end
 
-  # Unified thumbnail accessor - prefers cached local thumbnail over external URL
-  # Returns URL string (not attachment object) so CDN URLs work with image_tag
-  def thumbnail
-    return thumbnail_image.url if thumbnail_image.attached?
-    return thumbnail_url if thumbnail_url.present?
-    nil
+  # ─────────────────────────────────────────────────────────────────
+  # Download & File Availability
+  # ─────────────────────────────────────────────────────────────────
+
+  def has_downloads?
+    has_pdf? || has_midi? || has_mxl?
   end
 
-  # Unified preview accessor - returns original external URL or attached image
-  def preview
-    return thumbnail_url_original if thumbnail_url.present?
-    return preview_image if preview_image.attached?
-    nil
+  # Returns array of available download formats: [:pdf, :midi, :mxl]
+  def available_formats
+    formats = []
+    formats << :pdf if has_pdf?
+    formats << :midi if has_midi?
+    formats << :mxl if has_mxl?
+    formats
   end
 
-  def has_thumbnail?
-    thumbnail_url.present? || thumbnail_image.attached?
+  # ─────────────────────────────────────────────────────────────────
+  # Metadata Presence Checks (for conditional rendering)
+  # ─────────────────────────────────────────────────────────────────
+
+  def has_music_details?
+    voicing.present? ||
+      key_signature.present? ||
+      time_signature.present? ||
+      num_parts.to_i.positive? ||
+      language.present? ||
+      instruments.present? ||
+      page_count.to_i.positive? ||
+      complexity.to_i.positive? ||
+      rating.to_f.positive?
   end
 
-  def has_preview?
-    thumbnail_url.present? || preview_image.attached?
+  def has_about_info?
+    editor.present? || license.present? || cpdl_number.present? || posted_date.present?
+  end
+
+  def has_stats?
+    views.to_i.positive? || favorites.to_i.positive?
   end
 end

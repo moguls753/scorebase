@@ -13,11 +13,9 @@ class CpdlImporter
 
   class RateLimitError < StandardError; end
 
-  def initialize(limit: nil, resume: false)
+  def initialize(limit: nil)
     @limit = limit
-    @resume = resume
     @imported_count = 0
-    @updated_count = 0
     @skipped_count = 0
     @errors = []
   end
@@ -25,32 +23,29 @@ class CpdlImporter
   def import!
     puts "Starting CPDL import..."
     puts "Limit: #{@limit || 'none'}"
-    puts "Resume mode: #{@resume ? 'enabled (skip existing)' : 'disabled (update existing)'}"
+    puts "(Existing scores are always skipped - never overwritten)"
 
     # Get all score pages from CPDL
     pages = fetch_all_score_pages
     puts "Found #{pages.size} score pages"
 
-    # Filter out already-imported pages if resuming
-    if @resume
-      existing_ids = Score.where(source: "cpdl").pluck(:external_id).to_set
-      original_count = pages.size
-      pages = pages.reject { |p| existing_ids.include?(p["pageid"].to_s) }
-      puts "Skipping #{original_count - pages.size} already-imported scores (#{pages.size} remaining)"
-    end
+    # Pre-filter existing to reduce API calls
+    existing_ids = Score.where(source: "cpdl").pluck(:external_id).to_set
+    original_count = pages.size
+    pages = pages.reject { |p| existing_ids.include?(p["pageid"].to_s) }
+    puts "Skipping #{original_count - pages.size} already-imported scores (#{pages.size} remaining)"
 
     pages = pages.first(@limit) if @limit
 
     # Process in batches
     pages.each_slice(BATCH_SIZE).with_index do |batch, batch_index|
-      puts "Processing batch #{batch_index + 1} (#{@imported_count + @updated_count}/#{pages.size})..."
+      puts "Processing batch #{batch_index + 1} (#{@imported_count + @skipped_count}/#{pages.size})..."
       process_batch(batch)
       sleep(BATCH_DELAY) unless batch_index == (pages.size / BATCH_SIZE) # Don't sleep after last batch
     end
 
-    puts "\n✅ CPDL import complete!"
+    puts "\nCPDL import complete!"
     puts "Imported: #{@imported_count}"
-    puts "Updated: #{@updated_count}"
     puts "Skipped: #{@skipped_count}"
     puts "Errors: #{@errors.size}"
 
@@ -59,13 +54,12 @@ class CpdlImporter
       @errors.first(10).each { |e| puts "  - #{e}" }
     end
 
-    { imported: @imported_count, updated: @updated_count, skipped: @skipped_count, errors: @errors.size }
+    { imported: @imported_count, skipped: @skipped_count, errors: @errors.size }
   rescue RateLimitError => e
-    puts "\n❌ Rate limit exceeded!"
+    puts "\nRate limit exceeded!"
     puts e.message
     puts "\nProgress so far:"
     puts "Imported: #{@imported_count}"
-    puts "Updated: #{@updated_count}"
     puts "Skipped: #{@skipped_count}"
     raise
   end
@@ -150,20 +144,19 @@ class CpdlImporter
     metadata = parse_score_metadata(title, page_data)
     return unless metadata
 
-    # Check if we already have this score
+    # Skip existing scores - never overwrite user data
     existing = Score.find_by(source: "cpdl", external_id: page_id.to_s)
-
     if existing
-      existing.update!(metadata)
-      @updated_count += 1
-    else
-      Score.create!(metadata.merge(
-        source: "cpdl",
-        external_id: page_id.to_s,
-        external_url: "https://www.cpdl.org/wiki/index.php/#{URI.encode_www_form_component(title)}"
-      ))
-      @imported_count += 1
+      @skipped_count += 1
+      return
     end
+
+    Score.create!(metadata.merge(
+      source: "cpdl",
+      external_id: page_id.to_s,
+      external_url: "https://www.cpdl.org/wiki/index.php/#{URI.encode_www_form_component(title)}"
+    ))
+    @imported_count += 1
   end
 
   def fetch_page_content(title)

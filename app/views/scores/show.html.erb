@@ -2,411 +2,184 @@
 <% content_for :title do %><%= @score.title %><%= " - #{@score.composer}" if @score.composer.present? %> | ScoreBase<% end %>
 <% content_for :meta_description do %><%= t('hub.composer_page_description', name: @score.composer || 'Unknown', count: 1).gsub(/\d+ free/, 'Free') %> <%= @score.title %>.<% end %>
 <% content_for :og_type, 'music.song' %>
-<% if @score.has_thumbnail? %>
-  <% content_for :og_image, @score.thumbnail %>
-<% end %>
+<% content_for :og_image, @score.thumbnail if @score.has_thumbnail? %>
 
 <%# JSON-LD Structured Data for MusicComposition %>
 <% content_for :json_ld do %>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "MusicComposition",
-  "name": "<%= j @score.title %>",
-  <% if @score.composer.present? %>
-  "composer": {
-    "@type": "Person",
-    "name": "<%= j @score.composer %>"
-  },
-  <% end %>
-  <% if @score.description.present? %>
-  "description": "<%= j @score.description.truncate(160) %>",
-  <% end %>
-  <% if @score.genre_list.any? %>
-  "genre": <%= @score.genre_list.to_json.html_safe %>,
-  <% end %>
-  <% if @score.key_signature.present? %>
-  "musicalKey": "<%= j @score.primary_key_signature %>",
-  <% end %>
-  <% if @score.lyrics.present? %>
-  "lyrics": {
-    "@type": "CreativeWork",
-    "text": "<%= j @score.lyrics.truncate(500) %>"
-  },
-  <% end %>
-  "url": "<%= request.original_url %>",
-  "isAccessibleForFree": true,
-  "inLanguage": "<%= @score.language.presence || 'en' %>",
-  <% if @score.has_pdf? %>
-  "encoding": {
-    "@type": "MediaObject",
-    "encodingFormat": "application/pdf",
-    "contentUrl": "<%= request.base_url %><%= file_score_path(@score, 'pdf') %>"
-  },
-  <% end %>
-  "provider": {
-    "@type": "Organization",
-    "name": "ScoreBase",
-    "url": "<%= request.base_url %>"
-  }
-}
-</script>
+  <%= render "scores/json_ld", score: @score %>
 <% end %>
 
-<div class="max-w-[1400px] mx-auto px-4 sm:px-6 py-6 sm:py-10">
-  <!-- Back button -->
-  <div class="mb-4 sm:mb-6">
-    <%= link_to root_path, class: "mm-button mm-button-secondary inline-flex items-center gap-2 text-xs px-3 sm:px-4 py-2" do %>
-      <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+<div class="score-show-container">
+  <%# ═══════════════════════════════════════════════════════════════
+      HEADER: Back Button + Title/Composer Masthead
+      ═══════════════════════════════════════════════════════════════ %>
+  <header class="score-show-header">
+    <%= link_to root_path, class: "score-back-button", aria: { label: t('score.back') } do %>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
       </svg>
-      <%= t('score.back') %>
     <% end %>
-  </div>
 
-  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-    <!-- Score Preview -->
-    <div class="mm-card overflow-hidden h-[50vh] sm:h-[60vh] lg:h-[700px]">
-      <% if @score.has_preview? %>
-        <%= image_tag @score.preview,
-            alt: @score.title,
-            class: "w-full h-full object-contain bg-[var(--color-bg)]"
-        %>
-      <% elsif @score.has_pdf? %>
-        <!-- Local score without preview - show link to open PDF -->
-        <div class="w-full h-full bg-[var(--color-bg)] flex flex-col items-center justify-center gap-6 p-8">
-          <div class="text-[120px] text-[var(--color-border-subtle)]">📄</div>
-          <div class="text-center">
-            <p class="text-sm font-semibold text-[var(--color-text-muted)] mb-4">
-              <%= t('score.preview_not_generated') %>
-            </p>
-            <%= link_to file_score_path(@score, 'pdf'),
-                target: "_blank",
-                rel: "noopener noreferrer",
-                class: "mm-button mm-button-primary inline-flex items-center gap-2 text-xs px-6 py-3" do %>
-              <span><%= t('score.open_pdf') %> ↗</span>
-            <% end %>
-          </div>
-        </div>
-      <% else %>
-        <!-- No PDF at all -->
-        <div class="w-full h-full bg-[var(--color-bg)] flex items-center justify-center">
-          <div class="text-[140px] text-[var(--color-border-subtle)]">♪</div>
-        </div>
-      <% end %>
+    <div class="score-masthead">
+      <h1 class="score-masthead-title"><%= @score.title %></h1>
+      <p class="score-masthead-composer"><%= @score.composer.presence || t('score.unknown_composer') %></p>
     </div>
 
-    <!-- Score Details -->
-    <div class="space-y-5">
-      <!-- Title & Composer Header -->
-      <header>
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] text-[var(--color-primary)] mb-2 leading-tight font-black uppercase tracking-tight">
-          <%= @score.title %>
-        </h1>
+    <% if @score.source.present? %>
+      <span class="mm-badge-source mm-badge-<%= @score.source %> score-masthead-badge">
+        <%= @score.source.upcase %>
+      </span>
+    <% end %>
+  </header>
 
-        <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-          <p class="text-sm sm:text-base text-[var(--color-text-muted)] font-semibold">
-            <%= @score.composer.presence || t('score.unknown_composer') %>
-          </p>
-          <% if @score.source.present? %>
-            <span class="mm-badge-source mm-badge-<%= @score.source %>">
-              <%= @score.source.upcase %>
-            </span>
-          <% end %>
-        </div>
-      </header>
+  <%# ═══════════════════════════════════════════════════════════════
+      MAIN CONTENT: Gallery + Sidebar Grid
+      ═══════════════════════════════════════════════════════════════ %>
+  <div class="score-show-grid">
+    <%# Gallery Column - FIRST on mobile for visual impact %>
+    <div class="score-gallery-column">
+      <%= render "scores/gallery", score: @score %>
+    </div>
 
-      <!-- Description (if present) -->
-      <% if @score.description.present? %>
-        <div class="score-description">
-          <p class="text-sm text-[var(--color-text-muted)] leading-relaxed italic">
-            "<%= @score.description %>"
-          </p>
-        </div>
-      <% end %>
+    <%# Mobile Downloads - Compact, right after gallery %>
+    <% if @score.has_downloads? %>
+      <div class="score-mobile-downloads">
+        <%= render "scores/download_actions", score: @score, variant: :mobile %>
+      </div>
+    <% end %>
 
-      <!-- Music Details Card -->
-      <% has_music_details = @score.voicing.present? || @score.key_signature.present? || @score.time_signature.present? || (@score.num_parts.present? && @score.num_parts > 0) || @score.language.present? || @score.instruments.present? || (@score.page_count.present? && @score.page_count > 0) || (@score.complexity.present? && @score.complexity > 0) || (@score.rating.present? && @score.rating > 0) %>
-      <% if has_music_details %>
-        <div class="mm-card p-4 sm:p-5">
-          <h3 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-4 font-black uppercase tracking-tight flex items-center gap-2">
-            <span class="text-[var(--color-accent)]">♪</span>
-            <%= t('score.music_details') %>
-          </h3>
-          <dl class="score-details-grid">
-            <% if @score.voicing.present? %>
-              <div class="score-detail-item">
-                <dt><%= t('score.voicing') %></dt>
-                <dd><%= @score.voicing %></dd>
-              </div>
-            <% end %>
-            <% if @score.key_signature.present? %>
-              <div class="score-detail-item">
-                <dt><%= t('score.key') %></dt>
-                <dd><%= @score.key_signature %></dd>
-              </div>
-            <% end %>
-            <% if @score.time_signature.present? %>
-              <div class="score-detail-item">
-                <dt><%= t('score.time') %></dt>
-                <dd><%= @score.time_signature %></dd>
-              </div>
-            <% end %>
-            <% if @score.num_parts.present? && @score.num_parts > 0 %>
-              <div class="score-detail-item">
-                <dt><%= t('score.parts') %></dt>
-                <dd><%= @score.num_parts %></dd>
-              </div>
-            <% end %>
-            <% if @score.language.present? %>
-              <div class="score-detail-item">
-                <dt><%= t('score.language') %></dt>
-                <dd><%= @score.language %></dd>
-              </div>
-            <% end %>
-            <% if @score.instruments.present? %>
-              <div class="score-detail-item">
-                <dt><%= t('score.instruments') %></dt>
-                <dd><%= @score.instruments %></dd>
-              </div>
-            <% end %>
-            <% if @score.page_count.present? && @score.page_count > 0 %>
-              <div class="score-detail-item">
-                <dt><%= t('score.page_count') %></dt>
-                <dd><%= @score.page_count %></dd>
-              </div>
-            <% end %>
-            <% if @score.complexity.present? && @score.complexity > 0 %>
-              <div class="score-detail-item">
-                <dt><%= t('score.complexity') %></dt>
-                <dd><%= t('score.complexity_scale', value: @score.complexity) %></dd>
-              </div>
-            <% end %>
-            <% if @score.rating.present? && @score.rating > 0 %>
-              <div class="score-detail-item">
-                <dt><%= t('score.rating') %></dt>
-                <dd><%= t('score.rating_scale', value: number_with_precision(@score.rating, precision: 1)) %></dd>
-              </div>
-            <% end %>
-          </dl>
-        </div>
-      <% end %>
+    <%# Sidebar Column %>
+    <aside class="score-sidebar">
+      <div class="score-sidebar-inner">
 
-      <!-- About This Score Card (CPDL-specific info) -->
-      <% has_about_info = @score.editor.present? || @score.license.present? || @score.cpdl_number.present? || @score.posted_date.present? %>
-      <% if has_about_info %>
-        <div class="mm-card p-4 sm:p-5">
-          <h3 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-4 font-black uppercase tracking-tight flex items-center gap-2">
-            <span class="text-[var(--color-accent)]">●</span>
-            <%= t('score.about_this_score') %>
-          </h3>
-          <dl class="score-details-grid">
-            <% if @score.cpdl_number.present? %>
-              <div class="score-detail-item">
-                <dt><%= t('score.cpdl_number') %></dt>
-                <dd class="font-mono"><%= @score.cpdl_number %></dd>
-              </div>
-            <% end %>
-            <% if @score.editor.present? %>
-              <div class="score-detail-item">
-                <dt><%= t('score.editor') %></dt>
-                <dd><%= @score.editor %></dd>
-              </div>
-            <% end %>
-            <% if @score.posted_date.present? %>
-              <div class="score-detail-item">
-                <dt><%= t('score.posted_date') %></dt>
-                <dd><%= @score.posted_date %></dd>
-              </div>
-            <% end %>
-            <% if @score.license.present? %>
-              <div class="score-detail-item score-detail-item-full">
-                <dt><%= t('score.license') %></dt>
-                <dd class="text-xs"><%= @score.license %></dd>
-              </div>
-            <% end %>
-          </dl>
-        </div>
-      <% end %>
-
-      <!-- Genres/Tags -->
-      <% if @score.genre_list.any? || @score.tag_list.any? %>
-        <div class="flex flex-wrap gap-4">
-          <% if @score.genre_list.any? %>
-            <div>
-              <h3 class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 uppercase tracking-wide"><%= t('score.genres') %></h3>
-              <div class="flex flex-wrap gap-1.5">
-                <% @score.genre_list.each do |genre| %>
-                  <span class="mm-badge"><%= genre %></span>
-                <% end %>
-              </div>
-            </div>
-          <% end %>
-          <% if @score.tag_list.any? %>
-            <div>
-              <h3 class="text-xs font-semibold text-[var(--color-text-muted)] mb-2 uppercase tracking-wide"><%= t('score.tags') %></h3>
-              <div class="flex flex-wrap gap-1.5">
-                <% @score.tag_list.each do |tag| %>
-                  <span class="mm-badge mm-badge-tag"><%= tag %></span>
-                <% end %>
-              </div>
-            </div>
-          <% end %>
-        </div>
-      <% end %>
-
-      <!-- Lyrics Section -->
-      <% if @score.lyrics.present? %>
-        <details class="mm-card overflow-hidden lyrics-accordion">
-          <summary class="p-4 sm:p-5 cursor-pointer select-none flex items-center justify-between hover:bg-[var(--color-bg-elevated)] transition-colors">
-            <h3 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight flex items-center gap-2">
-              <span class="text-[var(--color-accent)]">¶</span>
-              <%= t('score.lyrics_text') %>
-            </h3>
-            <svg class="lyrics-chevron w-4 h-4 text-[var(--color-text-muted)] transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-            </svg>
-          </summary>
-          <div class="px-4 sm:px-5 pb-4 sm:pb-5 border-t-2 border-[var(--color-border-subtle)]">
-            <div class="lyrics-content pt-4 text-sm text-[var(--color-text)] leading-relaxed whitespace-pre-wrap font-serif"><%=h @score.lyrics %></div>
+        <%# 1. DOWNLOADS (hidden on mobile - shown in quick actions above) %>
+        <% if @score.has_downloads? %>
+          <div class="mm-card p-3 sm:p-4 score-downloads-card">
+            <%= score_section_header("↓", "score.download_files") %>
+            <%= render "scores/download_actions", score: @score, variant: :sidebar %>
           </div>
-        </details>
-      <% end %>
+        <% end %>
 
-      <!-- MIDI Player Section -->
-      <% if @score.has_midi? %>
-        <div class="mm-card midi-player-card"
-             data-controller="midi-player"
-             data-midi-player-src-value="<%= file_score_path(@score, 'mid') %>">
+        <%# 2. MIDI PLAYER %>
+        <% if @score.has_midi? %>
+          <%= render "scores/midi_player", score: @score %>
+        <% end %>
 
-          <!-- Loading State -->
-          <div data-midi-player-target="loading" class="flex items-center justify-center gap-3 p-6">
-            <div class="midi-loading-spinner"></div>
-            <span class="text-xs font-semibold text-[var(--color-text-muted)] uppercase tracking-wide"><%= t('score.loading_player') %></span>
+        <%# 3. DESCRIPTION %>
+        <% if @score.description.present? %>
+          <div class="score-description">
+            <p class="text-sm text-[var(--color-text-muted)] leading-relaxed italic">
+              "<%= @score.description %>"
+            </p>
           </div>
+        <% end %>
 
-          <!-- Custom Player UI -->
-          <div data-midi-player-target="container" class="hidden">
-            <div class="midi-custom-player">
-              <!-- Top row: Play button + Progress -->
-              <div class="midi-player-main">
-                <!-- Play/Pause Button -->
-                <button type="button"
-                        class="midi-play-btn"
-                        data-action="click->midi-player#play"
-                        aria-label="<%= t('score.play_pause') %>">
-                  <!-- Play icon -->
-                  <svg data-midi-player-target="playBtn" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M8 5.14v14l11-7-11-7z"/>
-                  </svg>
-                  <!-- Pause icon -->
-                  <svg data-midi-player-target="pauseBtn" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
-                  </svg>
-                </button>
+        <%# 4. MUSIC DETAILS %>
+        <% if @score.has_music_details? %>
+          <div class="mm-card p-3 sm:p-4">
+            <%= score_section_header("♪", "score.music_details") %>
+            <dl class="score-details-grid">
+              <%= score_detail_item("score.voicing", @score.voicing) %>
+              <%= score_detail_item("score.key", @score.key_signature) %>
+              <%= score_detail_item("score.time", @score.time_signature) %>
+              <%= score_detail_item("score.parts", @score.num_parts) if @score.num_parts.to_i.positive? %>
+              <%= score_detail_item("score.language", @score.language) %>
+              <%= score_detail_item("score.instruments", @score.instruments) %>
+              <%= score_detail_item("score.page_count", @score.page_count) if @score.page_count.to_i.positive? %>
+              <% if @score.complexity.to_i.positive? %>
+                <%= score_detail_item("score.complexity", t("score.complexity_scale", value: @score.complexity)) %>
+              <% end %>
+              <% if @score.rating.to_f.positive? %>
+                <%= score_detail_item("score.rating", t("score.rating_scale", value: number_with_precision(@score.rating, precision: 1))) %>
+              <% end %>
+            </dl>
+          </div>
+        <% end %>
 
-                <!-- Progress Section -->
-                <div class="midi-progress-section">
-                  <!-- Progress Bar -->
-                  <div class="midi-progress-track"
-                       data-midi-player-target="progress"
-                       data-action="click->midi-player#seek">
-                    <div class="midi-progress-fill" data-midi-player-target="progressBar"></div>
-                  </div>
+        <%# 5. ABOUT THIS SCORE (CPDL-specific info) %>
+        <% if @score.has_about_info? %>
+          <div class="mm-card p-3 sm:p-4">
+            <%= score_section_header("●", "score.about_this_score") %>
+            <dl class="score-details-grid">
+              <%= score_detail_item("score.cpdl_number", @score.cpdl_number, mono: true) %>
+              <%= score_detail_item("score.editor", @score.editor) %>
+              <%= score_detail_item("score.posted_date", @score.posted_date) %>
+              <%= score_detail_item("score.license", @score.license, full_width: true) %>
+            </dl>
+          </div>
+        <% end %>
 
-                  <!-- Time Display -->
-                  <div class="midi-time-display">
-                    <span data-midi-player-target="currentTime" class="midi-time">0:00</span>
-                    <span class="midi-time-separator">/</span>
-                    <span data-midi-player-target="totalTime" class="midi-time">0:00</span>
-                  </div>
+        <%# 6. GENRES & TAGS %>
+        <% if @score.genre_list.any? || @score.tag_list.any? %>
+          <div class="score-tags-section">
+            <% if @score.genre_list.any? %>
+              <div>
+                <h3 class="score-tags-header"><%= t('score.genres') %></h3>
+                <div class="score-tags-list">
+                  <% @score.genre_list.each do |genre| %>
+                    <span class="mm-badge"><%= genre %></span>
+                  <% end %>
                 </div>
               </div>
-
-              <!-- Volume Control -->
-              <div class="midi-volume-control">
-                <svg data-midi-player-target="volumeIcon" class="midi-volume-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
-                </svg>
-                <input type="range"
-                       class="midi-volume-slider"
-                       min="0"
-                       max="1"
-                       step="0.05"
-                       value="0.8"
-                       data-midi-player-target="volumeSlider"
-                       data-action="input->midi-player#updateVolume"
-                       aria-label="<%= t('score.volume') %>">
-              </div>
-            </div>
-          </div>
-        </div>
-      <% end %>
-
-      <!-- Download Actions -->
-      <% if @score.has_mxl? || @score.has_pdf? || @score.has_midi? %>
-        <div class="mm-card p-4 sm:p-5">
-          <h3 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-4 font-black uppercase tracking-tight flex items-center gap-2">
-            <span class="text-[var(--color-accent)]">↓</span>
-            <%= t('score.download_files') %>
-          </h3>
-          <div class="space-y-2">
-            <% if @score.has_mxl? %>
-              <div class="mm-tooltip-wrap">
-                <%= link_to file_score_path(@score, 'mxl', download: true), class: "mm-button mm-button-primary block w-full text-center py-3 text-xs" do %>
-                  <span class="inline-flex items-center gap-2">
-                    <span>↓</span> <%= t('score.download_mxl') %>
-                  </span>
-                <% end %>
-                <span class="mm-tooltip"><%= t('score.mxl_hint') %></span>
+            <% end %>
+            <% if @score.tag_list.any? %>
+              <div>
+                <h3 class="score-tags-header"><%= t('score.tags') %></h3>
+                <div class="score-tags-list">
+                  <% @score.tag_list.each do |tag| %>
+                    <span class="mm-badge mm-badge-tag"><%= tag %></span>
+                  <% end %>
+                </div>
               </div>
             <% end %>
-            <% if @score.has_pdf? %>
-              <%= link_to file_score_path(@score, 'pdf', download: true), class: "mm-button mm-button-secondary block w-full text-center py-3 text-xs" do %>
-                <span class="inline-flex items-center gap-2">
-                  <span>↓</span> <%= t('score.download_pdf') %>
-                </span>
-              <% end %>
+          </div>
+        <% end %>
+
+        <%# 7. LYRICS (Collapsible) %>
+        <% if @score.lyrics.present? %>
+          <details class="mm-card overflow-hidden lyrics-accordion">
+            <summary class="score-lyrics-summary">
+              <%= score_section_header("¶", "score.lyrics_text") %>
+              <svg class="lyrics-chevron" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+              </svg>
+            </summary>
+            <div class="score-lyrics-content">
+              <div class="lyrics-content"><%=h @score.lyrics %></div>
+            </div>
+          </details>
+        <% end %>
+
+        <%# 8. EXTERNAL SOURCE LINK %>
+        <% if @score.external_url.present? %>
+          <%= link_to @score.external_url,
+                      target: "_blank",
+                      rel: "noopener noreferrer",
+                      class: "dl-btn dl-btn--secondary dl-btn--full" do %>
+            <span class="dl-label"><%= t('score.view_on_source', source: @score.source.upcase) %></span>
+            <span aria-hidden="true">↗</span>
+          <% end %>
+        <% end %>
+
+        <%# 9. STATS %>
+        <% if @score.has_stats? %>
+          <div class="score-stats">
+            <% if @score.views.to_i.positive? %>
+              <div class="score-stat">
+                <span class="score-stat-value"><%= @score.views %></span>
+                <span class="score-stat-label"><%= t('score.views') %></span>
+              </div>
             <% end %>
-            <% if @score.has_midi? %>
-              <%= link_to file_score_path(@score, 'mid', download: true), class: "mm-button mm-button-secondary block w-full text-center py-3 text-xs" do %>
-                <span class="inline-flex items-center gap-2">
-                  <span>↓</span> <%= t('score.download_midi') %>
-                </span>
-              <% end %>
+            <% if @score.favorites.to_i.positive? %>
+              <div class="score-stat">
+                <span class="score-stat-value"><%= @score.favorites %></span>
+                <span class="score-stat-label"><%= t('score.favs') %></span>
+              </div>
             <% end %>
           </div>
-        </div>
-      <% end %>
+        <% end %>
 
-      <!-- External Source Link -->
-      <% if @score.external_url.present? %>
-        <div class="external-source-link">
-          <%= link_to @score.external_url, target: "_blank", rel: "noopener noreferrer", class: "mm-button mm-button-secondary block w-full text-center py-3 text-xs" do %>
-            <span class="inline-flex items-center gap-2">
-              <%= t('score.view_on_source', source: @score.source.upcase) %> <span>↗</span>
-            </span>
-          <% end %>
-        </div>
-      <% end %>
-
-      <!-- Stats -->
-      <% if (@score.views.present? && @score.views > 0) || (@score.favorites.present? && @score.favorites > 0) %>
-        <div class="pt-4 border-t-2 border-[var(--color-border-subtle)] flex gap-4 sm:gap-6 text-xs">
-          <% if @score.views.present? && @score.views > 0 %>
-            <div>
-              <span class="font-black text-[var(--color-accent)]"><%= @score.views %></span>
-              <span class="text-[var(--color-text-muted)] font-semibold uppercase ml-1"><%= t('score.views') %></span>
-            </div>
-          <% end %>
-          <% if @score.favorites.present? && @score.favorites > 0 %>
-            <div>
-              <span class="font-black text-[var(--color-accent)]"><%= @score.favorites %></span>
-              <span class="text-[var(--color-text-muted)] font-semibold uppercase ml-1"><%= t('score.favs') %></span>
-            </div>
-          <% end %>
-        </div>
-      <% end %>
-    </div>
+      </div>
+    </aside>
   </div>
 </div>

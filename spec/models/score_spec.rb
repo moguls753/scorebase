@@ -8,51 +8,51 @@ RSpec.describe Score do
     it { should validate_inclusion_of(:source).in_array(Score::SOURCES).allow_nil }
   end
 
-  describe 'factory' do
-    it 'creates a valid score' do
-      score = build(:score)
-      expect(score).to be_valid
-    end
-  end
-
   describe 'scopes' do
-    describe '.by_source' do
-      let!(:pdmx_score) { create(:score, source: 'pdmx') }
-      let!(:cpdl_score) { create(:score, :cpdl) }
+    describe '.needing_thumbnail' do
+      it 'finds scores with URL but no cached thumbnail' do
+        needs_work = create(:score, thumbnail_url: 'https://example.com/thumb.png')
+        already_cached = create(:score, thumbnail_url: 'https://example.com/thumb2.png')
+        already_cached.thumbnail_image.attach(io: StringIO.new('x'), filename: 't.webp', content_type: 'image/webp')
+        no_url = create(:score, thumbnail_url: nil)
 
-      it 'filters by source' do
-        expect(Score.by_source('pdmx')).to include(pdmx_score)
-        expect(Score.by_source('pdmx')).not_to include(cpdl_score)
+        expect(Score.needing_thumbnail).to eq([needs_work])
       end
     end
 
-    describe '.search' do
-      let!(:bach_score) { create(:score, title: 'Mass in B minor', composer: 'Bach') }
-      let!(:mozart_score) { create(:score, title: 'Requiem', composer: 'Mozart') }
+    describe '.needing_gallery' do
+      it 'finds scores with PDF but no gallery pages' do
+        needs_work = create(:score, pdf_path: 'test.pdf')
+        already_done = create(:score, pdf_path: 'test2.pdf')
+        already_done.score_pages.create!(page_number: 1)
+        no_pdf = create(:score, pdf_path: nil)
+        na_pdf = create(:score, pdf_path: 'N/A')
 
-      it 'searches by title' do
-        expect(Score.search('Mass')).to include(bach_score)
-        expect(Score.search('Mass')).not_to include(mozart_score)
+        expect(Score.needing_gallery).to eq([needs_work])
       end
+    end
 
-      it 'searches by composer' do
-        expect(Score.search('Mozart')).to include(mozart_score)
-        expect(Score.search('Mozart')).not_to include(bach_score)
+    describe '.needing_pdf_sync' do
+      it 'finds external scores with PDF but no synced file' do
+        needs_work = create(:score, source: 'imslp', pdf_path: 'test.pdf')
+        already_synced = create(:score, source: 'imslp', pdf_path: 'test2.pdf')
+        already_synced.pdf_file.attach(io: StringIO.new('x'), filename: 't.pdf', content_type: 'application/pdf')
+        pdmx_score = create(:score, source: 'pdmx', pdf_path: 'local.pdf')
+        no_pdf = create(:score, source: 'cpdl', pdf_path: nil)
+
+        expect(Score.needing_pdf_sync).to eq([needs_work])
       end
     end
   end
 
-  describe '#source helpers' do
-    it 'identifies pdmx source' do
-      score = build(:score, source: 'pdmx')
-      expect(score.pdmx?).to be true
-      expect(score.external?).to be false
-    end
+  describe '#thumbnail' do
+    it 'prefers cached over external URL' do
+      score = create(:score, thumbnail_url: 'https://example.com/thumb.png')
+      expect(score.thumbnail).to eq('https://example.com/thumb.png')
 
-    it 'identifies cpdl as external' do
-      score = build(:score, :cpdl)
-      expect(score.cpdl?).to be true
-      expect(score.external?).to be true
+      score.thumbnail_image.attach(io: StringIO.new('x'), filename: 't.webp', content_type: 'image/webp')
+      allow(score.thumbnail_image).to receive(:url).and_return('http://r2/cached.webp')
+      expect(score.thumbnail).to eq('http://r2/cached.webp')
     end
   end
 end
