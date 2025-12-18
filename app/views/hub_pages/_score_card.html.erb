@@ -1,15 +1,5 @@
 <%= link_to score_path(score), class: "mm-card overflow-hidden group block", data: { turbo_frame: "_top" } do %>
-  <!-- Thumbnail -->
-  <div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center relative overflow-hidden border-b-2 border-[var(--color-border)]">
-    <!-- Placeholder shown while image loads -->
-    <div class="absolute inset-0 flex items-center justify-center text-6xl text-[var(--color-border-subtle)]">♪</div>
-    <% if score.has_thumbnail? %>
-      <%= image_tag score.thumbnail,
-          alt: score.title,
-          class: "w-full h-full object-cover object-top relative z-10"
-      %>
-    <% end %>
-  </div>
+  <%= render "scores/thumbnail", score: score %>
 
   <!-- Card Content -->
   <div class="p-3">
