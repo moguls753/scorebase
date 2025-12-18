@@ -3,7 +3,7 @@
 <% content_for :meta_description do %><%= t('hub.composer_page_description', name: @score.composer || 'Unknown', count: 1).gsub(/\d+ free/, 'Free') %> <%= @score.title %>.<% end %>
 <% content_for :og_type, 'music.song' %>
 <% if @score.has_thumbnail? %>
-  <% content_for :og_image, @score.thumbnail.is_a?(String) ? @score.thumbnail : url_for(@score.thumbnail) %>
+  <% content_for :og_image, @score.thumbnail %>
 <% end %>
 
 <%# JSON-LD Structured Data for MusicComposition %>

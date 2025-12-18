@@ -10,6 +10,9 @@
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
 
+    <!-- Preconnect to CDN for faster thumbnail loading -->
+    <link rel="preconnect" href="https://cdn.scorebase.org">
+
     <%# Prevent dark mode flash by applying theme before page renders %>
     <script>
       (function() {
