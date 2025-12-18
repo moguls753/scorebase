@@ -7,12 +7,13 @@
     - index: Integer - Card index for animation delay
     - count_label: String - Label after count (e.g., "scores")
 %>
+<% data_key = search_attribute.underscore.to_sym %>
 <%= link_to path,
     class: "hub-card hub-card--row mm-card group",
     style: hub_card_style(index || 0, delay_ms: 25),
     data: {
       list_filter_target: "item",
-      search_attribute => item[:name].to_s.downcase
+      data_key => item[:name].to_s.downcase
     } do %>
   <div class="hub-card__icon-box"><%= icon %></div>
   <div class="hub-card__content">
