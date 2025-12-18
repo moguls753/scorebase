@@ -1,0 +1,26 @@
+<%# Hub Hero Section
+    Local variables:
+    - title: String - The page title (e.g., "Composers", "Instruments")
+    - description: String - The page description
+    - breadcrumb_label: String - The breadcrumb text
+%>
+<section class="hub-hero py-10 sm:py-14 lg:py-20 border-b-2 border-[var(--color-border)]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="max-w-3xl">
+      <nav class="flex items-center gap-2 text-sm sm:text-xs font-medium text-[var(--color-text-muted)] mb-4">
+        <%= link_to root_path, class: "hover:text-[var(--color-accent)] transition-colors" do %>
+          ScoreBase
+        <% end %>
+        <span class="text-[var(--color-border-subtle)]">/</span>
+        <span class="text-[var(--color-accent)]"><%= breadcrumb_label %></span>
+      </nav>
+
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
+        <%= title %>
+      </h1>
+      <p class="text-base sm:text-lg font-medium hero-subtitle">
+        <%= description %>
+      </p>
+    </div>
+  </div>
+</section>

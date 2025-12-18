@@ -3,74 +3,63 @@
   <meta name="turbo-cache-control" content="no-preview">
 <% end %>
 
-<!-- Hero Section -->
-<section class="hub-hero py-10 sm:py-14 lg:py-20 border-b-2 border-[var(--color-border)]">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6">
-    <div class="max-w-3xl">
-      <nav class="flex items-center gap-2 text-xs font-medium text-[var(--color-text-muted)] mb-4">
-        <%= link_to root_path, class: "hover:text-[var(--color-accent)] transition-colors" do %>ScoreBase<% end %>
-        <span class="text-[var(--color-border-subtle)]">/</span>
-        <span class="text-[var(--color-accent)]"><%= t('score.instruments') %></span>
-      </nav>
+<%= render "hub_pages/hub_hero",
+    title: t('score.instruments'),
+    description: t('hub.instruments_description', count: @instruments.size),
+    breadcrumb_label: t('score.instruments') %>
 
-      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
-        <%= t('score.instruments') %>
-      </h1>
-      <p class="text-base sm:text-lg font-medium hero-subtitle">
-        <%= t('hub.instruments_description', count: @instruments.size) %>
-      </p>
-    </div>
+<div data-controller="list-filter"
+     data-list-filter-search-attribute-value="instrumentName"
+     data-list-filter-singular-text-value="<%= t('hub.instrument_found') %>"
+     data-list-filter-plural-text-value="<%= t('hub.instruments_found') %>"
+     data-list-filter-no-match-text-value="<%= t('hub.no_instruments_matching') %>"
+     data-list-filter-hidden-class="hidden"
+     data-list-filter-filtered-class="filtered-out"
+     data-list-filter-disabled-class="disabled"
+     data-list-filter-active-class="active"
+     data-list-filter-visible-class="visible">
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
+    <%= render "hub_pages/hub_finder",
+        placeholder: t('hub.search_instruments'),
+        clear_label: t('hub.clear_search') %>
+
+    <%= render "hub_pages/hub_alphabet_nav", include_hash: true %>
   </div>
-</section>
 
-<!-- Instruments Grid -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
-  <% if @instruments.any? %>
-    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
-      <% @instruments.each_with_index do |instrument, i| %>
-        <%= link_to instrument_path(slug: instrument[:slug]),
-            class: "hub-card mm-card p-4 sm:p-5 group text-center",
-            style: "animation-delay: #{i * 20}ms" do %>
-          <!-- Instrument Icon -->
-          <div class="text-4xl mb-3">
-            <% icon = case instrument[:name].downcase
-               when /piano/ then "🎹"
-               when /violin|viola|cello|bass|string/ then "🎻"
-               when /guitar/ then "🎸"
-               when /flute|clarinet|oboe|bassoon/ then "🎵"
-               when /trumpet|trombone|horn|tuba/ then "🎺"
-               when /drum|percussion/ then "🥁"
-               when /organ/ then "⛪"
-               when /harp/ then "🪕"
-               when /voice|choir|soprano|alto|tenor/ then "🎤"
-               when /orchestra/ then "🎼"
-               else "🎵"
-               end %>
-            <%= icon %>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-0 sm:py-8">
+    <% if @instruments.any? %>
+      <% global_index = 0 %>
+      <% hub_group_by_letter(@instruments).each do |letter, instruments_in_group| %>
+        <section class="hub-letter-group"
+                 id="letter-<%= letter %>"
+                 data-letter="<%= letter %>"
+                 data-list-filter-target="group">
+          <div class="hub-letter-group__header">
+            <span class="hub-letter-group__badge"><%= letter %></span>
+            <span class="hub-letter-group__count"><%= instruments_in_group.size %></span>
           </div>
-
-          <h3 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-bold mb-2 group-hover:text-[var(--color-accent)] transition-colors">
-            <%= instrument[:name] %>
-          </h3>
-          <p class="text-xs text-[var(--color-text-muted)] font-semibold">
-            <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(instrument[:count]) %></span>
-          </p>
-        <% end %>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+            <% instruments_in_group.each do |instrument| %>
+              <%= render "hub_pages/hub_card_icon",
+                  item: instrument,
+                  path: instrument_path(slug: instrument[:slug]),
+                  icon: instrument_icon(instrument[:name]),
+                  search_attribute: "instrumentName",
+                  index: global_index %>
+              <% global_index += 1 %>
+            <% end %>
+          </div>
+        </section>
       <% end %>
-    </div>
-  <% else %>
-    <div class="mm-card p-8 sm:p-12 text-center">
-      <div class="text-6xl mb-4 text-[var(--color-border-subtle)]">🎵</div>
-      <p class="text-[var(--color-text-muted)] font-medium"><%= t('hub.no_scores_found') %></p>
-    </div>
-  <% end %>
-</div>
 
-<style>
-  .hub-hero { background: linear-gradient(135deg, #ffffff 0%, #fefcf9 50%, #ffffff 100%); }
-  [data-theme="dark"] .hub-hero { background: linear-gradient(135deg, #2a2520 0%, #1f1b18 50%, #2d2823 100%); }
-  .hub-card { animation: hubCardFadeIn 0.4s ease both; }
-  @keyframes hubCardFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  @media (prefers-reduced-motion: reduce) { .hub-card { animation: none; opacity: 1; } }
-  html[data-turbo-preview] .hub-card { animation: none; opacity: 1; transform: none; }
-</style>
+      <%= render "hub_pages/hub_no_results",
+          message: t('hub.no_instruments_found'),
+          hint: t('hub.try_different_spelling') %>
+    <% else %>
+      <%= render "hub_pages/hub_empty_state",
+          icon: "🎵",
+          message: t('hub.no_scores_found') %>
+    <% end %>
+  </div>
+</div>

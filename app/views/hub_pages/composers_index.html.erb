@@ -3,30 +3,11 @@
   <meta name="turbo-cache-control" content="no-preview">
 <% end %>
 
-<!-- Hero Section -->
-<section class="hub-hero py-10 sm:py-14 lg:py-20 border-b-2 border-[var(--color-border)]">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6">
-    <div class="max-w-3xl">
-      <!-- Breadcrumb -->
-      <nav class="flex items-center gap-2 text-sm sm:text-xs font-medium text-[var(--color-text-muted)] mb-4">
-        <%= link_to root_path, class: "hover:text-[var(--color-accent)] transition-colors" do %>
-          ScoreBase
-        <% end %>
-        <span class="text-[var(--color-border-subtle)]">/</span>
-        <span class="text-[var(--color-accent)]"><%= t('sort.composer') %></span>
-      </nav>
+<%= render "hub_pages/hub_hero",
+    title: t('sort.composer'),
+    description: t('hub.composers_description', count: @composers.size),
+    breadcrumb_label: t('sort.composer') %>
 
-      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
-        <%= t('sort.composer') %>
-      </h1>
-      <p class="text-base sm:text-lg font-medium hero-subtitle">
-        <%= t('hub.composers_description', count: @composers.size) %>
-      </p>
-    </div>
-  </div>
-</section>
-
-<!-- List Filter Controller Wrapper -->
 <div data-controller="list-filter"
      data-list-filter-search-attribute-value="composerName"
      data-list-filter-singular-text-value="<%= t('hub.composer_found') %>"
@@ -38,484 +19,45 @@
      data-list-filter-active-class="active"
      data-list-filter-visible-class="visible">
 
-  <!-- Search & Navigation -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
-    <!-- Fuzzy Finder - Centered -->
-    <div class="composer-finder mb-8 mx-auto">
-      <div class="finder-input-wrap">
-        <svg class="finder-icon" viewBox="0 0 20 20" fill="currentColor">
-          <path fill-rule="evenodd" d="M9 3.5a5.5 5.5 0 100 11 5.5 5.5 0 000-11zM2 9a7 7 0 1112.452 4.391l3.328 3.329a.75.75 0 11-1.06 1.06l-3.329-3.328A7 7 0 012 9z" clip-rule="evenodd" />
-        </svg>
-        <input
-          type="text"
-          class="finder-input"
-          placeholder="<%= t('hub.search_composers') %>"
-          autocomplete="off"
-          spellcheck="false"
-          data-list-filter-target="input"
-          data-action="input->list-filter#search"
-        >
-        <button type="button"
-                class="finder-clear"
-                aria-label="<%= t('hub.clear_search', default: 'Clear search') %>"
-                data-list-filter-target="clear"
-                data-action="list-filter#clear">
-          <svg viewBox="0 0 20 20" fill="currentColor">
-            <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z" />
-          </svg>
-        </button>
-      </div>
-      <div class="finder-results-count" data-list-filter-target="resultsCount"></div>
-    </div>
+    <%= render "hub_pages/hub_finder",
+        placeholder: t('hub.search_composers'),
+        clear_label: t('hub.clear_search') %>
 
-    <!-- Alphabet Jump Links - Hidden on mobile, visible on tablet+ -->
-    <nav class="alphabet-nav" aria-label="<%= t('hub.jump_to_letter', default: 'Jump to letter') %>">
-      <% ('A'..'Z').each do |letter| %>
-        <a href="#letter-<%= letter %>"
-           class="alphabet-link"
-           data-letter="<%= letter %>"
-           data-list-filter-target="alphabetLink"
-           data-action="list-filter#jumpToLetter"><%= letter %></a>
-      <% end %>
-    </nav>
+    <%= render "hub_pages/hub_alphabet_nav", include_hash: false %>
   </div>
 
-  <!-- Composers Grid (grouped by letter) -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-0 sm:py-8">
     <% if @composers.any? %>
       <% global_index = 0 %>
-      <% @composers.group_by { |c| c[:name].first.upcase }.sort.each do |letter, composers_in_group| %>
-        <section class="composer-letter-group"
+      <% hub_group_by_letter(@composers).each do |letter, composers_in_group| %>
+        <section class="hub-letter-group"
                  id="letter-<%= letter %>"
                  data-letter="<%= letter %>"
                  data-list-filter-target="group">
-          <div class="letter-header">
-            <span class="letter-badge"><%= letter %></span>
-            <span class="letter-count"><%= composers_in_group.size %></span>
+          <div class="hub-letter-group__header">
+            <span class="hub-letter-group__badge"><%= letter %></span>
+            <span class="hub-letter-group__count"><%= composers_in_group.size %></span>
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
             <% composers_in_group.each do |composer| %>
-              <% delay = global_index < 30 ? global_index * 20 : 0 %>
-              <%= link_to composer_path(slug: composer[:slug]),
-                  class: "composer-card-simple hub-card mm-card group",
-                  style: delay > 0 ? "animation-delay: #{delay}ms" : nil,
-                  data: {
-                    list_filter_target: "item",
-                    composer_name: composer[:name].downcase
-                  } do %>
+              <%= render "hub_pages/hub_card_simple",
+                  item: composer,
+                  path: composer_path(slug: composer[:slug]),
+                  search_attribute: "composerName",
+                  index: global_index %>
               <% global_index += 1 %>
-                <!-- Composer Name -->
-                <h3 class="composer-card-name"
-                    data-list-filter-target="itemName">
-                  <%= composer[:name] %>
-                </h3>
-                <!-- Score Count -->
-                <span class="composer-card-count">
-                  <%= number_with_delimiter(composer[:count]) %>
-                </span>
-              <% end %>
             <% end %>
           </div>
         </section>
       <% end %>
 
-      <!-- No Results Message -->
-      <div class="no-results-message mm-card p-8 sm:p-12 text-center hidden"
-           data-list-filter-target="noResults">
-        <div class="text-5xl mb-4">🔍</div>
-        <p class="text-[var(--color-text-muted)] font-medium text-lg mb-2"
-           data-list-filter-target="noResultsText">
-          <%= t('hub.no_composers_found') %>
-        </p>
-        <p class="text-sm text-[var(--color-text-muted)]">
-          <%= t('hub.try_different_spelling') %>
-        </p>
-      </div>
+      <%= render "hub_pages/hub_no_results",
+          message: t('hub.no_composers_found'),
+          hint: t('hub.try_different_spelling') %>
     <% else %>
-      <div class="mm-card p-8 sm:p-12 text-center">
-        <div class="text-6xl mb-4 text-[var(--color-border-subtle)]">🎼</div>
-        <p class="text-[var(--color-text-muted)] font-medium">
-          <%= t('hub.no_scores_found') %>
-        </p>
-      </div>
+      <%= render "hub_pages/hub_empty_state",
+          message: t('hub.no_scores_found') %>
     <% end %>
   </div>
 </div>
-
-<style>
-  .hub-hero {
-    background: linear-gradient(135deg, #ffffff 0%, #fefcf9 50%, #ffffff 100%);
-  }
-
-  [data-theme="dark"] .hub-hero {
-    background: linear-gradient(135deg, #2a2520 0%, #1f1b18 50%, #2d2823 100%);
-  }
-
-  .hub-card {
-    animation: hubCardFadeIn 0.4s ease both;
-  }
-
-  @keyframes hubCardFadeIn {
-    from {
-      opacity: 0;
-      transform: translateY(12px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  /* Respect reduced motion preference */
-  @media (prefers-reduced-motion: reduce) {
-    .hub-card {
-      animation: none;
-      opacity: 1;
-    }
-  }
-
-  /* Disable animations during Turbo cache preview to prevent double animation */
-  html[data-turbo-preview] .hub-card {
-    animation: none;
-    opacity: 1;
-    transform: none;
-  }
-
-  .box-shadow-sm {
-    box-shadow: 3px 3px 0 var(--shadow-color);
-  }
-
-  /* ========================================
-     FUZZY FINDER - Centered & Wider
-     ======================================== */
-  .composer-finder {
-    max-width: 600px;
-    text-align: center;
-  }
-
-  .finder-results-count {
-    text-align: left;
-  }
-
-  .finder-input-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-  }
-
-  .finder-icon {
-    position: absolute;
-    left: 16px;
-    width: 20px;
-    height: 20px;
-    color: var(--color-text-muted);
-    pointer-events: none;
-    transition: color 0.15s ease;
-  }
-
-  .finder-input {
-    width: 100%;
-    padding: 14px 48px 14px 48px;
-    font-family: var(--font-family-body);
-    font-size: 15px;
-    font-weight: 500;
-    color: var(--color-text);
-    background: var(--color-bg-card);
-    border: 2px solid var(--color-border);
-    border-radius: 2px;
-    box-shadow: 4px 4px 0 var(--shadow-color);
-    transition: all 0.2s ease;
-  }
-
-  .finder-input::placeholder {
-    color: var(--color-text-muted);
-    font-weight: 400;
-  }
-
-  .finder-input:focus {
-    outline: none;
-    border-color: var(--color-accent);
-    box-shadow: 6px 6px 0 var(--color-accent);
-    transform: translate(-2px, -2px);
-  }
-
-  .finder-input-wrap:focus-within .finder-icon {
-    color: var(--color-accent);
-  }
-
-  .finder-clear {
-    position: absolute;
-    right: 8px;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    /* 44px minimum touch target for mobile */
-    width: 44px;
-    height: 44px;
-    padding: 0;
-    color: var(--color-text-muted);
-    background: var(--color-bg);
-    border: 2px solid var(--color-border-subtle);
-    border-radius: 2px;
-    cursor: pointer;
-    transition: all 0.15s ease;
-  }
-
-  .finder-clear svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .finder-clear:hover {
-    color: var(--color-accent);
-    border-color: var(--color-accent);
-    background: var(--color-bg-elevated);
-  }
-
-  /* Touch feedback for mobile */
-  .finder-clear:active {
-    transform: scale(0.95);
-    background: var(--color-accent);
-    color: white;
-    border-color: var(--color-accent);
-  }
-
-  .finder-clear.visible {
-    display: flex;
-  }
-
-  .finder-results-count {
-    margin-top: 8px;
-    font-family: var(--font-family-body);
-    font-size: 14px; /* Minimum 14px for mobile readability */
-    font-weight: 600;
-    color: var(--color-text-muted);
-    min-height: 20px;
-  }
-
-  .finder-results-count .highlight {
-    color: var(--color-accent);
-    font-weight: 700;
-  }
-
-  /* ========================================
-     ALPHABET NAVIGATION - Hidden on mobile, visible on tablet+
-     ======================================== */
-  .alphabet-nav {
-    /* Hidden by default on mobile */
-    display: none;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 6px;
-    padding: 16px 0;
-    border-bottom: 2px solid var(--color-border-subtle);
-  }
-
-  /* Show on tablet and up (640px+) */
-  @media (min-width: 640px) {
-    .alphabet-nav {
-      display: flex;
-    }
-  }
-
-  .alphabet-link {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    font-family: var(--font-family-display);
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--color-text-muted);
-    text-decoration: none;
-    background: var(--color-bg-card);
-    border: 2px solid var(--color-border-subtle);
-    border-radius: 2px;
-    transition: all 0.15s ease;
-  }
-
-  .alphabet-link:hover:not(.disabled) {
-    color: var(--color-accent);
-    border-color: var(--color-accent);
-    background: var(--color-bg-elevated);
-    transform: translateY(-2px);
-    box-shadow: 3px 3px 0 var(--color-accent);
-  }
-
-  .alphabet-link.active {
-    color: #fff;
-    background: var(--color-accent);
-    border-color: var(--color-border);
-    box-shadow: 3px 3px 0 var(--shadow-color);
-  }
-
-  .alphabet-link.disabled {
-    opacity: 0.35;
-    pointer-events: none;
-  }
-
-  /* Touch feedback for tablet+ */
-  .alphabet-link:active:not(.disabled) {
-    transform: scale(0.95);
-    background: var(--color-accent);
-    color: white;
-  }
-
-  /* ========================================
-     LETTER GROUP SECTIONS - More Breathing Room
-     ======================================== */
-  .composer-letter-group {
-    margin-bottom: 56px;
-    scroll-margin-top: 100px;
-  }
-
-  .composer-letter-group:last-child {
-    margin-bottom: 0;
-  }
-
-  .composer-letter-group.hidden {
-    display: none;
-  }
-
-  .letter-header {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-bottom: 20px;
-    padding-bottom: 14px;
-    border-bottom: 2px solid var(--color-border-subtle);
-  }
-
-  .letter-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 52px;
-    height: 52px;
-    font-family: var(--font-family-display);
-    font-size: 26px;
-    font-weight: 900;
-    color: #fff;
-    background: var(--color-accent);
-    border: 2px solid var(--color-border);
-    border-radius: 2px;
-    box-shadow: 4px 4px 0 var(--shadow-color);
-  }
-
-  .letter-count {
-    font-family: var(--font-family-body);
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--color-text-muted);
-  }
-
-  /* ========================================
-     SIMPLIFIED COMPOSER CARDS
-     ======================================== */
-  .composer-card-simple {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    padding: 14px 16px;
-    min-height: 52px;
-  }
-
-  .composer-card-simple .composer-card-name {
-    font-family: var(--font-family-display);
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--color-text);
-    line-height: 1.3;
-    transition: color 0.15s ease;
-    margin: 0;
-    flex: 1;
-  }
-
-  .composer-card-simple:hover .composer-card-name {
-    color: var(--color-accent);
-  }
-
-  .composer-card-count {
-    flex-shrink: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 36px;
-    height: 26px;
-    padding: 0 8px;
-    font-family: var(--font-family-display);
-    font-size: 12px; /* Minimum readable size */
-    font-weight: 700;
-    color: var(--color-accent);
-    background: var(--color-bg);
-    border: 2px solid var(--color-border-subtle);
-    border-radius: 2px;
-  }
-
-  .composer-card-simple:hover .composer-card-count {
-    border-color: var(--color-accent);
-    background: var(--color-bg-elevated);
-  }
-
-  /* Hidden card state for filtering */
-  .hub-card.filtered-out {
-    display: none;
-  }
-
-  /* Match highlight */
-  .composer-card-name mark {
-    background: transparent;
-    color: var(--color-accent);
-    font-weight: 800;
-  }
-
-  /* No results */
-  .no-results-message.hidden {
-    display: none;
-  }
-
-  /* ========================================
-     RESPONSIVE - Mobile First Fixes
-     ======================================== */
-  @media (max-width: 640px) {
-    .finder-input {
-      font-size: 16px; /* Prevents iOS zoom on focus */
-      padding: 14px 56px 14px 44px; /* Extra right padding for larger clear button */
-    }
-
-    .letter-badge {
-      width: 42px;
-      height: 42px;
-      font-size: 20px;
-    }
-
-    .composer-letter-group {
-      margin-bottom: 40px;
-    }
-
-    /* Ensure minimum 44px touch targets for composer cards */
-    .composer-card-simple {
-      padding: 14px 16px;
-      min-height: 52px; /* Comfortable touch target */
-    }
-
-    .composer-card-simple .composer-card-name {
-      font-size: 14px; /* Minimum readable size */
-    }
-
-    .composer-card-count {
-      min-width: 32px;
-      height: 24px;
-      font-size: 12px; /* Bumped from 10px */
-      padding: 0 6px;
-    }
-  }
-
-  /* Touch feedback for composer cards */
-  .composer-card-simple:active {
-    transform: scale(0.98);
-    box-shadow: 2px 2px 0 var(--shadow-color);
-  }
-</style>

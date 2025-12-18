@@ -1352,3 +1352,483 @@ body.overflow-hidden {
   border-color: var(--color-border-subtle);
   color: var(--color-text-muted);
 }
+
+/* ========================================
+   HUB INDEX PAGES (Composers, Instruments, Genres)
+   ======================================== */
+
+/* Hero Section */
+.hub-hero {
+  background: linear-gradient(135deg, #ffffff 0%, #fefcf9 50%, #ffffff 100%);
+}
+
+[data-theme="dark"] .hub-hero {
+  background: linear-gradient(135deg, #2a2520 0%, #1f1b18 50%, #2d2823 100%);
+}
+
+/* Card Animations */
+.hub-card {
+  animation: hubCardFadeIn 0.4s ease both;
+}
+
+@keyframes hubCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-card {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+html[data-turbo-preview] .hub-card {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
+/* Fuzzy Finder */
+.hub-finder {
+  max-width: 600px;
+  text-align: center;
+}
+
+.hub-finder__input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.hub-finder__icon {
+  position: absolute;
+  left: 16px;
+  width: 20px;
+  height: 20px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+  transition: color 0.15s ease;
+}
+
+.hub-finder__input {
+  width: 100%;
+  padding: 14px 48px;
+  font-family: var(--font-family-body);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-text);
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  box-shadow: 4px 4px 0 var(--shadow-color);
+  transition: all 0.2s ease;
+}
+
+.hub-finder__input::placeholder {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+.hub-finder__input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 6px 6px 0 var(--color-accent);
+  transform: translate(-2px, -2px);
+}
+
+.hub-finder__input-wrap:focus-within .hub-finder__icon {
+  color: var(--color-accent);
+}
+
+.hub-finder__clear {
+  position: absolute;
+  right: 8px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 2px solid var(--color-border-subtle);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.hub-finder__clear svg {
+  width: 20px;
+  height: 20px;
+}
+
+.hub-finder__clear:hover {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-bg-elevated);
+}
+
+.hub-finder__clear:active {
+  transform: scale(0.95);
+  background: var(--color-accent);
+  color: white;
+  border-color: var(--color-accent);
+}
+
+.hub-finder__clear.visible {
+  display: flex;
+}
+
+.hub-finder__results {
+  margin-top: 8px;
+  text-align: left;
+  font-family: var(--font-family-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  min-height: 20px;
+}
+
+.hub-finder__results .highlight {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* Alphabet Navigation */
+.hub-alphabet {
+  display: none;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  padding: 16px 0;
+  border-bottom: 2px solid var(--color-border-subtle);
+}
+
+@media (min-width: 640px) {
+  .hub-alphabet {
+    display: flex;
+  }
+}
+
+.hub-alphabet__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  font-family: var(--font-family-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  background: var(--color-bg-card);
+  border: 2px solid var(--color-border-subtle);
+  border-radius: 2px;
+  transition: all 0.15s ease;
+}
+
+.hub-alphabet__link:hover:not(.disabled) {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-bg-elevated);
+  transform: translateY(-2px);
+  box-shadow: 3px 3px 0 var(--color-accent);
+}
+
+.hub-alphabet__link.active {
+  color: #fff;
+  background: var(--color-accent);
+  border-color: var(--color-border);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+}
+
+.hub-alphabet__link.disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.hub-alphabet__link:active:not(.disabled) {
+  transform: scale(0.95);
+  background: var(--color-accent);
+  color: white;
+}
+
+/* Letter Groups */
+.hub-letter-group {
+  margin-bottom: 56px;
+  scroll-margin-top: 100px;
+}
+
+.hub-letter-group:last-child {
+  margin-bottom: 0;
+}
+
+.hub-letter-group.hidden {
+  display: none;
+}
+
+.hub-letter-group__header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 2px solid var(--color-border-subtle);
+}
+
+.hub-letter-group__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  font-family: var(--font-family-display);
+  font-size: 26px;
+  font-weight: 900;
+  color: #fff;
+  background: var(--color-accent);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  box-shadow: 4px 4px 0 var(--shadow-color);
+}
+
+.hub-letter-group__count {
+  font-family: var(--font-family-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* Hub Cards - Simple (Composers) */
+.hub-card--simple {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  min-height: 52px;
+}
+
+.hub-card--simple:active {
+  transform: scale(0.98);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+/* Hub Cards - With Icon (Instruments) */
+.hub-card--icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 16px 12px;
+  min-height: 100px;
+  gap: 8px;
+}
+
+.hub-card--icon:active {
+  transform: scale(0.98);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+.hub-card__icon {
+  font-size: 28px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.hub-card--icon:hover .hub-card__icon {
+  transform: scale(1.15);
+}
+
+/* Hub Cards - Row Style (Genres) */
+.hub-card--row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+}
+
+.hub-card--row:active {
+  transform: scale(0.99);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+.hub-card__icon-box {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  font-size: 28px;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.hub-card--row:hover .hub-card__icon-box {
+  border-color: var(--color-accent);
+  transform: scale(1.05);
+}
+
+.hub-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.hub-card__arrow {
+  flex-shrink: 0;
+  color: var(--color-border-subtle);
+  transition: color 0.15s ease, transform 0.15s ease;
+}
+
+.hub-card--row:hover .hub-card__arrow {
+  color: var(--color-accent);
+  transform: translateX(4px);
+}
+
+/* Shared Card Elements */
+.hub-card__name {
+  font-family: var(--font-family-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.3;
+  transition: color 0.15s ease;
+  margin: 0;
+}
+
+.hub-card:hover .hub-card__name {
+  color: var(--color-accent);
+}
+
+.hub-card__name--lg {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.hub-card__name mark {
+  background: transparent;
+  color: var(--color-accent);
+  font-weight: 800;
+}
+
+.hub-card__count {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 36px;
+  height: 26px;
+  padding: 0 8px;
+  font-family: var(--font-family-display);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-accent);
+  background: var(--color-bg);
+  border: 2px solid var(--color-border-subtle);
+  border-radius: 2px;
+}
+
+.hub-card:hover .hub-card__count {
+  border-color: var(--color-accent);
+  background: var(--color-bg-elevated);
+}
+
+.hub-card__meta {
+  font-family: var(--font-family-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.hub-card__meta-count {
+  color: var(--color-accent);
+  font-weight: 700;
+}
+
+/* Filtering States */
+.hub-card.filtered-out {
+  display: none;
+}
+
+/* No Results */
+.hub-no-results {
+  display: none;
+}
+
+.hub-no-results.visible {
+  display: block;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .hub-finder__input {
+    font-size: 16px; /* Prevents iOS zoom */
+    padding: 14px 56px 14px 44px;
+  }
+
+  .hub-letter-group__badge {
+    width: 42px;
+    height: 42px;
+    font-size: 20px;
+  }
+
+  .hub-letter-group {
+    margin-bottom: 40px;
+  }
+
+  .hub-card--simple {
+    padding: 14px 16px;
+    min-height: 52px;
+  }
+
+  .hub-card__name {
+    font-size: 12px;
+  }
+
+  .hub-card__count {
+    min-width: 32px;
+    height: 24px;
+    font-size: 11px;
+    padding: 0 6px;
+  }
+
+  .hub-card--icon {
+    padding: 14px 10px;
+    min-height: 90px;
+  }
+
+  .hub-card__icon {
+    font-size: 24px;
+  }
+
+  .hub-card--row {
+    padding: 14px 16px;
+    gap: 12px;
+  }
+
+  .hub-card__icon-box {
+    width: 44px;
+    height: 44px;
+    font-size: 24px;
+  }
+
+  .hub-card__name--lg {
+    font-size: 14px;
+  }
+
+  .hub-card__meta {
+    font-size: 12px;
+  }
+}

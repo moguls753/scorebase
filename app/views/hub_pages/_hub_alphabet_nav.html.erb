@@ -1,0 +1,24 @@
+<%# Hub Alphabet Navigation (A-Z + #)
+    Local variables:
+    - jump_to_label: String - aria-label for navigation (default: "Jump to letter")
+    - include_hash: Boolean - Include "#" for non-alphabetic items (default: true)
+%>
+<% jump_to_label ||= t('hub.jump_to_letter') %>
+<% include_hash = true if local_assigns[:include_hash].nil? %>
+
+<nav class="hub-alphabet" aria-label="<%= jump_to_label %>">
+  <% ('A'..'Z').each do |letter| %>
+    <a href="#letter-<%= letter %>"
+       class="hub-alphabet__link"
+       data-letter="<%= letter %>"
+       data-list-filter-target="alphabetLink"
+       data-action="list-filter#jumpToLetter"><%= letter %></a>
+  <% end %>
+  <% if include_hash %>
+    <a href="#letter-#"
+       class="hub-alphabet__link"
+       data-letter="#"
+       data-list-filter-target="alphabetLink"
+       data-action="list-filter#jumpToLetter">#</a>
+  <% end %>
+</nav>
