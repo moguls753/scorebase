@@ -82,16 +82,23 @@ export default class extends Controller {
   }
 
   jumpToLetter(event) {
+    event.preventDefault()
     const link = event.currentTarget
 
     if (link.classList.contains(this.disabledClass)) {
-      event.preventDefault()
       return
     }
 
     // Clear search if active
     if (this.hasInputTarget && this.inputTarget.value.trim()) {
       this.clearSearch()
+    }
+
+    // Scroll to the letter section
+    const letter = link.dataset.letter
+    const targetSection = document.getElementById(`letter-${letter}`)
+    if (targetSection) {
+      targetSection.scrollIntoView({ behavior: "smooth", block: "start" })
     }
 
     // Briefly highlight the clicked letter
