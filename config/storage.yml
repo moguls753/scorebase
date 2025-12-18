@@ -9,7 +9,7 @@ local:
 # Cloudflare R2 (S3-compatible) for all assets: thumbnails, PDFs, etc.
 # Custom domain: cdn.scorebase.org
 cloudflare:
-  service: S3
+  service: CloudflareR2
   access_key_id: <%= Rails.application.credentials.dig(:cloudflare, :access_key_id) %>
   secret_access_key: <%= Rails.application.credentials.dig(:cloudflare, :secret_access_key) %>
   region: auto
