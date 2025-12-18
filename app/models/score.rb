@@ -60,6 +60,7 @@ class Score < ApplicationRecord
   # Active Storage attachments
   has_one_attached :thumbnail_image
   has_one_attached :preview_image
+  has_one_attached :pdf_file
 
   # Validations
   validates :title, presence: true

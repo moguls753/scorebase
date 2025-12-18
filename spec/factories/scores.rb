@@ -60,6 +60,13 @@ FactoryBot.define do
     source { "pdmx" }
     composer { "Bach, Johann Sebastian" }
 
+    trait :pdmx do
+      source { "pdmx" }
+      pdf_path { "./pdf/test.pdf" }
+      mxl_path { "./mxl/test.mxl" }
+      mid_path { "./mid/test.mid" }
+    end
+
     trait :cpdl do
       source { "cpdl" }
       external_id { "12345" }
@@ -72,6 +79,10 @@ FactoryBot.define do
 
     trait :with_pdf do
       pdf_path { "test.pdf" }
+    end
+
+    trait :with_thumbnail_url do
+      thumbnail_url { "https://example.com/thumb.png" }
     end
   end
 end
