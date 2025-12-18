@@ -1,0 +1,10 @@
+<div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center overflow-hidden border-b-2 border-[var(--color-border)]">
+  <% if score.has_thumbnail? %>
+    <%= image_tag score.thumbnail,
+        alt: score.title,
+        class: "w-full h-full object-cover object-top"
+    %>
+  <% else %>
+    <div class="text-6xl text-[var(--color-border-subtle)]">♪</div>
+  <% end %>
+</div>
