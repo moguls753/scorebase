@@ -1,4 +1,4 @@
-<%= link_to score_path(score), class: "mm-card overflow-hidden group block" do %>
+<%= link_to score_path(score), class: "mm-card overflow-hidden group block", data: { turbo_frame: "_top" } do %>
   <!-- Thumbnail -->
   <div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center relative overflow-hidden border-b-2 border-[var(--color-border)]">
     <% if score.has_thumbnail? %>

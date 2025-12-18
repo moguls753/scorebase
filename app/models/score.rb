@@ -316,8 +316,9 @@ class Score < ApplicationRecord
   end
 
   # Unified thumbnail accessor - prefers cached local thumbnail over external URL
+  # Returns URL string (not attachment object) so CDN URLs work with image_tag
   def thumbnail
-    return thumbnail_image if thumbnail_image.attached?
+    return thumbnail_image.url if thumbnail_image.attached?
     return thumbnail_url if thumbnail_url.present?
     nil
   end
