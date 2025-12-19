@@ -5,7 +5,7 @@ default: &default
   workers:
     - queues: "*"
       threads: 3
-      processes: <%= ENV.fetch("JOB_CONCURRENCY", 1) %>
+      processes: 1
       polling_interval: 0.1
 
 development:
@@ -14,5 +14,35 @@ development:
 test:
   <<: *default
 
+# Production: prioritize web UX over job throughput
+# CPU-heavy jobs (galleries, thumbnails) run with low concurrency
+# to avoid starving web requests of CPU time
 production:
-  <<: *default
+  dispatchers:
+    - polling_interval: 1
+      batch_size: 500
+  workers:
+    # CPU-heavy: PDF-to-image conversion (ImageMagick/Ghostscript)
+    # Single thread to avoid CPU contention with web
+    - queues:
+        - galleries
+        - thumbnails
+      threads: 1
+      processes: 1
+      polling_interval: 1
+
+    # I/O-heavy: downloading PDFs from external servers
+    # Can overlap network waits, so 2 threads OK
+    - queues:
+        - pdfs
+      threads: 2
+      processes: 1
+      polling_interval: 0.5
+
+    # Default: batch orchestrators, imports, sitemap, cache
+    # Mostly I/O-bound or quick dispatch jobs
+    - queues:
+        - default
+      threads: 2
+      processes: 1
+      polling_interval: 0.5
