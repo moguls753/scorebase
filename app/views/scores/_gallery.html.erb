@@ -5,8 +5,8 @@
 <% gallery_pages = score.gallery_pages.to_a %>
 <% has_gallery = gallery_pages.any? %>
 <% page_count = gallery_pages.size %>
-<%# Generate URLs in view context where url_for works %>
-<% gallery_urls = gallery_pages.map { |page| url_for(page.image) } if has_gallery %>
+<%# Generate direct CDN URLs (uses public_url from CloudflareR2Service) %>
+<% gallery_urls = gallery_pages.map { |page| page.image.url } if has_gallery %>
 
 <% if has_gallery %>
   <%# Multi-page gallery with navigation %>

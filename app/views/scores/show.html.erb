@@ -14,7 +14,7 @@
       HEADER: Back Button + Title/Composer Masthead
       ═══════════════════════════════════════════════════════════════ %>
   <header class="score-show-header">
-    <%= link_to root_path, class: "score-back-button", aria: { label: t('score.back') } do %>
+    <%= link_to root_path, class: "score-back-button", aria: { label: t('score.back') }, onclick: "if (history.length > 1) { history.back(); return false; }" do %>
       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
       </svg>
