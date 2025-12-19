@@ -1,0 +1,130 @@
+<%# Gallery viewer for sheet music pages
+    Requires: @score or local variable `score`
+    Shows: Multi-page gallery if available, single preview otherwise %>
+<% score ||= @score %>
+<% gallery_pages = score.gallery_pages.to_a %>
+<% has_gallery = gallery_pages.any? %>
+<% page_count = gallery_pages.size %>
+<%# Generate direct CDN URLs (uses public_url from CloudflareR2Service) %>
+<% gallery_urls = gallery_pages.map { |page| page.image.url } if has_gallery %>
+
+<% if has_gallery %>
+  <%# Multi-page gallery with navigation %>
+  <div data-controller="gallery"
+       data-gallery-pages-value="<%= gallery_urls.to_json %>"
+       data-gallery-current-value="0">
+
+    <div class="gallery-container gallery-fixed-height"
+         data-gallery-target="container">
+
+      <%# Floating Fullscreen Button (top-right) %>
+      <button type="button"
+              class="gallery-fullscreen-float"
+              data-action="gallery#toggleFullscreen"
+              aria-label="<%= t('gallery.fullscreen', default: 'Toggle fullscreen') %>">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"/>
+        </svg>
+      </button>
+
+      <%# Image Area %>
+      <div class="gallery-image-wrap"
+           data-action="click->gallery#imageClick touchstart->gallery#touchStart touchend->gallery#touchEnd">
+        <%= image_tag gallery_urls.first,
+            alt: "#{score.title} - Page 1",
+            class: "gallery-image",
+            data: { gallery_target: "image" } %>
+      </div>
+
+      <%# Footer: Prev + Dots/Counter + Next %>
+      <div class="gallery-footer-nav">
+        <%# Previous Button %>
+        <button type="button"
+                class="gallery-nav-btn"
+                data-gallery-target="prevBtn"
+                data-action="gallery#prev"
+                aria-label="<%= t('gallery.previous', default: 'Previous page') %>">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"/>
+          </svg>
+        </button>
+
+        <%# Center: Dots (≤12 pages) OR Counter (>12 pages) %>
+        <div class="gallery-footer-center">
+          <% if page_count > 1 && page_count <= 12 %>
+            <%# Dots for manageable page counts %>
+            <div class="gallery-dots" role="tablist" aria-label="<%= t('gallery.page_navigation', default: 'Page navigation') %>">
+              <% page_count.times do |i| %>
+                <button type="button"
+                        class="gallery-dot-wrap"
+                        data-gallery-target="dot"
+                        data-action="gallery#goToPage"
+                        data-index="<%= i %>"
+                        role="tab"
+                        aria-selected="<%= i == 0 %>"
+                        aria-label="<%= t('gallery.page_n', page: i + 1, default: "Page #{i + 1}") %>">
+                  <span class="gallery-dot <%= 'is-active' if i == 0 %>"></span>
+                </button>
+              <% end %>
+            </div>
+          <% else %>
+            <%# Counter for many pages %>
+            <span class="gallery-counter" data-gallery-target="counter">1 / <%= page_count %></span>
+          <% end %>
+        </div>
+
+        <%# Next Button %>
+        <button type="button"
+                class="gallery-nav-btn"
+                data-gallery-target="nextBtn"
+                data-action="gallery#next"
+                aria-label="<%= t('gallery.next', default: 'Next page') %>">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+          </svg>
+        </button>
+      </div>
+
+      <%# Keyboard hints (desktop only) %>
+      <div class="gallery-hints-desktop">
+        <kbd>←</kbd><kbd>→</kbd> <%= t('gallery.navigate', default: 'navigate') %>
+        <kbd>F</kbd> <%= t('gallery.fullscreen_hint', default: 'fullscreen') %>
+      </div>
+    </div>
+  </div>
+
+<% elsif score.thumbnail_url.present? %>
+  <%# Single preview image (no gallery generated yet) %>
+  <div class="mm-card overflow-hidden gallery-fixed-height">
+    <%= image_tag score.thumbnail_url_original,
+        alt: score.title,
+        class: "w-full h-full object-contain bg-[var(--color-bg)]" %>
+  </div>
+
+<% elsif score.has_pdf? %>
+  <%# No preview yet - offer to open PDF %>
+  <div class="mm-card overflow-hidden gallery-fixed-height">
+    <div class="w-full h-full bg-[var(--color-bg)] flex flex-col items-center justify-center gap-6 p-8">
+      <div class="text-[120px] text-[var(--color-border-subtle)]">📄</div>
+      <div class="text-center">
+        <p class="text-sm font-semibold text-[var(--color-text-muted)] mb-4">
+          <%= t('score.preview_not_generated', default: 'Preview being generated...') %>
+        </p>
+        <%= link_to file_score_path(score, 'pdf'),
+            target: "_blank",
+            rel: "noopener noreferrer",
+            class: "mm-button mm-button-primary inline-flex items-center gap-2 text-xs px-6 py-3" do %>
+          <span><%= t('score.open_pdf', default: 'Open PDF') %> ↗</span>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+<% else %>
+  <%# No content at all %>
+  <div class="mm-card overflow-hidden gallery-fixed-height">
+    <div class="w-full h-full bg-[var(--color-bg)] flex items-center justify-center">
+      <div class="text-[140px] text-[var(--color-border-subtle)]">♪</div>
+    </div>
+  </div>
+<% end %>

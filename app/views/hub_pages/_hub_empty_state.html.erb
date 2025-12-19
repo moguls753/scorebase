@@ -1,0 +1,13 @@
+<%# Hub Empty State (when no data exists)
+    Local variables:
+    - icon: String - Emoji icon to display (default: "🎼")
+    - message: String - Message to display
+%>
+<% icon ||= "🎼" %>
+
+<div class="mm-card p-8 sm:p-12 text-center">
+  <div class="text-6xl mb-4 text-[var(--color-border-subtle)]"><%= icon %></div>
+  <p class="text-[var(--color-text-muted)] font-medium">
+    <%= message %>
+  </p>
+</div>

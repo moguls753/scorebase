@@ -1,0 +1,65 @@
+<% content_for :title, @page_title %>
+<% content_for :head do %>
+  <meta name="turbo-cache-control" content="no-preview">
+<% end %>
+
+<%= render "hub_pages/hub_hero",
+    title: t('filters.genre'),
+    description: t('hub.genres_description', count: @genres.size),
+    breadcrumb_label: t('filters.genre') %>
+
+<div data-controller="list-filter"
+     data-list-filter-search-attribute-value="genreName"
+     data-list-filter-singular-text-value="<%= t('hub.genre_found') %>"
+     data-list-filter-plural-text-value="<%= t('hub.genres_found') %>"
+     data-list-filter-no-match-text-value="<%= t('hub.no_genres_matching') %>"
+     data-list-filter-hidden-class="hidden"
+     data-list-filter-filtered-class="filtered-out"
+     data-list-filter-disabled-class="disabled"
+     data-list-filter-active-class="active"
+     data-list-filter-visible-class="visible">
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
+    <%= render "hub_pages/hub_finder",
+        placeholder: t('hub.search_genres'),
+        clear_label: t('hub.clear_search') %>
+
+    <%= render "hub_pages/hub_alphabet_nav", include_hash: true %>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-0 sm:py-8">
+    <% if @genres.any? %>
+      <% global_index = 0 %>
+      <% hub_group_by_letter(@genres).each do |letter, genres_in_group| %>
+        <section class="hub-letter-group"
+                 id="letter-<%= letter %>"
+                 data-letter="<%= letter %>"
+                 data-list-filter-target="group">
+          <div class="hub-letter-group__header">
+            <span class="hub-letter-group__badge"><%= letter %></span>
+            <span class="hub-letter-group__count"><%= genres_in_group.size %></span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <% genres_in_group.each do |genre| %>
+              <%= render "hub_pages/hub_card_row",
+                  item: genre,
+                  path: genre_path(slug: genre[:slug]),
+                  icon: genre_icon(genre[:name]),
+                  search_attribute: "genreName",
+                  index: global_index,
+                  count_label: t('search.results_count').downcase %>
+              <% global_index += 1 %>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+
+      <%= render "hub_pages/hub_no_results",
+          message: t('hub.no_genres_found'),
+          hint: t('hub.try_different_spelling') %>
+    <% else %>
+      <%= render "hub_pages/hub_empty_state",
+          message: t('hub.no_scores_found') %>
+    <% end %>
+  </div>
+</div>

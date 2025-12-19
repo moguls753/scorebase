@@ -1,0 +1,63 @@
+<% content_for :title, @page_title %>
+<% content_for :head do %>
+  <meta name="turbo-cache-control" content="no-preview">
+<% end %>
+
+<%= render "hub_pages/hub_hero",
+    title: t('sort.composer'),
+    description: t('hub.composers_description', count: @composers.size),
+    breadcrumb_label: t('sort.composer') %>
+
+<div data-controller="list-filter"
+     data-list-filter-search-attribute-value="composerName"
+     data-list-filter-singular-text-value="<%= t('hub.composer_found') %>"
+     data-list-filter-plural-text-value="<%= t('hub.composers_found') %>"
+     data-list-filter-no-match-text-value="<%= t('hub.no_composers_matching') %>"
+     data-list-filter-hidden-class="hidden"
+     data-list-filter-filtered-class="filtered-out"
+     data-list-filter-disabled-class="disabled"
+     data-list-filter-active-class="active"
+     data-list-filter-visible-class="visible">
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-12">
+    <%= render "hub_pages/hub_finder",
+        placeholder: t('hub.search_composers'),
+        clear_label: t('hub.clear_search') %>
+
+    <%= render "hub_pages/hub_alphabet_nav", include_hash: false %>
+  </div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-0 sm:py-8">
+    <% if @composers.any? %>
+      <% global_index = 0 %>
+      <% hub_group_by_letter(@composers).each do |letter, composers_in_group| %>
+        <section class="hub-letter-group"
+                 id="letter-<%= letter %>"
+                 data-letter="<%= letter %>"
+                 data-list-filter-target="group">
+          <div class="hub-letter-group__header">
+            <span class="hub-letter-group__badge"><%= letter %></span>
+            <span class="hub-letter-group__count"><%= composers_in_group.size %></span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+            <% composers_in_group.each do |composer| %>
+              <%= render "hub_pages/hub_card_simple",
+                  item: composer,
+                  path: composer_path(slug: composer[:slug]),
+                  search_attribute: "composerName",
+                  index: global_index %>
+              <% global_index += 1 %>
+            <% end %>
+          </div>
+        </section>
+      <% end %>
+
+      <%= render "hub_pages/hub_no_results",
+          message: t('hub.no_composers_found'),
+          hint: t('hub.try_different_spelling') %>
+    <% else %>
+      <%= render "hub_pages/hub_empty_state",
+          message: t('hub.no_scores_found') %>
+    <% end %>
+  </div>
+</div>

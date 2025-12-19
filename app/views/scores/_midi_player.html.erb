@@ -1,0 +1,69 @@
+<%# MIDI Player Component
+    Usage: render "scores/midi_player", score: @score
+    Requires: Stimulus midi-player controller
+%>
+<% score ||= @score %>
+<% return unless score.has_midi? %>
+
+<div class="mm-card midi-player-card"
+     data-controller="midi-player"
+     data-midi-player-src-value="<%= file_score_path(score, 'mid') %>">
+
+  <%# Loading State %>
+  <div data-midi-player-target="loading" class="midi-player-loading">
+    <div class="midi-loading-spinner"></div>
+    <span class="midi-loading-text"><%= t('score.loading_player') %></span>
+  </div>
+
+  <%# Player UI (shown when loaded) %>
+  <div data-midi-player-target="container" class="hidden">
+    <div class="midi-custom-player">
+      <%# Play button + Progress %>
+      <div class="midi-player-main">
+        <button type="button"
+                class="midi-play-btn"
+                data-action="click->midi-player#play"
+                aria-label="<%= t('score.play_pause') %>">
+          <svg data-midi-player-target="playBtn" class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M8 5.14v14l11-7-11-7z"/>
+          </svg>
+          <svg data-midi-player-target="pauseBtn" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+          </svg>
+        </button>
+
+        <div class="midi-progress-section">
+          <div class="midi-progress-track"
+               data-midi-player-target="progress"
+               data-action="click->midi-player#seek"
+               role="progressbar"
+               aria-label="<%= t('score.playback_progress', default: 'Playback progress') %>">
+            <div class="midi-progress-fill" data-midi-player-target="progressBar"></div>
+          </div>
+
+          <div class="midi-time-display">
+            <span data-midi-player-target="currentTime" class="midi-time">0:00</span>
+            <span class="midi-time-separator">/</span>
+            <span data-midi-player-target="totalTime" class="midi-time">0:00</span>
+          </div>
+        </div>
+      </div>
+
+      <%# Volume Control %>
+      <div class="midi-volume-control">
+        <svg data-midi-player-target="volumeIcon" class="midi-volume-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+        </svg>
+        <input type="range"
+               class="midi-volume-slider"
+               min="0"
+               max="1"
+               step="0.05"
+               value="0.8"
+               data-midi-player-target="volumeSlider"
+               data-action="input->midi-player#updateVolume"
+               aria-label="<%= t('score.volume') %>">
+      </div>
+    </div>
+  </div>
+</div>

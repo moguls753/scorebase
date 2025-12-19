@@ -1,0 +1,27 @@
+<%= link_to score_path(score), class: "mm-card overflow-hidden group block", data: { turbo_frame: "_top" } do %>
+  <%= render "scores/thumbnail", score: score %>
+
+  <!-- Card Content -->
+  <div class="p-3">
+    <h4 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-1 leading-tight font-bold line-clamp-1">
+      <%= score.title %>
+    </h4>
+    <p class="text-xs text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
+      <%= score.composer.presence || t('search.unknown_composer') %>
+    </p>
+
+    <!-- Metadata Badges -->
+    <div class="flex items-center gap-1.5 flex-wrap">
+      <% if score.source.present? %>
+        <span class="mm-badge-source mm-badge-<%= score.source %> inline-block">
+          <%= score.source.upcase %>
+        </span>
+      <% end %>
+      <% if score.primary_key_signature.present? %>
+        <span class="mm-badge text-[10px] inline-block">
+          <%= score.primary_key_signature %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+<% end %>

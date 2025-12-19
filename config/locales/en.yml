@@ -1,0 +1,269 @@
+en:
+  # Navigation & Layout
+  nav:
+    about: "About"
+    impressum: "Impressum"
+    github: "GitHub"
+    toggle_dark_mode: "Toggle dark mode"
+    toggle_language: "Toggle language"
+
+  # Footer
+  footer:
+    public_domain_scores: "public domain scores"
+
+  # Pagination
+  pagination:
+    prev: "← Prev"
+    next: "Next →"
+
+  # Meta
+  meta:
+    title: "ScoreBase — Public Domain Music Scores"
+    description: "Browse and download thousands of public domain music scores. Free sheet music from CPDL, IMSLP, and PDMX."
+    sources_tagline: "Scores from CPDL + IMSLP + PDMX"
+
+  # Index / Search Page
+  search:
+    hero_title_line1: "Public Domain Scores"
+    hero_title_line2: "One search across IMSLP, CPDL, and PDMX."
+    scores_ready: "%{count} scores ready to download"
+    placeholder: "SEARCH SCORES..."
+    button: "Search"
+    browse: "Browse"
+    or_explore: "or explore"
+    browse_composers: "Composers"
+    browse_genres: "Genres"
+    browse_instruments: "Instruments"
+    browse_periods: "Periods"
+    filters: "Filters"
+    close_filters: "Close filters"
+    clear: "Clear"
+    results_count: "scores"
+    sort_by: "SORT BY"
+    unknown_composer: "Unknown"
+
+  # Filters
+  filters:
+    key: "Key"
+    time: "Time Signature"
+    forces: "Forces"
+    voice_type: "Voice Type"
+    difficulty: "Difficulty"
+    genre: "Genre"
+    period: "Period"
+    source: "Source"
+    language: "Language"
+    any: "Any"
+
+  # Sort options
+  sort:
+    popular: "Popularity"
+    rated: "Rating"
+    newest: "Newest"
+    title: "Title"
+    composer: "Composer"
+
+  # Genres
+  genres:
+    sacred: "Sacred / Religious"
+    classical: "Classical"
+    folk: "Folk"
+    soundtrack: "Soundtrack"
+    jazz: "Jazz"
+    rock: "Rock"
+    pop: "Pop"
+
+  # Key signatures
+  keys:
+    c_major: "C major"
+    g_major: "G major"
+    d_major: "D major"
+    a_major: "A major"
+    f_major: "F major"
+    bb_major: "Bb major"
+    eb_major: "Eb major"
+    a_minor: "A minor"
+    e_minor: "E minor"
+    d_minor: "D minor"
+    g_minor: "G minor"
+    b_minor: "B minor"
+    c_minor: "C minor"
+
+  # Forces options (number of performers)
+  forces:
+    solo: "Solo"
+    duet: "Duet"
+    trio: "Trio"
+    quartet: "Quartet"
+    ensemble: "Ensemble (5+)"
+
+  # Voice type options (choir type)
+  voice_type:
+    mixed: "Mixed"
+    treble: "Treble / Women's"
+    mens: "Men's"
+    unison: "Unison"
+
+  # Difficulty levels
+  difficulty:
+    beginner: "Beginner"
+    easy: "Easy"
+    intermediate: "Intermediate"
+    advanced: "Advanced"
+
+  # Historical periods
+  periods:
+    medieval: "Medieval"
+    renaissance: "Renaissance"
+    baroque: "Baroque"
+    classical: "Classical"
+    romantic: "Romantic"
+    modern: "Modern / 20th Century"
+
+  # Score Detail Page
+  score:
+    back: "Back"
+    preview_not_generated: "Preview not generated yet"
+    open_pdf: "Open PDF"
+    download_mxl: "Download MXL"
+    mxl_hint: "Compressed MusicXML — opens in MuseScore, Sibelius, Finale"
+    download_pdf: "Download PDF"
+    download_midi: "Download MIDI"
+    view_on_source: "View on %{source}"
+    unknown_composer: "Unknown Composer"
+    details: "Details"
+    key: "Key"
+    time: "Time Signature"
+    parts: "Parts"
+    complexity: "Complexity"
+    rating: "Rating"
+    genres: "Genres"
+    views: "views"
+    favs: "favs"
+    complexity_scale: "%{value} / 3"
+    rating_scale: "%{value} / 5.0"
+    # Extended CPDL fields
+    language: "Language"
+    instruments: "Instruments"
+    voicing: "Voicing"
+    description: "Description"
+    editor: "Editor"
+    license: "License"
+    lyrics: "Lyrics"
+    cpdl_number: "CPDL #"
+    posted_date: "Posted"
+    page_count: "Pages"
+    tags: "Tags"
+    about_this_score: "About this Score"
+    music_details: "Music Details"
+    download_files: "Download Files"
+    external_source: "External Source"
+    lyrics_text: "Lyrics / Text"
+    listen: "Listen"
+    loading_player: "Loading player..."
+    midi_hint: "Click play to hear a synthesized preview"
+    play_pause: "Play / Pause"
+    volume: "Volume"
+
+  # About Page
+  about:
+    label: "About"
+    title: "ScoreBase"
+    subtitle: "Search public domain music scores from IMSLP, CPDL, and PDMX in one place."
+    total_scores: "Total Scores"
+    why_exists_title: "Why?"
+    why_exists_p1: "IMSLP, CPDL, PDMX – there are several good sources for free sheet music. But each site has its own search, and finding what you need often means checking multiple places."
+    why_exists_p2: "ScoreBase solves exactly that – one search for all sources."
+    sources_title: "Sources"
+    features_title: "How it works"
+    feature_1_title: "Aggregated Data"
+    feature_1_desc: "Scores from IMSLP, CPDL, and PDMX are indexed and searchable in one place."
+    feature_2_title: "Normalized Names"
+    feature_2_desc: "Composer names are matched across sources, so \"Bach, Johann Sebastian\" and \"J.S. Bach\" appear together."
+    feature_3_title: "Filtering"
+    feature_3_desc: "Filter by key, time signature, genre, voicing, and other metadata where available."
+    feature_4_title: "Work in Progress"
+    feature_4_desc: "More sources and improvements planned. Aiming for a cleaner experience than browsing each site individually."
+    back_to_search: "Back to Search"
+    imslp_name: "International Music Score Library Project"
+    imslp_description: "Also known as the Petrucci Music Library. The largest collection of public domain sheet music with over 800,000 scores from 27,000+ composers."
+    cpdl_name: "Choral Public Domain Library"
+    cpdl_description: "Also known as ChoralWiki. The largest site for free choral sheet music, with strong coverage of Renaissance and Baroque vocal works."
+    pdmx_name: "Public Domain MusicXML"
+    pdmx_description: "A research dataset of 250K+ public domain MusicXML files collected from MuseScore. Useful for notation software like MuseScore, Sibelius, or Finale."
+
+  # Impressum Page
+  impressum:
+    label: "Legal"
+    title: "Impressum"
+    contact: "Contact"
+    privacy: "Privacy"
+    privacy_title: "Zero data collection"
+    privacy_desc: "No analytics, no cookies, no third-party services."
+    back_to_search: "Back to Search"
+
+  # Language names (for the toggle and filter)
+  languages:
+    en: "EN"
+    de: "DE"
+    latin: "Latin"
+    english: "English"
+    italian: "Italian"
+    german: "German"
+    french: "French"
+    spanish: "Spanish"
+
+  # Hub/Landing Pages (SEO)
+  hub:
+    # Index pages
+    composers_title: "Composers — Free Sheet Music"
+    composers_description: "Browse %{count} composers with free public domain sheet music downloads."
+    genres_title: "Music Genres — Free Sheet Music"
+    genres_description: "Browse %{count} genres with free public domain sheet music downloads."
+    instruments_title: "Instruments — Free Sheet Music"
+    instruments_description: "Browse %{count} instruments with free public domain sheet music downloads."
+    periods_title: "Historical Periods — Free Sheet Music"
+    periods_description: "Browse %{count} historical periods with free public domain sheet music downloads."
+    periods: "Periods"
+
+    # Single dimension pages
+    composer_page_title: "%{name} — Free Sheet Music"
+    composer_page_description: "Download %{count} free sheet music scores by %{name}. Public domain PDF, MusicXML, and MIDI files."
+    genre_page_title: "%{name} Sheet Music — Free Downloads"
+    genre_page_description: "Download %{count} free %{name} sheet music scores. Public domain PDF, MusicXML, and MIDI files."
+    instrument_page_title: "%{name} Sheet Music — Free Downloads"
+    instrument_page_description: "Download %{count} free sheet music scores for %{name}. Public domain PDF, MusicXML, and MIDI files."
+    period_page_title: "%{name} Period — Free Sheet Music"
+    period_page_description: "Download %{count} free sheet music scores from the %{name} period. Public domain PDF, MusicXML, and MIDI files."
+
+    # Combined pages
+    composer_instrument_title: "%{composer} %{instrument} Sheet Music — Free Downloads"
+    composer_instrument_description: "Download %{count} free %{instrument} sheet music scores by %{composer}. Public domain PDF, MusicXML, and MIDI files."
+    genre_instrument_title: "%{genre} %{instrument} Sheet Music — Free Downloads"
+    genre_instrument_description: "Download %{count} free %{genre} sheet music for %{instrument}. Public domain PDF, MusicXML, and MIDI files."
+
+    # UI elements
+    scores_count: "%{count} scores"
+    browse_all: "Browse All"
+    back_to_list: "Back to List"
+    filter_results: "Filter Results"
+    no_scores_found: "No scores found matching your criteria."
+    view_all_by: "View all by %{name}"
+    search_composers: "Find a composer..."
+    search_instruments: "Find an instrument..."
+    search_genres: "Find a genre..."
+    clear_search: "Clear search"
+    jump_to_letter: "Jump to letter"
+    composer_found: "composer found"
+    composers_found: "composers found"
+    no_composers_found: "No composers found"
+    no_composers_matching: "No composers matching"
+    instrument_found: "instrument found"
+    instruments_found: "instruments found"
+    no_instruments_found: "No instruments found"
+    no_instruments_matching: "No instruments matching"
+    genre_found: "genre found"
+    genres_found: "genres found"
+    no_genres_found: "No genres found"
+    no_genres_matching: "No genres matching"
+    try_different_spelling: "Try a different spelling or browse alphabetically"

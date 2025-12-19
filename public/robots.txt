@@ -1,0 +1,34 @@
+# robots.txt for ScoreBase
+# https://scorebase.org
+
+# Allow all crawlers
+User-agent: *
+
+# Allow everything
+Allow: /
+
+# Block query parameter variations to prevent duplicate content
+Disallow: /*?sort=
+Disallow: /*?page=
+Disallow: /*?q=
+
+# Block internal/admin paths (if any exist in future)
+Disallow: /admin/
+Disallow: /rails/
+
+# Crawl-delay for politeness (optional, respected by some bots)
+Crawl-delay: 1
+
+# Block AI training bots from downloading score files
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: Google-Extended
+User-agent: ClaudeBot
+User-agent: anthropic-ai
+User-agent: CCBot
+User-agent: Bytespider
+User-agent: FacebookBot
+Disallow: /scores/*/file/
+
+# Sitemap location
+Sitemap: https://scorebase.org/sitemap.xml.gz

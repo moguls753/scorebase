@@ -1,0 +1,33 @@
+<%# Hub Card - Row Style (used for Genres)
+    Local variables:
+    - item: Hash - Item data with :name, :slug, :count
+    - path: String - URL path for the link
+    - icon: String - Emoji icon to display
+    - search_attribute: String - Data attribute name for search (e.g., "genreName")
+    - index: Integer - Card index for animation delay
+    - count_label: String - Label after count (e.g., "scores")
+%>
+<% data_key = search_attribute.underscore.to_sym %>
+<%= link_to path,
+    class: "hub-card hub-card--row mm-card group",
+    style: hub_card_style(index || 0, delay_ms: 25),
+    data: {
+      list_filter_target: "item",
+      data_key => item[:name].to_s.downcase
+    } do %>
+  <div class="hub-card__icon-box"><%= icon %></div>
+  <div class="hub-card__content">
+    <h3 class="hub-card__name hub-card__name--lg" data-list-filter-target="itemName">
+      <%= item[:name] %>
+    </h3>
+    <p class="hub-card__meta">
+      <span class="hub-card__meta-count"><%= number_with_delimiter(item[:count]) %></span>
+      <%= count_label %>
+    </p>
+  </div>
+  <div class="hub-card__arrow">
+    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+    </svg>
+  </div>
+<% end %>

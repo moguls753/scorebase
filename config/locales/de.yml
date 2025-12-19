@@ -1,0 +1,269 @@
+de:
+  # Navigation & Layout
+  nav:
+    about: "Info"
+    impressum: "Impressum"
+    github: "GitHub"
+    toggle_dark_mode: "Dunkelmodus umschalten"
+    toggle_language: "Sprache wechseln"
+
+  # Footer
+  footer:
+    public_domain_scores: "freie Noten"
+
+  # Pagination
+  pagination:
+    prev: "← Zurück"
+    next: "Weiter →"
+
+  # Meta
+  meta:
+    title: "ScoreBase — Freie Noten"
+    description: "Durchsuche und lade tausende freie Musiknoten herunter. Kostenlose Noten von CPDL, IMSLP und PDMX."
+    sources_tagline: "Noten von CPDL + IMSLP + PDMX"
+
+  # Index / Search Page
+  search:
+    hero_title_line1: "Freie Noten"
+    hero_title_line2: "Eine Suche für IMSLP, CPDL und PDMX."
+    scores_ready: "%{count} Noten verfügbar"
+    placeholder: "NOTEN SUCHEN..."
+    button: "Suchen"
+    browse: "Stöbern"
+    or_explore: "oder stöbern"
+    browse_composers: "Komponisten"
+    browse_genres: "Genres"
+    browse_instruments: "Instrumente"
+    browse_periods: "Epochen"
+    filters: "Filter"
+    close_filters: "Filter schließen"
+    clear: "Zurücksetzen"
+    results_count: "Noten"
+    sort_by: "SORTIEREN"
+    unknown_composer: "Unbekannt"
+
+  # Filters
+  filters:
+    key: "Tonart"
+    time: "Taktart"
+    forces: "Besetzung"
+    voice_type: "Chortyp"
+    difficulty: "Schwierigkeit"
+    genre: "Genre"
+    period: "Epoche"
+    source: "Quelle"
+    language: "Sprache"
+    any: "Alle"
+
+  # Sort options
+  sort:
+    popular: "Beliebtheit"
+    rated: "Bewertung"
+    newest: "Neueste"
+    title: "Titel"
+    composer: "Komponist"
+
+  # Genres
+  genres:
+    sacred: "Geistliche Musik"
+    classical: "Klassik"
+    folk: "Volksmusik"
+    soundtrack: "Filmmusik"
+    jazz: "Jazz"
+    rock: "Rock"
+    pop: "Pop"
+
+  # Key signatures
+  keys:
+    c_major: "C-Dur"
+    g_major: "G-Dur"
+    d_major: "D-Dur"
+    a_major: "A-Dur"
+    f_major: "F-Dur"
+    bb_major: "B-Dur"
+    eb_major: "Es-Dur"
+    a_minor: "a-Moll"
+    e_minor: "e-Moll"
+    d_minor: "d-Moll"
+    g_minor: "g-Moll"
+    b_minor: "h-Moll"
+    c_minor: "c-Moll"
+
+  # Forces options (number of performers)
+  forces:
+    solo: "Solo"
+    duet: "Duett"
+    trio: "Trio"
+    quartet: "Quartett"
+    ensemble: "Ensemble (5+)"
+
+  # Voice type options (choir type)
+  voice_type:
+    mixed: "Gemischter Chor"
+    treble: "Frauenchor"
+    mens: "Männerchor"
+    unison: "Einstimmig"
+
+  # Difficulty levels
+  difficulty:
+    beginner: "Anfänger"
+    easy: "Leicht"
+    intermediate: "Mittel"
+    advanced: "Fortgeschritten"
+
+  # Historical periods
+  periods:
+    medieval: "Mittelalter"
+    renaissance: "Renaissance"
+    baroque: "Barock"
+    classical: "Klassik"
+    romantic: "Romantik"
+    modern: "Moderne / 20. Jahrhundert"
+
+  # Score Detail Page
+  score:
+    back: "Zurück"
+    preview_not_generated: "Vorschau noch nicht erstellt"
+    open_pdf: "PDF öffnen"
+    download_mxl: "MXL herunterladen"
+    mxl_hint: "Komprimiertes MusicXML — öffnet in MuseScore, Sibelius, Finale"
+    download_pdf: "PDF herunterladen"
+    download_midi: "MIDI herunterladen"
+    view_on_source: "Auf %{source} ansehen"
+    unknown_composer: "Unbekannter Komponist"
+    details: "Details"
+    key: "Tonart"
+    time: "Taktart"
+    parts: "Stimmen"
+    complexity: "Schwierigkeit"
+    rating: "Bewertung"
+    genres: "Genres"
+    views: "Aufrufe"
+    favs: "Favoriten"
+    complexity_scale: "%{value} / 3"
+    rating_scale: "%{value} / 5,0"
+    # Extended CPDL fields
+    language: "Sprache"
+    instruments: "Instrumente"
+    voicing: "Besetzung"
+    description: "Beschreibung"
+    editor: "Bearbeiter"
+    license: "Lizenz"
+    lyrics: "Text"
+    cpdl_number: "CPDL Nr."
+    posted_date: "Veröffentlicht"
+    page_count: "Seiten"
+    tags: "Schlagwörter"
+    about_this_score: "Über dieses Stück"
+    music_details: "Musikalische Details"
+    download_files: "Downloads"
+    external_source: "Externe Quelle"
+    lyrics_text: "Text / Lyrics"
+    listen: "Anhören"
+    loading_player: "Player wird geladen..."
+    midi_hint: "Klicke auf Play für eine synthetisierte Vorschau"
+    play_pause: "Abspielen / Pause"
+    volume: "Lautstärke"
+
+  # About Page
+  about:
+    label: "Info"
+    title: "ScoreBase"
+    subtitle: "Durchsuche freie Noten von IMSLP, CPDL und PDMX an einem Ort."
+    total_scores: "Noten gesamt"
+    why_exists_title: "Warum?"
+    why_exists_p1: "IMSLP, CPDL, PDMX – es gibt einige gute Quellen für freie Noten. Aber jede Seite hat ihre eigene Suche, und oft muss man überall einzeln schauen, bis man findet was man sucht."
+    why_exists_p2: "ScoreBase löst genau dieses Problem – eine Suche für alle Quellen."
+    sources_title: "Quellen"
+    features_title: "Wie es funktioniert"
+    feature_1_title: "Aggregierte Daten"
+    feature_1_desc: "Noten von IMSLP, CPDL und PDMX werden indexiert und sind an einem Ort durchsuchbar."
+    feature_2_title: "Vereinheitlichte Namen"
+    feature_2_desc: "Komponistennamen werden quellenübergreifend abgeglichen, sodass 'Bach, Johann Sebastian' und 'J.S. Bach' zusammen erscheinen."
+    feature_3_title: "Filteroptionen"
+    feature_3_desc: "Filter nach Tonart, Taktart, Genre, Besetzung und weiteren Metadaten, sofern vorhanden."
+    feature_4_title: "In Arbeit"
+    feature_4_desc: "Weitere Quellen und Verbesserungen geplant. Ziel ist eine übersichtlichere Alternative zum Durchsuchen der einzelnen Seiten."
+    back_to_search: "Zurück zur Suche"
+    imslp_name: "International Music Score Library Project"
+    imslp_description: "Auch bekannt als Petrucci-Musikbibliothek. Die größte Sammlung freier Noten mit über 800.000 Partituren von mehr als 27.000 Komponisten."
+    cpdl_name: "Choral Public Domain Library"
+    cpdl_description: "Auch bekannt als ChoralWiki. Die größte Seite für kostenlose Chornoten, mit starker Abdeckung von Renaissance- und Barockvokalwerken."
+    pdmx_name: "Public Domain MusicXML"
+    pdmx_description: "Ein Datensatz mit über 250.000 freien MusicXML-Dateien von MuseScore. Nützlich für Notationssoftware wie MuseScore, Sibelius oder Finale."
+
+  # Impressum Page
+  impressum:
+    label: "Rechtliches"
+    title: "Impressum"
+    contact: "Kontakt"
+    privacy: "Datenschutz"
+    privacy_title: "Keine Datenerfassung"
+    privacy_desc: "Keine Analyse, keine Cookies, keine Drittanbieter."
+    back_to_search: "Zurück zur Suche"
+
+  # Language names (for the toggle and filter)
+  languages:
+    en: "EN"
+    de: "DE"
+    latin: "Latein"
+    english: "Englisch"
+    italian: "Italienisch"
+    german: "Deutsch"
+    french: "Französisch"
+    spanish: "Spanisch"
+
+  # Hub/Landing Pages (SEO)
+  hub:
+    # Index pages
+    composers_title: "Komponisten — Freie Noten"
+    composers_description: "Durchsuche %{count} Komponisten mit kostenlosen Noten zum Download."
+    genres_title: "Musikgenres — Freie Noten"
+    genres_description: "Durchsuche %{count} Genres mit kostenlosen Noten zum Download."
+    instruments_title: "Instrumente — Freie Noten"
+    instruments_description: "Durchsuche %{count} Instrumente mit kostenlosen Noten zum Download."
+    periods_title: "Epochen — Freie Noten"
+    periods_description: "Durchsuche %{count} Epochen mit kostenlosen Noten zum Download."
+    periods: "Epochen"
+
+    # Single dimension pages
+    composer_page_title: "%{name} — Freie Noten"
+    composer_page_description: "Lade %{count} kostenlose Noten von %{name} herunter. PDF, MusicXML und MIDI."
+    genre_page_title: "%{name} Noten — Kostenloser Download"
+    genre_page_description: "Lade %{count} kostenlose %{name}-Noten herunter. PDF, MusicXML und MIDI."
+    instrument_page_title: "%{name} Noten — Kostenloser Download"
+    instrument_page_description: "Lade %{count} kostenlose Noten für %{name} herunter. PDF, MusicXML und MIDI."
+    period_page_title: "%{name} — Freie Noten"
+    period_page_description: "Lade %{count} kostenlose Noten aus der %{name} herunter. PDF, MusicXML und MIDI."
+
+    # Combined pages
+    composer_instrument_title: "%{composer} %{instrument} Noten — Kostenloser Download"
+    composer_instrument_description: "Lade %{count} kostenlose %{instrument}-Noten von %{composer} herunter. PDF, MusicXML und MIDI."
+    genre_instrument_title: "%{genre} %{instrument} Noten — Kostenloser Download"
+    genre_instrument_description: "Lade %{count} kostenlose %{genre}-Noten für %{instrument} herunter. PDF, MusicXML und MIDI."
+
+    # UI elements
+    scores_count: "%{count} Noten"
+    browse_all: "Alle durchsuchen"
+    back_to_list: "Zurück zur Liste"
+    filter_results: "Ergebnisse filtern"
+    no_scores_found: "Keine Noten gefunden."
+    view_all_by: "Alle von %{name} anzeigen"
+    search_composers: "Komponist suchen..."
+    search_instruments: "Instrument suchen..."
+    search_genres: "Genre suchen..."
+    clear_search: "Suche löschen"
+    jump_to_letter: "Zum Buchstaben springen"
+    composer_found: "Komponist gefunden"
+    composers_found: "Komponisten gefunden"
+    no_composers_found: "Keine Komponisten gefunden"
+    no_composers_matching: "Keine Komponisten für"
+    instrument_found: "Instrument gefunden"
+    instruments_found: "Instrumente gefunden"
+    no_instruments_found: "Keine Instrumente gefunden"
+    no_instruments_matching: "Keine Instrumente für"
+    genre_found: "Genre gefunden"
+    genres_found: "Genres gefunden"
+    no_genres_found: "Keine Genres gefunden"
+    no_genres_matching: "Keine Genres für"
+    try_different_spelling: "Versuche eine andere Schreibweise oder durchsuche alphabetisch"

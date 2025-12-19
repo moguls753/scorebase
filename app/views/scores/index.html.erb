@@ -1,0 +1,263 @@
+<!-- Hero Section with Search -->
+<section class="hero-section py-8 sm:py-12 lg:py-16 border-b-2 border-[var(--color-border)]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-[var(--font-family-display)] mb-2 sm:mb-3 leading-tight font-black uppercase tracking-tight hero-title">
+        <%= t('search.hero_title_line1') %>
+      </h2>
+      <p class="hidden sm:block text-base sm:text-lg mb-2 sm:mb-3 font-medium hero-subtitle">
+        <%= t('search.hero_title_line2') %>
+      </p>
+      <p class="text-sm sm:text-base mb-6 sm:mb-10 font-medium hero-subtitle opacity-75">
+        <%= t('search.scores_ready', count: number_with_delimiter(@total_count)).html_safe.gsub(number_with_delimiter(@total_count), "<span class='font-bold hero-accent'>#{number_with_delimiter(@total_count)}</span>").html_safe %>
+      </p>
+
+      <!-- Search Bar -->
+      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "flex flex-col sm:flex-row items-stretch gap-2 sm:gap-3" do |f| %>
+        <%= filter_hidden_fields(f) %>
+        <%= f.hidden_field :sort, value: params[:sort] %>
+        <%= f.text_field :q,
+          placeholder: t('search.placeholder'),
+          value: params[:q],
+          class: "flex-1 mm-input text-sm"
+        %>
+
+        <!-- Mobile: Search Button + Browse Dropdown -->
+        <div class="flex gap-2 sm:hidden">
+          <%= f.submit t('search.button'), class: "mm-button mm-button-primary cursor-pointer text-xs flex-1" %>
+
+          <details class="relative">
+            <summary class="mm-button mm-button-secondary text-xs cursor-pointer text-center list-none">
+              <%= t('search.browse') %>
+            </summary>
+            <div class="absolute right-0 mt-2 w-48 bg-[var(--color-bg-card)] border-2 border-[var(--color-border)] shadow-lg z-10">
+              <%= link_to composers_path, class: "block px-4 py-3 text-xs font-semibold uppercase hover:bg-[var(--color-bg-hover)] border-b border-[var(--color-border)]" do %>
+                <%= t('search.browse_composers') %>
+              <% end %>
+              <%= link_to genres_path, class: "block px-4 py-3 text-xs font-semibold uppercase hover:bg-[var(--color-bg-hover)] border-b border-[var(--color-border)]" do %>
+                <%= t('search.browse_genres') %>
+              <% end %>
+              <%= link_to instruments_path, class: "block px-4 py-3 text-xs font-semibold uppercase hover:bg-[var(--color-bg-hover)] border-b border-[var(--color-border)]" do %>
+                <%= t('search.browse_instruments') %>
+              <% end %>
+              <%= link_to periods_path, class: "block px-4 py-3 text-xs font-semibold uppercase hover:bg-[var(--color-bg-hover)]" do %>
+                <%= t('search.browse_periods') %>
+              <% end %>
+            </div>
+          </details>
+        </div>
+
+        <!-- Desktop: Full Width Search Button -->
+        <%= f.submit t('search.button'), class: "hidden sm:block mm-button mm-button-primary cursor-pointer px-6 text-xs w-full sm:w-auto" %>
+      <% end %>
+
+      <!-- Desktop Browse Links (hidden on mobile) -->
+      <div class="hidden sm:block">
+        <div class="browse-divider">
+          <span class="browse-divider-text"><%= t('search.or_explore') %></span>
+        </div>
+        <nav class="browse-links" aria-label="Browse categories">
+        <%= link_to composers_path, class: "browse-link" do %>
+          <svg class="browse-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+            <circle cx="12" cy="7" r="4"></circle>
+          </svg>
+          <%= t('search.browse_composers') %>
+        <% end %>
+        <%= link_to genres_path, class: "browse-link" do %>
+          <svg class="browse-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+          </svg>
+          <%= t('search.browse_genres') %>
+        <% end %>
+        <%= link_to instruments_path, class: "browse-link" do %>
+          <svg class="browse-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 5L6 9H2v6h4l5 4V5z"></path>
+            <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+          </svg>
+          <%= t('search.browse_instruments') %>
+        <% end %>
+        <%= link_to periods_path, class: "browse-link" do %>
+          <svg class="browse-link-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <%= t('search.browse_periods') %>
+        <% end %>
+        </nav>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Main Content: Filters + Grid -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8 lg:py-12" data-controller="filter-modal">
+  <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
+    <!-- Mobile Filter Modal (hidden by default) -->
+    <div data-filter-modal-target="modal"
+         data-action="click->filter-modal#closeOnBackdrop"
+         class="lg:hidden fixed inset-0 z-50 hidden filter-modal-backdrop"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="filter-modal-title">
+      <div class="absolute inset-x-0 bottom-0 bg-[var(--color-bg-card)] border-t-2 border-[var(--color-border)] filter-modal-sheet">
+        <!-- Modal Header -->
+        <div class="flex items-center justify-between p-4 border-b-2 border-[var(--color-border)]">
+          <h3 id="filter-modal-title" class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight">
+            <%= t('search.filters') %>
+          </h3>
+          <button type="button"
+                  data-action="click->filter-modal#close"
+                  class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
+                  aria-label="<%= t('search.close_filters') %>">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Scrollable Filter Content -->
+        <div class="filter-modal-content">
+          <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" } do |f| %>
+            <%= f.hidden_field :q, value: params[:q] %>
+            <%= f.hidden_field :sort, value: params[:sort] %>
+
+            <%# Mobile filter fields (2-column grid) %>
+            <%= render 'filter_fields', f: f, mobile: true %>
+          <% end %>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="p-4 border-t-2 border-[var(--color-border)]">
+          <%= link_to t('search.clear'), scores_path,
+              data: { turbo_frame: "scores", action: "click->filter-modal#close" },
+              class: "mm-button mm-button-secondary w-full text-center text-xs" %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Desktop Filters Sidebar -->
+    <aside class="hidden lg:block w-64 flex-shrink-0">
+      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "mm-card p-5 sticky top-6" } do |f| %>
+        <h3 class="text-lg font-[var(--font-family-display)] text-[var(--color-primary)] mb-5 font-black uppercase tracking-tight">
+          <%= t('search.filters') %>
+        </h3>
+
+        <%= f.hidden_field :q, value: params[:q] %>
+        <%= f.hidden_field :sort, value: params[:sort] %>
+
+        <%# Desktop filter fields (stacked layout) %>
+        <%= render 'filter_fields', f: f, mobile: false %>
+
+        <%= link_to t('search.clear'), scores_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
+      <% end %>
+    </aside>
+
+    <!-- Results Grid -->
+    <turbo-frame id="scores" data-turbo-action="advance" class="flex-1 contents">
+    <main class="flex-1 min-w-0">
+      <!-- Results Header -->
+      <!-- Mobile: Compact control bar -->
+      <div class="lg:hidden mb-4">
+        <!-- Results count -->
+        <p class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wide mb-2">
+          <span class="text-[var(--color-accent)]"><%= @filtered_count %></span> / <%= @total_count %> <%= t('search.results_count') %>
+        </p>
+
+        <!-- Filters + Sort side-by-side -->
+        <div class="grid grid-cols-2 gap-2">
+          <!-- Filters button -->
+          <button type="button"
+                  data-action="click->filter-modal#open"
+                  class="mm-button mm-button-secondary text-xs flex items-center justify-center gap-1.5 filter-btn-padded">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span class="font-black uppercase"><%= t('search.filters') %></span>
+            <% if active_filters_count > 0 %>
+              <span class="filter-count"><%= active_filters_count %></span>
+            <% end %>
+          </button>
+
+          <!-- Sort dropdown -->
+          <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "w-full" } do |f| %>
+            <%= f.hidden_field :q, value: params[:q] %>
+            <%= filter_hidden_fields(f) %>
+            <%= f.select :sort,
+                [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
+                { selected: params[:sort] || "popularity" },
+                { class: "mm-button mm-button-secondary text-xs w-full font-black uppercase filter-btn-padded sort-select-mobile",
+                  id: "sort-mobile",
+                  data: { action: "change->url-sync#submit" } }
+            %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Desktop: Original layout -->
+      <div class="hidden lg:flex flex-row items-center justify-between gap-4 mb-6">
+        <div>
+          <p class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wide">
+            <span class="text-[var(--color-accent)]"><%= @filtered_count %></span> / <%= @total_count %> <%= t('search.results_count') %>
+          </p>
+        </div>
+
+        <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "inline-block" } do |f| %>
+          <%= f.hidden_field :q, value: params[:q] %>
+          <%= filter_hidden_fields(f) %>
+          <div class="sort-control">
+            <label for="sort" class="sort-label">
+              <span class="sort-icon">↕</span>
+              <span><%= t('search.sort_by') %></span>
+            </label>
+            <%= f.select :sort,
+                [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
+                { selected: params[:sort] || "popularity" },
+                { class: "sort-select", id: "sort", data: { action: "change->url-sync#submit" } }
+            %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Score Cards Grid -->
+      <div class="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 [&>*]:max-w-[280px]">
+        <% @scores.each do |score| %>
+          <%= link_to score_path(score), data: { turbo_frame: "_top" }, class: "mm-card overflow-hidden block" do %>
+            <%= render "scores/thumbnail", score: score %>
+
+            <!-- Card Content -->
+            <div class="p-2.5 sm:p-3">
+              <h4 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-1 leading-tight font-bold line-clamp-2 xs:line-clamp-1">
+                <%= score.title %>
+              </h4>
+              <p class="text-sm text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
+                <%= score.composer.presence || t('search.unknown_composer') %>
+              </p>
+
+              <!-- Metadata Badges -->
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <% if score.source.present? %>
+                  <span class="mm-badge-source mm-badge-<%= score.source %> inline-block">
+                    <%= score.source.upcase %>
+                  </span>
+                <% end %>
+                <% if score.primary_key_signature.present? %>
+                  <span class="mm-badge text-xs inline-block">
+                    <%= score.primary_key_signature %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+
+      <%= render 'shared/pagination', scores: @scores, turbo_frame: 'scores' %>
+    </main>
+    </turbo-frame>
+  </div>
+</div>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <title><%= content_for(:title) || t('meta.title') %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= content_for(:meta_description) || t('meta.description') %>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="ScoreBase">
+    <meta name="mobile-web-app-capable" content="yes">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <!-- Preconnect to CDN for faster thumbnail loading -->
+    <link rel="preconnect" href="https://cdn.scorebase.org">
+
+    <%# Prevent dark mode flash by applying theme before page renders %>
+    <script>
+      (function() {
+        const savedTheme = localStorage.getItem("theme") ||
+          (window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+        if (savedTheme === "dark") {
+          document.documentElement.setAttribute("data-theme", "dark");
+        }
+      })();
+    </script>
+
+    <%= yield :head %>
+
+    <%# Enable PWA manifest for installable apps (make sure to enable in config/routes.rb too!) %>
+    <%#= tag.link rel: "manifest", href: pwa_manifest_path(format: :json) %>
+
+    <!-- Favicons -->
+    <link rel="icon" type="image/svg+xml" href="/icon.svg">
+    <link rel="icon" type="image/png" href="/icon.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+    <!-- Canonical URL -->
+    <% if content_for?(:canonical_url) %>
+      <link rel="canonical" href="<%= content_for(:canonical_url) %>">
+    <% else %>
+      <link rel="canonical" href="<%= request.base_url %><%= request.path %>">
+    <% end %>
+
+    <!-- Alternate language versions (hreflang) -->
+    <link rel="alternate" hreflang="en" href="<%= request.base_url %><%= request.path.gsub(%r{^/de(/|$)}, '/') %>">
+    <link rel="alternate" hreflang="de" href="<%= request.base_url %>/de<%= request.path.gsub(%r{^/de}, '') %>">
+    <link rel="alternate" hreflang="x-default" href="<%= request.base_url %><%= request.path.gsub(%r{^/de(/|$)}, '/') %>">
+
+    <!-- Open Graph / Social Sharing -->
+    <meta property="og:type" content="<%= content_for(:og_type) || 'website' %>">
+    <meta property="og:title" content="<%= content_for(:title) || t('meta.title') %>">
+    <meta property="og:description" content="<%= content_for(:meta_description) || t('meta.description') %>">
+    <meta property="og:url" content="<%= request.original_url %>">
+    <meta property="og:image" content="<%= content_for(:og_image) || "#{request.base_url}/og-image.png" %>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:image" content="<%= content_for(:og_image) || "#{request.base_url}/og-image.png" %>">
+
+    <!-- JSON-LD Structured Data -->
+    <%= yield :json_ld %>
+
+    <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body class="min-h-screen flex flex-col" data-controller="mobile-menu">
+    <!-- Mobile Menu Overlay -->
+    <div data-mobile-menu-target="overlay"
+         data-action="click->mobile-menu#close"
+         class="mobile-overlay"></div>
+
+    <!-- Header -->
+    <header class="relative z-30 bg-[var(--color-bg-elevated)] border-b-2 border-[var(--color-border)]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6">
+        <div class="flex items-center justify-between">
+          <!-- Logo & Source Info -->
+          <div>
+            <%= link_to root_path, class: "group" do %>
+              <h1 class="text-2xl sm:text-3xl font-[var(--font-family-display)] text-[var(--color-primary)] font-black tracking-tight transition-all hover:text-[var(--color-accent)]">
+                SCORE<span class="text-[var(--color-accent)]">BASE</span>
+              </h1>
+            <% end %>
+            <p class="text-[9px] sm:text-[10px] text-[var(--color-text-muted)] font-medium tracking-wide mt-0.5 hidden xs:block">
+              <%= t('meta.sources_tagline') %>
+            </p>
+          </div>
+
+          <!-- Desktop Navigation -->
+          <nav class="hidden sm:flex items-center gap-2">
+            <%= link_to about_path, class: "nav-icon-btn", aria: { label: t('nav.about') }, title: t('nav.about') do %>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 16v-4"></path>
+                <path d="M12 8h.01"></path>
+              </svg>
+            <% end %>
+            <%= link_to url_for(locale: I18n.locale == :en ? :de : :en),
+                class: "nav-icon-btn nav-icon-btn--text",
+                aria: { label: t('nav.toggle_language') },
+                title: t('nav.toggle_language'),
+                data: { turbo_action: "replace" } do %>
+              <span class="nav-lang-text"><%= I18n.locale == :en ? 'EN' : 'DE' %></span>
+            <% end %>
+            <div data-controller="theme">
+              <button type="button"
+                      data-action="click->theme#toggle"
+                      data-theme-target="toggle"
+                      class="nav-icon-btn"
+                      aria-label="<%= t('nav.toggle_dark_mode') %>"
+                      title="<%= t('nav.toggle_dark_mode') %>">
+                <svg data-theme-target="sunIcon" class="nav-theme-icon nav-theme-icon--sun" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="5"></circle>
+                  <line x1="12" y1="1" x2="12" y2="3"></line>
+                  <line x1="12" y1="21" x2="12" y2="23"></line>
+                  <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                  <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                  <line x1="1" y1="12" x2="3" y2="12"></line>
+                  <line x1="21" y1="12" x2="23" y2="12"></line>
+                  <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                  <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                </svg>
+                <svg data-theme-target="moonIcon" class="nav-theme-icon nav-theme-icon--moon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                </svg>
+              </button>
+            </div>
+          </nav>
+
+          <!-- Mobile Hamburger Button -->
+          <button type="button"
+                  data-mobile-menu-target="hamburger"
+                  data-action="click->mobile-menu#toggle"
+                  class="hamburger flex sm:hidden"
+                  aria-label="Toggle menu"
+                  aria-expanded="false">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Mobile Slide-out Menu -->
+    <nav data-mobile-menu-target="menu" class="mobile-menu sm:hidden">
+      <div class="mobile-menu-header">
+        <span class="text-lg font-[var(--font-family-display)] font-black text-[var(--color-primary)]">Menu</span>
+        <button type="button" data-action="click->mobile-menu#close" class="nav-icon-btn" aria-label="Close menu">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="mobile-menu-content">
+        <%= link_to about_path, class: "mobile-menu-link", data: { action: "click->mobile-menu#close" } do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M12 16v-4"></path>
+            <path d="M12 8h.01"></path>
+          </svg>
+          <%= t('nav.about') %>
+        <% end %>
+        <%= link_to url_for(locale: I18n.locale == :en ? :de : :en),
+            class: "mobile-menu-link",
+            data: { turbo_action: "replace", action: "click->mobile-menu#close" } do %>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          <%= I18n.locale == :en ? 'English' : 'Deutsch' %>
+        <% end %>
+        <div data-controller="theme" class="mobile-menu-link-wrapper">
+          <button type="button"
+                  data-action="click->theme#toggle"
+                  data-theme-target="toggle"
+                  class="mobile-menu-link w-full text-left">
+            <svg data-theme-target="sunIcon" class="nav-theme-icon nav-theme-icon--sun" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="5"></circle>
+              <line x1="12" y1="1" x2="12" y2="3"></line>
+              <line x1="12" y1="21" x2="12" y2="23"></line>
+              <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+              <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+              <line x1="1" y1="12" x2="3" y2="12"></line>
+              <line x1="21" y1="12" x2="23" y2="12"></line>
+              <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+              <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+            </svg>
+            <svg data-theme-target="moonIcon" class="nav-theme-icon nav-theme-icon--moon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+            </svg>
+            <span data-theme-target="sunIcon" class="nav-theme-icon nav-theme-icon--sun"><%= t('nav.toggle_dark_mode') %></span>
+            <span data-theme-target="moonIcon" class="nav-theme-icon nav-theme-icon--moon"><%= t('nav.toggle_dark_mode') %></span>
+          </button>
+        </div>
+      </div>
+      <div class="mobile-menu-footer">
+        <a href="https://github.com/moguls753/scorebase" target="_blank" rel="noopener nofollow" class="text-xs text-[var(--color-text-muted)] hover:text-[var(--color-accent)]">GitHub</a>
+        <span class="text-[var(--color-border-subtle)]">·</span>
+        <%= link_to t('nav.impressum'), impressum_path, class: "text-xs text-[var(--color-text-muted)] hover:text-[var(--color-accent)]", data: { action: "click->mobile-menu#close" } %>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="relative z-10 flex-1">
+      <%= yield %>
+    </main>
+
+    <!-- Footer -->
+    <footer class="relative z-10 bg-[var(--color-bg-elevated)] border-t-2 border-[var(--color-border)] mt-12 sm:mt-20">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 text-xs">
+          <p class="text-[var(--color-text-muted)] font-medium text-center sm:text-left">
+            <span class="font-bold text-[var(--color-accent)]"><%= number_with_delimiter(Score.count) %></span> <%= t('footer.public_domain_scores') %>
+          </p>
+          <p class="text-[var(--color-text-muted)] font-medium">
+            <a href="https://github.com/moguls753/scorebase" target="_blank" rel="noopener nofollow" class="hover:text-[var(--color-primary)] transition-colors"><%= t('nav.github') %></a>
+            <span class="mx-2">·</span>
+            <%= link_to t('nav.impressum'), impressum_path, class: "hover:text-[var(--color-primary)] transition-colors" %>
+          </p>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

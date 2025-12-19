@@ -1,0 +1,70 @@
+<section class="py-16 md:py-24">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="max-w-2xl mx-auto">
+      <!-- Header -->
+      <header class="mb-12 md:mb-16">
+        <div class="flex items-end gap-4 mb-4">
+          <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-accent)] font-[var(--font-family-display)]"><%= t('impressum.label') %></span>
+          <div class="flex-1 h-[2px] bg-[var(--color-accent)] mb-0.5"></div>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-[var(--font-family-display)] font-black uppercase tracking-tight text-[var(--color-primary)]">
+          <%= t('impressum.title') %>
+        </h1>
+      </header>
+
+      <!-- Contact Card -->
+      <div class="mm-card p-6 md:p-8 mb-6">
+        <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-accent)] font-[var(--font-family-display)] mb-5">
+          <%= t('impressum.contact') %>
+        </h2>
+
+        <div class="space-y-4">
+          <div>
+            <p class="text-xl md:text-2xl font-[var(--font-family-display)] font-bold text-[var(--color-primary)]">
+              Eike Rackwitz
+            </p>
+            <p class="text-sm text-[var(--color-text-muted)] mt-1">
+              Halle, Germany
+            </p>
+          </div>
+
+          <div class="pt-4 border-t border-[var(--color-border-subtle)]">
+            <a href="mailto:scorebase.contact@gmail.com"
+               class="text-sm font-semibold text-[var(--color-primary)] hover:text-[var(--color-accent)] transition-colors">
+              scorebase.contact@gmail.com
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Privacy Card -->
+      <div class="mm-card p-6 md:p-8">
+        <h2 class="text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--color-accent)] font-[var(--font-family-display)] mb-5">
+          <%= t('impressum.privacy') %>
+        </h2>
+
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-12 h-12 rounded-sm bg-[var(--color-accent)]/10 border border-[var(--color-accent)]/30 flex items-center justify-center">
+            <svg class="w-6 h-6 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-sm font-semibold text-[var(--color-primary)] mb-1"><%= t('impressum.privacy_title') %></p>
+            <p class="text-sm text-[var(--color-text-muted)] leading-relaxed"><%= t('impressum.privacy_desc') %></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="mt-12 flex items-center justify-center gap-4">
+        <%= link_to root_path, class: "mm-button mm-button-secondary text-xs px-6 py-2.5" do %>
+          <%= t('impressum.back_to_search') %>
+        <% end %>
+        <%= link_to about_path, class: "mm-button mm-button-secondary text-xs px-6 py-2.5" do %>
+          <%= t('nav.about') %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,24 @@
+<%# Hub Card - Simple Style (used for Composers)
+    Local variables:
+    - item: Hash - Item data with :name, :slug, :count
+    - path: String - URL path for the link
+    - search_attribute: String - Data attribute name for search (e.g., "composerName")
+    - index: Integer - Card index for animation delay
+    - hub_card_simple_counter: Integer - Auto-set by collection rendering
+%>
+<% card_index = local_assigns[:hub_card_simple_counter] || index || 0 %>
+<% data_key = search_attribute.underscore.to_sym %>
+<%= link_to path,
+    class: "hub-card hub-card--simple mm-card group",
+    style: hub_card_style(card_index),
+    data: {
+      list_filter_target: "item",
+      data_key => item[:name].to_s.downcase
+    } do %>
+  <h3 class="hub-card__name" data-list-filter-target="itemName">
+    <%= item[:name] %>
+  </h3>
+  <span class="hub-card__count">
+    <%= number_with_delimiter(item[:count]) %>
+  </span>
+<% end %>

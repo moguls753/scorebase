@@ -1,0 +1,16 @@
+<%# Hub No Results Message
+    Local variables:
+    - message: String - Primary message (e.g., "No composers found")
+    - hint: String - Secondary hint text (e.g., "Try a different spelling")
+%>
+<div class="hub-no-results mm-card p-8 sm:p-12 text-center"
+     data-list-filter-target="noResults">
+  <div class="text-5xl mb-4">🔍</div>
+  <p class="text-[var(--color-text-muted)] font-medium text-lg mb-2"
+     data-list-filter-target="noResultsText">
+    <%= message %>
+  </p>
+  <p class="text-sm text-[var(--color-text-muted)]">
+    <%= hint %>
+  </p>
+</div>
