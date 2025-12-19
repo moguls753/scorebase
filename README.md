@@ -1,11 +1,13 @@
 # ScoreBase
 
-A Rails web application for searching and browsing 222,000+ public domain MusicXML scores from PDMX, CPDL, and IMSLP.
+A search engine for public domain music scores.
+
+Aggregates scores from multiple sources:
+- PDMX (MuseScore's public domain catalog)
+- CPDL (Choral Public Domain Library)
+- IMSLP (International Music Score Library Project)
+- More to come
+
+Normalizes composer names across sources, generates thumbnails, and provides filtering by key, time signature, genre, voicing, and more.
 
 Hosted at [scorebase.org](https://scorebase.org)
-
-## Features
-
-- Search and filter by key, time signature, composer, and instrumentation
-- Visual score previews and MIDI playback
-- Download MusicXML, PDF, and MIDI files
