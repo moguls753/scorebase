@@ -5,10 +5,6 @@
       "note": "Reviewed - path traversal prevented by start_with? check before send_file"
     },
     {
-      "fingerprint": "3edf98f040eb99daa87080aafe447b1df2f75e8cc5cb3aef6883b1539ee0a2c4",
-      "note": "Reviewed - SSL bypass needed for IMSLP API"
-    },
-    {
       "fingerprint": "752441d360a8b4122e952ba991d7ba6261922a9482fe33933b56f5e4ccc4681c",
       "note": "Reviewed - SSL bypass needed for thumbnail downloads"
     },
@@ -18,9 +14,17 @@
     },
     {
       "fingerprint": "af85eebc507474c1fc046bd4964ce386c4f1231cae9a96df1d976b1f4ffc2d15",
-      "note": "Reviewed - external URL link is user-facing and intentional"
+      "note": "Reviewed - SSL bypass needed for CPDL API (their cert chain has issues)"
+    },
+    {
+      "fingerprint": "adf789c32e4f101042f972d90d31d92dc0836b086d46dcf90ff7710c96921f1d",
+      "note": "Reviewed - pdf_path is from Active Storage temp file, not user input"
+    },
+    {
+      "fingerprint": "b6a54cf3a2572b31c3f179d2eeadf9c179273488470d904b9cc44cd325c90883",
+      "note": "Reviewed - pdf_path is from Active Storage temp file, not user input"
     }
   ],
-  "updated": "2025-12-18",
+  "updated": "2025-12-19",
   "brakeman_version": "7.1.1"
 }
