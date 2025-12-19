@@ -32,15 +32,15 @@ namespace :images do
     puts
 
     # Gallery
-    puts "GALLERY PAGES"
+    puts "GALLERY PAGES (R2)"
     puts "-" * 40
     with_pdf = Score.where.not(pdf_path: [nil, "", "N/A"]).count
     with_gallery = ScorePage.distinct.count(:score_id)
     total_pages = ScorePage.count
-    puts "  Scores with PDF:     #{with_pdf}"
-    puts "  Scores with gallery: #{with_gallery}"
-    puts "  Total pages:         #{total_pages}"
-    puts "  Remaining:           #{with_pdf - with_gallery}"
+    puts "  Scores with PDF:        #{with_pdf}"
+    puts "  Scores with gallery:    #{with_gallery}"
+    puts "  Total pages on R2:      #{total_pages}"
+    puts "  Remaining:              #{with_pdf - with_gallery}"
     puts
 
     Score::SOURCES.each do |src|
