@@ -23,11 +23,11 @@ production:
       batch_size: 500
   workers:
     # CPU-heavy: PDF-to-image conversion (ImageMagick/Ghostscript)
-    # Single thread to avoid CPU contention with web
+    # Temporarily 3 threads for initial bulk run (reduce to 1 after)
     - queues:
         - galleries
         - thumbnails
-      threads: 1
+      threads: 3
       processes: 1
       polling_interval: 1
 

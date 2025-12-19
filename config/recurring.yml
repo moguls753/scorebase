@@ -9,32 +9,33 @@
 #     priority: 2
 #     schedule: at 5am every day
 
-production:
-  clear_solid_queue_finished_jobs:
-    command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
-    schedule: every hour at minute 12
+# Disabled for initial bulk run - re-enable after backlog is cleared
+production: {}
+  # clear_solid_queue_finished_jobs:
+  #   command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
+  #   schedule: every hour at minute 12
 
-  sitemap_refresh:
-    class: SitemapRefreshJob
-    queue: default
-    schedule: every day at 3am
+  # sitemap_refresh:
+  #   class: SitemapRefreshJob
+  #   queue: default
+  #   schedule: every day at 3am
 
-  hub_cache_warm:
-    class: HubCacheWarmJob
-    queue: default
-    schedule: every day at 4am
+  # hub_cache_warm:
+  #   class: HubCacheWarmJob
+  #   queue: default
+  #   schedule: every day at 4am
 
-  generate_missing_thumbnails:
-    class: GenerateMissingThumbnailsJob
-    queue: default
-    schedule: every day at 2am
+  # generate_missing_thumbnails:
+  #   class: GenerateMissingThumbnailsJob
+  #   queue: default
+  #   schedule: every day at 2am
 
-  generate_missing_galleries:
-    class: GenerateMissingGalleriesJob
-    queue: default
-    schedule: every day at 5am
+  # generate_missing_galleries:
+  #   class: GenerateMissingGalleriesJob
+  #   queue: default
+  #   schedule: every day at 5am
 
-  sync_missing_pdfs:
-    class: SyncMissingPdfsJob
-    queue: default
-    schedule: every day at 1am
+  # sync_missing_pdfs:
+  #   class: SyncMissingPdfsJob
+  #   queue: default
+  #   schedule: every day at 1am
