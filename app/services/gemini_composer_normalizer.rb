@@ -9,8 +9,8 @@ class GeminiComposerNormalizer < ComposerNormalizerBase
 
   def initialize(limit: nil)
     super
-    @api_key = ENV["GEMINI_API_KEY"]
-    raise "GEMINI_API_KEY environment variable not set" if @api_key.nil?
+    @api_key = Rails.application.credentials.dig(:gemini, :api_key)
+    raise "Gemini API key not set in Rails credentials" if @api_key.nil?
   end
 
   def provider_name

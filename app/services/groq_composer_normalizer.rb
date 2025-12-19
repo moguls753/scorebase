@@ -12,8 +12,8 @@ class GroqComposerNormalizer < ComposerNormalizerBase
 
   def initialize(limit: nil)
     super
-    @api_key = ENV["GROQ_API_KEY"]
-    raise "GROQ_API_KEY environment variable not set" if @api_key.nil?
+    @api_key = Rails.application.credentials.dig(:groq, :api_key)
+    raise "Groq API key not set in Rails credentials" if @api_key.nil?
   end
 
   def provider_name

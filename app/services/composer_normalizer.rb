@@ -3,8 +3,8 @@
 # Unified composer normalizer with automatic provider fallback
 class ComposerNormalizer
   PROVIDERS = [
-    { key: "GROQ_API_KEY", class: GroqComposerNormalizer },
-    { key: "GEMINI_API_KEY", class: GeminiComposerNormalizer }
+    { credential: [:groq, :api_key], class: GroqComposerNormalizer },
+    { credential: [:gemini, :api_key], class: GeminiComposerNormalizer }
   ].freeze
 
   def initialize(limit: nil)
@@ -12,10 +12,10 @@ class ComposerNormalizer
   end
 
   def normalize!
-    available = PROVIDERS.select { |p| ENV[p[:key]].present? }
+    available = PROVIDERS.select { |p| Rails.application.credentials.dig(*p[:credential]).present? }
 
     if available.empty?
-      puts "No API keys configured. Set GROQ_API_KEY or GEMINI_API_KEY."
+      puts "No API keys configured. Add groq.api_key or gemini.api_key to Rails credentials."
       return
     end
 
