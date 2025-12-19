@@ -48,7 +48,7 @@ class MobileInspector
     pages = [
       ['/', 'mobile_home.png'],
       ['/scores', 'mobile_scores_index.png'],
-      ['/scores?search=bach', 'mobile_search_results.png'],
+      ['/scores?search=bach', 'mobile_search_results.png']
     ]
 
     # Try to find a score to screenshot
