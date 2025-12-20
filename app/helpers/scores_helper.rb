@@ -38,8 +38,8 @@ module ScoresHelper
     "score.voicing" => { char: "♬" },
     "score.range" => { char: "↕" },
     "score.tempo" => { char: "♩" },
-    "score.duration" => { char: "◷", css: "score-fact-icon--nudge" },
-    "score.difficulty" => { char: "◆", css: "score-fact-icon--nudge" },
+    "score.duration" => { char: "◷", css: "score-fact-icon--nudge-1" },
+    "score.difficulty" => { char: "◆", css: "score-fact-icon--nudge-2" },
     "score.language" => { char: "¶" }
   }.freeze
 
