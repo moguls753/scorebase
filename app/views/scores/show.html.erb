@@ -85,7 +85,7 @@
                 <%# Difficulty meter - special rendering %>
                 <div class="score-fact-cell">
                   <span class="score-fact-label">
-                    <% if fact[:icon] %><span class="score-fact-icon"><%= fact[:icon] %></span><% end %>
+                    <% if fact[:icon] %><span class="score-fact-icon <%= fact[:icon_css] %>"><%= fact[:icon] %></span><% end %>
                     <%= fact[:label] %>
                   </span>
                   <%= difficulty_meter(fact[:difficulty]) %>
@@ -94,7 +94,7 @@
                 <%# Linkable fact - discover more %>
                 <%= link_to fact[:link], class: "score-fact-cell score-fact-cell--link" do %>
                   <span class="score-fact-label">
-                    <% if fact[:icon] %><span class="score-fact-icon"><%= fact[:icon] %></span><% end %>
+                    <% if fact[:icon] %><span class="score-fact-icon <%= fact[:icon_css] %>"><%= fact[:icon] %></span><% end %>
                     <%= fact[:label] %>
                     <span class="score-fact-link-arrow">→</span>
                   </span>
@@ -104,7 +104,7 @@
                 <%# Regular fact %>
                 <div class="score-fact-cell">
                   <span class="score-fact-label">
-                    <% if fact[:icon] %><span class="score-fact-icon"><%= fact[:icon] %></span><% end %>
+                    <% if fact[:icon] %><span class="score-fact-icon <%= fact[:icon_css] %>"><%= fact[:icon] %></span><% end %>
                     <%= fact[:label] %>
                   </span>
                   <span class="score-fact-value <%= fact[:css] %>"><%= fact[:value] %></span>

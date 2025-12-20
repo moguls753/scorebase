@@ -30,16 +30,39 @@ module ScoresHelper
   # ─────────────────────────────────────────────────────────────────
 
   # Icons for musical facts - helps scanning
+  # Using reliable Unicode ranges (U+2000s) - avoid Musical Symbols block (U+1D100s)
+  # Some glyphs need alignment nudges due to font baseline quirks
   FACT_ICONS = {
-    "score.key" => "♯",
-    "score.time" => "𝄴",
-    "score.voicing" => "♬",
-    "score.range" => "↕",
-    "score.tempo" => "♩",
-    "score.duration" => "◷",
-    "score.difficulty" => "◆",
-    "score.language" => "¶"
+    "score.key" => { char: "♯" },
+    "score.time" => { char: "⁄" },
+    "score.voicing" => { char: "♬" },
+    "score.range" => { char: "↕" },
+    "score.tempo" => { char: "♩" },
+    "score.duration" => { char: "◷", css: "score-fact-icon--nudge" },
+    "score.difficulty" => { char: "◆", css: "score-fact-icon--nudge" },
+    "score.language" => { char: "¶" }
   }.freeze
+
+  def fact_icon(key)
+    FACT_ICONS.dig(key, :char)
+  end
+
+  def fact_icon_css(key)
+    FACT_ICONS.dig(key, :css)
+  end
+
+  # Build a fact entry hash with icon data
+  def fact_entry(key, value, link: nil, difficulty: nil, css: nil)
+    {
+      label: t(key),
+      value: value,
+      icon: fact_icon(key),
+      icon_css: fact_icon_css(key),
+      link: link,
+      difficulty: difficulty,
+      css: css
+    }.compact
+  end
 
   # Returns unified array of all score facts for grid display
   # Each fact: { label:, value:, icon:, link:, css:, difficulty: }
@@ -61,61 +84,39 @@ module ScoresHelper
 
     # Key signature - descriptive, not linkable (too broad for discovery)
     if score.key_signature.present?
-      facts << {
-        label: t("score.key"),
-        value: score.key_signature,
-        icon: FACT_ICONS["score.key"]
-      }
+      facts << fact_entry("score.key", score.key_signature)
     end
 
     # Time signature - descriptive, not linkable (4/4 = half the catalog)
     if score.time_signature.present?
-      facts << {
-        label: t("score.time"),
-        value: score.time_signature,
-        icon: FACT_ICONS["score.time"]
-      }
+      facts << fact_entry("score.time", score.time_signature)
     end
 
     # Voicing - linkable
     if score.voicing.present?
-      facts << {
-        label: t("score.voicing"),
-        value: score.voicing,
-        icon: FACT_ICONS["score.voicing"],
-        link: scores_path(voicing: score.voicing)
-      }
+      facts << fact_entry("score.voicing", score.voicing, link: scores_path(voicing: score.voicing))
     end
 
     # Difficulty - special display (meter)
     if score.complexity.to_i.positive?
-      facts << {
-        label: t("score.difficulty"),
-        icon: FACT_ICONS["score.difficulty"],
-        difficulty: score.complexity.to_i
-      }
+      facts << fact_entry("score.difficulty", nil, difficulty: score.complexity.to_i)
     end
 
     # Pitch range
     range = format_pitch_range(score.lowest_pitch, score.highest_pitch)
-    facts << { label: t("score.range"), value: range, icon: FACT_ICONS["score.range"] } if range
+    facts << fact_entry("score.range", range) if range
 
     # Tempo
     tempo = format_tempo(score.tempo_marking, score.tempo_bpm)
-    facts << { label: t("score.tempo"), value: tempo, icon: FACT_ICONS["score.tempo"] } if tempo
+    facts << fact_entry("score.tempo", tempo) if tempo
 
     # Duration
     duration = format_duration(score.duration_seconds)
-    facts << { label: t("score.duration"), value: duration, icon: FACT_ICONS["score.duration"] } if duration
+    facts << fact_entry("score.duration", duration) if duration
 
     # Language - linkable
     if score.language.present?
-      facts << {
-        label: t("score.language"),
-        value: score.language,
-        icon: FACT_ICONS["score.language"],
-        link: scores_path(language: score.language)
-      }
+      facts << fact_entry("score.language", score.language, link: scores_path(language: score.language))
     end
 
     # Non-linkable facts

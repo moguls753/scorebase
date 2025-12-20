@@ -3088,6 +3088,11 @@ html[data-turbo-preview] .hub-card {
   flex-shrink: 0;
 }
 
+/* Baseline nudge for glyphs that sit high (◷, ◆) */
+.score-fact-icon--nudge {
+  padding-bottom: 1px;
+}
+
 /* Linkable facts - tap to discover more */
 .score-fact-cell--link {
   cursor: pointer;
