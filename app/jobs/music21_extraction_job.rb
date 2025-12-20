@@ -39,14 +39,20 @@ class Music21ExtractionJob < ApplicationJob
   private
 
   def download_mxl(score, dir)
-    url = score.mxl_url
+    source = score.mxl_url
     ext = File.extname(score.mxl_path).presence || ".mxl"
-    path = File.join(dir, "score#{ext}")
+    dest = File.join(dir, "score#{ext}")
 
-    uri = URI(url)
+    # Local file (PDMX) - copy directly
+    if File.exist?(source)
+      FileUtils.cp(source, dest)
+      return dest
+    end
+
+    # Remote URL (CPDL, IMSLP) - download via HTTP
+    uri = URI(source)
     response = Net::HTTP.get_response(uri)
 
-    # Follow redirects
     5.times do
       break unless response.is_a?(Net::HTTPRedirection)
       uri = URI(response["location"])
@@ -55,8 +61,8 @@ class Music21ExtractionJob < ApplicationJob
 
     raise "Download failed: #{response.code}" unless response.is_a?(Net::HTTPSuccess)
 
-    File.binwrite(path, response.body)
-    path
+    File.binwrite(dest, response.body)
+    dest
   end
 
   def run_python(file)

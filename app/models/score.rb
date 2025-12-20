@@ -349,7 +349,7 @@ class Score < ApplicationRecord
     end
   end
 
-  # Get the full MusicXML URL for external scores
+  # Get the full MusicXML URL/path
   def mxl_url
     return nil unless has_mxl?
 
@@ -358,6 +358,8 @@ class Score < ApplicationRecord
       cpdl_file_url(mxl_path)
     when "imslp"
       imslp_file_url(mxl_path)
+    when "pdmx"
+      Pdmx.root_path.join(mxl_path.delete_prefix("./")).to_s
     else
       mxl_path
     end

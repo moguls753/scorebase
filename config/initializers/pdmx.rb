@@ -2,14 +2,6 @@
 
 # PDMX Dataset Configuration
 #
-# The PDMX dataset should be stored outside the Rails app directory
-# to avoid bloating git repo (14.4 GB total).
-#
-# Recommended structure:
-# /home/eike/
-# ├── dev/personal/scorebase/  # Rails app
-# └── data/pdmx/               # PDMX dataset
-#
 # Set PDMX_PATH environment variable or it defaults to ~/data/pdmx
 
 module Pdmx
@@ -20,40 +12,8 @@ module Pdmx
       )
     end
 
-    def csv_path
-      root_path.join("PDMX.csv")
-    end
-
-    def data_path
-      root_path.join("data")
-    end
-
-    def metadata_path
-      root_path.join("metadata")
-    end
-
-    def mxl_path
-      root_path.join("mxl")
-    end
-
-    def pdf_path
-      root_path.join("pdf")
-    end
-
-    def mid_path
-      root_path.join("mid")
-    end
-
-    def subset_paths_path
-      root_path.join("subset_paths")
-    end
-
-    def no_license_conflict_list
-      subset_paths_path.join("no_license_conflict.txt")
-    end
-
     def exists?
-      root_path.exist? && csv_path.exist?
+      root_path.exist? && root_path.join("PDMX.csv").exist?
     end
 
     def setup_instructions
