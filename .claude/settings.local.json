@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bundle install:*)",
+      "Bash(bin/rails:*)",
+      "Bash(xargs cat:*)",
+      "Bash(find:*)",
+      "Bash(du:*)",
+      "Bash(cat:*)",
+      "WebSearch",
+      "WebFetch(domain:imslp.org)",
+      "WebFetch(domain:www.cpdl.org)",
+      "Bash(rails runner:*)",
+      "Bash(grep:*)",
+      "Bash(zcat:*)",
+      "Bash(xmllint:*)",
+      "Bash(tr:*)",
+      "Bash(curl:*)",
+      "Bash(chmod:*)",
+      "Bash(ruby script/ux_expert_review.rb:*)",
+      "Bash(ruby script/mobile_inspector.rb:*)"
+    ]
+  }
+}
