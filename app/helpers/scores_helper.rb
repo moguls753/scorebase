@@ -183,16 +183,17 @@ module ScoresHelper
     end
   end
 
-  # Format tempo: "Andante (♩= 72)" or just "72 BPM"
+  # Format tempo: "Andante (72)" or just "72"
+  # Icon prefix handles the musical context — value is pure data
   def format_tempo(marking, bpm)
     return nil if marking.blank? && bpm.blank?
 
     if marking.present? && bpm.present?
-      "#{marking} (♩= #{bpm})"
+      "#{marking} (#{bpm})"
     elsif marking.present?
       marking
     else
-      "♩= #{bpm}"
+      bpm.to_s
     end
   end
 

@@ -3071,15 +3071,21 @@ html[data-turbo-preview] .hub-card {
   font-family: var(--font-family-display);
   font-size: 14px;
   font-weight: 800;
+  line-height: 1.2;
   color: var(--color-text);
   text-align: left;
 }
 
-/* Icon prefix for musical facts */
+/* Icon prefix for musical facts — wayfinding, not content */
 .score-fact-icon {
-  color: var(--color-accent);
-  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  font-size: 12px;
   line-height: 1;
+  color: var(--color-accent);
+  flex-shrink: 0;
 }
 
 /* Linkable facts - tap to discover more */
