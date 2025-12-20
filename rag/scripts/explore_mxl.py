@@ -9,7 +9,7 @@ import sys
 from pathlib import Path
 
 # Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src import config, db
 from src.enrichment import parser
@@ -77,7 +77,9 @@ def main():
             if key == "parts":
                 print(f"  {key}:")
                 for part in value:
-                    print(f"    - {part['name']}: {part['lowest']} to {part['highest']}")
+                    print(
+                        f"    - {part['name']}: {part['lowest']} to {part['highest']}"
+                    )
             else:
                 print(f"  {key}: {value}")
     else:
