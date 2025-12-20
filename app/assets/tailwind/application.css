@@ -49,6 +49,7 @@
   --color-primary: #0f0d0a;
   --color-primary-dark: #1a1612;
   --color-accent: #c45a10;
+  --color-accent-rgb: 196, 90, 16;
   --color-accent-hover: #a84c0c;
   --color-accent-dark: #8a3f0a;
   --color-text: #0f0d0a;
@@ -67,6 +68,7 @@
   --color-primary: #f0f0f0;
   --color-primary-dark: #d8d8d8;
   --color-accent: #00d97e;
+  --color-accent-rgb: 0, 217, 126;
   --color-accent-hover: #00c06d;
   --color-accent-dark: #00a65c;
   --color-text: #e8e8e8;
@@ -2948,6 +2950,211 @@ html[data-turbo-preview] .hub-card {
   .score-sidebar-inner {
     gap: 1rem;
   }
+}
+
+/* ========================================
+   MUSIC ANALYSIS HERO - Extracted Metrics
+   Prominent display for Duration/Tempo/Range
+   ======================================== */
+
+.analysis-hero {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2px;
+  background: var(--color-border);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+  box-shadow: 4px 4px 0 var(--shadow-color);
+}
+
+@media (min-width: 475px) {
+  .analysis-hero {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.analysis-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 12px;
+  background: var(--color-bg-card);
+  text-align: center;
+  gap: 4px;
+}
+
+.analysis-icon {
+  font-size: 20px;
+  color: var(--color-accent);
+  line-height: 1;
+  font-family: serif;
+}
+
+.analysis-value {
+  font-family: var(--font-family-display);
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+@media (min-width: 640px) {
+  .analysis-value {
+    font-size: 16px;
+  }
+}
+
+.analysis-label {
+  font-family: var(--font-family-body);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+}
+
+/* ========================================
+   NOTATION BADGES - Musical Feature Tags
+   ======================================== */
+
+.notation-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.notation-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  font-family: var(--font-family-body);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+  border: 2px dashed var(--color-border-subtle);
+  border-radius: 2px;
+  transition: all 0.15s ease;
+}
+
+.notation-badge:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  border-style: solid;
+}
+
+.notation-badge-icon {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--color-accent);
+  font-family: serif;
+}
+
+/* ========================================
+   VOCAL RANGES - Pitch Bar Visualization
+   ======================================== */
+
+.vocal-ranges {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vocal-range-row {
+  display: grid;
+  grid-template-columns: 70px 1fr 70px;
+  align-items: center;
+  gap: 10px;
+}
+
+@media (min-width: 475px) {
+  .vocal-range-row {
+    grid-template-columns: 80px 1fr 90px;
+    gap: 12px;
+  }
+}
+
+.vocal-range-part {
+  font-family: var(--font-family-display);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--color-text);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vocal-range-track {
+  position: relative;
+  height: 12px;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border-subtle);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+/* Subtle gradient to hint at pitch direction (low to high) */
+.vocal-range-track::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    rgba(var(--color-accent-rgb), 0.05) 0%,
+    rgba(var(--color-accent-rgb), 0.1) 100%
+  );
+  pointer-events: none;
+}
+
+.vocal-range-bar {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: var(--color-accent);
+  border-radius: 1px;
+  min-width: 4px;
+  transition: all 0.2s ease;
+}
+
+/* Animated striping on the bar */
+.vocal-range-bar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent,
+    transparent 2px,
+    rgba(255,255,255,0.15) 2px,
+    rgba(255,255,255,0.15) 4px
+  );
+}
+
+.vocal-range-row:hover .vocal-range-bar {
+  filter: brightness(1.1);
+}
+
+.vocal-range-notes {
+  font-family: var(--font-family-display);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+/* Dark mode: different bar color */
+[data-theme="dark"] .vocal-range-bar {
+  background: var(--color-accent);
 }
 
 /* ─────────────────────────────────────────

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "net/http"
 require "open3"
 
 # Extracts musical features from MusicXML using music21 Python script.
@@ -19,9 +20,11 @@ class Music21ExtractionJob < ApplicationJob
 
   def perform(score_id)
     score = Score.find(score_id)
+    logger.info "[Music21] Processing score ##{score.id}: #{score.title}"
 
     unless score.has_mxl?
       score.update!(extraction_status: "no_musicxml", extracted_at: Time.current)
+      logger.info "[Music21] Skipped - no MusicXML available"
       return
     end
 
@@ -29,6 +32,7 @@ class Music21ExtractionJob < ApplicationJob
       file = download_mxl(score, dir)
       result = run_python(file)
       apply_result(score, result)
+      log_extraction(result)
     end
   end
 
@@ -158,5 +162,18 @@ class Music21ExtractionJob < ApplicationJob
       extraction_status: "extracted",
       extracted_at: Time.current
     )
+  end
+
+  def log_extraction(result)
+    if result["extraction_status"] == "failed"
+      logger.error "[Music21] Failed: #{result['extraction_error']}"
+      return
+    end
+
+    logger.info "[Music21] Extracted:"
+    result.each do |key, value|
+      next if value.nil? || value == "" || key.start_with?("_")
+      logger.info "  #{key}: #{value.inspect}"
+    end
   end
 end

@@ -164,6 +164,21 @@ de:
     midi_hint: "Klicke auf Play für eine synthetisierte Vorschau"
     play_pause: "Abspielen / Pause"
     volume: "Lautstärke"
+    # Music21 extracted fields
+    duration: "Dauer"
+    tempo: "Tempo"
+    range: "Tonumfang"
+    vocal_ranges: "Stimmumfänge"
+    texture: "Textur"
+    measures: "Takte"
+    features: "Merkmale"
+    analysis: "Analyse"
+    debug_data: "Extrahierte Daten (Dev)"
+    # Notation feature badges
+    badge_dynamics: "Dynamik"
+    badge_ornaments: "Verzierungen"
+    badge_articulations: "Artikulation"
+    badge_fermatas: "Fermaten"
 
   # About Page
   about:
