@@ -359,7 +359,7 @@ class Score < ApplicationRecord
     when "imslp"
       imslp_file_url(mxl_path)
     when "pdmx"
-      Pdmx.root_path.join(mxl_path.delete_prefix("./")).to_s
+      Rails.application.config.x.pdmx_path.join(mxl_path.delete_prefix("./")).to_s
     else
       mxl_path
     end

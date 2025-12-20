@@ -23,5 +23,8 @@ module Scorebase
     #
     # config.time_zone = "Central Time (US & Canada)"
     # config.eager_load_paths << Rails.root.join("extras")
+
+    # PDMX dataset path (external, not in repo)
+    config.x.pdmx_path = Pathname.new(ENV.fetch("PDMX_PATH", File.expand_path("~/data/pdmx")))
   end
 end

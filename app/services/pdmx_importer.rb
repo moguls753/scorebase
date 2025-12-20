@@ -4,7 +4,10 @@ require "set"
 
 class PdmxImporter
   BATCH_SIZE = 1000
-  PDMX_ROOT = Pdmx.root_path
+
+  def self.root_path
+    Rails.application.config.x.pdmx_path
+  end
 
   def initialize(limit: nil, subset: "no_license_conflict")
     @limit = limit
@@ -18,7 +21,7 @@ class PdmxImporter
     puts "Starting PDMX import..."
     puts "Subset: #{@subset}"
     puts "Limit: #{@limit || 'none'}"
-    puts "PDMX root: #{PDMX_ROOT}"
+    puts "PDMX root: #{self.class.root_path}"
     puts "(Existing scores are always skipped - never overwritten)"
 
     # Get list of files to import from subset
@@ -69,7 +72,7 @@ class PdmxImporter
   private
 
   def load_subset_paths
-    subset_file = PDMX_ROOT.join("subset_paths", "#{@subset}.txt")
+    subset_file = self.class.root_path.join("subset_paths", "#{@subset}.txt")
 
     unless subset_file.exist?
       puts "WARNING: Subset file not found: #{subset_file}"
@@ -81,7 +84,7 @@ class PdmxImporter
   end
 
   def load_csv_data
-    csv_path = PDMX_ROOT.join("PDMX.csv")
+    csv_path = self.class.root_path.join("PDMX.csv")
 
     unless csv_path.exist?
       raise "PDMX.csv not found at #{csv_path}"
@@ -151,7 +154,7 @@ class PdmxImporter
   def parse_data_json(path)
     return nil if path.blank? || path == "N/A"
 
-    full_path = PDMX_ROOT.join(path.delete_prefix("./"))
+    full_path = self.class.root_path.join(path.delete_prefix("./"))
     return nil unless full_path.exist?
 
     JSON.parse(File.read(full_path))
@@ -162,7 +165,7 @@ class PdmxImporter
   def parse_metadata_json(path)
     return nil if path.blank? || path == "N/A"
 
-    full_path = PDMX_ROOT.join(path.delete_prefix("./"))
+    full_path = self.class.root_path.join(path.delete_prefix("./"))
     return nil unless full_path.exist?
 
     JSON.parse(File.read(full_path))
