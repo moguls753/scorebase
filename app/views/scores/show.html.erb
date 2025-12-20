@@ -74,54 +74,20 @@
           </div>
         <% end %>
 
-        <%# 4. ANALYSIS HERO - High-value extracted metrics %>
-        <% metrics = analysis_metrics(@score) %>
-        <% if metrics.any? %>
-          <div class="analysis-hero">
-            <% metrics.each do |metric| %>
-              <div class="analysis-metric">
-                <span class="analysis-icon"><%= metric[:icon] %></span>
-                <span class="analysis-value"><%= metric[:value] %></span>
-                <span class="analysis-label"><%= metric[:label] %></span>
+        <%# 4. SCORE FACTS - Unified details list %>
+        <% facts = score_facts(@score) %>
+        <% if facts.any? %>
+          <div class="score-facts">
+            <% facts.each do |fact| %>
+              <div class="score-fact">
+                <span class="score-fact-label"><%= fact[:label] %></span>
+                <span class="score-fact-value"><%= fact[:value] %></span>
               </div>
             <% end %>
           </div>
         <% end %>
 
-        <%# Notation feature badges %>
-        <% badges = notation_feature_badges(@score) %>
-        <% if badges.any? %>
-          <div class="notation-badges">
-            <% badges.each do |badge| %>
-              <span class="notation-badge"><span class="notation-badge-icon"><%= badge[:icon] %></span><%= badge[:label] %></span>
-            <% end %>
-          </div>
-        <% end %>
-
-        <%# 4b. MUSIC DETAILS - Traditional metadata %>
-        <% if @score.has_music_details? %>
-          <div class="mm-card p-3 sm:p-4">
-            <%= score_section_header("♪", "score.music_details") %>
-            <dl class="score-details-grid">
-              <%= score_detail_item("score.voicing", @score.voicing) %>
-              <%= score_detail_item("score.key", @score.key_signature) %>
-              <%= score_detail_item("score.time", @score.time_signature) %>
-              <%= score_detail_item("score.parts", @score.num_parts) if @score.num_parts.to_i.positive? %>
-              <%= score_detail_item("score.language", @score.language) %>
-              <%= score_detail_item("score.instruments", @score.instruments) %>
-              <%= score_detail_item("score.texture", @score.texture_type&.capitalize) if @score.texture_type.present? %>
-              <%= score_detail_item("score.page_count", @score.page_count) if @score.page_count.to_i.positive? %>
-              <% if @score.complexity.to_i.positive? %>
-                <%= score_detail_item("score.complexity", t("score.complexity_scale", value: @score.complexity)) %>
-              <% end %>
-              <% if @score.rating.to_f.positive? %>
-                <%= score_detail_item("score.rating", t("score.rating_scale", value: number_with_precision(@score.rating, precision: 1))) %>
-              <% end %>
-            </dl>
-          </div>
-        <% end %>
-
-        <%# 4c. VOCAL RANGES (for choral scores) - Visual pitch bars %>
+        <%# 5. VOCAL RANGES (for choral scores) - Visual pitch bars %>
         <% if has_vocal_ranges?(@score) %>
           <div class="mm-card p-3 sm:p-4">
             <%= score_section_header("♫", "score.vocal_ranges") %>
@@ -140,20 +106,23 @@
           </div>
         <% end %>
 
-        <%# 5. ABOUT THIS SCORE (CPDL-specific info) %>
-        <% if @score.has_about_info? %>
-          <div class="mm-card p-3 sm:p-4">
-            <%= score_section_header("●", "score.about_this_score") %>
-            <dl class="score-details-grid">
-              <%= score_detail_item("score.cpdl_number", @score.cpdl_number, mono: true) %>
-              <%= score_detail_item("score.editor", @score.editor) %>
-              <%= score_detail_item("score.posted_date", @score.posted_date) %>
-              <%= score_detail_item("score.license", @score.license, full_width: true) %>
-            </dl>
+        <%# 6. ABOUT THIS SCORE (CPDL-specific info) %>
+        <% about_facts = about_score_facts(@score) %>
+        <% if about_facts.any? %>
+          <div class="score-facts score-facts--muted">
+            <div class="score-fact score-fact--header">
+              <span class="score-fact-label"><%= t('score.about_this_score') %></span>
+            </div>
+            <% about_facts.each do |fact| %>
+              <div class="score-fact">
+                <span class="score-fact-label"><%= fact[:label] %></span>
+                <span class="score-fact-value <%= fact[:css] %>"><%= fact[:value] %></span>
+              </div>
+            <% end %>
           </div>
         <% end %>
 
-        <%# 6. GENRES & TAGS %>
+        <%# 7. GENRES & TAGS %>
         <% if @score.genre_list.any? || @score.tag_list.any? %>
           <div class="score-tags-section">
             <% if @score.genre_list.any? %>
@@ -179,7 +148,7 @@
           </div>
         <% end %>
 
-        <%# 7. LYRICS (Collapsible) %>
+        <%# 8. LYRICS (Collapsible) %>
         <% if @score.lyrics.present? %>
           <details class="mm-card overflow-hidden lyrics-accordion">
             <summary class="score-lyrics-summary">
@@ -194,7 +163,7 @@
           </details>
         <% end %>
 
-        <%# 8. EXTERNAL SOURCE LINK %>
+        <%# 9. EXTERNAL SOURCE LINK %>
         <% if (safe_url = safe_external_url(@score.external_url)) %>
           <%= link_to safe_url,
                       target: "_blank",
@@ -205,7 +174,7 @@
           <% end %>
         <% end %>
 
-        <%# 9. STATS %>
+        <%# 10. STATS %>
         <% if @score.has_stats? %>
           <div class="score-stats">
             <% if @score.views.to_i.positive? %>
@@ -223,7 +192,7 @@
           </div>
         <% end %>
 
-        <%# 10. DEV-ONLY: Extraction Debug Data %>
+        <%# 11. DEV-ONLY: Extraction Debug Data %>
         <% if Rails.env.development? && has_extracted_data?(@score) %>
           <details class="mt-6 rounded-lg bg-gray-50 border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
             <summary class="px-3 py-2 cursor-pointer text-xs font-mono text-gray-500 hover:text-gray-700 dark:text-gray-400">

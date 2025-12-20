@@ -24,18 +24,38 @@ module ScoresHelper
     end
   end
 
-  # Render a detail item for the metadata grid
-  # Returns nil if value is blank (safe to chain without conditionals)
-  def score_detail_item(label_key, value, full_width: false, mono: false)
-    return if value.blank?
+  # ─────────────────────────────────────────────────────────────────
+  # Unified Score Facts (replaces analysis_metrics + details grid)
+  # ─────────────────────────────────────────────────────────────────
 
-    css_class = "score-detail-item"
-    css_class += " score-detail-item-full" if full_width
+  # Returns ordered array of present facts for display
+  # Each fact is { label:, value: } - only includes facts with values
+  def score_facts(score)
+    facts = []
+    facts << { label: t("score.range"), value: format_pitch_range(score.lowest_pitch, score.highest_pitch) }
+    facts << { label: t("score.difficulty"), value: format_difficulty(score.complexity) }
+    facts << { label: t("score.key"), value: score.key_signature }
+    facts << { label: t("score.time"), value: score.time_signature }
+    facts << { label: t("score.measures"), value: positive_or_nil(score.measure_count) }
+    facts << { label: t("score.voicing"), value: score.voicing }
+    facts << { label: t("score.texture"), value: score.texture_type&.capitalize }
+    facts << { label: t("score.parts"), value: positive_or_nil(score.num_parts) }
+    facts << { label: t("score.instruments"), value: score.instruments }
+    facts << { label: t("score.language"), value: score.language }
+    facts << { label: t("score.page_count"), value: positive_or_nil(score.page_count) }
+    facts << { label: t("score.duration"), value: format_duration(score.duration_seconds) }
+    facts << { label: t("score.tempo"), value: format_tempo(score.tempo_marking, score.tempo_bpm) }
+    facts.select { |f| f[:value].present? }
+  end
 
-    content_tag(:div, class: css_class) do
-      content_tag(:dt, t(label_key)) +
-        content_tag(:dd, value, class: mono ? "font-mono" : nil)
-    end
+  # Returns array of "about" facts (CPDL-specific metadata)
+  def about_score_facts(score)
+    facts = []
+    facts << { label: t("score.cpdl_number"), value: score.cpdl_number, css: "font-mono text-xs" }
+    facts << { label: t("score.editor"), value: score.editor }
+    facts << { label: t("score.posted_date"), value: score.posted_date }
+    facts << { label: t("score.license"), value: score.license }
+    facts.select { |f| f[:value].present? }
   end
 
   # ─────────────────────────────────────────────────────────────────
@@ -82,51 +102,9 @@ module ScoresHelper
     score.extraction_status == "extracted"
   end
 
-  # Build array of analysis metrics for display
-  # Returns array of {icon:, value:, label:} hashes
-  def analysis_metrics(score)
-    metrics = []
-
-    if score.duration_seconds.to_i.positive?
-      metrics << { icon: "◷", value: format_duration(score.duration_seconds), label: t("score.duration") }
-    end
-
-    if score.tempo_bpm.present? || score.tempo_marking.present?
-      metrics << { icon: "♩", value: format_tempo(score.tempo_marking, score.tempo_bpm), label: t("score.tempo") }
-    end
-
-    if score.lowest_pitch.present? && score.highest_pitch.present?
-      metrics << { icon: "↕", value: format_pitch_range(score.lowest_pitch, score.highest_pitch), label: t("score.range") }
-    end
-
-    if score.measure_count.to_i.positive?
-      metrics << { icon: "𝄀", value: score.measure_count, label: t("score.measures") }
-    end
-
-    metrics
-  end
-
   # Check if score has vocal range data worth showing
   def has_vocal_ranges?(score)
     score.pitch_range_per_part.present? && score.pitch_range_per_part.keys.length > 1
-  end
-
-  # Notation feature definitions: icon + i18n key
-  NOTATION_FEATURES = [
-    { key: :has_dynamics,      icon: "𝆏", label_key: "score.badge_dynamics" },
-    { key: :has_ornaments,     icon: "𝄢", label_key: "score.badge_ornaments" },
-    { key: :has_articulations, icon: "·", label_key: "score.badge_articulations" },
-    { key: :has_fermatas,      icon: "𝄐", label_key: "score.badge_fermatas" }
-  ].freeze
-
-  # Get feature badges with icons for display
-  def notation_feature_badges(score)
-    return [] unless has_extracted_data?(score)
-
-    NOTATION_FEATURES.filter_map do |feature|
-      next unless score.public_send(feature[:key])
-      { icon: feature[:icon], label: t(feature[:label_key]) }
-    end
   end
 
   # ─────────────────────────────────────────────────────────────────
@@ -140,8 +118,7 @@ module ScoresHelper
   # Format vocal range from hash: "C3 – G5"
   def format_part_range(range_data)
     low, high = extract_range(range_data)
-    return nil if low.blank? || high.blank?
-    "#{low} – #{high}"
+    format_pitch_range(low, high)
   end
 
   # Calculate CSS style for vocal range bar visualization
@@ -154,8 +131,8 @@ module ScoresHelper
     return "" if low_midi.nil? || high_midi.nil?
 
     range_span = MIDI_RANGE_MAX - MIDI_RANGE_MIN
-    left_pct = clamp((low_midi - MIDI_RANGE_MIN).to_f / range_span * 100)
-    right_pct = clamp((high_midi - MIDI_RANGE_MIN).to_f / range_span * 100)
+    left_pct = ((low_midi - MIDI_RANGE_MIN).to_f / range_span * 100).clamp(0, 100)
+    right_pct = ((high_midi - MIDI_RANGE_MIN).to_f / range_span * 100).clamp(0, 100)
     width_pct = [right_pct - left_pct, 5].max # Minimum 5% width for visibility
 
     "left: #{left_pct.round(1)}%; width: #{width_pct.round(1)}%"
@@ -189,16 +166,22 @@ module ScoresHelper
 
   private
 
+  # Return value only if positive, otherwise nil
+  def positive_or_nil(value)
+    value.to_i.positive? ? value : nil
+  end
+
+  # Format difficulty as "X / 3"
+  def format_difficulty(complexity)
+    return nil unless complexity.to_i.positive?
+    t("score.complexity_scale", value: complexity)
+  end
+
   # Extract low/high from range hash (handles string or symbol keys)
   def extract_range(range_data)
     low = range_data["low"] || range_data[:low]
     high = range_data["high"] || range_data[:high]
     [low, high]
-  end
-
-  # Clamp value between 0 and 100
-  def clamp(value)
-    [[value, 0].max, 100].min
   end
 
   # Convert pitch name (e.g., "C4", "F#3") to MIDI note number

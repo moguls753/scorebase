@@ -312,67 +312,63 @@ a.mm-button {
   border-style: dashed;
 }
 
-/* Score Detail Page Styles */
-.score-details-grid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0;
-}
-
-.score-detail-item {
+/* ========================================
+   SCORE FACTS - Unified details list
+   ======================================== */
+.score-facts {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 10px 0;
-  border-bottom: 2px solid var(--color-border-subtle);
+  background: var(--color-bg-elevated);
+  border-radius: 12px;
+  overflow: hidden;
 }
 
-.score-detail-item:nth-child(odd) {
-  padding-right: 12px;
-  border-right: 2px solid var(--color-border-subtle);
+.score-fact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border-subtle);
+  min-height: 44px; /* Touch target */
 }
 
-.score-detail-item:nth-child(even) {
-  padding-left: 12px;
-}
-
-/* Remove bottom border from last row */
-.score-detail-item:nth-last-child(1),
-.score-detail-item:nth-last-child(2):nth-child(odd) {
+.score-fact:last-child {
   border-bottom: none;
 }
 
-/* Full-width item spans both columns */
-.score-detail-item-full {
-  grid-column: 1 / -1;
-  border-right: none !important;
-  padding-right: 0 !important;
-  padding-left: 0 !important;
-}
-
-.score-detail-item dt {
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+.score-fact-label {
+  font-size: 14px;
   color: var(--color-text-muted);
 }
 
-.score-detail-item dd {
+.score-fact-value {
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 600;
   color: var(--color-text);
+  text-align: right;
 }
 
-/* MOBILE FIX: Ensure readable text on mobile */
-@media (max-width: 640px) {
-  .score-detail-item dt {
-    font-size: 12px;
-  }
+/* Muted variant for secondary info sections */
+.score-facts--muted {
+  background: transparent;
+  border: 1px solid var(--color-border-subtle);
+}
 
-  .score-detail-item dd {
-    font-size: 14px;
-  }
+.score-facts--muted .score-fact {
+  padding: 10px 14px;
+  min-height: 40px;
+}
+
+/* Header row within facts list */
+.score-fact--header {
+  background: var(--color-bg-elevated);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.score-fact--header .score-fact-label {
+  font-weight: 600;
+  color: var(--color-text);
+  font-size: 13px;
 }
 
 /* Lyrics accordion */
@@ -441,26 +437,6 @@ a.mm-button {
   position: relative;
   padding-left: 16px;
   border-left: 3px solid var(--color-accent);
-}
-
-/* Responsive adjustments for score details */
-@media (max-width: 400px) {
-  .score-details-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .score-detail-item:nth-child(odd) {
-    padding-right: 0;
-    border-right: none;
-  }
-
-  .score-detail-item:nth-child(even) {
-    padding-left: 0;
-  }
-
-  .score-detail-item:nth-last-child(2):nth-child(odd) {
-    border-bottom: 2px solid var(--color-border-subtle);
-  }
 }
 
 /* Link styles */
@@ -2950,111 +2926,6 @@ html[data-turbo-preview] .hub-card {
   .score-sidebar-inner {
     gap: 1rem;
   }
-}
-
-/* ========================================
-   MUSIC ANALYSIS HERO - Extracted Metrics
-   Prominent display for Duration/Tempo/Range
-   ======================================== */
-
-.analysis-hero {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2px;
-  background: var(--color-border);
-  border: 2px solid var(--color-border);
-  border-radius: 2px;
-  overflow: hidden;
-  box-shadow: 4px 4px 0 var(--shadow-color);
-}
-
-@media (min-width: 475px) {
-  .analysis-hero {
-    grid-template-columns: repeat(4, 1fr);
-  }
-}
-
-.analysis-metric {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 12px;
-  background: var(--color-bg-card);
-  text-align: center;
-  gap: 4px;
-}
-
-.analysis-icon {
-  font-size: 20px;
-  color: var(--color-accent);
-  line-height: 1;
-  font-family: serif;
-}
-
-.analysis-value {
-  font-family: var(--font-family-display);
-  font-size: 15px;
-  font-weight: 800;
-  color: var(--color-text);
-  letter-spacing: -0.02em;
-  line-height: 1.2;
-}
-
-@media (min-width: 640px) {
-  .analysis-value {
-    font-size: 16px;
-  }
-}
-
-.analysis-label {
-  font-family: var(--font-family-body);
-  font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  color: var(--color-text-muted);
-}
-
-/* ========================================
-   NOTATION BADGES - Musical Feature Tags
-   ======================================== */
-
-.notation-badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 12px;
-}
-
-.notation-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
-  font-family: var(--font-family-body);
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.3px;
-  color: var(--color-text-muted);
-  background: var(--color-bg);
-  border: 2px dashed var(--color-border-subtle);
-  border-radius: 2px;
-  transition: all 0.15s ease;
-}
-
-.notation-badge:hover {
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-  border-style: solid;
-}
-
-.notation-badge-icon {
-  font-size: 14px;
-  line-height: 1;
-  color: var(--color-accent);
-  font-family: serif;
 }
 
 /* ========================================

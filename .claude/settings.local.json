@@ -18,7 +18,8 @@
       "Bash(curl:*)",
       "Bash(chmod:*)",
       "Bash(ruby script/ux_expert_review.rb:*)",
-      "Bash(ruby script/mobile_inspector.rb:*)"
+      "Bash(ruby script/mobile_inspector.rb:*)",
+      "Bash(ruby -c:*)"
     ]
   }
 }
