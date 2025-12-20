@@ -86,8 +86,8 @@ class ScoresController < ApplicationController
     end
 
     # 3. Local disk - PDMX files (pdf/mxl/mid)
-    base_path = ENV.fetch("PDMX_DATA_PATH", File.expand_path("~/data/pdmx"))
-    absolute_path = File.expand_path(File.join(base_path, file_path.sub(/^\.\//, "")))
+    base_path = Rails.application.config.x.pdmx_path
+    absolute_path = base_path.join(file_path.delete_prefix("./")).to_s
 
     # Prevent path traversal attacks
     unless absolute_path.start_with?(File.expand_path(base_path))
