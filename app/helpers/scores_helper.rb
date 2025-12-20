@@ -59,23 +59,21 @@ module ScoresHelper
   def build_musical_facts(score)
     facts = []
 
-    # Key signature - linkable
+    # Key signature - descriptive, not linkable (too broad for discovery)
     if score.key_signature.present?
       facts << {
         label: t("score.key"),
         value: score.key_signature,
-        icon: FACT_ICONS["score.key"],
-        link: scores_path(key: score.key_signature)
+        icon: FACT_ICONS["score.key"]
       }
     end
 
-    # Time signature - linkable
+    # Time signature - descriptive, not linkable (4/4 = half the catalog)
     if score.time_signature.present?
       facts << {
         label: t("score.time"),
         value: score.time_signature,
-        icon: FACT_ICONS["score.time"],
-        link: scores_path(time: score.time_signature)
+        icon: FACT_ICONS["score.time"]
       }
     end
 
