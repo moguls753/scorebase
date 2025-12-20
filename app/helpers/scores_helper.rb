@@ -25,37 +25,142 @@ module ScoresHelper
   end
 
   # ─────────────────────────────────────────────────────────────────
-  # Unified Score Facts (replaces analysis_metrics + details grid)
+  # Unified Score Facts Grid
+  # Merges musical + catalog metadata into one cohesive block
   # ─────────────────────────────────────────────────────────────────
 
-  # Returns ordered array of present facts for display
-  # Each fact is { label:, value: } - only includes facts with values
-  def score_facts(score)
+  # Icons for musical facts - helps scanning
+  FACT_ICONS = {
+    "score.key" => "♯",
+    "score.time" => "𝄴",
+    "score.voicing" => "♬",
+    "score.range" => "↕",
+    "score.tempo" => "♩",
+    "score.duration" => "◷",
+    "score.difficulty" => "◆",
+    "score.language" => "¶"
+  }.freeze
+
+  # Returns unified array of all score facts for grid display
+  # Each fact: { label:, value:, icon:, link:, css:, difficulty: }
+  def unified_score_facts(score)
+    musical = build_musical_facts(score)
+    catalog = build_catalog_facts(score)
+
+    # Add divider if both sections have content
+    if musical.any? && catalog.any?
+      musical + [{ divider: true }] + catalog
+    else
+      musical + catalog
+    end
+  end
+
+  # Musical/analysis facts (primary)
+  def build_musical_facts(score)
     facts = []
-    facts << { label: t("score.range"), value: format_pitch_range(score.lowest_pitch, score.highest_pitch) }
-    facts << { label: t("score.difficulty"), value: format_difficulty(score.complexity) }
-    facts << { label: t("score.key"), value: score.key_signature }
-    facts << { label: t("score.time"), value: score.time_signature }
+
+    # Key signature - linkable
+    if score.key_signature.present?
+      facts << {
+        label: t("score.key"),
+        value: score.key_signature,
+        icon: FACT_ICONS["score.key"],
+        link: scores_path(key: score.key_signature)
+      }
+    end
+
+    # Time signature - linkable
+    if score.time_signature.present?
+      facts << {
+        label: t("score.time"),
+        value: score.time_signature,
+        icon: FACT_ICONS["score.time"],
+        link: scores_path(time: score.time_signature)
+      }
+    end
+
+    # Voicing - linkable
+    if score.voicing.present?
+      facts << {
+        label: t("score.voicing"),
+        value: score.voicing,
+        icon: FACT_ICONS["score.voicing"],
+        link: scores_path(voicing: score.voicing)
+      }
+    end
+
+    # Difficulty - special display (meter)
+    if score.complexity.to_i.positive?
+      facts << {
+        label: t("score.difficulty"),
+        icon: FACT_ICONS["score.difficulty"],
+        difficulty: score.complexity.to_i
+      }
+    end
+
+    # Pitch range
+    range = format_pitch_range(score.lowest_pitch, score.highest_pitch)
+    facts << { label: t("score.range"), value: range, icon: FACT_ICONS["score.range"] } if range
+
+    # Tempo
+    tempo = format_tempo(score.tempo_marking, score.tempo_bpm)
+    facts << { label: t("score.tempo"), value: tempo, icon: FACT_ICONS["score.tempo"] } if tempo
+
+    # Duration
+    duration = format_duration(score.duration_seconds)
+    facts << { label: t("score.duration"), value: duration, icon: FACT_ICONS["score.duration"] } if duration
+
+    # Language - linkable
+    if score.language.present?
+      facts << {
+        label: t("score.language"),
+        value: score.language,
+        icon: FACT_ICONS["score.language"],
+        link: scores_path(language: score.language)
+      }
+    end
+
+    # Non-linkable facts
     facts << { label: t("score.measures"), value: positive_or_nil(score.measure_count) }
-    facts << { label: t("score.voicing"), value: score.voicing }
     facts << { label: t("score.texture"), value: score.texture_type&.capitalize }
     facts << { label: t("score.parts"), value: positive_or_nil(score.num_parts) }
     facts << { label: t("score.instruments"), value: score.instruments }
-    facts << { label: t("score.language"), value: score.language }
     facts << { label: t("score.page_count"), value: positive_or_nil(score.page_count) }
-    facts << { label: t("score.duration"), value: format_duration(score.duration_seconds) }
-    facts << { label: t("score.tempo"), value: format_tempo(score.tempo_marking, score.tempo_bpm) }
-    facts.select { |f| f[:value].present? }
+
+    facts.select { |f| f[:value].present? || f[:difficulty].present? }
   end
 
-  # Returns array of "about" facts (CPDL-specific metadata)
-  def about_score_facts(score)
+  # Catalog/source facts (secondary - CPDL, IMSLP metadata)
+  def build_catalog_facts(score)
     facts = []
-    facts << { label: t("score.cpdl_number"), value: score.cpdl_number, css: "font-mono text-xs" }
+    facts << { label: t("score.cpdl_number"), value: score.cpdl_number, css: "font-mono" }
     facts << { label: t("score.editor"), value: score.editor }
     facts << { label: t("score.posted_date"), value: score.posted_date }
     facts << { label: t("score.license"), value: score.license }
     facts.select { |f| f[:value].present? }
+  end
+
+  # ─────────────────────────────────────────────────────────────────
+  # Difficulty Meter Component
+  # Visual 3-block scale instead of "2/3" text
+  # ─────────────────────────────────────────────────────────────────
+
+  DIFFICULTY_LABELS = { 1 => "easy", 2 => "medium", 3 => "hard" }.freeze
+
+  def difficulty_meter(level)
+    return nil unless level.to_i.positive? && level.to_i <= 3
+
+    level = level.to_i
+    label = DIFFICULTY_LABELS[level]
+
+    content_tag(:div, class: "difficulty-meter", aria: { label: "#{t('score.difficulty')}: #{level}/3" }, title: label&.capitalize) do
+      blocks = (1..3).map do |i|
+        classes = ["difficulty-block"]
+        classes << "is-filled" if i <= level
+        content_tag(:span, "", class: classes.join(" "))
+      end
+      safe_join(blocks) + content_tag(:span, label, class: "difficulty-label")
+    end
   end
 
   # ─────────────────────────────────────────────────────────────────
@@ -169,12 +274,6 @@ module ScoresHelper
   # Return value only if positive, otherwise nil
   def positive_or_nil(value)
     value.to_i.positive? ? value : nil
-  end
-
-  # Format difficulty as "X / 3"
-  def format_difficulty(complexity)
-    return nil unless complexity.to_i.positive?
-    t("score.complexity_scale", value: complexity)
   end
 
   # Extract low/high from range hash (handles string or symbol keys)

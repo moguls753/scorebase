@@ -312,65 +312,6 @@ a.mm-button {
   border-style: dashed;
 }
 
-/* ========================================
-   SCORE FACTS - Unified details list
-   ======================================== */
-.score-facts {
-  display: flex;
-  flex-direction: column;
-  background: var(--color-bg-elevated);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.score-fact {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border-subtle);
-  min-height: 44px; /* Touch target */
-}
-
-.score-fact:last-child {
-  border-bottom: none;
-}
-
-.score-fact-label {
-  font-size: 14px;
-  color: var(--color-text-muted);
-}
-
-.score-fact-value {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text);
-  text-align: right;
-}
-
-/* Muted variant for secondary info sections */
-.score-facts--muted {
-  background: transparent;
-  border: 1px solid var(--color-border-subtle);
-}
-
-.score-facts--muted .score-fact {
-  padding: 10px 14px;
-  min-height: 40px;
-}
-
-/* Header row within facts list */
-.score-fact--header {
-  background: var(--color-bg-elevated);
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.score-fact--header .score-fact-label {
-  font-weight: 600;
-  color: var(--color-text);
-  font-size: 13px;
-}
-
 /* Lyrics accordion */
 .lyrics-accordion summary::-webkit-details-marker {
   display: none;
@@ -2974,17 +2915,6 @@ html[data-turbo-preview] .hub-card {
   overflow: hidden;
 }
 
-/* Subtle gradient to hint at pitch direction (low to high) */
-.vocal-range-track::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg,
-    rgba(var(--color-accent-rgb), 0.05) 0%,
-    rgba(var(--color-accent-rgb), 0.1) 100%
-  );
-  pointer-events: none;
-}
 
 .vocal-range-bar {
   position: absolute;
@@ -3075,4 +3005,192 @@ html[data-turbo-preview] .hub-card {
     transform: scale(1.3);
     background: var(--color-accent);
   }
+}
+
+/* ========================================
+   SCORE FACTS GRID - 2-Column Waffle Layout
+   Works gracefully with 2-12 items
+   ======================================== */
+
+.score-facts-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1px;
+  background: var(--color-border-subtle);
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+/* Single column on very narrow screens */
+@media (max-width: 360px) {
+  .score-facts-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.score-fact-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+  padding: 12px 14px;
+  background: var(--color-bg-card);
+  min-height: 56px;
+  transition: background 0.15s ease;
+}
+
+/* Full width for last odd item - looks intentional */
+.score-fact-cell:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
+/* Divider row spanning both columns */
+.score-facts-divider {
+  grid-column: 1 / -1;
+  height: 0;
+  border-top: 2px dashed var(--color-border-subtle);
+  background: transparent;
+}
+
+.score-fact-cell .score-fact-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+  border-bottom: none;
+  padding: 0;
+  min-height: auto;
+}
+
+.score-fact-cell .score-fact-value {
+  font-family: var(--font-family-display);
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-text);
+  text-align: left;
+}
+
+/* Icon prefix for musical facts */
+.score-fact-icon {
+  color: var(--color-accent);
+  font-size: 11px;
+  line-height: 1;
+}
+
+/* Linkable facts - tap to discover more */
+.score-fact-cell--link {
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+}
+
+.score-fact-cell--link:hover {
+  background: var(--color-bg-elevated);
+}
+
+.score-fact-cell--link:hover .score-fact-value {
+  color: var(--color-accent);
+}
+
+.score-fact-cell--link:active {
+  background: var(--color-bg);
+}
+
+/* Link indicator arrow */
+.score-fact-link-arrow {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--color-border-subtle);
+  transition: all 0.15s ease;
+}
+
+.score-fact-cell--link:hover .score-fact-link-arrow {
+  color: var(--color-accent);
+  transform: translateX(2px);
+}
+
+/* ========================================
+   DIFFICULTY METER - Visual 3-Block Scale
+   ======================================== */
+
+.difficulty-meter {
+  display: inline-flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.difficulty-block {
+  width: 18px;
+  height: 10px;
+  background: var(--color-bg);
+  border: 2px solid var(--color-border-subtle);
+  border-radius: 1px;
+  transition: all 0.2s ease;
+}
+
+.difficulty-block.is-filled {
+  background: var(--color-accent);
+  border-color: var(--color-border);
+  box-shadow: 1px 1px 0 var(--shadow-color);
+}
+
+/* Animate on hover */
+.difficulty-meter:hover .difficulty-block.is-filled {
+  transform: translateY(-1px);
+  box-shadow: 2px 2px 0 var(--shadow-color);
+}
+
+/* Difficulty labels for screen readers shown visually on hover */
+.difficulty-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  color: var(--color-text-muted);
+  margin-left: 6px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.difficulty-meter:hover .difficulty-label {
+  opacity: 1;
+}
+
+/* ========================================
+   VOCAL RANGE - Middle C Reference Marker
+   ======================================== */
+
+/* Middle C (C4) reference line - vertical marker at center */
+.vocal-range-track::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--color-text-muted);
+  opacity: 0.4;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Octave tick marks - subtle lines at C3 (25%) and C5 (75%) positions */
+.vocal-range-track {
+  background-image:
+    linear-gradient(90deg,
+      transparent 0%,
+      transparent 24.5%,
+      var(--color-border-subtle) 25%,
+      transparent 25.5%,
+      transparent 74.5%,
+      var(--color-border-subtle) 75%,
+      transparent 75.5%,
+      transparent 100%
+    );
+  background-size: 100% 100%;
 }
