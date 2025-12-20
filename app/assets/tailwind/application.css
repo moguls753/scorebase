@@ -1551,71 +1551,6 @@ html[data-turbo-preview] .hub-card {
   overflow: hidden;
 }
 
-/* Page Counter - Bold Brutalist Typography */
-.gallery-counter {
-  font-family: var(--font-family-display);
-  font-size: 14px;
-  font-weight: 800;
-  letter-spacing: 0.5px;
-  color: var(--color-text);
-  user-select: none;
-}
-
-/* Navigation Buttons - Chunky Brutalist Style */
-.gallery-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  background: var(--color-bg-card);
-  border: 2px solid var(--color-border);
-  border-radius: 2px;
-  color: var(--color-text);
-  cursor: pointer;
-  transition: all 0.15s ease;
-  box-shadow: 3px 3px 0 var(--shadow-color);
-}
-
-.gallery-btn:hover:not(:disabled) {
-  background: var(--color-bg-elevated);
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--color-accent);
-}
-
-.gallery-btn:active:not(:disabled) {
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 var(--shadow-color);
-}
-
-.gallery-btn-disabled,
-.gallery-btn:disabled {
-  color: var(--color-border-subtle);
-  background: var(--color-bg);
-  border-color: var(--color-border-subtle);
-  box-shadow: none;
-  cursor: not-allowed;
-  opacity: 0.5;
-}
-
-.gallery-btn-disabled:hover,
-.gallery-btn:disabled:hover {
-  transform: none;
-  box-shadow: none;
-  color: var(--color-border-subtle);
-  background: var(--color-bg);
-  border-color: var(--color-border-subtle);
-}
-
-.gallery-btn svg {
-  width: 20px;
-  height: 20px;
-  stroke-width: 2.5;
-}
-
 /* ─────────────────────────────────────────
    Floating Fullscreen Button (Mobile)
    Neobrutalist solid style, top-right
@@ -1795,23 +1730,154 @@ html[data-turbo-preview] .hub-card {
   border-radius: 50%;
 }
 
-/* Many pages: tighter spacing */
-.gallery-dots-many {
-  gap: 0;
+/* ─────────────────────────────────────────
+   Gallery Progress Bar - For 5+ pages
+   Brutalist scrubber with chunky thumb
+   ───────────────────────────────────────── */
+
+.gallery-progress-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  max-width: 280px;
+  padding: 0 4px;
 }
 
-.gallery-dots-many .gallery-dot-wrap {
-  width: 36px;
+@media (min-width: 640px) {
+  .gallery-progress-wrap {
+    max-width: 320px;
+    gap: 14px;
+  }
 }
 
-.gallery-dots-many .gallery-dot {
-  width: 6px;
+/* Current page counter - bold display font */
+.gallery-progress-counter {
+  font-family: var(--font-family-display);
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--color-accent);
+  min-width: 24px;
+  text-align: right;
+  letter-spacing: -0.5px;
+  line-height: 1;
+}
+
+/* Total pages - muted, readable */
+.gallery-progress-total {
+  font-family: var(--font-family-display);
+  font-size: 14px; /* Mobile minimum */
+  font-weight: 700;
+  color: var(--color-text-muted);
+  min-width: 20px;
+  letter-spacing: -0.25px;
+  line-height: 1;
+}
+
+/* The progress bar container
+   Uses --progress custom property (0-1) set by JS
+   CSS handles all positioning math - no JS pixel calculations needed */
+.gallery-progress {
+  --progress: 0;
+  --padding: 10px;
+  position: relative;
+  flex: 1;
+  height: 44px; /* Touch-friendly height */
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  padding: 0 var(--padding);
+}
+
+/* Background track - brutalist chunky */
+.gallery-progress-track {
+  position: absolute;
+  left: var(--padding);
+  right: var(--padding);
   height: 6px;
+  background: var(--color-border-subtle);
+  border: 2px solid var(--color-border);
 }
 
-.gallery-dots-many .gallery-dot.is-active {
-  width: 8px;
-  height: 8px;
+/* Filled portion - width driven by --progress */
+.gallery-progress-fill {
+  position: absolute;
+  left: var(--padding);
+  height: 6px;
+  /* CSS does the math: progress * track width */
+  width: calc(var(--progress) * (100% - var(--padding) * 2));
+  background: var(--color-accent);
+  border: 2px solid var(--color-border);
+  border-right: none;
+  transition: width 0.15s ease-out;
+}
+
+/* Thumb/marker - position driven by --progress */
+.gallery-progress-thumb {
+  position: absolute;
+  /* CSS does the math: padding + progress * track width */
+  left: calc(var(--padding) + var(--progress) * (100% - var(--padding) * 2));
+  width: 20px;
+  height: 20px;
+  background: var(--color-accent);
+  border: 3px solid var(--color-border);
+  transform: translateX(-50%);
+  transition: left 0.15s ease-out, transform 0.1s ease;
+  box-shadow: 2px 2px 0 var(--shadow-color);
+  z-index: 1;
+}
+
+.gallery-progress:hover .gallery-progress-thumb {
+  transform: translateX(-50%) scale(1.1);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+}
+
+.gallery-progress:active .gallery-progress-thumb {
+  transform: translateX(-50%) scale(0.95);
+  box-shadow: 1px 1px 0 var(--shadow-color);
+}
+
+/* Dragging state - more prominent thumb */
+.gallery-progress.is-dragging .gallery-progress-thumb {
+  transform: translateX(-50%) scale(1.15);
+  box-shadow: 3px 3px 0 var(--shadow-color);
+  transition: none; /* Immediate response while dragging */
+}
+
+.gallery-progress.is-dragging .gallery-progress-fill {
+  transition: none; /* Immediate response while dragging */
+}
+
+/* Focus state */
+.gallery-progress:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 4px;
+}
+
+/* Fullscreen mode adjustments */
+.gallery-container:fullscreen .gallery-progress-counter {
+  color: var(--color-accent);
+}
+
+.gallery-container:fullscreen .gallery-progress-total {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.gallery-container:fullscreen .gallery-progress-track {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.gallery-container:fullscreen .gallery-progress-fill {
+  background: var(--color-accent);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.gallery-container:fullscreen .gallery-progress-thumb {
+  background: var(--color-accent);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: none;
 }
 
 /* Desktop keyboard hints */
@@ -2318,10 +2384,6 @@ html[data-turbo-preview] .hub-card {
   opacity: 0.2;
 }
 
-.gallery-container:fullscreen .gallery-counter {
-  color: #ffffff;
-}
-
 /* Fullscreen dots */
 .gallery-container:fullscreen .gallery-dot {
   background: rgba(255, 255, 255, 0.3);
@@ -2395,13 +2457,6 @@ html[data-turbo-preview] .hub-card {
     max-height: 55vh;
   }
 }
-
-/* Focus Styles */
-.gallery-btn:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 2px;
-}
-
 
 /* ========================================
    SCORE SHOW PAGE LAYOUT

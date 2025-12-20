@@ -4,24 +4,23 @@ import { Controller } from "@hotwired/stimulus"
 // Sheet music page gallery with neubrutalist aesthetics
 // Supports: keyboard navigation, touch swipe, click-to-advance, fullscreen
 export default class extends Controller {
-  static targets = ["image", "counter", "dot", "prevBtn", "nextBtn", "container"]
+  static targets = ["image", "counter", "dot", "prevBtn", "nextBtn", "container", "progressBar"]
   static values = {
     pages: Array,
-    current: { type: Number, default: 0 },
-    loading: { type: Boolean, default: true }
+    current: { type: Number, default: 0 }
   }
 
   connect() {
     this.preloadedImages = new Set()
     this.touchStartX = 0
     this.touchStartY = 0
+    this.isDragging = false
 
-    // Start loading first image
     this.loadCurrentImage()
     this.preloadAdjacentPages()
     this.updateUI()
 
-    // Keyboard events (scoped to prevent conflicts)
+    // Keyboard events
     this.boundKeydown = this.handleKeydown.bind(this)
     document.addEventListener("keydown", this.boundKeydown)
 
@@ -58,6 +57,57 @@ export default class extends Controller {
     }
   }
 
+  // Click on progress bar to jump to page
+  progressClick(event) {
+    if (!this.hasProgressBarTarget) return
+    // Don't trigger on drag end
+    if (this.isDragging) return
+
+    this.seekToPosition(event.clientX)
+  }
+
+  // Drag support for progress bar
+  progressDragStart(event) {
+    if (!this.hasProgressBarTarget) return
+    this.isDragging = true
+    this.progressBarTarget.classList.add("is-dragging")
+    // Prevent default to avoid text selection
+    event.preventDefault()
+  }
+
+  progressDragMove(event) {
+    if (!this.isDragging || !this.hasProgressBarTarget) return
+    event.preventDefault()
+
+    const touch = event.touches[0]
+    this.seekToPosition(touch.clientX)
+  }
+
+  progressDragEnd() {
+    if (!this.isDragging) return
+    this.isDragging = false
+    this.progressBarTarget.classList.remove("is-dragging")
+  }
+
+  // Shared seek logic - reads padding from CSS custom property
+  seekToPosition(clientX) {
+    if (!this.hasProgressBarTarget) return
+
+    const rect = this.progressBarTarget.getBoundingClientRect()
+    const style = getComputedStyle(this.progressBarTarget)
+    const padding = parseFloat(style.getPropertyValue('--padding')) || 10
+    const trackWidth = rect.width - (padding * 2)
+    const clickX = clientX - rect.left - padding
+
+    const percentage = Math.max(0, Math.min(1, clickX / trackWidth))
+    const newIndex = Math.round(percentage * (this.pagesValue.length - 1))
+
+    if (newIndex !== this.currentValue && newIndex >= 0 && newIndex < this.pagesValue.length) {
+      this.currentValue = newIndex
+      this.loadCurrentImage()
+    }
+  }
+
   // Click on image advances (desktop convenience)
   imageClick(event) {
     // Don't advance if user is selecting text or clicking controls
@@ -74,26 +124,19 @@ export default class extends Controller {
     const url = this.pagesValue[this.currentValue]
     if (!url) return
 
-    // Show loading state
-    this.loadingValue = true
-    this.imageTarget.style.opacity = "0.5"
-
     // If already preloaded, show immediately
     if (this.preloadedImages.has(url)) {
       this.imageTarget.src = url
-      this.imageTarget.style.opacity = "1"
-      this.loadingValue = false
     } else {
-      // Load with transition
+      // Show loading state, then swap
+      this.imageTarget.style.opacity = "0.5"
       const img = new Image()
       img.onload = () => {
         this.imageTarget.src = url
         this.imageTarget.style.opacity = "1"
-        this.loadingValue = false
         this.preloadedImages.add(url)
       }
       img.onerror = () => {
-        this.loadingValue = false
         this.imageTarget.style.opacity = "1"
       }
       img.src = url
@@ -109,19 +152,17 @@ export default class extends Controller {
     const isFirst = current === 0
     const isLast = current === total - 1
 
-    // Counter
+    // Counter (only used in progress bar mode - shows current page number)
     if (this.hasCounterTarget) {
-      this.counterTarget.textContent = `${current + 1} / ${total}`
+      this.counterTarget.textContent = `${current + 1}`
     }
 
     // Navigation buttons
     if (this.hasPrevBtnTarget) {
       this.prevBtnTarget.disabled = isFirst
-      this.prevBtnTarget.classList.toggle("gallery-btn-disabled", isFirst)
     }
     if (this.hasNextBtnTarget) {
       this.nextBtnTarget.disabled = isLast
-      this.nextBtnTarget.classList.toggle("gallery-btn-disabled", isLast)
     }
 
     // Dot indicators (wrapper button with inner span.gallery-dot)
@@ -133,6 +174,13 @@ export default class extends Controller {
       }
       wrapper.setAttribute("aria-selected", isActive ? "true" : "false")
     })
+
+    // Progress bar (for 5+ pages) - just set CSS custom property, CSS does the rest
+    if (this.hasProgressBarTarget) {
+      const progress = total > 1 ? current / (total - 1) : 0
+      this.progressBarTarget.style.setProperty('--progress', progress)
+      this.progressBarTarget.setAttribute("aria-valuenow", current + 1)
+    }
   }
 
   preloadAdjacentPages() {

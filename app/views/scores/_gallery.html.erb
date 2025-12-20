@@ -36,7 +36,7 @@
             data: { gallery_target: "image" } %>
       </div>
 
-      <%# Footer: Prev + Dots/Counter + Next %>
+      <%# Footer: Prev + Navigation + Next %>
       <div class="gallery-footer-nav">
         <%# Previous Button %>
         <button type="button"
@@ -49,10 +49,10 @@
           </svg>
         </button>
 
-        <%# Center: Dots (≤12 pages) OR Counter (>12 pages) %>
+        <%# Center: Dots (≤4 pages) OR Progress Bar (5+ pages) %>
         <div class="gallery-footer-center">
-          <% if page_count > 1 && page_count <= 12 %>
-            <%# Dots for manageable page counts %>
+          <% if page_count >= 2 && page_count <= 4 %>
+            <%# Simple dots for small page counts %>
             <div class="gallery-dots" role="tablist" aria-label="<%= t('gallery.page_navigation', default: 'Page navigation') %>">
               <% page_count.times do |i| %>
                 <button type="button"
@@ -67,9 +67,25 @@
                 </button>
               <% end %>
             </div>
-          <% else %>
-            <%# Counter for many pages %>
-            <span class="gallery-counter" data-gallery-target="counter">1 / <%= page_count %></span>
+          <% elsif page_count >= 5 %>
+            <%# Progress bar for larger scores - CSS handles positioning via --progress %>
+            <div class="gallery-progress-wrap">
+              <span class="gallery-progress-counter" data-gallery-target="counter">1</span>
+              <div class="gallery-progress"
+                   data-gallery-target="progressBar"
+                   data-action="click->gallery#progressClick touchstart->gallery#progressDragStart touchmove->gallery#progressDragMove touchend->gallery#progressDragEnd"
+                   tabindex="0"
+                   role="slider"
+                   aria-valuemin="1"
+                   aria-valuemax="<%= page_count %>"
+                   aria-valuenow="1"
+                   aria-label="<%= t('gallery.page_navigation', default: 'Page navigation') %>">
+                <div class="gallery-progress-track"></div>
+                <div class="gallery-progress-fill"></div>
+                <div class="gallery-progress-thumb"></div>
+              </div>
+              <span class="gallery-progress-total"><%= page_count %></span>
+            </div>
           <% end %>
         </div>
 
