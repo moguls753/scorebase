@@ -84,9 +84,7 @@ def main():
     for i, r in enumerate(results, 1):
         print(f"{i}. Score ID: {r['score_id']}")
         print(f"   Similarity: {r['similarity']:.3f}")
-        # Show first 200 chars of content (LLM description)
-        content = r.get('content', '')[:200]
-        print(f"   Description: {content}...")
+        print(f"   Description: {r.get('content', '')}")
         print()
 
 

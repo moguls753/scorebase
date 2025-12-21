@@ -142,9 +142,11 @@ Required difficulty level: {expected_level}
 
                 if not description:
                     feedback = "Empty response, please try again"
+                    logger.warning(f"  Attempt {attempt}: Empty response from writer")
                     continue
 
                 description = description.strip()
+                logger.info(f"  Attempt {attempt} writer: {description[:150]}...")
 
                 # === CRITIC ===
                 critic_prompt = f"""Check this description.
@@ -165,6 +167,7 @@ Return: {{"is_valid": true/false, "feedback": "..."}}"""
                 )
 
                 result = self._parse_json(critic_response)
+                logger.info(f"  Attempt {attempt} critic: {result}")
 
                 if result and result.get("is_valid"):
                     return GenerationResult(
@@ -178,6 +181,7 @@ Return: {{"is_valid": true/false, "feedback": "..."}}"""
 
                 # Get feedback for retry
                 feedback = result.get("feedback") if result else "Invalid critic response, try with correct difficulty"
+                logger.warning(f"  Attempt {attempt} rejected: {feedback}")
 
             except (RuntimeError, ValueError) as e:
                 # API/model errors - retry with feedback
