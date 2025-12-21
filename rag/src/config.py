@@ -23,3 +23,16 @@ EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 
 # Search defaults
 DEFAULT_TOP_K = 20
+
+
+def get_mxl_path(mxl_path: str) -> Path:
+    """Convert database mxl_path to full filesystem path.
+
+    Args:
+        mxl_path: Path from database (e.g., "./mxl/1/11/Qmbb...mxl")
+
+    Returns:
+        Full path to MXL file
+    """
+    clean_path = mxl_path.lstrip("./")
+    return PDMX_PATH / clean_path

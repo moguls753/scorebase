@@ -12,7 +12,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src import config, db
-from src.enrichment.enrich import get_mxl_path
 from extract import extract
 
 
@@ -56,7 +55,7 @@ def main():
         print("No mxl_path in this score")
         return
 
-    full_path = get_mxl_path(mxl_path)
+    full_path = config.get_mxl_path(mxl_path)
     print(f"Full path: {full_path}")
     print(f"File exists: {full_path.exists()}")
 
