@@ -14,10 +14,10 @@ production:
   #   command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
   #   schedule: every hour at minute 12
 
-  # sitemap_refresh:
-  #   class: SitemapRefreshJob
-  #   queue: default
-  #   schedule: every day at 3am
+  sitemap_refresh:
+    class: SitemapRefreshJob
+    queue: default
+    schedule: every week
 
   hub_cache_warm:
     class: HubCacheWarmJob
