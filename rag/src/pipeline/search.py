@@ -81,7 +81,7 @@ def main():
 
     print(f"Searching: '{query}'\n")
 
-    results = search(query, top_k=5)
+    results = search(query, top_k=20)
 
     for i, r in enumerate(results, 1):
         print(f"{i}. {r['title']}")

@@ -196,7 +196,17 @@ def build_index(limit: int = 100):
         documents.append(doc)
 
     print(f"Created {len(documents)} documents")
-    print(f"\nSample:\n{documents[0].content[:400]}...\n")
+
+    # Show full searchable text for first 10 documents
+    print("\n" + "="*80)
+    print("SEARCHABLE TEXT SAMPLES (first 10)")
+    print("="*80)
+    for i, doc in enumerate(documents[:10], 1):
+        print(f"\n[{i}] Score ID: {doc.meta['score_id']} - {doc.meta['title']}")
+        print("-"*40)
+        print(doc.content)
+        print("="*80)
+    print()
 
     # Initialize ChromaDB
     config.CHROMA_PATH.mkdir(parents=True, exist_ok=True)
