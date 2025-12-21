@@ -78,6 +78,8 @@ Respond JSON only: {"is_valid": true/false, "feedback": "specific issue or 'Good
             "polyphonic_density", "voice_independence", "stepwise_motion_ratio",
             "harmonic_rhythm", "sections_count", "repeats_count",
             "syllable_count", "clefs_used", "cadence_types",
+            # complexity is unreliable (PDMX data) - use melodic_complexity instead
+            "complexity",
         }
 
         clean = {k: v for k, v in fields.items() if k not in skip}
