@@ -1,164 +1,191 @@
-# RAG Embedding Strategy
-
-## Current Status
-
-**Phase 1 implementation complete. Ready for testing.**
-
-### Completed
-- [x] Curated test dataset extracted (1,468 scores with music21 analysis)
-  - Bach: 150, Mozart: 80, Beethoven: 58, Chopin: 40, Schubert: 40 + folk/traditional
-- [x] Python RAG pipeline built (Haystack + ChromaDB + SentenceTransformers)
-- [x] Natural prose embedding document generation
-- [x] FastAPI search endpoint
-- [x] CPU-only PyTorch for lightweight deployment
-- [x] Fixed difficulty source: now uses `melodic_complexity` (music21) instead of unreliable `complexity` (PDMX)
-
-### Next Steps
-- [ ] Re-index with fixed difficulty logic and test search queries
-- [ ] Evaluate results against success criteria
-- [ ] Iterate on prose generation if needed
-- [ ] Phase 2: Add synthetic queries if results need improvement
-
-### Known Issues
-
-#### PDMX `complexity` field is unreliable
-- 60% of Bach scores have `complexity=0` (beginner) - clearly wrong
-- Music21 `melodic_complexity` (0-1) is accurate:
-  - Bach fugues: 0.71-0.87 (advanced/virtuoso) ✓
-
-**RAG indexer**: Fixed - now prioritizes `melodic_complexity`
-
-**Rails view helper**: Fixed - `app/helpers/scores_helper.rb`:
-- Uses `melodic_complexity` (0-1) as primary source
-- Falls back to `complexity` if melodic_complexity is nil
-- Converts to 4-level scale: easy (1), medium (2), hard (3), virtuoso (4)
-- Updated difficulty meter CSS for 4-block display with gold accent on virtuoso
-
----
+# RAG Search System
 
 ## Architecture
 
-### Embedding Model
-- `all-MiniLM-L6-v2` (384 dimensions, fast, CPU-friendly)
-
-### Document Format (Natural Prose)
-Each score is embedded as readable prose:
 ```
-"Prelude in C major" by Johann Sebastian Bach. This is for Keyboard.
-This is an easy, simple piece suitable for beginners. The piece is in C major,
-in 4/4 time. Duration is about 4 minutes, a short piece. The texture is
-polyphonic, duet. Pitch range spans from C3 to G5. Contains dynamic markings,
-ornaments. Genre: Baroque music, Keyboard.
+INDEXING (one-time per score):
+┌─────────────────────────────────────────────────────────────┐
+│  Score Metadata (all non-nil fields)                        │
+│              ↓                                              │
+│  Groq Llama 3.3 70B                                         │
+│  "Write 2-3 sentences describing this score for music       │
+│   teachers searching for sheet music. Include explicit      │
+│   difficulty words."                                        │
+│              ↓                                              │
+│  2-3 sentence description                                   │
+│              ↓                                              │
+│  Embedding (all-MiniLM-L6-v2)                               │
+│              ↓                                              │
+│  ChromaDB                                                   │
+└─────────────────────────────────────────────────────────────┘
+
+QUERYING (per search):
+┌─────────────────────────────────────────────────────────────┐
+│  User Query: "easy Bach for piano, something gentle"        │
+│              ↓                                              │
+│  Vector Similarity Search                                   │
+│              ↓                                              │
+│  Top 15 results                                             │
+│              ↓                                              │
+│  Groq Llama 3.3 70B                                         │
+│  "Pick the 3 best matches and explain why they fit"         │
+│              ↓                                              │
+│  3 results + explanations                                   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-### Fields Used in Embedding
-From Score model + music21 extraction:
-- title, composer
-- instruments, voicing, is_vocal, has_accompaniment
-- **melodic_complexity (0-1)** → primary difficulty source:
-  - < 0.3: level 1 "easy, simple piece suitable for beginners"
-  - 0.3-0.5: level 2 "moderate complexity, suitable for intermediate"
-  - 0.5-0.7: level 3 "challenging piece for advanced players"
-  - > 0.7: level 4 "virtuoso piece, technically demanding"
-- complexity (1-4) → fallback only if melodic_complexity is null
-- key_signature, time_signature, tempo_marking
-- duration_seconds → "short piece", "medium length", "extended work"
-- texture_type, num_parts → "solo/duet/trio/quartet"
-- lowest_pitch, highest_pitch → vocal/pitch range
-- has_dynamics, has_ornaments, has_articulations
-- genres (includes period: "Baroque music", etc.)
-- lyrics_language
-- description
+## LLM Provider
+
+**Groq** (free tier)
+- Model: `llama-3.3-70b-versatile`
+- Rate limits: 30 req/min, 14,400 req/day
+- Cost: $0 (free tier)
+- Fallback: `llama-3.1-8b-instant` if rate limited
+
+Check limits: https://console.groq.com/settings/limits
+
+## Why This Approach
+
+1. **LLM-generated descriptions** - Can infer teaching value, technical features (Alberti bass, arpeggios), and mood from metadata
+2. **Explicit difficulty words** - "easy beginner piece" vs "virtuoso demanding" helps embeddings distinguish
+3. **No query parsing/filters** - More robust, no risk of filter mismatches or empty results
+4. **LLM at the end** - Handles negation ("not a fugue"), complex reasoning, explains matches
+
+## Implementation Plan
+
+### Phase 1: LLM-Generated Descriptions
+
+- [ ] Create `src/pipeline/description_generator.py`
+  - Takes score metadata dict (all non-nil fields)
+  - Agent loop (max 3 attempts):
+    1. Generate 2-3 sentence description
+    2. Validate: all key metadata included? explicit difficulty words? natural prose?
+    3. If invalid, critique and retry
+  - Explicit difficulty words required: "easy beginner" / "intermediate" / "advanced challenging" / "virtuoso demanding"
+  - Rate limiting: max 30 req/min
+
+- [ ] Update `src/pipeline/indexer.py`
+  - Replace `make_searchable_text()` with LLM generation
+  - Store description in ChromaDB
+  - Time estimate: ~50 min for 1,500 scores (may increase with retries)
+
+### Phase 2: LLM Result Selection
+
+- [ ] Create `src/pipeline/result_selector.py`
+  - Takes user query + top 15 results
+  - Calls Groq Llama 3.3 70B to pick best 3
+  - Returns selections with explanations
+
+- [ ] Update `src/pipeline/search.py`
+  - Vector search returns top 15
+  - Pass to result selector
+  - Return 3 results with explanations
+
+### Phase 3: API Integration
+
+- [ ] Update `src/api/main.py`
+  - New endpoint returns results + explanations
+  - Response format for Rails integration
+
+### Phase 4: Testing
+
+- [ ] Test queries (from product doc):
+  - "easy Bach for piano students"
+  - "SATB piece for Easter"
+  - "funeral music, peaceful, not too sad"
+  - "Bach without fugue"
+  - "pieces for teaching Alberti bass"
+
+---
+
+## Completed (Previous Work)
+
+- [x] Curated test dataset (1,468 scores with music21 analysis)
+- [x] Python RAG pipeline (Haystack + ChromaDB + SentenceTransformers)
+- [x] FastAPI search endpoint
+- [x] CPU-only PyTorch
+- [x] Fixed difficulty: uses `melodic_complexity` (music21) as primary source
+
+---
+
+## Known Issues
+
+### PDMX `complexity` field is unreliable
+- 60% of Bach scores have `complexity=0` - wrong
+- Music21 `melodic_complexity` (0-1) is accurate
+- LLM should use melodic_complexity for difficulty words
+
+---
+
+## Available Metadata Fields
+
+From Score model + music21 extraction (use all non-nil):
+
+| Field | Example | Use in Description |
+|-------|---------|-------------------|
+| title | "Prelude in C major" | Title |
+| composer | "Bach, Johann Sebastian" | Attribution |
+| melodic_complexity | 0.72 | → "virtuoso demanding" |
+| instruments | "Keyboard" | Instrumentation |
+| voicing | "SATB" | Vocal parts |
+| key_signature | "C major" | Key |
+| time_signature | "4/4" | Meter |
+| tempo_marking | "Allegro" | Character |
+| duration_seconds | 240 | → "4 minute piece" |
+| texture_type | "polyphonic" | Texture |
+| num_parts | 4 | → "quartet" |
+| lowest_pitch / highest_pitch | "C3" / "G5" | Range |
+| has_dynamics | true | Expression |
+| has_ornaments | true | Style |
+| genres | "Baroque" | Period |
+| lyrics_language | "Latin" | Text |
+| is_vocal | true | Type |
+| has_fugue | true | Form (for negation) |
+
+### Difficulty Mapping (melodic_complexity)
+
+| Range | Level | Words to Use |
+|-------|-------|--------------|
+| < 0.3 | Easy | "easy", "beginner", "simple", "accessible" |
+| 0.3-0.5 | Intermediate | "intermediate", "moderate", "developing" |
+| 0.5-0.7 | Advanced | "advanced", "challenging", "demanding" |
+| > 0.7 | Virtuoso | "virtuoso", "technically demanding", "difficult", "expert" |
 
 ---
 
 ## Commands
 
-### Setup (on target machine)
 ```bash
+# Setup
 cd rag
-python3.11 -m venv venv
 source venv/bin/activate
 
-# CPU-only PyTorch first
-pip install torch --index-url https://download.pytorch.org/whl/cpu
-pip install -r requirements.txt
-```
+# Set API key (you likely already have this from normalizer)
+export GROQ_API_KEY=...
 
-### Build Index
-```bash
-rm -rf data/chroma  # Clear existing index
-python -m src.pipeline.indexer -1  # Index all extracted scores
-```
+# Build index (with LLM descriptions)
+python -m src.pipeline.indexer --limit 10   # test with 10 first
+python -m src.pipeline.indexer --limit 100  # test with 100
+python -m src.pipeline.indexer              # all scores (~50 min)
 
-### Search
-```bash
+# Search
 python -m src.pipeline.search "easy Bach for piano"
-python -m src.pipeline.search "SATB piece for Easter"
-python -m src.pipeline.search "short romantic piano piece"
-```
 
-### Start API Server
-```bash
+# API server
 python -m src.api.main
-# GET http://localhost:8001/search?q=easy+Bach&top_k=10
 ```
 
 ---
 
-## Target Queries to Test
+## Cost & Time Estimates
 
-### Piano Teacher
-- "easy Bach for piano students"
-- "grade 4 piano exam piece, baroque"
-- "beginner Chopin for teenager"
+| Operation | Model | Cost | Time |
+|-----------|-------|------|------|
+| Index 1,500 scores | Groq 70B (free) | $0 | ~50 min |
+| Index 300k scores | Groq 70B (free) | $0 | ~7 days |
+| 1 search query | Groq 70B (free) | $0 | ~1 sec |
+| 1000 queries | Groq 70B (free) | $0 | - |
 
-### Choir Director
-- "SATB piece for Easter, soprano below B5"
-- "simple anthem for community choir"
-- "funeral music, peaceful, not too sad"
+**Free tier limits:** 30 req/min, 14,400 req/day
 
-### Student
-- "violin audition piece, romantic period"
-- "virtuoso piano that sounds harder than it is"
-
-### Church Musician
-- "communion meditation for organ, quiet"
-- "wedding prelude for string quartet"
-
----
-
-## Success Criteria
-
-- Top 5 results should include at least 2-3 relevant scores
-- Difficulty filtering should work (beginner vs advanced)
-- Period filtering should work (baroque vs romantic)
-- Voicing/instrument filtering should work
-- Duration estimates should be in right ballpark
-
----
-
-## Phase 2: Synthetic Queries (if needed)
-
-If Phase 1 results are poor, add synthetic queries to bridge vocabulary gap:
-
-```python
-# Template-based query generation
-synthetic_queries = [
-    f"easy {composer} for piano students",
-    f"short {period} keyboard piece",
-    f"beginner-intermediate {composer}",
-    f"{voicing} piece for {occasion}",
-]
-```
-
-These get appended to the document before embedding, helping match user queries that use different vocabulary than the metadata.
-
----
-
-## Phase 3: Refinement (future)
-
-1. LLM-generated queries for complex scores
-2. Occasion detection (Easter, Christmas, wedding, funeral)
-3. Mood/character descriptors
-4. Re-ranking with cross-encoder for better precision
+At $2.99/month subscription with $0 LLM cost = **100% margin** (only infrastructure costs).
