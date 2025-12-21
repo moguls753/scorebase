@@ -3,7 +3,10 @@ name = "scorebase-rag"
 version = "0.1.0"
 description = "RAG-powered semantic search for ScoreBase"
 requires-python = ">=3.11"
+# Note: Use `pip install -r requirements.txt` for CPU-only torch
+# pyproject.toml can't specify index URLs, so requirements.txt is preferred
 dependencies = [
+    "torch",
     "haystack-ai>=2.8.0",
     "chroma-haystack>=1.0.0",
     "sentence-transformers>=3.0.0",

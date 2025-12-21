@@ -3,7 +3,7 @@
 from haystack import Pipeline
 from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack_integrations.document_stores.chroma import ChromaDocumentStore
-from haystack_integrations.components.retrievers.chroma import ChromaQueryRetriever
+from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRetriever
 
 from .. import config
 
@@ -33,7 +33,7 @@ def get_pipeline() -> Pipeline:
     # Embedding -> Similar documents
     pipeline.add_component(
         "retriever",
-        ChromaQueryRetriever(document_store=document_store, top_k=config.DEFAULT_TOP_K)
+        ChromaEmbeddingRetriever(document_store=document_store, top_k=config.DEFAULT_TOP_K)
     )
 
     # Connect components
