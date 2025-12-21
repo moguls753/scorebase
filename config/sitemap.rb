@@ -49,10 +49,6 @@ SitemapGenerator::Sitemap.create do
   add instruments_path, changefreq: "weekly", priority: 0.9
   add instruments_path(locale: :de), changefreq: "weekly", priority: 0.9
 
-  # Voicing index
-  add voicing_index_path, changefreq: "weekly", priority: 0.9
-  add voicing_index_path(locale: :de), changefreq: "weekly", priority: 0.9
-
   # ===========================================
   # INDIVIDUAL HUB PAGES (high priority)
   # ===========================================
@@ -103,18 +99,6 @@ SitemapGenerator::Sitemap.create do
     slug = name.parameterize
     add instrument_path(slug: slug), changefreq: "weekly", priority: 0.8
     add instrument_path(slug: slug, locale: :de), changefreq: "weekly", priority: 0.8
-  end
-
-  # Voicing pages
-  voicing_counts = Score.where.not(voicing: [nil, ""])
-                        .group(:voicing)
-                        .count
-                        .select { |_, count| count >= THRESHOLD }
-
-  voicing_counts.each do |name, _count|
-    slug = name.parameterize
-    add voicing_path(slug: slug), changefreq: "weekly", priority: 0.8
-    add voicing_path(slug: slug, locale: :de), changefreq: "weekly", priority: 0.8
   end
 
   # ===========================================
