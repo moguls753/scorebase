@@ -3131,7 +3131,7 @@ html[data-turbo-preview] .hub-card {
 
 .difficulty-meter {
   display: inline-flex;
-  gap: 3px;
+  gap: 4px; /* gap-1 */
   align-items: center;
 }
 
@@ -3156,12 +3156,12 @@ html[data-turbo-preview] .hub-card {
 }
 
 .difficulty-label {
-  font-size: 10px;
+  font-size: 12px; /* Readable on mobile, compact on desktop */
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.02em;
   color: var(--color-text-muted);
-  margin-left: 6px;
+  margin-left: 8px; /* ml-2 */
 }
 
 /* ========================================
