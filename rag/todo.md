@@ -140,7 +140,6 @@ From Score model + music21 extraction (use all non-nil):
 | genres | "Baroque" | Period |
 | lyrics_language | "Latin" | Text |
 | is_vocal | true | Type |
-| has_fugue | true | Form (for negation) |
 
 ### Difficulty Mapping (melodic_complexity)
 

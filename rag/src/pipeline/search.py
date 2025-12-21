@@ -51,7 +51,7 @@ def search(query: str, top_k: int = 10) -> list[dict]:
         top_k: Number of results
 
     Returns:
-        List of results with score_id, title, composer, similarity
+        List of results with score_id, content (LLM description), similarity
     """
     pipeline = get_pipeline()
 
@@ -65,8 +65,6 @@ def search(query: str, top_k: int = 10) -> list[dict]:
     return [
         {
             "score_id": doc.meta.get("score_id"),
-            "title": doc.meta.get("title"),
-            "composer": doc.meta.get("composer"),
             "content": doc.content,
             "similarity": doc.score,
         }
@@ -84,12 +82,11 @@ def main():
     results = search(query, top_k=20)
 
     for i, r in enumerate(results, 1):
-        print(f"{i}. {r['title']}")
-        print(f"   Composer: {r['composer']}")
+        print(f"{i}. Score ID: {r['score_id']}")
         print(f"   Similarity: {r['similarity']:.3f}")
-        # Show first 200 chars of content to debug what's indexed
+        # Show first 200 chars of content (LLM description)
         content = r.get('content', '')[:200]
-        print(f"   Content: {content}...")
+        print(f"   Description: {content}...")
         print()
 
 

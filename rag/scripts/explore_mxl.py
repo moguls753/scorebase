@@ -8,12 +8,12 @@ Run from rag/ directory:
 import sys
 from pathlib import Path
 
-# Add src to path for imports
+# Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from src import config, db
-from src.enrichment import parser
 from src.enrichment.enrich import get_mxl_path
+from extract import extract
 
 
 def main():
@@ -64,26 +64,28 @@ def main():
         print("\nERROR: MXL file not found at expected path")
         return
 
-    # Parse with music21
+    # Extract with music21
     print("\n" + "-" * 60)
-    print("Parsing with music21...")
+    print("Extracting with music21...")
     print("-" * 60)
 
-    result = parser.parse_mxl(full_path)
+    result = extract(str(full_path))
 
-    if result:
+    if result.get("extraction_status") == "extracted":
         print("\nExtracted features:")
-        for key, value in result.items():
-            if key == "parts":
+        # Skip internal fields
+        skip = {"_extraction_warnings", "music21_version", "musicxml_source"}
+        for key, value in sorted(result.items()):
+            if key in skip:
+                continue
+            if isinstance(value, dict):
                 print(f"  {key}:")
-                for part in value:
-                    print(
-                        f"    - {part['name']}: {part['lowest']} to {part['highest']}"
-                    )
+                for k, v in value.items():
+                    print(f"    {k}: {v}")
             else:
                 print(f"  {key}: {value}")
     else:
-        print("Failed to parse file!")
+        print(f"Extraction failed: {result.get('extraction_error')}")
 
 
 if __name__ == "__main__":

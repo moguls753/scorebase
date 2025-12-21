@@ -15,5 +15,9 @@ uvicorn[standard]>=0.32.0
 music21>=9.1.0
 langdetect>=1.0.9
 
+# LLM
+groq>=0.4.0
+pydantic>=2.0.0
+
 # Dev
 pytest>=8.0.0

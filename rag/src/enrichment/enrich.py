@@ -1,8 +1,13 @@
 """Enrich scores with MXL-extracted features."""
 
+import sys
 from pathlib import Path
-from . import parser
+
 from .. import config
+
+# Add parent directory to path for extract module
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from extract import extract
 
 
 def get_mxl_path(mxl_path: str) -> Path:
@@ -28,4 +33,8 @@ def enrich_one(mxl_path: str) -> dict | None:
         Dict with features, or None if failed
     """
     full_path = get_mxl_path(mxl_path)
-    return parser.parse_mxl(full_path)
+    result = extract(str(full_path))
+
+    if result.get("extraction_status") == "extracted":
+        return result
+    return None

@@ -3,11 +3,18 @@
 Rails calls this API to perform semantic search.
 """
 
-from fastapi import FastAPI
+import logging
+
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from ..pipeline import search as search_module
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title="ScoreBase RAG API")
 
@@ -15,8 +22,7 @@ app = FastAPI(title="ScoreBase RAG API")
 # Request/Response models
 class SearchResult(BaseModel):
     score_id: int
-    title: str | None
-    composer: str | None
+    content: str | None  # LLM-generated description
     similarity: float | None
 
 
@@ -43,15 +49,21 @@ def search(q: str, top_k: int = 10) -> SearchResponse:
     Returns:
         Matching scores with similarity scores
     """
-    results = search_module.search(q, top_k=top_k)
+    try:
+        results = search_module.search(q, top_k=top_k)
+    except Exception as e:
+        logger.error(f"Search failed: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail="Search index not available. Run indexer first."
+        )
 
     return SearchResponse(
         query=q,
         results=[
             SearchResult(
                 score_id=r["score_id"],
-                title=r["title"],
-                composer=r["composer"],
+                content=r["content"],
                 similarity=r["similarity"],
             )
             for r in results

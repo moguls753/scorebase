@@ -13,6 +13,9 @@ dependencies = [
     "music21>=9.1.0",
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
+    "groq>=0.4.0",
+    "pydantic>=2.0.0",
+    "langdetect>=1.0.9",
 ]
 
 [project.optional-dependencies]
