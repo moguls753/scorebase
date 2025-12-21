@@ -1,4 +1,15 @@
-# Music21 Extractor Dependencies
+# RAG Pipeline
+haystack-ai>=2.8.0
+chroma-haystack>=1.0.0
+sentence-transformers>=3.0.0
+
+# API
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+
+# Music21 Extractor
 music21>=9.1.0
 langdetect>=1.0.9
+
+# Dev
 pytest>=8.0.0

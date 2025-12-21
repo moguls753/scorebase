@@ -6,6 +6,7 @@ requires-python = ">=3.11"
 dependencies = [
     "haystack-ai>=2.8.0",
     "chroma-haystack>=1.0.0",
+    "sentence-transformers>=3.0.0",
     "music21>=9.1.0",
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
