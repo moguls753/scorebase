@@ -3126,22 +3126,22 @@ html[data-turbo-preview] .hub-card {
 }
 
 /* ========================================
-   DIFFICULTY METER - Visual 3-Block Scale
+   DIFFICULTY METER - Visual 4-Block Scale
    ======================================== */
 
 .difficulty-meter {
   display: inline-flex;
-  gap: 4px;
+  gap: 3px;
   align-items: center;
 }
 
 .difficulty-block {
-  width: 18px;
+  width: 12px;
   height: 10px;
   background: var(--color-bg);
   border: 2px solid var(--color-border-subtle);
   border-radius: 1px;
-  transition: all 0.2s ease;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 .difficulty-block.is-filled {
@@ -3150,13 +3150,11 @@ html[data-turbo-preview] .hub-card {
   box-shadow: 1px 1px 0 var(--shadow-color);
 }
 
-/* Animate on hover */
 .difficulty-meter:hover .difficulty-block.is-filled {
   transform: translateY(-1px);
   box-shadow: 2px 2px 0 var(--shadow-color);
 }
 
-/* Difficulty labels for screen readers shown visually on hover */
 .difficulty-label {
   font-size: 10px;
   font-weight: 600;
@@ -3164,12 +3162,6 @@ html[data-turbo-preview] .hub-card {
   letter-spacing: 0.3px;
   color: var(--color-text-muted);
   margin-left: 6px;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-}
-
-.difficulty-meter:hover .difficulty-label {
-  opacity: 1;
 }
 
 /* ========================================

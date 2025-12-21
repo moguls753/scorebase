@@ -28,16 +28,11 @@
 
 **RAG indexer**: Fixed - now prioritizes `melodic_complexity`
 
-**Rails view helper**: Needs fix - `app/helpers/scores_helper.rb` line 101:
-```ruby
-# Current (broken): only shows if complexity > 0
-if score.complexity.to_i.positive?
-
-# Should use melodic_complexity instead:
-if score.melodic_complexity.present?
-  # Convert 0-1 to 1-3 scale for meter display
-end
-```
+**Rails view helper**: Fixed - `app/helpers/scores_helper.rb`:
+- Uses `melodic_complexity` (0-1) as primary source
+- Falls back to `complexity` if melodic_complexity is nil
+- Converts to 4-level scale: easy (1), medium (2), hard (3), virtuoso (4)
+- Updated difficulty meter CSS for 4-block display with gold accent on virtuoso
 
 ---
 
@@ -61,11 +56,11 @@ From Score model + music21 extraction:
 - title, composer
 - instruments, voicing, is_vocal, has_accompaniment
 - **melodic_complexity (0-1)** → primary difficulty source:
-  - < 0.3: "easy, simple piece suitable for beginners"
-  - 0.3-0.5: "moderate complexity, suitable for intermediate"
-  - 0.5-0.7: "challenging piece for advanced players"
-  - > 0.7: "virtuoso piece, technically demanding"
-- complexity (0-3) → fallback only if melodic_complexity is null
+  - < 0.3: level 1 "easy, simple piece suitable for beginners"
+  - 0.3-0.5: level 2 "moderate complexity, suitable for intermediate"
+  - 0.5-0.7: level 3 "challenging piece for advanced players"
+  - > 0.7: level 4 "virtuoso piece, technically demanding"
+- complexity (1-4) → fallback only if melodic_complexity is null
 - key_signature, time_signature, tempo_marking
 - duration_seconds → "short piece", "medium length", "extended work"
 - texture_type, num_parts → "solo/duet/trio/quartet"

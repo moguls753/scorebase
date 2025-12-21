@@ -97,9 +97,9 @@ module ScoresHelper
       facts << fact_entry("score.voicing", score.voicing, link: scores_path(voicing: score.voicing))
     end
 
-    # Difficulty - special display (meter)
-    if score.complexity.to_i.positive?
-      facts << fact_entry("score.difficulty", nil, difficulty: score.complexity.to_i)
+    # Difficulty - visual meter (melodic_complexity preferred, legacy complexity as fallback)
+    if (level = score_difficulty_level(score))
+      facts << fact_entry("score.difficulty", nil, difficulty: level)
     end
 
     # Pitch range
@@ -141,22 +141,20 @@ module ScoresHelper
 
   # ─────────────────────────────────────────────────────────────────
   # Difficulty Meter Component
-  # Visual 3-block scale instead of "2/3" text
+  # Visual 4-block scale: easy → medium → hard → virtuoso
   # ─────────────────────────────────────────────────────────────────
 
-  DIFFICULTY_LABELS = { 1 => "easy", 2 => "medium", 3 => "hard" }.freeze
+  DIFFICULTY_LABELS = { 1 => "easy", 2 => "medium", 3 => "hard", 4 => "virtuoso" }.freeze
 
   def difficulty_meter(level)
-    return nil unless level.to_i.positive? && level.to_i <= 3
-
     level = level.to_i
+    return nil unless level.between?(1, 4)
+
     label = DIFFICULTY_LABELS[level]
 
-    content_tag(:div, class: "difficulty-meter", aria: { label: "#{t('score.difficulty')}: #{level}/3" }, title: label&.capitalize) do
-      blocks = (1..3).map do |i|
-        classes = ["difficulty-block"]
-        classes << "is-filled" if i <= level
-        content_tag(:span, "", class: classes.join(" "))
+    content_tag(:div, class: "difficulty-meter", aria: { label: "#{t('score.difficulty')}: #{label}" }) do
+      blocks = (1..4).map do |i|
+        content_tag(:span, "", class: "difficulty-block #{'is-filled' if i <= level}".strip)
       end
       safe_join(blocks) + content_tag(:span, label, class: "difficulty-label")
     end
@@ -269,6 +267,20 @@ module ScoresHelper
   end
 
   private
+
+  # Get difficulty level (1-4) from score, preferring music21 analysis over PDMX
+  def score_difficulty_level(score)
+    if score.melodic_complexity.present?
+      mc = score.melodic_complexity.to_f
+      if    mc < 0.3 then 1  # easy
+      elsif mc < 0.5 then 2  # medium
+      elsif mc < 0.7 then 3  # hard
+      else                4  # virtuoso
+      end
+    elsif score.complexity.to_i.positive?
+      score.complexity.to_i.clamp(1, 4)
+    end
+  end
 
   # Return value only if positive, otherwise nil
   def positive_or_nil(value)
