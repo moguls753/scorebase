@@ -55,7 +55,6 @@
         <%# 1. DOWNLOADS (hidden on mobile - shown in quick actions above) %>
         <% if @score.has_downloads? %>
           <div class="mm-card p-3 sm:p-4 score-downloads-card">
-            <%= score_section_header("↓", "score.download_files") %>
             <%= render "scores/download_actions", score: @score, variant: :sidebar %>
           </div>
         <% end %>

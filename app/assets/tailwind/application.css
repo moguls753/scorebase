@@ -3020,6 +3020,7 @@ html[data-turbo-preview] .hub-card {
   border: 2px solid var(--color-border);
   border-radius: 2px;
   overflow: hidden;
+  box-shadow: 4px 4px 0 var(--shadow-color);
 }
 
 /* Single column on very narrow screens */
