@@ -153,12 +153,18 @@ class Score < ApplicationRecord
   scope :from_imslp, -> { where(source: "imslp") }
   scope :by_source, ->(source) { where(source: source) if source.present? }
 
-  # Composer normalization status
   enum :normalization_status, {
     pending: "pending",
     normalized: "normalized",
     failed: "failed"
-  }, default: :pending
+  }, default: :pending, prefix: :normalization
+
+  enum :extraction_status, {
+    pending: "pending",
+    extracted: "extracted",
+    failed: "failed",
+    no_musicxml: "no_musicxml"
+  }, default: :pending, prefix: :extraction
 
   # Filter out corrupted encoding (mojibake) that breaks AI JSON generation
   scope :safe_for_ai, -> {

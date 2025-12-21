@@ -11,7 +11,7 @@ class ExtractPendingScoresJob < ApplicationJob
   queue_as :default
 
   def perform(limit: 1000, source: nil)
-    scores = Score.where(extraction_status: "pending")
+    scores = Score.extraction_pending
     scores = scores.where(source: source) if source.present?
     scores = scores.where.not(mxl_path: [nil, "", "N/A"])
     scores = scores.limit(limit)

@@ -22,7 +22,8 @@
       "Bash(ruby -c:*)",
       "Skill(frontend-design)",
       "Bash(erb -x:*)",
-      "Bash(ls:*)"
+      "Bash(ls:*)",
+      "Bash(bundle exec rspec:*)"
     ]
   }
 }

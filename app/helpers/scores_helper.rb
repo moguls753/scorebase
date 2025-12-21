@@ -202,9 +202,8 @@ module ScoresHelper
     "#{low} – #{high}"
   end
 
-  # Check if score has extracted analysis data
   def has_extracted_data?(score)
-    score.extraction_status == "extracted"
+    score.extraction_extracted?
   end
 
   # Check if score has vocal range data worth showing

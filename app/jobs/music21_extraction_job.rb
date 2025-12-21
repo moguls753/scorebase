@@ -23,7 +23,7 @@ class Music21ExtractionJob < ApplicationJob
     logger.info "[Music21] Processing score ##{score.id}: #{score.title}"
 
     unless score.has_mxl?
-      score.update!(extraction_status: "no_musicxml", extracted_at: Time.current)
+      score.update!(extraction_status: :no_musicxml, extracted_at: Time.current)
       logger.info "[Music21] Skipped - no MusicXML available"
       return
     end
@@ -74,7 +74,7 @@ class Music21ExtractionJob < ApplicationJob
   def apply_result(score, result)
     if result["extraction_status"] == "failed"
       score.update!(
-        extraction_status: "failed",
+        extraction_status: :failed,
         extraction_error: result["extraction_error"]&.first(1000),
         extracted_at: Time.current
       )
@@ -165,7 +165,7 @@ class Music21ExtractionJob < ApplicationJob
       # Metadata
       music21_version: result["music21_version"],
       musicxml_source: result["musicxml_source"],
-      extraction_status: "extracted",
+      extraction_status: :extracted,
       extracted_at: Time.current
     )
   end

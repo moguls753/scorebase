@@ -24,7 +24,7 @@ class ComposerNormalizerBase
 
   def normalize!
     puts "Provider: #{provider_name}"
-    puts "Pending scores: #{Score.pending.count}\n\n"
+    puts "Pending scores: #{Score.normalization_pending.count}\n\n"
 
     # Phase 1: Pattern matches → failed (no API needed)
     process_unnormalizable_patterns
@@ -59,7 +59,7 @@ class ComposerNormalizerBase
       ComposerMapping.register(original: composer, normalized: nil, source: "pattern")
 
       # Mark scores as failed (composer field unchanged)
-      count = Score.pending.where(composer: composer).update_all(normalization_status: "failed")
+      count = Score.normalization_pending.where(composer: composer).update_all(normalization_status: "failed")
       @stats[:pattern_matched] += count
     end
 
@@ -79,7 +79,7 @@ class ComposerNormalizerBase
 
     composers.each do |composer|
       mapping = ComposerMapping.find_by(original_name: composer)
-      scores = Score.pending.where(composer: composer)
+      scores = Score.normalization_pending.where(composer: composer)
 
       count = if mapping.normalized_name
         scores.update_all(composer: mapping.normalized_name, normalization_status: "normalized")
@@ -99,7 +99,7 @@ class ComposerNormalizerBase
   def process_with_api
     # Get remaining uncached scores (with all fields for AI context)
     # Use safe_for_ai to filter out corrupted encoding that breaks AI JSON generation
-    scores = Score.pending.safe_for_ai
+    scores = Score.normalization_pending.safe_for_ai
                   .distinct
                   .pluck(:composer, :title, :editor, :genres, :language)
                   .uniq { |row| row[0] }
@@ -139,7 +139,7 @@ class ComposerNormalizerBase
       next if original.nil?
 
       normalized = item["normalized"]
-      scores = Score.pending.where(composer: original)
+      scores = Score.normalization_pending.where(composer: original)
 
       if normalized.present?
         ComposerMapping.register(original: original, normalized: normalized, source: provider_name)
@@ -164,7 +164,7 @@ class ComposerNormalizerBase
   # ==========================================================================
 
   def pending_composers
-    Score.pending.distinct.pluck(:composer)
+    Score.normalization_pending.distinct.pluck(:composer)
   end
 
   def truncate(str, length)
@@ -182,9 +182,9 @@ class ComposerNormalizerBase
     puts "  API failed:               #{@stats[:api_failed]}"
     puts "  Total processed:          #{total}"
     puts "\nDatabase totals:"
-    puts "  Normalized: #{Score.normalized.count}"
-    puts "  Failed:     #{Score.failed.count}"
-    puts "  Pending:    #{Score.pending.count}"
+    puts "  Normalized: #{Score.normalization_normalized.count}"
+    puts "  Failed:     #{Score.normalization_failed.count}"
+    puts "  Pending:    #{Score.normalization_pending.count}"
   end
 
   def build_prompt(scores_data)
