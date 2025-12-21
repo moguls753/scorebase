@@ -87,6 +87,9 @@ def main():
         print(f"{i}. {r['title']}")
         print(f"   Composer: {r['composer']}")
         print(f"   Similarity: {r['similarity']:.3f}")
+        # Show first 200 chars of content to debug what's indexed
+        content = r.get('content', '')[:200]
+        print(f"   Content: {content}...")
         print()
 
 
