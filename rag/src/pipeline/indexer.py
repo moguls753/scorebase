@@ -50,19 +50,23 @@ def make_searchable_text(score: dict) -> str:
         if mins > 0:
             parts.append(f"{mins} minutes")
 
-    # Difficulty - map numeric to words
+    # Difficulty - use complexity if available, fall back to melodic_complexity
     complexity = score.get("complexity")
-    if complexity is not None:
+    if complexity is not None and complexity in (0, 1, 2, 3):
         labels = {0: "beginner", 1: "easy", 2: "intermediate", 3: "advanced"}
-        if complexity in labels:
-            parts.append(labels[complexity])
-
-    melodic = score.get("melodic_complexity")
-    if melodic is not None:
-        if melodic < 0.3:
-            parts.append("simple")
-        elif melodic > 0.7:
-            parts.append("complex")
+        parts.append(labels[complexity])
+    else:
+        # Fallback to melodic_complexity only if no complexity value
+        melodic = score.get("melodic_complexity")
+        if melodic is not None:
+            if melodic < 0.3:
+                parts.append("beginner, easy")
+            elif melodic < 0.5:
+                parts.append("intermediate")
+            elif melodic < 0.7:
+                parts.append("advanced")
+            else:
+                parts.append("virtuoso, difficult")
 
     # Texture
     if score.get("texture_type"):
