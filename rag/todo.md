@@ -1,138 +1,92 @@
-# RAG Embedding Strategy - TODO
+# RAG Embedding Strategy
 
 ## Current Status
 
-First 1200 parsed PDMX scores (IDs 1121-2320) are NOT suitable for testing:
-- 72% have no composer ("NA")
-- Mostly folk/traditional music
-- Only 1 Bach, 2 Mozart, 1 Beethoven
+**Phase 1 implementation complete. Ready for testing.**
 
-## Step 1: Curate Test Dataset (~420 scores)
+### Completed
+- [x] Curated test dataset extracted (1,468 scores with music21 analysis)
+  - Bach: 150, Mozart: 80, Beethoven: 58, Chopin: 40, Schubert: 40 + folk/traditional
+- [x] Python RAG pipeline built (Haystack + ChromaDB + SentenceTransformers)
+- [x] Natural prose embedding document generation
+- [x] FastAPI search endpoint
+- [x] CPU-only PyTorch for lightweight deployment
 
-Parse MusicXML for these scores:
-
-```ruby
-# Run in Rails console
-ids = []
-ids += Score.where(composer: 'Bach, Johann Sebastian').where.not(mxl_path: [nil, '']).limit(150).pluck(:id)
-ids += Score.where(composer: 'Mozart, Wolfgang Amadeus').where.not(mxl_path: [nil, '']).limit(80).pluck(:id)
-ids += Score.where(composer: 'Beethoven, Ludwig van').where.not(mxl_path: [nil, '']).limit(60).pluck(:id)
-ids += Score.where(composer: 'Chopin, Frédéric').where.not(mxl_path: [nil, '']).limit(40).pluck(:id)
-ids += Score.where(composer: 'Schubert, Franz').where.not(mxl_path: [nil, '']).limit(40).pluck(:id)
-ids += Score.where("voicing LIKE '%SATB%'").where.not(mxl_path: [nil, '']).limit(50).pluck(:id)
-ids.uniq!
-puts "#{ids.count} scores to parse"
-```
-
-This gives diversity across:
-- Composers (Bach, Mozart, Beethoven, Chopin, Schubert)
-- Periods (Baroque, Classical, Romantic)
-- Instruments (keyboard, orchestral, choral)
-- Difficulty levels
+### Next Steps
+- [ ] Run indexer and test search queries
+- [ ] Evaluate results against success criteria
+- [ ] Iterate on prose generation if needed
+- [ ] Phase 2: Add synthetic queries if results need improvement
 
 ---
 
-## Step 2: Embedding Strategy - Hybrid Approach
+## Architecture
 
-### The Problem
+### Embedding Model
+- `all-MiniLM-L6-v2` (384 dimensions, fast, CPU-friendly)
 
-**Vocabulary gap** between user queries and document metadata:
-
-| User says | Database has |
-|-----------|--------------|
-| "easy Bach for beginners" | `composer: Bach, complexity: 1` |
-| "something my choir can handle" | `voicing: SATB, complexity: 2` |
-| "romantic, around 15 minutes" | `genre: classical, duration: 900` |
-
-Direct metadata embedding may not match natural language queries well.
-
-### The Solution: Hybrid Embedding Document
-
-Combine THREE elements for each score:
-
-#### A. Natural Prose Metadata
-Convert raw fields to readable text:
+### Document Format (Natural Prose)
+Each score is embedded as readable prose:
 ```
-"Prelude in C major" by Johann Sebastian Bach.
-A Baroque period composition for keyboard.
-Intermediate difficulty, suitable for students with 2-3 years experience.
-Duration approximately 4 minutes. Key of C major, common time.
+"Prelude in C major" by Johann Sebastian Bach. This is for Keyboard.
+This is an easy, simple piece suitable for beginners. The piece is in C major,
+in 4/4 time. Duration is about 4 minutes, a short piece. The texture is
+polyphonic, duet. Pitch range spans from C3 to G5. Contains dynamic markings,
+ornaments. Genre: Baroque music, Keyboard.
 ```
 
-#### B. Contextual Descriptions
-Add semantic context:
-```
-Good for: keyboard students, counterpoint study, Bach introduction.
-Style: polyphonic, contrapuntal, pedagogical.
-```
-
-#### C. Synthetic Queries
-Natural language queries that WOULD match this score:
-```
-- "easy Bach for piano students"
-- "short baroque keyboard piece"
-- "beginner-intermediate Bach"
-- "grade 4-5 exam repertoire"
-- "2-minute classical piano, not too hard"
-```
-
-### Why This Works
-
-1. **Synthetic queries** bridge vocabulary gap - user query lands close to matching synthetic queries
-2. **Natural prose** catches exact matches ("Bach", "BWV 846")
-3. **Context** adds semantic richness for similar-but-different queries
-
----
-
-## Step 3: Implementation Order
-
-### Phase 1 - Minimal Viable Test (do this first)
-1. Parse the 420 curated scores with music21
-2. Build simple text documents (metadata as prose only, no synthetic queries)
-3. Index into ChromaDB
-4. Test 10-20 queries from product doc
-5. Evaluate: are results relevant?
-
-### Phase 2 - Add Synthetic Queries
-1. Create template-based query generator using patterns from product doc:
-   - `"easy {composer} for {instrument}"`
-   - `"{voicing} piece for {occasion}"`
-   - `"{period} music, {difficulty}"`
-2. Generate 5-10 synthetic queries per score
-3. Re-index with hybrid documents
-4. Compare results to Phase 1
-
-### Phase 3 - Refinement
-1. Add more query templates based on what's missing
-2. Consider LLM-generated queries for complex scores
-3. Add occasion detection (Easter, Christmas, wedding, funeral)
-4. Add mood/character descriptors
-
----
-
-## Fields to Use
-
-### From Score Model
+### Fields Used in Embedding
+From Score model + music21 extraction:
 - title, composer
-- key_signature, time_signature
-- instruments, voicing, num_parts
-- genres, tags
-- language (for vocal works)
-- complexity (0-3)
+- instruments, voicing, is_vocal, has_accompaniment
+- complexity (0-3) → "beginner/easy/intermediate/advanced"
+- melodic_complexity (0-1) → fallback difficulty
+- key_signature, time_signature, tempo_marking
+- duration_seconds → "short piece", "medium length", "extended work"
+- texture_type, num_parts → "solo/duet/trio/quartet"
+- lowest_pitch, highest_pitch → vocal/pitch range
+- has_dynamics, has_ornaments, has_articulations
+- genres (includes period: "Baroque music", etc.)
+- lyrics_language
 - description
 
-### From Music21 Enrichment
-- duration_seconds
-- tempo_bpm
-- range_low/high (pitch names)
-- range_low_midi/high_midi (for filtering)
-- computed_difficulty (1-5)
+---
+
+## Commands
+
+### Setup (on target machine)
+```bash
+cd rag
+python3.11 -m venv venv
+source venv/bin/activate
+
+# CPU-only PyTorch first
+pip install torch --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements.txt
+```
+
+### Build Index
+```bash
+rm -rf data/chroma  # Clear existing index
+python -m src.pipeline.indexer -1  # Index all extracted scores
+```
+
+### Search
+```bash
+python -m src.pipeline.search "easy Bach for piano"
+python -m src.pipeline.search "SATB piece for Easter"
+python -m src.pipeline.search "short romantic piano piece"
+```
+
+### Start API Server
+```bash
+python -m src.api.main
+# GET http://localhost:8001/search?q=easy+Bach&top_k=10
+```
 
 ---
 
 ## Target Queries to Test
-
-From product doc - these should return good results:
 
 ### Piano Teacher
 - "easy Bach for piano students"
@@ -161,3 +115,30 @@ From product doc - these should return good results:
 - Period filtering should work (baroque vs romantic)
 - Voicing/instrument filtering should work
 - Duration estimates should be in right ballpark
+
+---
+
+## Phase 2: Synthetic Queries (if needed)
+
+If Phase 1 results are poor, add synthetic queries to bridge vocabulary gap:
+
+```python
+# Template-based query generation
+synthetic_queries = [
+    f"easy {composer} for piano students",
+    f"short {period} keyboard piece",
+    f"beginner-intermediate {composer}",
+    f"{voicing} piece for {occasion}",
+]
+```
+
+These get appended to the document before embedding, helping match user queries that use different vocabulary than the metadata.
+
+---
+
+## Phase 3: Refinement (future)
+
+1. LLM-generated queries for complex scores
+2. Occasion detection (Easter, Christmas, wedding, funeral)
+3. Mood/character descriptors
+4. Re-ranking with cross-encoder for better precision

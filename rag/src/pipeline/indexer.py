@@ -7,120 +7,159 @@ from haystack_integrations.document_stores.chroma import ChromaDocumentStore
 from .. import config, db
 
 
+def _safe_int(value, default=None):
+    """Safely convert value to int."""
+    if value is None:
+        return default
+    try:
+        return int(value)
+    except (ValueError, TypeError):
+        return default
+
+
+def _safe_float(value, default=None):
+    """Safely convert value to float."""
+    if value is None:
+        return default
+    try:
+        return float(value)
+    except (ValueError, TypeError):
+        return default
+
+
 def make_searchable_text(score: dict) -> str:
-    """Convert score metadata to searchable text.
+    """Convert score metadata to natural prose for embedding.
 
-    Include all relevant fields - the embedding model handles semantic matching.
+    Creates readable sentences that match how users search.
     """
-    parts = []
+    sentences = []
 
-    # Title and composer
-    if score.get("title"):
-        parts.append(score["title"])
-    if score.get("composer") and score["composer"] != "NA":
-        parts.append(f"by {score['composer']}")
-
-    # Instrumentation
-    if score.get("instruments"):
-        parts.append(f"for {score['instruments']}")
-    if score.get("voicing"):
-        parts.append(f"{score['voicing']} voicing")
-    if score.get("is_vocal"):
-        parts.append("vocal")
-    if score.get("is_instrumental"):
-        parts.append("instrumental")
-    if score.get("has_accompaniment"):
-        parts.append("with accompaniment")
-
-    # Key and time
-    if score.get("key_signature"):
-        parts.append(f"in {score['key_signature']}")
-    if score.get("time_signature"):
-        parts.append(f"{score['time_signature']} time")
-
-    # Tempo
-    if score.get("tempo_marking"):
-        parts.append(score["tempo_marking"])
-    if score.get("tempo_bpm"):
-        parts.append(f"{score['tempo_bpm']} bpm")
-
-    # Duration
-    if score.get("duration_seconds"):
-        mins = int(score["duration_seconds"] // 60)
-        if mins > 0:
-            parts.append(f"{mins} minutes")
-
-    # Difficulty - use complexity if available, fall back to melodic_complexity
-    complexity = score.get("complexity")
-    if complexity is not None and complexity in (0, 1, 2, 3):
-        labels = {0: "beginner", 1: "easy", 2: "intermediate", 3: "advanced"}
-        parts.append(labels[complexity])
+    # 1. Title and composer sentence
+    title = score.get("title", "Untitled")
+    composer = score.get("composer")
+    if composer and composer != "NA":
+        sentences.append(f'"{title}" by {composer}.')
     else:
-        # Fallback to melodic_complexity only if no complexity value
-        melodic = score.get("melodic_complexity")
+        sentences.append(f'"{title}".')
+
+    # 2. Instrumentation sentence - build grammatically correct phrases
+    is_vocal = score.get("is_vocal")
+    if is_vocal:
+        vocal_parts = ["a vocal work"]
+        if score.get("voicing"):
+            vocal_parts.append(f"for {score['voicing']}")
+        if score.get("has_accompaniment"):
+            vocal_parts.append("with accompaniment")
+        sentences.append("This is " + " ".join(vocal_parts) + ".")
+    elif score.get("instruments"):
+        instr_sentence = f"This is for {score['instruments']}"
+        if score.get("has_accompaniment"):
+            instr_sentence += " with accompaniment"
+        sentences.append(instr_sentence + ".")
+
+    # 3. Difficulty sentence - prioritize complexity, fallback to melodic
+    complexity = _safe_int(score.get("complexity"))
+    if complexity is not None and complexity in (0, 1, 2, 3):
+        difficulty_text = {
+            0: "This is a beginner piece, suitable for students just starting out.",
+            1: "This is an easy piece, good for early learners.",
+            2: "This is an intermediate piece, requiring some experience.",
+            3: "This is an advanced piece, suitable for experienced players.",
+        }
+        sentences.append(difficulty_text[complexity])
+    else:
+        melodic = _safe_float(score.get("melodic_complexity"))
         if melodic is not None:
             if melodic < 0.3:
-                parts.append("beginner, easy")
+                sentences.append("This is an easy, simple piece suitable for beginners.")
             elif melodic < 0.5:
-                parts.append("intermediate")
+                sentences.append("This piece has moderate complexity, suitable for intermediate players.")
             elif melodic < 0.7:
-                parts.append("advanced")
+                sentences.append("This is a challenging piece for advanced players.")
             else:
-                parts.append("virtuoso, difficult")
+                sentences.append("This is a virtuoso piece, technically demanding and difficult.")
 
-    # Texture
+    # 4. Musical characteristics sentence
+    chars = []
+    if score.get("key_signature"):
+        chars.append(f"in {score['key_signature']}")
+    if score.get("time_signature"):
+        chars.append(f"in {score['time_signature']} time")
+    if score.get("tempo_marking"):
+        chars.append(score["tempo_marking"].lower())
+    if chars:
+        sentences.append("The piece is " + ", ".join(chars) + ".")
+
+    # 5. Duration sentence
+    duration = _safe_float(score.get("duration_seconds"))
+    if duration is not None and duration > 0:
+        mins = int(duration // 60)
+        if mins == 0:
+            sentences.append("A very short piece, under 1 minute.")
+        elif mins == 1:
+            sentences.append("Duration is about 1 minute, a short piece.")
+        elif mins < 5:
+            sentences.append(f"Duration is about {mins} minutes, a short piece.")
+        elif mins < 10:
+            sentences.append(f"Duration is about {mins} minutes, medium length.")
+        else:
+            sentences.append(f"Duration is about {mins} minutes, an extended work.")
+
+    # 6. Texture and structure sentence
+    texture_parts = []
     if score.get("texture_type"):
-        parts.append(score["texture_type"])
-    if score.get("num_parts"):
-        parts.append(f"{score['num_parts']} parts")
+        texture_parts.append(score["texture_type"])
+    num_parts = _safe_int(score.get("num_parts"))
+    if num_parts:
+        part_names = {1: "solo", 2: "duet", 3: "trio", 4: "quartet"}
+        texture_parts.append(part_names.get(num_parts, f"{num_parts} parts"))
+    if texture_parts:
+        sentences.append("The texture is " + ", ".join(texture_parts) + ".")
 
-    # Range (useful for vocal matching)
+    # 7. Range sentence - contextual label based on vocal/instrumental
     if score.get("lowest_pitch") and score.get("highest_pitch"):
-        parts.append(f"range {score['lowest_pitch']} to {score['highest_pitch']}")
+        range_type = "Vocal range" if is_vocal else "Pitch range"
+        sentences.append(f"{range_type} spans from {score['lowest_pitch']} to {score['highest_pitch']}.")
 
-    # Expression
+    # 8. Expression sentence
+    expr_parts = []
     if score.get("has_dynamics"):
-        parts.append("with dynamics")
-    if score.get("dynamic_range"):
-        parts.append(score["dynamic_range"])
+        expr_parts.append("dynamic markings")
     if score.get("has_ornaments"):
-        parts.append("ornamented")
+        expr_parts.append("ornaments")
+    if score.get("has_articulations"):
+        expr_parts.append("articulations")
+    if expr_parts:
+        sentences.append("Contains " + ", ".join(expr_parts) + ".")
 
-    # Melodic character
-    if score.get("melodic_contour"):
-        parts.append(f"{score['melodic_contour']} contour")
-    if score.get("stepwise_motion_ratio") and score["stepwise_motion_ratio"] > 0.7:
-        parts.append("stepwise")
+    # 9. Period/genre sentence
+    genres = score.get("genres")
+    if genres and isinstance(genres, str):
+        clean = [g.strip() for g in genres.split("-")
+                 if g.strip() and g.strip().upper() != "NA"]
+        if clean:
+            sentences.append("Genre: " + ", ".join(clean[:4]) + ".")
 
-    # Harmony
-    if score.get("modulation_count") and score["modulation_count"] > 2:
-        parts.append("modulating")
-
-    # Lyrics
+    # 10. Lyrics language
     if score.get("has_extracted_lyrics"):
         lang = score.get("lyrics_language")
-        if lang:
-            parts.append(f"{lang} text")
-        else:
-            parts.append("with lyrics")
+        lang_names = {"en": "English", "de": "German", "fr": "French",
+                      "it": "Italian", "la": "Latin", "es": "Spanish"}
+        if lang and lang in lang_names:
+            sentences.append(f"Text is in {lang_names[lang]}.")
+        elif lang:
+            sentences.append(f"Text is in {lang}.")
 
-    # Genres (already has period info like "Baroque music")
-    if score.get("genres"):
-        clean = [g.strip() for g in score["genres"].split("-")
-                 if g.strip() and g.strip().upper() != "NA"]
-        parts.extend(clean[:5])
+    # 11. Description (if available) - ensure it ends with punctuation
+    desc = score.get("description")
+    if desc and isinstance(desc, str):
+        desc = desc[:150].strip()
+        if desc:
+            if desc[-1] not in ".!?":
+                desc += "."
+            sentences.append(desc)
 
-    # Tags
-    if score.get("tags"):
-        clean = [t.strip() for t in score["tags"].split("-")
-                 if t.strip() and t.strip().upper() != "NA"]
-        parts.extend(clean[:3])
-
-    # Description (truncated)
-    if score.get("description"):
-        parts.append(score["description"][:150])
-
-    return ". ".join(parts)
+    return " ".join(sentences)
 
 
 def build_index(limit: int = 100):
