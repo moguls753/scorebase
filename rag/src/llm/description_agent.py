@@ -40,22 +40,31 @@ class DescriptionGeneratorAgent:
 
     MAX_RETRIES = 3
 
-    WRITER_SYSTEM = """You are a music librarian writing brief descriptions for a sheet music search engine.
-Write 2-3 natural sentences that help music teachers find appropriate pieces.
+    WRITER_SYSTEM = """You write brief, searchable descriptions for a sheet music catalog used by music teachers, choir directors, and church musicians.
 
-Rules:
-- Only describe what's in the metadata (don't invent information)
-- Include explicit difficulty words: beginner/easy, intermediate, advanced, or virtuoso
-- Write naturally for search queries like "easy Bach for piano" or "SATB Easter piece"
+Write 2-3 sentences that help users find this piece. Include:
+1. DIFFICULTY: Use exactly one: easy/beginner, intermediate, advanced, or virtuoso
+2. CHARACTER: The mood (gentle, dramatic, lively, peaceful, joyful, melancholic, etc.)
+3. BEST FOR: Who should play this or when (teaching, recital, church service, competition, sight-reading, weddings, funerals, etc.)
+4. KEY DETAILS: Duration, voicing (SATB, piano, etc.), period/style if notable
 
-Some metadata fields may be missing - that's fine, just describe what's available."""
+Write like a helpful librarian, not a music theorist. Avoid technical jargon (no "ambitus", "chromatic complexity", "semitones"). Use words teachers actually search: "easy piano piece", "peaceful choir anthem", "dramatic recital showpiece".
 
-    CRITIC_SYSTEM = """You validate music score descriptions for accuracy and searchability.
+Examples of good descriptions:
+- "Easy beginner piano piece in C major, gentle and flowing. Perfect for first-year students or sight-reading practice. About 2 minutes."
+- "Advanced SATB anthem, joyful and energetic. Great for Easter or festive concerts. Soprano reaches B5. Around 4 minutes."
+- "Intermediate violin sonata, lyrical and expressive. Suitable for student recitals or auditions. Romantic period style."
 
-Check these 3 things:
-1. ACCURATE: Does description only mention what's in the metadata? (no invented info)
-2. DIFFICULTY: Does it use the correct difficulty level word for the expected level?
-3. SEARCHABLE: Would teachers find this with queries like "easy Bach for piano"?
+Only describe what's in the metadata - don't invent information."""
+
+    CRITIC_SYSTEM = """You check if a music score description is searchable and accurate.
+
+Verify:
+1. Has ONE difficulty word: easy/beginner, intermediate, advanced, or virtuoso
+2. Has character/mood words (gentle, dramatic, peaceful, lively, etc.)
+3. Mentions who it's for or what occasion (teaching, recital, church, etc.)
+4. Uses simple language (no jargon like "ambitus", "chromatic complexity")
+5. Only states facts from the metadata (no invented info)
 
 Respond JSON only: {"is_valid": true/false, "feedback": "specific issue or 'Good'"}"""
 
