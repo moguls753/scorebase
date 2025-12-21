@@ -57,27 +57,29 @@ def make_searchable_text(score: dict) -> str:
             instr_sentence += " with accompaniment"
         sentences.append(instr_sentence + ".")
 
-    # 3. Difficulty sentence - prioritize complexity, fallback to melodic
-    complexity = _safe_int(score.get("complexity"))
-    if complexity is not None and complexity in (0, 1, 2, 3):
-        difficulty_text = {
-            0: "This is a beginner piece, suitable for students just starting out.",
-            1: "This is an easy piece, good for early learners.",
-            2: "This is an intermediate piece, requiring some experience.",
-            3: "This is an advanced piece, suitable for experienced players.",
-        }
-        sentences.append(difficulty_text[complexity])
+    # 3. Difficulty sentence - prioritize melodic_complexity (music21), fallback to complexity (metadata)
+    # Note: PDMX complexity field is often wrong (all Bach = 0), so prefer computed melodic_complexity
+    melodic = _safe_float(score.get("melodic_complexity"))
+    if melodic is not None:
+        if melodic < 0.3:
+            sentences.append("This is an easy, simple piece suitable for beginners.")
+        elif melodic < 0.5:
+            sentences.append("This piece has moderate complexity, suitable for intermediate players.")
+        elif melodic < 0.7:
+            sentences.append("This is a challenging piece for advanced players.")
+        else:
+            sentences.append("This is a virtuoso piece, technically demanding and difficult.")
     else:
-        melodic = _safe_float(score.get("melodic_complexity"))
-        if melodic is not None:
-            if melodic < 0.3:
-                sentences.append("This is an easy, simple piece suitable for beginners.")
-            elif melodic < 0.5:
-                sentences.append("This piece has moderate complexity, suitable for intermediate players.")
-            elif melodic < 0.7:
-                sentences.append("This is a challenging piece for advanced players.")
-            else:
-                sentences.append("This is a virtuoso piece, technically demanding and difficult.")
+        # Fallback to metadata complexity only if no melodic_complexity
+        complexity = _safe_int(score.get("complexity"))
+        if complexity is not None and complexity in (0, 1, 2, 3):
+            difficulty_text = {
+                0: "This is a beginner piece, suitable for students just starting out.",
+                1: "This is an easy piece, good for early learners.",
+                2: "This is an intermediate piece, requiring some experience.",
+                3: "This is an advanced piece, suitable for experienced players.",
+            }
+            sentences.append(difficulty_text[complexity])
 
     # 4. Musical characteristics sentence
     chars = []

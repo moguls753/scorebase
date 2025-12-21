@@ -11,12 +11,33 @@
 - [x] Natural prose embedding document generation
 - [x] FastAPI search endpoint
 - [x] CPU-only PyTorch for lightweight deployment
+- [x] Fixed difficulty source: now uses `melodic_complexity` (music21) instead of unreliable `complexity` (PDMX)
 
 ### Next Steps
-- [ ] Run indexer and test search queries
+- [ ] Re-index with fixed difficulty logic and test search queries
 - [ ] Evaluate results against success criteria
 - [ ] Iterate on prose generation if needed
 - [ ] Phase 2: Add synthetic queries if results need improvement
+
+### Known Issues
+
+#### PDMX `complexity` field is unreliable
+- 60% of Bach scores have `complexity=0` (beginner) - clearly wrong
+- Music21 `melodic_complexity` (0-1) is accurate:
+  - Bach fugues: 0.71-0.87 (advanced/virtuoso) ✓
+
+**RAG indexer**: Fixed - now prioritizes `melodic_complexity`
+
+**Rails view helper**: Needs fix - `app/helpers/scores_helper.rb` line 101:
+```ruby
+# Current (broken): only shows if complexity > 0
+if score.complexity.to_i.positive?
+
+# Should use melodic_complexity instead:
+if score.melodic_complexity.present?
+  # Convert 0-1 to 1-3 scale for meter display
+end
+```
 
 ---
 
@@ -39,8 +60,12 @@ ornaments. Genre: Baroque music, Keyboard.
 From Score model + music21 extraction:
 - title, composer
 - instruments, voicing, is_vocal, has_accompaniment
-- complexity (0-3) → "beginner/easy/intermediate/advanced"
-- melodic_complexity (0-1) → fallback difficulty
+- **melodic_complexity (0-1)** → primary difficulty source:
+  - < 0.3: "easy, simple piece suitable for beginners"
+  - 0.3-0.5: "moderate complexity, suitable for intermediate"
+  - 0.5-0.7: "challenging piece for advanced players"
+  - > 0.7: "virtuoso piece, technically demanding"
+- complexity (0-3) → fallback only if melodic_complexity is null
 - key_signature, time_signature, tempo_marking
 - duration_seconds → "short piece", "medium length", "extended work"
 - texture_type, num_parts → "solo/duet/trio/quartet"
