@@ -1,6 +1,6 @@
 """Groq LLM client.
 
-Models: qwen/qwen3-32b (primary), llama-3.1-8b-instant (fallback)
+Models: llama-4-scout-17b (primary), llama-3.1-8b-instant (fallback)
 """
 
 import os
@@ -12,8 +12,8 @@ class GroqConfig:
     """Configuration for Groq API."""
 
     api_key: str
-    primary_model: str = "llama-3.1-8b-instant"
-    fallback_model: str = "llama-3.3-70b-versatile"
+    primary_model: str = "meta-llama/llama-4-scout-17b-16e-instruct"
+    fallback_model: str = "llama-3.1-8b-instant"
     temperature: float = 0.7
     max_tokens: int = 1024
 
