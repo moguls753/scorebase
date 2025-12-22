@@ -1,0 +1,159 @@
+<% content_for :title do %>Smart Search - ScoreBase<% end %>
+
+<div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+  <!-- Header -->
+  <div class="text-center mb-8">
+    <h1 class="text-2xl sm:text-3xl font-[var(--font-family-display)] font-black text-[var(--color-primary)] tracking-tight">
+      Smart Search
+      <span class="inline-flex items-center ml-2 px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-[var(--color-accent)] text-white rounded">Pro</span>
+    </h1>
+    <p class="mt-2 text-sm text-[var(--color-text-muted)]">
+      Describe what you're looking for in natural language
+    </p>
+  </div>
+
+  <!-- Search Form -->
+  <div class="mb-8">
+    <%= form_with url: smart_search_path, method: :get, local: true, class: "relative" do |f| %>
+      <div class="relative">
+        <input
+          type="text"
+          name="q"
+          value="<%= @query %>"
+          placeholder="e.g., I need something for my piano student who's been playing for 2 years..."
+          class="w-full px-5 py-4 pr-14 text-base bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border)] rounded-xl text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
+          autofocus
+        >
+        <button type="submit" class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-[var(--color-accent)] hover:text-[var(--color-primary)] transition-colors" aria-label="Search">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+        </button>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @query.present? %>
+    <!-- AI Summary -->
+    <div class="mb-8 p-5 bg-gradient-to-br from-[var(--color-accent)]/5 to-[var(--color-primary)]/5 border border-[var(--color-accent)]/20 rounded-xl">
+      <div class="flex items-start gap-3">
+        <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-[var(--color-accent)]/10">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93"></path>
+            <path d="M8.24 4.23A4 4 0 0 0 8 6c0 1.3.62 2.46 1.58 3.2"></path>
+            <path d="M17.76 4.23A4 4 0 0 1 18 6a4.37 4.37 0 0 1-.58 2.2"></path>
+            <path d="M12 18a8 8 0 0 0 8-8 1 1 0 0 0-1.54-.84L12 14l-6.46-4.84A1 1 0 0 0 4 10a8 8 0 0 0 8 8Z"></path>
+            <path d="M12 18v4"></path>
+            <path d="M8 22h8"></path>
+          </svg>
+        </div>
+        <p class="text-[var(--color-text)] text-sm sm:text-base leading-relaxed">
+          <%= @rag_result.summary %>
+        </p>
+      </div>
+    </div>
+
+    <% if @scores.any? %>
+      <!-- Recommendations -->
+      <div class="space-y-4">
+        <% @scores.each_with_index do |score, index| %>
+          <div class="group relative bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border)] rounded-xl p-5 hover:border-[var(--color-accent)]/50 hover:shadow-lg hover:shadow-[var(--color-accent)]/5 transition-all duration-200">
+            <!-- Rank Badge -->
+            <div class="absolute -left-3 -top-3 w-8 h-8 flex items-center justify-center bg-[var(--color-accent)] text-white text-sm font-bold rounded-lg shadow-md">
+              <%= index + 1 %>
+            </div>
+
+            <div class="ml-2">
+              <!-- Title & Composer -->
+              <div class="mb-3">
+                <%= link_to score_path(score), class: "block group-hover:text-[var(--color-accent)] transition-colors" do %>
+                  <h2 class="text-lg sm:text-xl font-[var(--font-family-display)] font-bold text-[var(--color-text)] leading-tight">
+                    <%= score.title.presence || "Untitled" %>
+                  </h2>
+                <% end %>
+                <% if score.composer.present? %>
+                  <p class="mt-1 text-sm text-[var(--color-text-muted)]">
+                    <%= score.composer %>
+                  </p>
+                <% end %>
+              </div>
+
+              <!-- AI Explanation -->
+              <% explanation = @rag_result.explanation_for(score.id) %>
+              <% if explanation.present? %>
+                <div class="flex items-start gap-2 p-3 bg-[var(--color-bg)]/50 rounded-lg">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0 mt-0.5">
+                    <path d="m3 21 1.9-5.7a8.5 8.5 0 1 1 3.8 3.8z"></path>
+                  </svg>
+                  <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">
+                    <%= explanation %>
+                  </p>
+                </div>
+              <% end %>
+
+              <!-- Actions -->
+              <div class="mt-4 flex items-center gap-3">
+                <%= link_to score_path(score), class: "inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-white rounded-lg hover:bg-[var(--color-accent)]/90 transition-colors" do %>
+                  View Score
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M5 12h14"></path>
+                    <path d="m12 5 7 7-7 7"></path>
+                  </svg>
+                <% end %>
+                <% if score.detected_instruments.present? %>
+                  <span class="text-xs text-[var(--color-text-muted)] px-2 py-1 bg-[var(--color-border)]/30 rounded">
+                    <%= score.detected_instruments.to_s.split(',').first&.strip %>
+                  </span>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Back to regular search -->
+      <div class="mt-8 text-center">
+        <p class="text-sm text-[var(--color-text-muted)]">
+          Not finding what you need?
+          <%= link_to "Try regular search", scores_path(q: @query), class: "text-[var(--color-accent)] hover:underline font-medium" %>
+        </p>
+      </div>
+
+    <% else %>
+      <!-- No Results -->
+      <div class="text-center py-12">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-[var(--color-border)]/30 mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+            <path d="M8 8h6"></path>
+          </svg>
+        </div>
+        <h3 class="text-lg font-semibold text-[var(--color-text)] mb-2">No matches found</h3>
+        <p class="text-sm text-[var(--color-text-muted)] mb-4">
+          Try rephrasing your search or being more specific about what you're looking for.
+        </p>
+        <%= link_to "Browse all scores", scores_path, class: "inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-[var(--color-accent)] hover:underline" %>
+      </div>
+    <% end %>
+
+  <% else %>
+    <!-- Empty State - Suggestions -->
+    <div class="text-center py-8">
+      <p class="text-sm text-[var(--color-text-muted)] mb-6">Try asking something like:</p>
+      <div class="flex flex-wrap justify-center gap-2">
+        <% [
+          "Easy Bach for piano students",
+          "Something gentle for a church service",
+          "Dramatic piece for a recital",
+          "Intermediate violin sonata"
+        ].each do |suggestion| %>
+          <%= link_to smart_search_path(q: suggestion), class: "px-4 py-2 text-sm bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all" do %>
+            <%= suggestion %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+</div>

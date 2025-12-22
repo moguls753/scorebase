@@ -10,6 +10,9 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   scope "(:locale)", locale: /en|de/ do
+    # Smart Search (Pro feature)
+    get "smart-search", to: "scores#smart_search", as: :smart_search
+
     # Scores
     resources :scores, only: [:index, :show] do
       member do
