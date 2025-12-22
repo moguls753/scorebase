@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require "net/http"
+require "json"
+require "uri"
+
 # Service to call the Python RAG API for smart search.
 # Pro users get LLM-powered recommendations with explanations.
 class RagSearch
