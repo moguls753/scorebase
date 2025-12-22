@@ -8,7 +8,7 @@ import json
 import logging
 from dataclasses import dataclass
 
-from .groq_client import GroqClient
+from .groq_client import GroqClient, GroqConfig
 
 logger = logging.getLogger(__name__)
 
@@ -82,13 +82,20 @@ Your job is to pick the 3 BEST matches and explain why each one fits the user's 
 }}
 </output_format>"""
 
+    # Use 70B model for better reasoning (only 1 call per search, cost is negligible)
+    DEFAULT_MODEL = "llama-3.3-70b-versatile"
+
     def __init__(self, client: GroqClient | None = None):
         """Initialize with LLM client.
 
         Args:
-            client: LLM client instance. Defaults to GroqClient if None.
+            client: LLM client instance. Defaults to GroqClient with 70B model.
         """
-        self.client = client or GroqClient()
+        if client is None:
+            config = GroqConfig.from_env()
+            config.primary_model = self.DEFAULT_MODEL
+            client = GroqClient(config)
+        self.client = client
 
     def _parse_response(self, response: str) -> dict | None:
         """Extract JSON from LLM response."""
