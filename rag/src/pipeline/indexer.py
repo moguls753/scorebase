@@ -9,7 +9,7 @@ from haystack.components.embedders import SentenceTransformersDocumentEmbedder
 from haystack_integrations.document_stores.chroma import ChromaDocumentStore
 
 from .. import config, db
-from ..llm import DescriptionGeneratorAgent
+from ..llm import DescriptionGenerator, LMStudioClient
 
 logging.basicConfig(
     level=logging.INFO,
@@ -17,16 +17,23 @@ logging.basicConfig(
 )
 
 
-def build_index(limit: int = 100):
+def build_index(limit: int = 100, backend: str = "groq"):
     """Build vector index from extracted scores.
 
     Args:
         limit: Number of scores to index (use -1 for all)
+        backend: LLM backend - "groq" or "lmstudio"
     """
-    # Check for API key
-    if not os.environ.get("GROQ_API_KEY"):
-        print("Error: GROQ_API_KEY not set. Get one at https://console.groq.com/keys")
-        sys.exit(1)
+    # Setup LLM client based on backend
+    if backend == "lmstudio":
+        print("Using LM Studio backend")
+        client = LMStudioClient()
+    else:
+        if not os.environ.get("GROQ_API_KEY"):
+            print("Error: GROQ_API_KEY not set. Get one at https://console.groq.com/keys")
+            sys.exit(1)
+        print("Using Groq backend")
+        client = None  # DescriptionGeneratorAgent defaults to Groq
 
     print(f"Fetching extracted scores (limit={limit})...")
     if limit == -1:
@@ -39,10 +46,10 @@ def build_index(limit: int = 100):
         print("No extracted scores found. Run music21 extraction first.")
         return
 
-    # Generate descriptions with LLM agent
+    # Generate descriptions with LLM
     print("\nGenerating descriptions with LLM...")
-    agent = DescriptionGeneratorAgent()
-    results = agent.generate_batch(scores)
+    generator = DescriptionGenerator(client=client)
+    results = generator.generate_batch(scores)
 
     # Create documents from successful generations
     documents = []
@@ -84,8 +91,12 @@ def build_index(limit: int = 100):
 
 
 def main():
-    limit = int(sys.argv[1]) if len(sys.argv) > 1 else 100
-    build_index(limit=limit)
+    import argparse
+    parser = argparse.ArgumentParser(description="Build vector index from scores")
+    parser.add_argument("limit", type=int, nargs="?", default=100, help="Number of scores (-1 for all)")
+    parser.add_argument("--backend", choices=["groq", "lmstudio"], default="groq", help="LLM backend")
+    args = parser.parse_args()
+    build_index(limit=args.limit, backend=args.backend)
 
 
 if __name__ == "__main__":

@@ -1,25 +1,33 @@
-"""Description Generator Agent with LLM Critic.
+"""Description Generator - single LLM call with code-based validation.
 
-Generates 2-3 sentence descriptions for musical scores,
-validated by an LLM critic for accuracy and searchability.
-
-Flow:
-1. Writer generates 2-3 sentences from available metadata
-2. Critic checks: accurate? correct difficulty? searchable?
-3. If invalid, writer regenerates with critic feedback
-4. Max 3 attempts
+Generates 2-3 sentence descriptions for musical scores.
+Simple garbage detection validates outputs without LLM critic overhead.
 """
 
 import json
 import logging
-import traceback
-from dataclasses import dataclass
-from typing import Callable
+from dataclasses import dataclass, field
+from typing import Any, Callable
 
-from .schemas import ScoreMetadata, DifficultyMapping
 from .groq_client import GroqClient
+from .lmstudio_client import LMStudioClient
+from .metadata_transformer import transform_metadata
 
 logger = logging.getLogger(__name__)
+
+# Difficulty terms that should appear in valid descriptions
+DIFFICULTY_TERMS = frozenset({
+    "easy", "beginner", "simple",
+    "intermediate", "moderate",
+    "advanced", "challenging",
+    "virtuoso", "demanding", "expert",
+})
+
+# Jargon to reject (technical terms users won't search for)
+JARGON_TERMS = frozenset({
+    "ambitus", "chromatic complexity", "polyphonic density",
+    "stepwise motion", "voice independence", "rhythmic variety",
+})
 
 
 @dataclass
@@ -29,71 +37,93 @@ class GenerationResult:
     score_id: int
     description: str
     success: bool
-    attempts: int
     difficulty_level: str
-    critic_feedback: str | None = None
+    validation_issues: list[str] = field(default_factory=list)
     error: str | None = None
 
 
-class DescriptionGeneratorAgent:
-    """Generates searchable descriptions with LLM validation."""
+def validate_description(description: str) -> list[str]:
+    """Code-based garbage checks for generated descriptions.
 
-    MAX_RETRIES = 3
+    Returns list of issues found (empty = valid).
+    """
+    issues = []
 
-    WRITER_SYSTEM = """You write brief, searchable descriptions for a sheet music catalog used by music teachers, choir directors, and church musicians.
+    # Check 1: Not empty or too short
+    if not description or len(description) < 50:
+        issues.append("too_short")
+        return issues  # Fatal - skip other checks
 
-Write 2-3 sentences that help users find this piece. Include:
-1. DIFFICULTY: Use exactly one: easy/beginner, intermediate, advanced, or virtuoso
-2. CHARACTER: The mood (gentle, dramatic, lively, peaceful, joyful, melancholic, etc.)
-3. BEST FOR: Who should play this or when (teaching, recital, church service, competition, sight-reading, weddings, funerals, etc.)
-4. KEY DETAILS: Duration, voicing (SATB, piano, etc.), period/style if notable
+    # Check 2: Not too long (runaway generation)
+    if len(description) > 800:
+        issues.append("too_long")
 
-Use words teachers search: "easy piano piece", "peaceful choir anthem", "dramatic recital showpiece". Avoid jargon (no "ambitus", "chromatic complexity").
+    # Check 3: Has a difficulty term
+    desc_lower = description.lower()
+    if not any(term in desc_lower for term in DIFFICULTY_TERMS):
+        issues.append("missing_difficulty")
 
-Examples:
+    # Check 4: No jargon
+    for term in JARGON_TERMS:
+        if term in desc_lower:
+            issues.append(f"jargon:{term}")
+            break  # One jargon issue is enough
+
+    # Check 5: Looks like prose (not a bullet list)
+    if description.count("-") > 3 and description.count(".") < 2:
+        issues.append("bullet_list")
+
+    return issues
+
+
+class DescriptionGenerator:
+    """Generates searchable descriptions with code-based validation."""
+
+    PROMPT_TEMPLATE = """<role>
+You write brief, searchable descriptions for a sheet music catalog used by music teachers, choir directors, and church musicians. Follow the <rules/> and the <steps/> to generate an answer. You can find some positive examples in the <examples/> section.
+</role>
+
+<rules>
+- Write 3–5 sentences in a paragraph of text that describes this piece of music so that a reader can get an accurate impression of the piece of music.
+- Include: (1) DIFFICULTY (exactly one: easy/beginner, intermediate, advanced, virtuoso), (2) CHARACTER (mood), (3) BEST FOR (who/when), (4) KEY DETAILS (duration, voicing/instrumentation, period/style if notable).
+- Use words teachers search (e.g., "easy piano piece", "peaceful choir anthem", "dramatic recital showpiece") and avoid jargon (no "ambitus", "chromatic complexity").
+- Only use what is in the <data/> section to describe the piece of music.
+- Avoid using jargon.
+- Avoid extra claims beyond metadata.
+- Do not produce a bullet point list.
+- Generate the output in the required <output_format/>
+</rules>
+
+<steps>
+1) Read the metadata and identify instrumentation/voicing, genre/style, key/time, texture, range, page count, and any duration if present.
+2) Choose exactly one DIFFICULTY label from: easy/beginner, intermediate, advanced, virtuoso (based on the difficulty_level field).
+3) Pick 1–2 CHARACTER words that match the piece based on metadata cues.
+4) Decide BEST FOR (who/when) using common teacher terms, without inventing specifics.
+5) Write 2–3 sentences that naturally include DIFFICULTY, CHARACTER, BEST FOR, and KEY DETAILS, using searchable phrases.
+6) Final check if your response matches the requirements, see <rules/>.
+</steps>
+
+<examples>
 - "Easy beginner piano piece in C major, gentle and flowing. Perfect for first-year students or sight-reading practice. About 2 minutes."
 - "Advanced SATB anthem, joyful and energetic. Great for Easter or festive concerts. Soprano reaches B5. Around 4 minutes."
 - "Intermediate violin sonata, lyrical and expressive. Suitable for student recitals or auditions. Romantic period style."
+</examples>
 
-Only describe what's in the metadata."""
+<data>
+{metadata_json}
+</data>
 
-    CRITIC_SYSTEM = """Check if a music score description is searchable.
+<output_format>
+{{"description": "..."}}
+</output_format>"""
 
-Verify:
-1. Has ONE difficulty: easy/beginner, intermediate, advanced, or virtuoso
-2. Has mood words (gentle, dramatic, peaceful, lively, etc.)
-3. Mentions audience or occasion (teaching, recital, church, etc.)
-4. Plain language, no jargon
+    def __init__(self, client: GroqClient | LMStudioClient | None = None):
+        """Initialize with LLM client.
 
-JSON only: {"is_valid": true/false, "feedback": "issue or 'Good'"}"""
-
-    def __init__(self):
-        """Initialize with Groq client."""
-        self.client = GroqClient()
-
-    def _format_metadata(self, metadata: ScoreMetadata, difficulty_words: list[str]) -> str:
-        """Format metadata for prompt, only non-null fields."""
-        fields = metadata.get_non_null_fields()
-
-        # Skip internal/complex fields that don't help description
-        skip = {
-            "id", "extraction_status", "extracted_at", "music21_version",
-            "musicxml_source", "extraction_error", "key_correlations",
-            "chord_symbols", "interval_distribution", "rhythm_distribution",
-            "pitch_range_per_part", "voice_ranges", "extracted_lyrics",
-            "key_confidence", "accidental_count", "unique_pitches",
-            "note_count", "note_density", "measure_count",
-            "polyphonic_density", "voice_independence", "stepwise_motion_ratio",
-            "harmonic_rhythm", "sections_count", "repeats_count",
-            "syllable_count", "clefs_used", "cadence_types",
-            # complexity is unreliable (PDMX data) - use melodic_complexity instead
-            "complexity",
-        }
-
-        clean = {k: v for k, v in fields.items() if k not in skip}
-        # Add computed difficulty at the top
-        clean = {"difficulty_level": difficulty_words, **clean}
-        return json.dumps(clean, indent=2, default=str)
+        Args:
+            client: LLM client instance. Defaults to GroqClient if None.
+        """
+        self.client = client or GroqClient()
 
     def _parse_json(self, text: str) -> dict | None:
         """Extract JSON from LLM response."""
@@ -117,106 +147,65 @@ JSON only: {"is_valid": true/false, "feedback": "issue or 'Good'"}"""
 
         return None
 
-    def generate(self, metadata: ScoreMetadata) -> GenerationResult:
-        """Generate and validate a description for a score.
+    def generate(self, raw_metadata: dict[str, Any]) -> GenerationResult:
+        """Generate a description for a score.
+
+        Single LLM call with code-based validation.
 
         Args:
-            metadata: Score metadata from database
+            raw_metadata: Raw score metadata dict from database
 
         Returns:
-            GenerationResult with description and status
+            GenerationResult with description and validation status
         """
-        expected_level = DifficultyMapping.get_level(metadata.melodic_complexity)
-        difficulty_words = DifficultyMapping.get_words(expected_level)[:3]
-        metadata_str = self._format_metadata(metadata, difficulty_words)
+        score_id = raw_metadata.get("id", 0)
 
-        feedback: str | None = None
-        description: str = ""
+        # Transform to prompt-ready format
+        transformed = transform_metadata(raw_metadata)
+        metadata_json = json.dumps(transformed, indent=2, default=str)
 
-        for attempt in range(1, self.MAX_RETRIES + 1):
-            try:
-                # === WRITER ===
-                writer_prompt = metadata_str
+        # Get difficulty from transformed data
+        difficulty_words = transformed.get("difficulty_level", ["intermediate"])
+        difficulty_level = difficulty_words[0] if difficulty_words else "intermediate"
 
-                if feedback:
-                    writer_prompt += f"\n\nFix this issue: {feedback}"
+        try:
+            # Single LLM call
+            prompt = self.PROMPT_TEMPLATE.format(metadata_json=metadata_json)
+            response = self.client.chat(prompt=prompt, system_message=None)
 
-                description = self.client.chat(
-                    prompt=writer_prompt,
-                    system_message=self.WRITER_SYSTEM,
-                )
+            # Parse response
+            parsed = self._parse_json(response)
+            description = parsed.get("description", "") if parsed else response
+            description = description.strip() if description else ""
 
-                if not description:
-                    feedback = "Empty response, please try again"
-                    logger.warning(f"  Attempt {attempt}: Empty response from writer")
-                    continue
+            # Validate with code checks
+            issues = validate_description(description)
 
-                description = description.strip()
-                logger.info(f"  Attempt {attempt} writer: {description[:150]}...")
+            if issues:
+                logger.warning(f"Score {score_id} validation: {issues}")
 
-                # === CRITIC ===
-                critic_prompt = f"""Check this description.
+            return GenerationResult(
+                score_id=score_id,
+                description=description,
+                success=len(issues) == 0,
+                difficulty_level=difficulty_level,
+                validation_issues=issues,
+            )
 
-Expected difficulty: {expected_level}
-
-Description:
-\"\"\"{description}\"\"\"
-
-Return: {{"is_valid": true/false, "feedback": "..."}}"""
-
-                critic_response = self.client.chat(
-                    prompt=critic_prompt,
-                    system_message=self.CRITIC_SYSTEM,
-                )
-
-                result = self._parse_json(critic_response)
-                logger.info(f"  Attempt {attempt} critic: {result}")
-
-                if result and result.get("is_valid"):
-                    return GenerationResult(
-                        score_id=metadata.id,
-                        description=description,
-                        success=True,
-                        attempts=attempt,
-                        difficulty_level=expected_level,
-                        critic_feedback=result.get("feedback"),
-                    )
-
-                # Get feedback for retry
-                feedback = result.get("feedback") if result else "Invalid critic response, try with correct difficulty"
-                logger.warning(f"  Attempt {attempt} rejected: {feedback}")
-
-            except (RuntimeError, ValueError) as e:
-                # API/model errors - retry with feedback
-                logger.warning(f"Score {metadata.id} attempt {attempt}: {e}")
-                feedback = f"Error: {str(e)[:100]}"
-                continue
-            except Exception as e:
-                # Unexpected error - log full traceback and fail fast
-                logger.error(f"Score {metadata.id} unexpected error: {e}\n{traceback.format_exc()}")
-                return GenerationResult(
-                    score_id=metadata.id,
-                    description="",
-                    success=False,
-                    attempts=attempt,
-                    difficulty_level=expected_level,
-                    error=f"Unexpected error: {str(e)[:200]}",
-                )
-
-        # Max attempts reached - return best effort
-        return GenerationResult(
-            score_id=metadata.id,
-            description=description or "(generation failed)",
-            success=False,
-            attempts=self.MAX_RETRIES,
-            difficulty_level=expected_level,
-            critic_feedback=feedback,
-        )
+        except Exception as e:
+            logger.error(f"Score {score_id} failed: {e}")
+            return GenerationResult(
+                score_id=score_id,
+                description="",
+                success=False,
+                difficulty_level=difficulty_level,
+                error=str(e)[:200],
+            )
 
     def generate_batch(
         self,
         scores: list[dict],
-        on_progress: Callable[[int, int, "GenerationResult"], None] | None = None,
+        on_progress: Callable[[int, int, GenerationResult], None] | None = None,
     ) -> list[GenerationResult]:
         """Generate descriptions for multiple scores.
 
@@ -231,27 +220,13 @@ Return: {{"is_valid": true/false, "feedback": "..."}}"""
         total = len(scores)
 
         for i, score_dict in enumerate(scores, 1):
-            try:
-                metadata = ScoreMetadata(**score_dict)
-            except Exception as e:
-                # Handle malformed score data
-                results.append(GenerationResult(
-                    score_id=score_dict.get("id", 0),
-                    description="",
-                    success=False,
-                    attempts=0,
-                    difficulty_level="intermediate",
-                    error=f"Invalid metadata: {e}",
-                ))
-                continue
-
-            result = self.generate(metadata)
+            result = self.generate(score_dict)
             results.append(result)
 
             # Progress logging
             status = "✓" if result.success else "✗"
-            title = (metadata.title or "Untitled")[:40]
-            print(f"[{i}/{total}] {status} Score {metadata.id}: {title} ({result.attempts} attempts)")
+            title = (score_dict.get("title") or "Untitled")[:40]
+            logger.info(f"[{i}/{total}] {status} Score {result.score_id}: {title}")
 
             if on_progress:
                 on_progress(i, total, result)
