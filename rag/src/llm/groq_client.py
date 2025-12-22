@@ -12,7 +12,7 @@ class GroqConfig:
     """Configuration for Groq API."""
 
     api_key: str
-    primary_model: str = "llama-3.3-70b-versatile"
+    primary_model: str = "qwen/qwen3-32b"
     fallback_model: str = "llama-3.1-8b-instant"
     temperature: float = 0.7
     max_tokens: int = 1024
