@@ -23,16 +23,12 @@ DIFFICULTY_TERMS = frozenset({
     "virtuoso", "demanding", "expert",
 })
 
-# Jargon to reject (computed metric names that sound robotic, not real music terms)
-# NOTE: Keep legitimate terms like "chromaticism", "syncopation", "polyphonic" -
-# professionals search for these. Only block metric-sounding phrases.
+# Jargon to reject (computed metric names that sound robotic)
+# Keep terms professionals actually search for. Only block truly robotic phrases.
 JARGON_TERMS = frozenset({
     "chromatic complexity",
     "polyphonic density",
-    "voice independence",
-    "note event density",
     "pitch palette",
-    "melodic complexity",
 })
 
 
@@ -182,9 +178,13 @@ You write rich, searchable descriptions for a sheet music catalog used by music 
             prompt = self.PROMPT_TEMPLATE.format(metadata_json=metadata_json)
             response = self.client.chat(prompt=prompt, system_message=None)
 
-            # Parse response
+            # Parse response - handle both JSON and plain text
             parsed = self._parse_json(response)
-            description = parsed.get("description", "") if parsed else response
+            if isinstance(parsed, dict) and "description" in parsed:
+                description = parsed["description"]
+            else:
+                # Fallback to raw response if not valid JSON with description key
+                description = response
             description = description.strip() if description else ""
 
             # Validate with code checks
