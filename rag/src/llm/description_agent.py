@@ -23,10 +23,11 @@ DIFFICULTY_TERMS = frozenset({
     "virtuoso", "demanding", "expert",
 })
 
-# Jargon to reject (technical terms users won't search for)
+# Jargon to reject (computed metric names, not real music terms)
 JARGON_TERMS = frozenset({
-    "ambitus", "chromatic complexity", "polyphonic density",
-    "stepwise motion", "voice independence", "rhythmic variety",
+    "chromatic complexity",
+    "polyphonic density",
+    "voice independence",
 })
 
 
@@ -181,7 +182,7 @@ You write brief, searchable descriptions for a sheet music catalog used by music
             issues = validate_description(description)
 
             if issues:
-                logger.warning(f"Score {score_id} validation: {issues}")
+                logger.warning(f"Score {score_id} validation: {issues}\n  Text: {description}")
 
             return GenerationResult(
                 score_id=score_id,
