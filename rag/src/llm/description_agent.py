@@ -48,31 +48,30 @@ Write 2-3 sentences that help users find this piece. Include:
 3. BEST FOR: Who should play this or when (teaching, recital, church service, competition, sight-reading, weddings, funerals, etc.)
 4. KEY DETAILS: Duration, voicing (SATB, piano, etc.), period/style if notable
 
-Write like a helpful librarian, not a music theorist. Avoid technical jargon (no "ambitus", "chromatic complexity", "semitones"). Use words teachers actually search: "easy piano piece", "peaceful choir anthem", "dramatic recital showpiece".
+Use words teachers search: "easy piano piece", "peaceful choir anthem", "dramatic recital showpiece". Avoid jargon (no "ambitus", "chromatic complexity").
 
-Examples of good descriptions:
+Examples:
 - "Easy beginner piano piece in C major, gentle and flowing. Perfect for first-year students or sight-reading practice. About 2 minutes."
 - "Advanced SATB anthem, joyful and energetic. Great for Easter or festive concerts. Soprano reaches B5. Around 4 minutes."
 - "Intermediate violin sonata, lyrical and expressive. Suitable for student recitals or auditions. Romantic period style."
 
-Only describe what's in the metadata - don't invent information."""
+Only describe what's in the metadata."""
 
-    CRITIC_SYSTEM = """You check if a music score description is searchable and accurate.
+    CRITIC_SYSTEM = """Check if a music score description is searchable.
 
 Verify:
-1. Has ONE difficulty word: easy/beginner, intermediate, advanced, or virtuoso
-2. Has character/mood words (gentle, dramatic, peaceful, lively, etc.)
-3. Mentions who it's for or what occasion (teaching, recital, church, etc.)
-4. Uses simple language (no jargon like "ambitus", "chromatic complexity")
-5. Only states facts from the metadata (no invented info)
+1. Has ONE difficulty: easy/beginner, intermediate, advanced, or virtuoso
+2. Has mood words (gentle, dramatic, peaceful, lively, etc.)
+3. Mentions audience or occasion (teaching, recital, church, etc.)
+4. Plain language, no jargon
 
-Respond JSON only: {"is_valid": true/false, "feedback": "specific issue or 'Good'"}"""
+JSON only: {"is_valid": true/false, "feedback": "issue or 'Good'"}"""
 
     def __init__(self):
         """Initialize with Groq client."""
         self.client = GroqClient()
 
-    def _format_metadata(self, metadata: ScoreMetadata) -> str:
+    def _format_metadata(self, metadata: ScoreMetadata, difficulty_words: list[str]) -> str:
         """Format metadata for prompt, only non-null fields."""
         fields = metadata.get_non_null_fields()
 
@@ -92,6 +91,8 @@ Respond JSON only: {"is_valid": true/false, "feedback": "specific issue or 'Good
         }
 
         clean = {k: v for k, v in fields.items() if k not in skip}
+        # Add computed difficulty at the top
+        clean = {"difficulty_level": difficulty_words, **clean}
         return json.dumps(clean, indent=2, default=str)
 
     def _parse_json(self, text: str) -> dict | None:
@@ -126,8 +127,8 @@ Respond JSON only: {"is_valid": true/false, "feedback": "specific issue or 'Good
             GenerationResult with description and status
         """
         expected_level = DifficultyMapping.get_level(metadata.melodic_complexity)
-        metadata_str = self._format_metadata(metadata)
-        difficulty_words = ", ".join(DifficultyMapping.get_words(expected_level)[:3])
+        difficulty_words = DifficultyMapping.get_words(expected_level)[:3]
+        metadata_str = self._format_metadata(metadata, difficulty_words)
 
         feedback: str | None = None
         description: str = ""
@@ -135,13 +136,7 @@ Respond JSON only: {"is_valid": true/false, "feedback": "specific issue or 'Good
         for attempt in range(1, self.MAX_RETRIES + 1):
             try:
                 # === WRITER ===
-                writer_prompt = f"""Write 2-3 sentences describing this score.
-
-Available metadata:
-{metadata_str}
-
-Required difficulty level: {expected_level}
-(Use words like: {difficulty_words})"""
+                writer_prompt = metadata_str
 
                 if feedback:
                     writer_prompt += f"\n\nFix this issue: {feedback}"
@@ -161,9 +156,6 @@ Required difficulty level: {expected_level}
 
                 # === CRITIC ===
                 critic_prompt = f"""Check this description.
-
-Metadata provided:
-{metadata_str}
 
 Expected difficulty: {expected_level}
 
