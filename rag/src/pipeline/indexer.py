@@ -98,10 +98,14 @@ def build_index(limit: int = 100, backend: str = "groq", ids: list[int] | None =
     failed = 0
     for result in results:
         if result.success and result.description:
+            # Get title from original score data
+            score_data = next((s for s in scores if s.get("id") == result.score_id), {})
+            title = score_data.get("title", "Untitled")
+
             doc = Document(
                 id=f"score_{result.score_id}",  # Unique ID prevents duplicates
                 content=result.description,
-                meta={"score_id": result.score_id}
+                meta={"score_id": result.score_id, "title": title}
             )
             documents.append(doc)
         else:
