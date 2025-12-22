@@ -522,6 +522,21 @@ def index_scores(batch_size: int = 100):
 
 **Big win:** No LLM call per score during indexing! Templates are pre-generated.
 
+### Where to Run: Local vs Production
+
+| Task | Where | Why |
+|------|-------|-----|
+| Initial bulk processing | Local | Iterate fast, test templates, no prod risk |
+| Template/model experiments | Local | Mistakes don't pollute prod index |
+| Ongoing new scores | Production | Background jobs, stays in sync |
+| Re-indexing after changes | Local first | Verify quality, then deploy |
+
+**Workflow:**
+1. Build & test pipeline locally
+2. Bulk process against prod DB dump locally
+3. Deploy and let background jobs handle new scores
+4. For template changes: test locally, then re-index in prod
+
 ### Phase 5: Rake Tasks
 
 ```ruby
