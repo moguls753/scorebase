@@ -1,14 +1,9 @@
-"""Groq LLM client with rate limiting.
+"""Groq LLM client.
 
-Groq free tier limits:
-- 30 requests/minute
-- 14,400 requests/day
-- Models: llama-3.3-70b-versatile (primary), llama-3.1-8b-instant (fallback)
+Models: llama-3.3-70b-versatile (primary), llama-3.1-8b-instant (fallback)
 """
 
 import os
-import time
-import threading
 from dataclasses import dataclass
 
 
@@ -34,38 +29,8 @@ class GroqConfig:
         return cls(api_key=api_key)
 
 
-class RateLimiter:
-    """Thread-safe rate limiter for Groq API."""
-
-    def __init__(self, min_interval: float = 2.1):
-        """
-        Args:
-            min_interval: Minimum seconds between requests.
-                          2.1s = ~28 req/min (safe margin under 30 req/min limit)
-        """
-        self._last_request_time = 0.0
-        self._lock = threading.Lock()
-        self._min_interval = min_interval
-
-    def wait(self):
-        """Block until it's safe to make a request."""
-        with self._lock:
-            now = time.time()
-            elapsed = now - self._last_request_time
-
-            if elapsed < self._min_interval:
-                sleep_time = self._min_interval - elapsed
-                time.sleep(sleep_time)
-
-            self._last_request_time = time.time()
-
-
-# Global rate limiter instance
-_rate_limiter = RateLimiter()
-
-
 class GroqClient:
-    """Groq API client with rate limiting and fallback."""
+    """Groq API client with fallback."""
 
     def __init__(self, config: GroqConfig | None = None):
         """Initialize client.
@@ -112,7 +77,6 @@ class GroqClient:
 
         # Try primary model
         try:
-            _rate_limiter.wait()
             response = self._client.chat.completions.create(
                 model=self.config.primary_model,
                 messages=messages,
@@ -128,7 +92,6 @@ class GroqClient:
             # Try fallback model
             print(f"[Groq] Primary model failed: {primary_error}, trying fallback...")
             try:
-                _rate_limiter.wait()
                 response = self._client.chat.completions.create(
                     model=self.config.fallback_model,
                     messages=messages,
