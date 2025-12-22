@@ -63,6 +63,7 @@ def build_index(limit: int = 100, backend: str = "groq", ids: list[int] | None =
     for result in results:
         if result.success and result.description:
             doc = Document(
+                id=f"score_{result.score_id}",  # Unique ID prevents duplicates
                 content=result.description,
                 meta={"score_id": result.score_id}
             )
@@ -89,9 +90,9 @@ def build_index(limit: int = 100, backend: str = "groq", ids: list[int] | None =
     result = embedder.run(documents)
     embedded_docs = result["documents"]
 
-    # Store
+    # Store (skip existing - won't overwrite already indexed scores)
     print("Storing in ChromaDB...")
-    document_store.write_documents(embedded_docs)
+    document_store.write_documents(embedded_docs, policy="skip")
 
     print(f"\nDone! Indexed {len(embedded_docs)} documents to {config.CHROMA_PATH}")
 
