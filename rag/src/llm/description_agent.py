@@ -183,6 +183,8 @@ You write brief, searchable descriptions for a sheet music catalog used by music
 
             if issues:
                 logger.warning(f"Score {score_id} validation: {issues}\n  Text: {description}")
+            else:
+                logger.info(f"Score {score_id} generated:\n  {description}")
 
             return GenerationResult(
                 score_id=score_id,
