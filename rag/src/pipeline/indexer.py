@@ -17,6 +17,28 @@ logging.basicConfig(
 )
 
 
+def get_existing_score_ids(document_store: ChromaDocumentStore) -> set[int]:
+    """Get score IDs already indexed in ChromaDB."""
+    try:
+        count = document_store.count_documents()
+        if count == 0:
+            return set()
+
+        # Access underlying Chroma collection directly for reliable ID retrieval
+        collection = document_store._collection
+        results = collection.get(include=["metadatas"])
+
+        score_ids = set()
+        for meta in results.get("metadatas", []):
+            if meta and "score_id" in meta:
+                score_ids.add(meta["score_id"])
+
+        return score_ids
+    except Exception as e:
+        print(f"Warning: Could not fetch existing IDs: {e}")
+        return set()
+
+
 def build_index(limit: int = 100, backend: str = "groq", ids: list[int] | None = None):
     """Build vector index from extracted scores.
 
@@ -36,6 +58,15 @@ def build_index(limit: int = 100, backend: str = "groq", ids: list[int] | None =
         print("Using Groq backend")
         client = None  # DescriptionGenerator defaults to Groq
 
+    # Initialize ChromaDB early to check existing
+    config.CHROMA_PATH.mkdir(parents=True, exist_ok=True)
+    document_store = ChromaDocumentStore(persist_path=str(config.CHROMA_PATH))
+
+    # Get already indexed score IDs
+    existing_ids = get_existing_score_ids(document_store)
+    if existing_ids:
+        print(f"Found {len(existing_ids)} already indexed scores")
+
     # Fetch scores
     if ids:
         print(f"Fetching scores by IDs: {ids}")
@@ -46,10 +77,15 @@ def build_index(limit: int = 100, backend: str = "groq", ids: list[int] | None =
     else:
         print(f"Fetching extracted scores (limit={limit})...")
         scores = db.get_extracted_scores(limit=limit)
-    print(f"Got {len(scores)} scores")
+    print(f"Got {len(scores)} scores from database")
+
+    # Filter out already indexed scores BEFORE API calls
+    if existing_ids:
+        scores = [s for s in scores if s.get("id") not in existing_ids]
+        print(f"After filtering: {len(scores)} new scores to index")
 
     if not scores:
-        print("No extracted scores found. Run music21 extraction first.")
+        print("No new scores to index.")
         return
 
     # Generate descriptions with LLM
@@ -76,10 +112,6 @@ def build_index(limit: int = 100, backend: str = "groq", ids: list[int] | None =
     if not documents:
         print("No descriptions generated. Check GROQ_API_KEY and rate limits.")
         return
-
-    # Initialize ChromaDB
-    config.CHROMA_PATH.mkdir(parents=True, exist_ok=True)
-    document_store = ChromaDocumentStore(persist_path=str(config.CHROMA_PATH))
 
     # Embed
     print(f"Loading embedding model: {config.EMBEDDING_MODEL}")

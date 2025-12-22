@@ -1,6 +1,6 @@
 """Description Generator - single LLM call with code-based validation.
 
-Generates 3-5 sentence descriptions for musical scores.
+Generates 5-7 sentence descriptions for musical scores.
 Simple garbage detection validates outputs without LLM critic overhead.
 """
 
@@ -23,11 +23,16 @@ DIFFICULTY_TERMS = frozenset({
     "virtuoso", "demanding", "expert",
 })
 
-# Jargon to reject (computed metric names, not real music terms)
+# Jargon to reject (computed metric names that sound robotic, not real music terms)
+# NOTE: Keep legitimate terms like "chromaticism", "syncopation", "polyphonic" -
+# professionals search for these. Only block metric-sounding phrases.
 JARGON_TERMS = frozenset({
     "chromatic complexity",
     "polyphonic density",
     "voice independence",
+    "note event density",
+    "pitch palette",
+    "melodic complexity",
 })
 
 
@@ -50,13 +55,13 @@ def validate_description(description: str) -> list[str]:
     """
     issues = []
 
-    # Check 1: Not empty or too short
-    if not description or len(description) < 50:
+    # Check 1: Not empty or too short (5-7 sentences = ~150 words = ~750 chars min)
+    if not description or len(description) < 200:
         issues.append("too_short")
         return issues  # Fatal - skip other checks
 
-    # Check 2: Not too long (runaway generation)
-    if len(description) > 800:
+    # Check 2: Not too long (runaway generation) - allow up to ~300 words
+    if len(description) > 1500:
         issues.append("too_long")
 
     # Check 3: Has a difficulty term
@@ -81,33 +86,36 @@ class DescriptionGenerator:
     """Generates searchable descriptions with code-based validation."""
 
     PROMPT_TEMPLATE = """<role>
-You write brief, searchable descriptions for a sheet music catalog used by music teachers, choir directors, and church musicians. Follow the <rules/> and the <steps/> to generate an answer. You can find some positive examples in the <examples/> section.
+You write rich, searchable descriptions for a sheet music catalog used by music teachers, choir directors, church musicians, and university professors. Follow the <rules/> and the <steps/> to generate an answer. You can find some positive examples in the <examples/> section.
 </role>
 
 <rules>
-- Write 3–5 sentences in a paragraph of text that describes this piece of music so that a reader can get an accurate impression of the piece of music.
-- Include: (1) DIFFICULTY (exactly one: easy/beginner, intermediate, advanced, virtuoso), (2) CHARACTER (mood), (3) BEST FOR (who/when), (4) KEY DETAILS (duration, voicing/instrumentation, period/style if notable).
-- Use words teachers search (e.g., "easy piano piece", "peaceful choir anthem", "dramatic recital showpiece") and avoid jargon (no "ambitus", "chromatic complexity").
-- Write natural prose. Do NOT copy metadata field names like "monophonic texture", "stepwise motion", "high chromaticism", "medium syncopation". Translate these into plain descriptions.
-- Only use what is in the <data/> section to describe the piece of music.
-- Avoid extra claims beyond metadata.
+- Write 5–7 sentences (150-250 words) in a paragraph that gives a complete picture of the piece.
+- Include ALL of these elements:
+  (1) DIFFICULTY (exactly one: easy/beginner, intermediate, advanced, virtuoso)
+  (2) CHARACTER (2-3 mood/style words: gentle, dramatic, contemplative, energetic, majestic, lyrical, playful, solemn, etc.)
+  (3) BEST FOR (specific uses: sight-reading practice, student recitals, church services, exam repertoire, technique building, competitions, teaching specific skills)
+  (4) MUSICAL FEATURES (texture, harmonic language, notable patterns like arpeggios, scales, counterpoint)
+  (5) KEY DETAILS (duration, instrumentation, key, period/style)
+- Use words musicians actually search: "sight-reading", "recital piece", "exam repertoire", "church anthem", "teaching piece", "competition", "Baroque counterpoint", "lyrical melody".
+- Write natural prose. Translate technical metadata into musical descriptions (e.g., "high chromaticism" → "rich harmonic language with expressive accidentals").
+- Only use what is in the <data/> section. Do not invent facts.
 - Do not produce a bullet point list.
-- Generate the output in the required <output_format/>
 </rules>
 
 <steps>
-1) Read the metadata and identify instrumentation/voicing, genre/style, key/time, texture, range, page count, and any duration if present.
-2) Choose exactly one DIFFICULTY label from: easy/beginner, intermediate, advanced, virtuoso (based on the difficulty_level field).
-3) Pick 1–2 CHARACTER words that match the piece based on metadata cues.
-4) Decide BEST FOR (who/when) using common teacher terms, without inventing specifics.
-5) Write 3–5 sentences that naturally include DIFFICULTY, CHARACTER, BEST FOR, and KEY DETAILS, using searchable phrases.
-6) Final check if your response matches the requirements, see <rules/>.
+1) Read the metadata: identify instrument, genre, key, time signature, texture, range, duration.
+2) Choose exactly one DIFFICULTY from: easy/beginner, intermediate, advanced, virtuoso (from difficulty_level field).
+3) Pick 2–3 CHARACTER words based on metadata cues (key, tempo, texture suggest mood).
+4) List 2–3 specific BEST FOR uses (teaching, performance, liturgical, exam, etc.).
+5) Note interesting MUSICAL FEATURES worth mentioning (counterpoint, ornamentation, range demands).
+6) Write 5–7 flowing sentences covering all elements above.
 </steps>
 
 <examples>
-- "Easy beginner piano piece in C major, gentle and flowing. Perfect for first-year students or sight-reading practice. About 2 minutes."
-- "Advanced SATB anthem, joyful and energetic. Great for Easter or festive concerts. Soprano reaches B5. Around 4 minutes."
-- "Intermediate violin sonata, lyrical and expressive. Suitable for student recitals or auditions. Romantic period style."
+- "Easy beginner piano piece in C major with a gentle, flowing character. The simple melodic lines and steady rhythms make it ideal for first-year students developing hand coordination. Perfect for sight-reading practice or as an early recital piece. The piece stays in a comfortable range and uses basic chord patterns. About 2 minutes long, it works well for building confidence in young pianists."
+- "Advanced SATB anthem with a joyful, majestic character, well-suited for Easter services or festive choir concerts. The four-part writing features independent voice lines and some chromatic passages that require confident singers. Soprano part reaches B5, so ensure your section can handle the tessitura. The energetic rhythms and triumphant harmonies make this a rewarding showpiece. Approximately 4 minutes."
+- "Intermediate violin sonata in the Romantic style, lyrical and deeply expressive. Features singing melodic lines with moderate technical demands including some position work and dynamic contrasts. Excellent choice for student recitals, conservatory auditions, or as exam repertoire. The piano accompaniment provides rich harmonic support. A substantial work that develops musicality and interpretation skills."
 </examples>
 
 <data>
