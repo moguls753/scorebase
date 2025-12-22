@@ -4,6 +4,7 @@ Rails calls this API to perform semantic search.
 """
 
 import logging
+import os
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
@@ -31,6 +32,20 @@ class SearchResponse(BaseModel):
     results: list[SearchResult]
 
 
+class Recommendation(BaseModel):
+    score_id: int
+    title: str
+    explanation: str
+    rank: int
+
+
+class SmartSearchResponse(BaseModel):
+    query: str
+    recommendations: list[Recommendation]
+    summary: str
+    success: bool
+
+
 # Endpoints
 @app.get("/")
 def health():
@@ -40,7 +55,7 @@ def health():
 
 @app.get("/search")
 def search(q: str, top_k: int = 10) -> SearchResponse:
-    """Search for scores.
+    """Basic vector search for scores.
 
     Args:
         q: Search query (e.g., "easy Bach for piano")
@@ -68,6 +83,51 @@ def search(q: str, top_k: int = 10) -> SearchResponse:
             )
             for r in results
         ]
+    )
+
+
+@app.get("/smart-search")
+def smart_search(q: str, top_k: int = 15) -> SmartSearchResponse:
+    """LLM-powered smart search with recommendations and explanations.
+
+    This is the Pro feature endpoint. Returns 3 best matches with
+    conversational explanations of why each piece fits the query.
+
+    Args:
+        q: Natural language query (e.g., "I need something for my piano student")
+        top_k: Number of candidates for LLM to consider (default 15)
+
+    Returns:
+        3 recommendations with explanations and a summary
+    """
+    if not os.environ.get("GROQ_API_KEY"):
+        raise HTTPException(
+            status_code=503,
+            detail="GROQ_API_KEY not configured for smart search."
+        )
+
+    try:
+        result = search_module.smart_search(q, top_k=top_k)
+    except Exception as e:
+        logger.error(f"Smart search failed: {e}")
+        raise HTTPException(
+            status_code=503,
+            detail="Search failed. Check index and API key."
+        )
+
+    return SmartSearchResponse(
+        query=q,
+        recommendations=[
+            Recommendation(
+                score_id=r["score_id"],
+                title=r["title"],
+                explanation=r["explanation"],
+                rank=r["rank"],
+            )
+            for r in result["recommendations"]
+        ],
+        summary=result["summary"],
+        success=result["success"],
     )
 
 
