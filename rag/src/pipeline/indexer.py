@@ -17,12 +17,13 @@ logging.basicConfig(
 )
 
 
-def build_index(limit: int = 100, backend: str = "groq"):
+def build_index(limit: int = 100, backend: str = "groq", ids: list[int] | None = None):
     """Build vector index from extracted scores.
 
     Args:
         limit: Number of scores to index (use -1 for all)
         backend: LLM backend - "groq" or "lmstudio"
+        ids: Optional list of specific score IDs to index
     """
     # Setup LLM client based on backend
     if backend == "lmstudio":
@@ -35,12 +36,17 @@ def build_index(limit: int = 100, backend: str = "groq"):
         print("Using Groq backend")
         client = None  # DescriptionGenerator defaults to Groq
 
-    print(f"Fetching extracted scores (limit={limit})...")
-    if limit == -1:
+    # Fetch scores
+    if ids:
+        print(f"Fetching scores by IDs: {ids}")
+        scores = db.get_scores_by_ids(ids)
+    elif limit == -1:
+        print("Fetching all extracted scores...")
         scores = db.get_all_extracted_scores()
     else:
+        print(f"Fetching extracted scores (limit={limit})...")
         scores = db.get_extracted_scores(limit=limit)
-    print(f"Got {len(scores)} extracted scores")
+    print(f"Got {len(scores)} scores")
 
     if not scores:
         print("No extracted scores found. Run music21 extraction first.")
@@ -95,8 +101,14 @@ def main():
     parser = argparse.ArgumentParser(description="Build vector index from scores")
     parser.add_argument("limit", type=int, nargs="?", default=100, help="Number of scores (-1 for all)")
     parser.add_argument("--backend", choices=["groq", "lmstudio"], default="groq", help="LLM backend")
+    parser.add_argument("--ids", type=str, help="Comma-separated score IDs (e.g., '1951,2449,2523')")
     args = parser.parse_args()
-    build_index(limit=args.limit, backend=args.backend)
+
+    ids = None
+    if args.ids:
+        ids = [int(x.strip()) for x in args.ids.split(",")]
+
+    build_index(limit=args.limit, backend=args.backend, ids=ids)
 
 
 if __name__ == "__main__":

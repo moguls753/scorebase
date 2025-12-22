@@ -134,3 +134,31 @@ def get_extracted_count() -> int:
     ).fetchone()[0]
     conn.close()
     return count
+
+
+def get_scores_by_ids(ids: list[int]) -> list[dict]:
+    """Fetch specific scores by ID.
+
+    Args:
+        ids: List of score IDs to fetch
+
+    Returns:
+        List of score dicts with rich metadata
+    """
+    if not ids:
+        return []
+
+    conn = get_connection()
+    conn.row_factory = sqlite3.Row
+
+    placeholders = ",".join("?" * len(ids))
+    cursor = conn.execute(f"""
+        SELECT {SCORE_FIELDS}
+        FROM scores
+        WHERE id IN ({placeholders})
+        ORDER BY id
+    """, ids)
+
+    scores = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return scores
