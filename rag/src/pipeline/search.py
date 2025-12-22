@@ -29,7 +29,7 @@ def get_pipeline() -> Pipeline:
     # Text -> Embedding
     pipeline.add_component(
         "embedder",
-        SentenceTransformersTextEmbedder(model=config.EMBEDDING_MODEL)
+        SentenceTransformersTextEmbedder(model=config.EMBEDDING_MODEL, progress_bar=False)
     )
 
     # Embedding -> Similar documents
