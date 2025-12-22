@@ -1,6 +1,6 @@
 """Description Generator - single LLM call with code-based validation.
 
-Generates 2-3 sentence descriptions for musical scores.
+Generates 3-5 sentence descriptions for musical scores.
 Simple garbage detection validates outputs without LLM critic overhead.
 """
 
@@ -88,7 +88,6 @@ You write brief, searchable descriptions for a sheet music catalog used by music
 - Include: (1) DIFFICULTY (exactly one: easy/beginner, intermediate, advanced, virtuoso), (2) CHARACTER (mood), (3) BEST FOR (who/when), (4) KEY DETAILS (duration, voicing/instrumentation, period/style if notable).
 - Use words teachers search (e.g., "easy piano piece", "peaceful choir anthem", "dramatic recital showpiece") and avoid jargon (no "ambitus", "chromatic complexity").
 - Only use what is in the <data/> section to describe the piece of music.
-- Avoid using jargon.
 - Avoid extra claims beyond metadata.
 - Do not produce a bullet point list.
 - Generate the output in the required <output_format/>
@@ -99,7 +98,7 @@ You write brief, searchable descriptions for a sheet music catalog used by music
 2) Choose exactly one DIFFICULTY label from: easy/beginner, intermediate, advanced, virtuoso (based on the difficulty_level field).
 3) Pick 1–2 CHARACTER words that match the piece based on metadata cues.
 4) Decide BEST FOR (who/when) using common teacher terms, without inventing specifics.
-5) Write 2–3 sentences that naturally include DIFFICULTY, CHARACTER, BEST FOR, and KEY DETAILS, using searchable phrases.
+5) Write 3–5 sentences that naturally include DIFFICULTY, CHARACTER, BEST FOR, and KEY DETAILS, using searchable phrases.
 6) Final check if your response matches the requirements, see <rules/>.
 </steps>
 

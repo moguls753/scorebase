@@ -33,7 +33,7 @@ def build_index(limit: int = 100, backend: str = "groq"):
             print("Error: GROQ_API_KEY not set. Get one at https://console.groq.com/keys")
             sys.exit(1)
         print("Using Groq backend")
-        client = None  # DescriptionGeneratorAgent defaults to Groq
+        client = None  # DescriptionGenerator defaults to Groq
 
     print(f"Fetching extracted scores (limit={limit})...")
     if limit == -1:
