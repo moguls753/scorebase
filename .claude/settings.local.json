@@ -26,7 +26,8 @@
       "Bash(bundle exec rspec:*)",
       "Bash(python3 -m py_compile:*)",
       "Bash(./venv/bin/python:*)",
-      "Bash(./venv/bin/pip:*)"
+      "Bash(./venv/bin/pip:*)",
+      "Bash(xargs ls:*)"
     ]
   }
 }

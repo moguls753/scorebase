@@ -24,6 +24,12 @@ production:
     queue: default
     schedule: every day at 4am
 
+  # extract_pending_scores:
+  #   class: ExtractPendingScoresJob
+  #   queue: default
+  #   args: [ { limit: 100 } ]
+  #   schedule: every day at 3am
+
   # generate_missing_thumbnails:
   #   class: GenerateMissingThumbnailsJob
   #   queue: default

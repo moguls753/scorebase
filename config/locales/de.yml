@@ -123,6 +123,7 @@ de:
   # Score Detail Page
   score:
     back: "Zurück"
+    period: "Epoche"
     preview_not_generated: "Vorschau noch nicht erstellt"
     open_pdf: "PDF öffnen"
     download_mxl: "MXL herunterladen"

@@ -33,6 +33,7 @@ module ScoresHelper
   # Using reliable Unicode ranges (U+2000s) - avoid Musical Symbols block (U+1D100s)
   # Some glyphs need alignment nudges due to font baseline quirks
   FACT_ICONS = {
+    "score.period" => { char: "⌛" },
     "score.key" => { char: "♯" },
     "score.time" => { char: "⁄" },
     "score.voicing" => { char: "♬" },
@@ -81,6 +82,11 @@ module ScoresHelper
   # Musical/analysis facts (primary)
   def build_musical_facts(score)
     facts = []
+
+    # Period - linkable (discover scores from the same era)
+    if score.period.present?
+      facts << fact_entry("score.period", score.period, link: scores_path(period: score.period))
+    end
 
     # Key signature - descriptive, not linkable (too broad for discovery)
     if score.key_signature.present?

@@ -123,6 +123,7 @@ en:
   # Score Detail Page
   score:
     back: "Back"
+    period: "Period"
     preview_not_generated: "Preview not generated yet"
     open_pdf: "Open PDF"
     download_mxl: "Download MXL"
