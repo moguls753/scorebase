@@ -50,9 +50,9 @@ class GenerateSearchTextJob < ApplicationJob
   def eligible_scores(limit, force:)
     scope = if force
               Score.where(rag_status: %w[ready templated])
-            else
+    else
               Score.rag_ready
-            end
+    end
     scope.limit(limit)
   end
 

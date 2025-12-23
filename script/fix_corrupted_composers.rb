@@ -74,7 +74,7 @@ COMPOSERS = {
   235551 => "Unknown",
   235969 => "Unknown",
   236262 => "Unknown",
-  236291 => "Unknown",
+  236291 => "Unknown"
 }.freeze
 
 updated = 0

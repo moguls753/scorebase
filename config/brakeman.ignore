@@ -1,7 +1,7 @@
 {
   "ignored_warnings": [
     {
-      "fingerprint": "11106bd950419d910b2c7dec5cf1f2da68170956ea590caf70bfcbb79ec460bb",
+      "fingerprint": "b9135d3a35eaf3efbe4026aa57988d196ed6ef5f8dc6a1895cc4607ced2591e0",
       "note": "Reviewed - path traversal prevented by start_with? check before send_file"
     },
     {
@@ -25,6 +25,6 @@
       "note": "Reviewed - pdf_path is from Active Storage temp file, not user input"
     }
   ],
-  "updated": "2025-12-19",
+  "updated": "2025-12-24",
   "brakeman_version": "7.1.1"
 }
