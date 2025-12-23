@@ -55,7 +55,6 @@
         <%# 1. DOWNLOADS (hidden on mobile - shown in quick actions above) %>
         <% if @score.has_downloads? %>
           <div class="mm-card p-3 sm:p-4 score-downloads-card">
-            <%= score_section_header("↓", "score.download_files") %>
             <%= render "scores/download_actions", score: @score, variant: :sidebar %>
           </div>
         <% end %>
@@ -74,64 +73,76 @@
           </div>
         <% end %>
 
-        <%# 4. MUSIC DETAILS %>
-        <% if @score.has_music_details? %>
-          <div class="mm-card p-3 sm:p-4">
-            <%= score_section_header("♪", "score.music_details") %>
-            <dl class="score-details-grid">
-              <%= score_detail_item("score.voicing", @score.voicing) %>
-              <%= score_detail_item("score.key", @score.key_signature) %>
-              <%= score_detail_item("score.time", @score.time_signature) %>
-              <%= score_detail_item("score.parts", @score.num_parts) if @score.num_parts.to_i.positive? %>
-              <%= score_detail_item("score.language", @score.language) %>
-              <%= score_detail_item("score.instruments", @score.instruments) %>
-              <%= score_detail_item("score.page_count", @score.page_count) if @score.page_count.to_i.positive? %>
-              <% if @score.complexity.to_i.positive? %>
-                <%= score_detail_item("score.complexity", t("score.complexity_scale", value: @score.complexity)) %>
+        <%# 4. UNIFIED SCORE FACTS - 2-column grid with icons, links, difficulty meter %>
+        <% facts = unified_score_facts(@score) %>
+        <% if facts.any? %>
+          <div class="score-facts-grid">
+            <% facts.each do |fact| %>
+              <% if fact[:divider] %>
+                <div class="score-facts-divider"></div>
+              <% elsif fact[:difficulty] %>
+                <%# Difficulty meter - special rendering %>
+                <div class="score-fact-cell">
+                  <span class="score-fact-label">
+                    <% if fact[:icon] %><span class="score-fact-icon <%= fact[:icon_css] %>"><%= fact[:icon] %></span><% end %>
+                    <%= fact[:label] %>
+                  </span>
+                  <%= difficulty_meter(fact[:difficulty]) %>
+                </div>
+              <% elsif fact[:link] %>
+                <%# Linkable fact - discover more %>
+                <%= link_to fact[:link], class: "score-fact-cell score-fact-cell--link" do %>
+                  <span class="score-fact-label">
+                    <% if fact[:icon] %><span class="score-fact-icon <%= fact[:icon_css] %>"><%= fact[:icon] %></span><% end %>
+                    <%= fact[:label] %>
+                    <span class="score-fact-link-arrow">→</span>
+                  </span>
+                  <span class="score-fact-value"><%= fact[:value] %></span>
+                <% end %>
+              <% else %>
+                <%# Regular fact %>
+                <div class="score-fact-cell">
+                  <span class="score-fact-label">
+                    <% if fact[:icon] %><span class="score-fact-icon <%= fact[:icon_css] %>"><%= fact[:icon] %></span><% end %>
+                    <%= fact[:label] %>
+                  </span>
+                  <span class="score-fact-value <%= fact[:css] %>"><%= fact[:value] %></span>
+                </div>
               <% end %>
-              <% if @score.rating.to_f.positive? %>
-                <%= score_detail_item("score.rating", t("score.rating_scale", value: number_with_precision(@score.rating, precision: 1))) %>
-              <% end %>
-            </dl>
+            <% end %>
           </div>
         <% end %>
 
-        <%# 5. ABOUT THIS SCORE (CPDL-specific info) %>
-        <% if @score.has_about_info? %>
+        <%# 5. VOCAL RANGES (for choral scores) - Visual pitch bars with C4 reference %>
+        <% if has_vocal_ranges?(@score) %>
           <div class="mm-card p-3 sm:p-4">
-            <%= score_section_header("●", "score.about_this_score") %>
-            <dl class="score-details-grid">
-              <%= score_detail_item("score.cpdl_number", @score.cpdl_number, mono: true) %>
-              <%= score_detail_item("score.editor", @score.editor) %>
-              <%= score_detail_item("score.posted_date", @score.posted_date) %>
-              <%= score_detail_item("score.license", @score.license, full_width: true) %>
-            </dl>
+            <%= score_section_header("♫", "score.vocal_ranges") %>
+            <div class="vocal-ranges mt-4">
+              <% @score.pitch_range_per_part.each do |part_name, range_data| %>
+                <% range_style = vocal_range_bar_style(range_data) %>
+                <div class="vocal-range-row">
+                  <span class="vocal-range-part"><%= part_name %></span>
+                  <div class="vocal-range-track">
+                    <div class="vocal-range-bar" style="<%= range_style %>"></div>
+                  </div>
+                  <span class="vocal-range-notes"><%= format_part_range(range_data) %></span>
+                </div>
+              <% end %>
+            </div>
           </div>
         <% end %>
 
-        <%# 6. GENRES & TAGS %>
-        <% if @score.genre_list.any? || @score.tag_list.any? %>
+        <%# 6. TAGS %>
+        <% if @score.tag_list.any? %>
           <div class="score-tags-section">
-            <% if @score.genre_list.any? %>
-              <div>
-                <h3 class="score-tags-header"><%= t('score.genres') %></h3>
-                <div class="score-tags-list">
-                  <% @score.genre_list.each do |genre| %>
-                    <span class="mm-badge"><%= genre %></span>
-                  <% end %>
-                </div>
+            <div>
+              <h3 class="score-tags-header"><%= t('score.tags') %></h3>
+              <div class="score-tags-list">
+                <% @score.tag_list.each do |tag| %>
+                  <span class="mm-badge mm-badge-tag"><%= tag %></span>
+                <% end %>
               </div>
-            <% end %>
-            <% if @score.tag_list.any? %>
-              <div>
-                <h3 class="score-tags-header"><%= t('score.tags') %></h3>
-                <div class="score-tags-list">
-                  <% @score.tag_list.each do |tag| %>
-                    <span class="mm-badge mm-badge-tag"><%= tag %></span>
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
+            </div>
           </div>
         <% end %>
 
@@ -145,13 +156,13 @@
               </svg>
             </summary>
             <div class="score-lyrics-content">
-              <div class="lyrics-content"><%=h @score.lyrics %></div>
+              <div class="lyrics-content"><%= @score.lyrics %></div>
             </div>
           </details>
         <% end %>
 
         <%# 8. EXTERNAL SOURCE LINK %>
-        <% if (safe_url = safe_external_url(@score.external_url)) %>
+        <% if @score.source.present? && (safe_url = safe_external_url(@score.external_url)) %>
           <%= link_to safe_url,
                       target: "_blank",
                       rel: "noopener noreferrer",
@@ -177,6 +188,18 @@
               </div>
             <% end %>
           </div>
+        <% end %>
+
+        <%# 10. DEV-ONLY: Extraction Debug Data %>
+        <% if Rails.env.development? && has_extracted_data?(@score) %>
+          <details class="mt-6 rounded-lg bg-gray-50 border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
+            <summary class="px-3 py-2 cursor-pointer text-xs font-mono text-gray-500 hover:text-gray-700 dark:text-gray-400">
+              <%= t('score.debug_data') %> ▾
+            </summary>
+            <div class="p-3 border-t border-gray-200 dark:border-gray-700 overflow-x-auto">
+              <pre class="text-xs font-mono text-gray-600 dark:text-gray-300 whitespace-pre-wrap"><%= JSON.pretty_generate(extraction_debug_data(@score)) %></pre>
+            </div>
+          </details>
         <% end %>
 
       </div>

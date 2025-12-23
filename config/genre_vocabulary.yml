@@ -1,0 +1,44 @@
+# Controlled vocabulary for normalized_genre field.
+# Keep it small: ~20 genres that users actually search for.
+#
+# Format: genre_name with common search terms/aliases as comments
+# The LLM will be given this list to choose from.
+
+genres:
+  # Sacred/Liturgical (what church musicians search for)
+  - Mass
+  - Requiem
+  - Motet
+  - Magnificat
+  - Psalm
+  - Anthem
+  - Hymn
+  - Chorale
+  - Cantata
+  - Oratorio
+  - Spiritual
+  - Gospel
+  - Carol
+
+  # Secular Vocal
+  - Madrigal
+  - Chanson
+  - Art Song      # includes Lied, mélodie
+  - Opera
+  - Folk Song
+
+  # Instrumental Forms
+  - Sonata
+  - Fugue
+  - Prelude
+  - Suite
+  - Concerto
+  - Symphony
+  - Chamber       # quartet, trio, ensemble
+  - Dance         # waltz, minuet, polonaise, march
+  - Etude         # study, exercise
+
+  # Other
+  - Traditional
+  - Popular       # pop, rock, jazz arrangements
+  - Educational   # method books, exercises

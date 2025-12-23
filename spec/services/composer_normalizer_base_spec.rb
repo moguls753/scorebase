@@ -24,7 +24,7 @@ RSpec.describe ComposerNormalizerBase do
   end
 
   describe "#apply_api_results" do
-    let!(:score) { create(:score, composer: "Smith, John", normalization_status: "pending") }
+    let!(:score) { create(:score, composer: "Smith, John", composer_status: "pending") }
 
     it "caches and normalizes when AI returns a result" do
       results = [{ "original" => "Smith, John", "normalized" => "Smith, John Francis" }]
@@ -33,7 +33,7 @@ RSpec.describe ComposerNormalizerBase do
         .to change { ComposerMapping.count }.by(1)
 
       expect(ComposerMapping.lookup("Smith, John")).to eq("Smith, John Francis")
-      expect(score.reload.normalization_status).to eq("normalized")
+      expect(score.reload.composer_status).to eq("normalized")
       expect(score.composer).to eq("Smith, John Francis")
     end
 
@@ -44,7 +44,7 @@ RSpec.describe ComposerNormalizerBase do
         .not_to change { ComposerMapping.count }
 
       expect(ComposerMapping.processed?("Smith, John")).to be false
-      expect(score.reload.normalization_status).to eq("failed")
+      expect(score.reload.composer_status).to eq("failed")
       expect(score.composer).to eq("Smith, John") # unchanged
     end
 
@@ -54,7 +54,7 @@ RSpec.describe ComposerNormalizerBase do
       expect { normalizer.send(:apply_api_results, results) }
         .not_to change { ComposerMapping.count }
 
-      expect(score.reload.normalization_status).to eq("pending")
+      expect(score.reload.composer_status).to eq("pending")
     end
   end
 end

@@ -81,7 +81,7 @@ class HubDataBuilder
     end
 
     def build_genres
-      genre_counts = count_delimited_field(:genres, "-")
+      genre_counts = count_delimited_field(:genre, "-")
       build_hub_items(genre_counts)
     end
 

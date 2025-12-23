@@ -1,0 +1,91 @@
+#!/usr/bin/env python3
+"""Explore what music21 extracts from MXL files.
+
+Run from rag/ directory:
+    python scripts/explore_mxl.py
+"""
+
+import sys
+from pathlib import Path
+
+# Add parent to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from src import config, db
+from extract import extract
+
+
+def main():
+    print("=" * 60)
+    print("MusicXML Exploration")
+    print("=" * 60)
+
+    # Check paths exist
+    print(f"\nConfig:")
+    print(f"  PDMX path:  {config.PDMX_PATH}")
+    print(f"  DB path:    {config.RAILS_DB_PATH}")
+    print(f"  PDMX exists: {config.PDMX_PATH.exists()}")
+    print(f"  DB exists:   {config.RAILS_DB_PATH.exists()}")
+
+    if not config.PDMX_PATH.exists():
+        print("\nERROR: PDMX path not found. Edit src/config.py")
+        return
+
+    if not config.RAILS_DB_PATH.exists():
+        print("\nERROR: Rails database not found. Run: bin/rails db:setup")
+        return
+
+    # Fetch a score
+    print("\n" + "-" * 60)
+    print("Fetching a score with MXL file...")
+    scores = db.get_scores(limit=1)
+
+    if not scores:
+        print("No scores with MXL files found in database!")
+        return
+
+    score = scores[0]
+    print(f"\nScore: {score['title']}")
+    print(f"Composer: {score['composer']}")
+    print(f"DB mxl_path: {score['mxl_path']}")
+
+    # Resolve full path
+    mxl_path = score.get("mxl_path")
+    if not mxl_path:
+        print("No mxl_path in this score")
+        return
+
+    full_path = config.get_mxl_path(mxl_path)
+    print(f"Full path: {full_path}")
+    print(f"File exists: {full_path.exists()}")
+
+    if not full_path.exists():
+        print("\nERROR: MXL file not found at expected path")
+        return
+
+    # Extract with music21
+    print("\n" + "-" * 60)
+    print("Extracting with music21...")
+    print("-" * 60)
+
+    result = extract(str(full_path))
+
+    if result.get("extraction_status") == "extracted":
+        print("\nExtracted features:")
+        # Skip internal fields
+        skip = {"_extraction_warnings", "music21_version", "musicxml_source"}
+        for key, value in sorted(result.items()):
+            if key in skip:
+                continue
+            if isinstance(value, dict):
+                print(f"  {key}:")
+                for k, v in value.items():
+                    print(f"    {k}: {v}")
+            else:
+                print(f"  {key}: {value}")
+    else:
+        print(f"Extraction failed: {result.get('extraction_error')}")
+
+
+if __name__ == "__main__":
+    main()

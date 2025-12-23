@@ -18,7 +18,18 @@
       "Bash(curl:*)",
       "Bash(chmod:*)",
       "Bash(ruby script/ux_expert_review.rb:*)",
-      "Bash(ruby script/mobile_inspector.rb:*)"
+      "Bash(ruby script/mobile_inspector.rb:*)",
+      "Bash(ruby -c:*)",
+      "Skill(frontend-design)",
+      "Bash(erb -x:*)",
+      "Bash(ls:*)",
+      "Bash(bundle exec rspec:*)",
+      "Bash(python3 -m py_compile:*)",
+      "Bash(./venv/bin/python:*)",
+      "Bash(./venv/bin/pip:*)",
+      "Bash(xargs ls:*)",
+      "Bash(sqlite3:*)",
+      "Bash(ruby -ryaml -e:*)"
     ]
   }
 }

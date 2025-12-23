@@ -554,7 +554,7 @@ class ImslpImporter
       license: normalize_license(pdf_file&.dig(:copyright)),
 
       # Classification
-      genres: build_genres(parsed[:piece_style], parsed[:tags], parsed[:categories]),
+      genre: build_genres(parsed[:piece_style], parsed[:tags], parsed[:categories]),
       tags: parsed[:tags]&.gsub(/\s*;\s*/, "-"),
       complexity: nil,
 

@@ -22,8 +22,7 @@ module PdfFetchable
 
     # 2. Local disk (PDMX)
     if score.pdmx? && score.pdf_path.present?
-      base_path = ENV.fetch("PDMX_DATA_PATH", File.expand_path("~/data/pdmx"))
-      local_path = File.expand_path(File.join(base_path, score.pdf_path.sub(%r{^\./}, "")))
+      local_path = Rails.application.config.x.pdmx_path.join(score.pdf_path.delete_prefix("./")).to_s
       if File.exist?(local_path)
         FileUtils.cp(local_path, dest_path)
         return dest_path

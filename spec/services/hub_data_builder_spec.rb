@@ -22,7 +22,7 @@ RSpec.describe HubDataBuilder do
 
   describe ".genres" do
     it "returns items with correct structure" do
-      12.times { create(:score, genres: "Sacred") }
+      12.times { create(:score, genre: "Sacred") }
 
       genres = described_class.genres
 
@@ -30,8 +30,8 @@ RSpec.describe HubDataBuilder do
     end
 
     it "only includes items meeting threshold" do
-      5.times { create(:score, genres: "Rare") }
-      12.times { create(:score, genres: "Common") }
+      5.times { create(:score, genre: "Rare") }
+      12.times { create(:score, genre: "Common") }
 
       genres = described_class.genres
 
@@ -42,8 +42,8 @@ RSpec.describe HubDataBuilder do
 
   describe ".periods" do
     it "only includes items meeting threshold" do
-      5.times { create(:score, genres: "Baroque") }
-      12.times { create(:score, genres: "Romantic") }
+      5.times { create(:score, genre: "Baroque") }
+      12.times { create(:score, genre: "Romantic") }
 
       periods = described_class.periods
 
@@ -53,8 +53,8 @@ RSpec.describe HubDataBuilder do
 
     it "uses case-sensitive matching" do
       # lowercase "classical" is PDMX pop tag, not Classical period
-      12.times { create(:score, genres: "classical") }
-      12.times { create(:score, genres: "Classical") }
+      12.times { create(:score, genre: "classical") }
+      12.times { create(:score, genre: "Classical") }
 
       periods = described_class.periods
       classical = periods.find { |p| p[:name] == "Classical" }
@@ -66,7 +66,7 @@ RSpec.describe HubDataBuilder do
 
   describe ".find_by_slug" do
     it "returns the name for a valid slug" do
-      12.times { create(:score, genres: "Sacred") }
+      12.times { create(:score, genre: "Sacred") }
 
       expect(described_class.find_by_slug(:genres, "sacred")).to eq("Sacred")
     end

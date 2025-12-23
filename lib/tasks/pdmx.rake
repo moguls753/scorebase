@@ -10,8 +10,10 @@ namespace :pdmx do
     puts "=" * 80
 
     # Check if PDMX exists
-    unless Pdmx.exists?
-      puts Pdmx.setup_instructions
+    pdmx_path = Rails.application.config.x.pdmx_path
+    unless pdmx_path.exist? && pdmx_path.join("PDMX.csv").exist?
+      puts "PDMX dataset not found at: #{pdmx_path}"
+      puts "Set PDMX_DATA_PATH env var or download from: https://zenodo.org/records/15571083"
       exit 1
     end
 

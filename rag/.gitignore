@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+
+# Data
+data/chroma/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Environment
+.env

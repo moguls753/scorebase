@@ -217,7 +217,7 @@ class CpdlImporter
       cpdl_number: infobox["cpdl_number"],
       posted_date: infobox["posted_date"],
       page_count: infobox["page_count"],
-      genres: genres.join("-"),
+      genre: genres.join("-"),
       tags: categories.first(5).join("-"),
       complexity: nil,
       rating: nil,

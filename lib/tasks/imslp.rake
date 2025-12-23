@@ -92,13 +92,13 @@ namespace :imslp do
       puts ""
       puts "By style/genre (top 10):"
       Score.from_imslp
-        .where.not(genres: [nil, ""])
-        .pluck(:genres)
+        .where.not(genre: [nil, ""])
+        .pluck(:genre)
         .flat_map { |g| g.split("-") }
         .tally
         .sort_by { |_, v| -v }
         .first(10)
-        .each { |genre, count| puts "  #{genre}: #{count}" }
+        .each { |genre_name, count| puts "  #{genre_name}: #{count}" }
 
       puts ""
       puts "Files available:"
