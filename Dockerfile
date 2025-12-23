@@ -18,9 +18,12 @@ WORKDIR /rails
 # - imagemagick + ghostscript: PDF to image conversion (convert, identify)
 # - poppler-utils: PDF info extraction (pdfinfo)
 # - webp: WebP image format support
+# - python3 + music21: MusicXML feature extraction
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y curl libjemalloc2 libvips sqlite3 \
-      imagemagick ghostscript libwebp-dev poppler-utils && \
+      imagemagick ghostscript libwebp-dev poppler-utils \
+      python3 python3-pip && \
+    pip3 install --no-cache-dir --break-system-packages music21 && \
     ln -s /usr/lib/$(uname -m)-linux-gnu/libjemalloc.so.2 /usr/local/lib/libjemalloc.so && \
     rm -rf /var/lib/apt/lists /var/cache/apt/archives
 
