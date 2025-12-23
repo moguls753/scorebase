@@ -12,25 +12,32 @@ class NormalizePeriodsJob < ApplicationJob
 
   def perform(limit: 1000)
     scores = eligible_scores(limit)
+    count = scores.count
 
-    log_start(scores.count)
-    return if scores.empty?
+    logger.info "[NormalizePeriods] Processing #{count} scores"
+    return if count.zero?
 
-    stats = { normalized: 0, not_applicable: 0 }
+    # Group scores by inferred period for batch updates
+    by_period = Hash.new { |h, k| h[k] = [] }
 
     scores.find_each do |score|
       period = PeriodInferrer.infer(score.composer)
+      by_period[period] << score.id
+    end
 
+    stats = { normalized: 0, not_applicable: 0 }
+
+    by_period.each do |period, ids|
       if period.present?
-        score.update!(period: period, period_status: :normalized)
-        stats[:normalized] += 1
+        Score.where(id: ids).update_all(period: period, period_status: "normalized")
+        stats[:normalized] += ids.size
       else
-        score.update!(period_status: :not_applicable)
-        stats[:not_applicable] += 1
+        Score.where(id: ids).update_all(period_status: "not_applicable")
+        stats[:not_applicable] += ids.size
       end
     end
 
-    log_complete(stats)
+    logger.info "[NormalizePeriods] Complete: #{stats[:normalized]} normalized, #{stats[:not_applicable]} not applicable"
   end
 
   private
@@ -40,14 +47,5 @@ class NormalizePeriodsJob < ApplicationJob
          .composer_normalized
          .where.not(composer: [nil, ""])
          .limit(limit)
-  end
-
-  def log_start(count)
-    logger.info "[NormalizePeriods] Processing #{count} scores"
-    logger.info "[NormalizePeriods] Requires: composer_normalized"
-  end
-
-  def log_complete(stats)
-    logger.info "[NormalizePeriods] Complete: #{stats[:normalized]} normalized, #{stats[:not_applicable]} not applicable"
   end
 end
