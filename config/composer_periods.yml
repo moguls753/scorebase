@@ -1,0 +1,314 @@
+# Composer → Period mapping for RAG enrichment
+# Format: "LastName, FirstName": "Period"
+# Add new composers as needed. ~47% coverage of normalized composers.
+
+# Medieval (500-1400)
+"Hildegard von Bingen": Medieval
+"Léonin": Medieval
+"Pérotin": Medieval
+"Guillaume de Machaut": Medieval
+"Machaut, Guillaume de": Medieval
+"Landini, Francesco": Medieval
+
+# Renaissance (1400-1600)
+"Josquin des Prez": Renaissance
+"Josquin, des Prez": Renaissance
+"Palestrina, Giovanni Pierluigi da": Renaissance
+"Victoria, Tomás Luis de": Renaissance
+"Byrd, William": Renaissance
+"Lasso, Orlando": Renaissance
+"Lassus, Orlande de": Renaissance
+"Tallis, Thomas": Renaissance
+"Dowland, John": Renaissance
+"Morley, Thomas": Renaissance
+"Gibbons, Orlando": Renaissance
+"Weelkes, Thomas": Renaissance
+"Wilbye, John": Renaissance
+"Gesualdo, Carlo": Renaissance
+"Marenzio, Luca": Renaissance
+"Gabrieli, Giovanni": Renaissance
+"Gabrieli, Andrea": Renaissance
+"Praetorius, Michael": Renaissance
+"Sweelinck, Jan Pieterszoon": Renaissance
+"Susato, Tielman": Renaissance
+"Goudimel, Claude": Renaissance
+"Le Jeune, Claude": Renaissance
+"Janequin, Clément": Renaissance
+"Arcadelt, Jacob": Renaissance
+"Milan, Luis de": Renaissance
+"Milán, Luis de": Renaissance
+"Narváez, Luis de": Renaissance
+"Narvaez, Luis de": Renaissance
+"Mudarra, Alonso": Renaissance
+
+# 20th Century (misplaced in Renaissance section of original)
+"Bentzon, Niels Viggo": 20th Century
+"Bentzon, Jørgen": 20th Century
+"Bentzon, Jorgen": 20th Century
+
+# Baroque (1600-1750)
+"Bach, Johann Sebastian": Baroque
+"Bach, Carl Philipp Emanuel": Baroque
+"Bach, Johann Christian": Baroque
+"Bach, Wilhelm Friedemann": Baroque
+"Handel, George Frideric": Baroque
+"Händel, Georg Friedrich": Baroque
+"Vivaldi, Antonio": Baroque
+"Purcell, Henry": Baroque
+"Monteverdi, Claudio": Baroque
+"Schütz, Heinrich": Baroque
+"Schutz, Heinrich": Baroque
+"Buxtehude, Dietrich": Baroque
+"Pachelbel, Johann": Baroque
+"Corelli, Arcangelo": Baroque
+"Scarlatti, Domenico": Baroque
+"Scarlatti, Alessandro": Baroque
+"Telemann, Georg Philipp": Baroque
+"Rameau, Jean-Philippe": Baroque
+"Couperin, François": Baroque
+"Lully, Jean-Baptiste": Baroque
+"Albinoni, Tomaso": Baroque
+"Pergolesi, Giovanni Battista": Baroque
+"Charpentier, Marc-Antoine": Baroque
+"Biber, Heinrich Ignaz Franz": Baroque
+"Frescobaldi, Girolamo": Baroque
+"Böhm, Georg": Baroque
+"Zelenka, Jan Dismas": Baroque
+"Fasch, Johann Friedrich": Baroque
+"Durante, Francesco": Baroque
+"Leo, Leonardo": Baroque
+"Locatelli, Pietro Antonio": Baroque
+"Tartini, Giuseppe": Baroque
+"Weiss, Sylvius Leopold": Baroque
+"Sanz, Gaspar": Baroque
+"Visée, Robert de": Baroque
+"O'Carolan, Turlough": Baroque
+"Carolan, Turlough": Baroque
+
+# Classical (1750-1820)
+"Mozart, Wolfgang Amadeus": Classical
+"Haydn, Joseph": Classical
+"Haydn, Michael": Classical
+"Beethoven, Ludwig van": Classical
+"Clementi, Muzio": Classical
+"Boccherini, Luigi": Classical
+"Gluck, Christoph Willibald": Classical
+"Salieri, Antonio": Classical
+"Cimarosa, Domenico": Classical
+"Hummel, Johann Nepomuk": Classical
+"Dussek, Jan Ladislav": Classical
+"Czerny, Carl": Classical
+"Pleyel, Ignaz": Classical
+"Koželuch, Leopold": Classical
+"Marshall, William": Classical
+"Gow, Niel": Classical
+"Gow, Nathaniel": Classical
+"Sor, Fernando": Classical
+"Giuliani, Mauro": Classical
+"Carulli, Ferdinando": Classical
+"Carcassi, Matteo": Classical
+"Diabelli, Anton": Classical
+"Molino, Francesco": Classical
+"Aguado, Dionisio": Classical
+"Legnani, Luigi": Classical
+"Holden, Oliver": Classical
+"Clark, Thomas": Classical
+"Billings, William": Classical
+
+# Romantic (1820-1900)
+"Schubert, Franz": Romantic
+"Brahms, Johannes": Romantic
+"Mendelssohn, Felix": Romantic
+"Schumann, Robert": Romantic
+"Schumann, Clara": Romantic
+"Chopin, Frédéric": Romantic
+"Chopin, Fryderyk": Romantic
+"Liszt, Franz": Romantic
+"Wagner, Richard": Romantic
+"Verdi, Giuseppe": Romantic
+"Dvořák, Antonín": Romantic
+"Dvorak, Antonin": Romantic
+"Tchaikovsky, Pyotr": Romantic
+"Tchaikovsky, Pyotr Ilyich": Romantic
+"Bruckner, Anton": Romantic
+"Saint-Saëns, Camille": Romantic
+"Saint-Saens, Camille": Romantic
+"Fauré, Gabriel": Romantic
+"Faure, Gabriel": Romantic
+"Franck, César": Romantic
+"Franck, Cesar": Romantic
+"Grieg, Edvard": Romantic
+"Elgar, Edward": Romantic
+"Bizet, Georges": Romantic
+"Rossini, Gioachino": Romantic
+"Donizetti, Gaetano": Romantic
+"Bellini, Vincenzo": Romantic
+"Puccini, Giacomo": Romantic
+"Smetana, Bedřich": Romantic
+"Smetana, Bedrich": Romantic
+"Rimsky-Korsakov, Nikolai": Romantic
+"Mussorgsky, Modest": Romantic
+"Borodin, Alexander": Romantic
+"Balakirev, Mily": Romantic
+"Gounod, Charles": Romantic
+"Massenet, Jules": Romantic
+"Offenbach, Jacques": Romantic
+"Johann Strauss II": Romantic
+"Strauss II, Johann": Romantic
+"Wolf, Hugo": Romantic
+"Bruch, Max": Romantic
+"Wieniawski, Henryk": Romantic
+"Sarasate, Pablo de": Romantic
+"Paganini, Niccolò": Romantic
+"Paganini, Niccolo": Romantic
+"Alkan, Charles-Valentin": Romantic
+"Field, John": Romantic
+"Weber, Carl Maria von": Romantic
+"Spohr, Louis": Romantic
+"Skinner, J. Scott": Romantic
+"Walker, Alexander": Romantic
+"Tárrega, Francisco": Romantic
+"Tarrega, Francisco": Romantic
+"Regondi, Giulio": Romantic
+"Arcas, Julián": Romantic
+"Arcas, Julian": Romantic
+"Mertz, Johann Kaspar": Romantic
+"Coste, Napoléon": Romantic
+"Coste, Napoleon": Romantic
+"Barnby, Joseph": Romantic
+"Mason, Lowell": Romantic
+"Dykes, John Bacchus": Romantic
+"Stainer, John": Romantic
+
+# Late Romantic (1890-1920)
+"Mahler, Gustav": Late Romantic
+"Rachmaninoff, Sergei": Late Romantic
+"Rachmaninov, Sergei": Late Romantic
+"Strauss, Richard": Late Romantic
+"Sibelius, Jean": Late Romantic
+"Nielsen, Carl": Late Romantic
+"Scriabin, Alexander": Late Romantic
+"Reger, Max": Late Romantic
+"Korngold, Erich Wolfgang": Late Romantic
+"Zemlinsky, Alexander": Late Romantic
+"Pfitzner, Hans": Late Romantic
+
+# Impressionist
+"Debussy, Claude": Impressionist
+"Ravel, Maurice": Impressionist
+"Satie, Erik": Impressionist
+"Dukas, Paul": Impressionist
+"Respighi, Ottorino": Impressionist
+
+# 20th Century
+"Stravinsky, Igor": 20th Century
+"Bartók, Béla": 20th Century
+"Bartok, Bela": 20th Century
+"Shostakovich, Dmitri": 20th Century
+"Prokofiev, Sergei": 20th Century
+"Britten, Benjamin": 20th Century
+"Vaughan Williams, Ralph": 20th Century
+"Holst, Gustav": 20th Century
+"Walton, William": 20th Century
+"Copland, Aaron": 20th Century
+"Bernstein, Leonard": 20th Century
+"Gershwin, George": 20th Century
+"Ives, Charles": 20th Century
+"Barber, Samuel": 20th Century
+"Hindemith, Paul": 20th Century
+"Orff, Carl": 20th Century
+"Poulenc, Francis": 20th Century
+"Milhaud, Darius": 20th Century
+"Honegger, Arthur": 20th Century
+"Messiaen, Olivier": 20th Century
+"Kodály, Zoltán": 20th Century
+"Kodaly, Zoltan": 20th Century
+"Villa-Lobos, Heitor": 20th Century
+"Ginastera, Alberto": 20th Century
+"Webern, Anton": 20th Century
+"Berg, Alban": 20th Century
+"Schoenberg, Arnold": 20th Century
+"Schönberg, Arnold": 20th Century
+"Ligeti, György": 20th Century
+"Ligeti, Gyorgy": 20th Century
+"Penderecki, Krzysztof": 20th Century
+"Xenakis, Iannis": 20th Century
+"Cage, John": 20th Century
+"Crumb, George": 20th Century
+"Adams, John": 20th Century
+"Reich, Steve": 20th Century
+"Glass, Philip": 20th Century
+"Piazzolla, Astor": 20th Century
+"Finzi, Gerald": 20th Century
+"Howells, Herbert": 20th Century
+"Ireland, John": 20th Century
+"Tippett, Michael": 20th Century
+"Maxwell Davies, Peter": 20th Century
+"Segovia, Andrés": 20th Century
+"Segovia, Andres": 20th Century
+"Ponce, Manuel": 20th Century
+"Ponce, Manuel María": 20th Century
+"Ponce, Manuel Maria": 20th Century
+"Rodrigo, Joaquín": 20th Century
+"Rodrigo, Joaquin": 20th Century
+"Barrios, Agustín": 20th Century
+"Barrios, Agustin": 20th Century
+"Barrios Mangoré, Agustín": 20th Century
+"Turina, Joaquín": 20th Century
+"Turina, Joaquin": 20th Century
+"Moreno Torroba, Federico": 20th Century
+"Torroba, Federico Moreno": 20th Century
+"Castelnuovo-Tedesco, Mario": 20th Century
+"Tansman, Alexandre": 20th Century
+"Tedesco, Mario Castelnuovo-": 20th Century
+"Llobet, Miguel": 20th Century
+"Lauro, Antonio": 20th Century
+"Pujol, Emilio": 20th Century
+"Yepes, Narciso": 20th Century
+"Bream, Julian": 20th Century
+
+# Contemporary (1950-present)
+"Pärt, Arvo": Contemporary
+"Part, Arvo": Contemporary
+"Lauridsen, Morten": Contemporary
+"Whitacre, Eric": Contemporary
+"Rutter, John": Contemporary
+"Chilcott, Bob": Contemporary
+"Ešenvalds, Ēriks": Contemporary
+"Esenvalds, Eriks": Contemporary
+"Gjeilo, Ola": Contemporary
+"Clausen, René": Contemporary
+"Clausen, Rene": Contemporary
+"Mäntyjärvi, Jaakko": Contemporary
+"Mantyjarvi, Jaakko": Contemporary
+"Tavener, John": Contemporary
+"Górecki, Henryk": Contemporary
+"Gorecki, Henryk": Contemporary
+"Schnittke, Alfred": Contemporary
+"Gubaidulina, Sofia": Contemporary
+"Tan Dun": Contemporary
+"Chen Yi": Contemporary
+"Corigliano, John": Contemporary
+"Higdon, Jennifer": Contemporary
+"Rouse, Christopher": Contemporary
+"Brouwer, Leo": Contemporary
+"Dyens, Roland": Contemporary
+"Koshkin, Nikita": Contemporary
+"Assad, Sérgio": Contemporary
+"Assad, Sergio": Contemporary
+"Assad, Odair": Contemporary
+"Domeniconi, Carlo": Contemporary
+"Bogdanović, Dušan": Contemporary
+"Bogdanovic, Dusan": Contemporary
+"York, Andrew": Contemporary
+"Houghton, Phillip": Contemporary
+"Towner, Ralph": Contemporary
+"Metheny, Pat": Contemporary
+"Fox, Toby": Contemporary
+"Uematsu, Nobuo": Contemporary
+"Shimomura, Yoko": Contemporary
+"Kondo, Koji": Contemporary
+"Williams, John": Contemporary
+"Zimmer, Hans": Contemporary
+"Morricone, Ennio": Contemporary
+"Shore, Howard": Contemporary

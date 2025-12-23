@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_20_152603) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_23_081909) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -103,6 +103,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_152603) do
     t.boolean "has_ornaments"
     t.boolean "has_tempo_changes"
     t.string "highest_pitch"
+    t.integer "index_version"
+    t.datetime "indexed_at"
     t.text "instrument_families"
     t.string "instruments"
     t.json "interval_distribution"
@@ -128,20 +130,26 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_152603) do
     t.string "musicxml_source"
     t.string "mxl_path"
     t.string "normalization_status", default: "pending", null: false
+    t.string "normalized_genre"
     t.integer "note_count"
     t.float "note_density"
     t.integer "num_parts"
     t.integer "page_count"
     t.text "part_names"
     t.string "pdf_path"
+    t.string "period"
+    t.string "period_source"
     t.json "pitch_range_per_part"
     t.float "polyphonic_density"
     t.date "posted_date"
     t.string "predominant_rhythm"
+    t.string "rag_status", default: "pending", null: false
     t.decimal "rating", precision: 3, scale: 2
     t.integer "repeats_count"
     t.json "rhythm_distribution"
     t.float "rhythmic_variety"
+    t.text "search_text"
+    t.datetime "search_text_generated_at"
     t.integer "sections_count"
     t.string "source", default: "pdmx"
     t.float "stepwise_motion_ratio"
@@ -170,6 +178,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_152603) do
     t.index ["genres"], name: "index_scores_on_genres"
     t.index ["has_extracted_lyrics"], name: "index_scores_on_has_extracted_lyrics"
     t.index ["highest_pitch"], name: "index_scores_on_highest_pitch"
+    t.index ["indexed_at"], name: "index_scores_on_indexed_at"
     t.index ["instruments"], name: "index_scores_on_instruments"
     t.index ["is_vocal"], name: "index_scores_on_is_vocal"
     t.index ["key_confidence"], name: "index_scores_on_key_confidence"
@@ -181,6 +190,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_20_152603) do
     t.index ["normalization_status"], name: "index_scores_on_normalization_status"
     t.index ["note_count"], name: "index_scores_on_note_count"
     t.index ["num_parts"], name: "index_scores_on_num_parts"
+    t.index ["period"], name: "index_scores_on_period"
+    t.index ["rag_status"], name: "index_scores_on_rag_status"
     t.index ["rating"], name: "index_scores_on_rating"
     t.index ["source"], name: "index_scores_on_source"
     t.index ["tempo_bpm"], name: "index_scores_on_tempo_bpm"

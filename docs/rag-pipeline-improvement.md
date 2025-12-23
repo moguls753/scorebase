@@ -671,25 +671,32 @@ end
 
 > **Living document:** Update checkboxes as you progress. Add notes, dates, blockers.
 
-### Step 1: Database Foundation
-- [ ] Create migration for RAG pipeline fields
+### Step 1: Database Foundation ✅
+- [x] Create migration for RAG pipeline fields (2024-12-23)
   - `rag_status`, `search_text`, `search_text_generated_at`
   - `indexed_at`, `index_version`
   - `period`, `period_source`, `normalized_genre`
-- [ ] Add `rag_status` enum to Score model
-- [ ] Add scopes: `rag_status_pending`, `rag_status_ready`, etc.
-- [ ] Run migration, verify in console
+- [x] Add `rag_status` enum to Score model
+- [x] Add scopes: `rag_pending`, `rag_ready`, `rag_templated`, `rag_indexed`, `rag_failed`
+- [x] Run migration, verify in console
 
-### Step 2: Unified LLM Client
-- [ ] Create `LlmClient` with Groq/Gemini/LMStudio support
-- [ ] Test each backend manually
-- [ ] Add ENV-based backend selection
+### Step 2: Unified LLM Client ✅
+- [x] Create `LlmClient` with Groq/Gemini/LMStudio support (2024-12-23)
+- [ ] Test each backend manually (blocked: API keys not in dev credentials)
+- [x] Add ENV-based backend selection (`LLM_BACKEND` env var)
 
-### Step 3: Data Enrichment Services
-- [ ] Implement `PeriodInferrer` (composer → period lookup)
-- [ ] Implement `GenreNormalizer` (regex-based)
-- [ ] Implement `ready_for_rag?` validation on Score model
-- [ ] Test with sample scores in console
+### Step 3: Data Enrichment Services 🟡
+- [x] Implement `PeriodInferrer` (composer → period lookup, ~47% coverage)
+- [x] Implement `ready_for_rag?` validation on Score model
+- [ ] ~~Implement `GenreNormalizer` (regex-based)~~ → **Changed: Use LLM**
+- [ ] ~~Implement `InstrumentNormalizer` (regex-based)~~ → **Changed: Use LLM**
+
+> **Decision (2024-12-23):** Rule-based genre/instrument normalization abandoned. Analysis showed:
+> - PDMX: 164k scores have NO genres at all
+> - CPDL/IMSLP: Genres/instruments embedded in complex strings
+> - LLM is better suited for inferring genre/instruments from title/composer
+>
+> Genre and instrument inference will be handled during search_text generation (single LLM call).
 
 ### Step 4: Search Text Generation (Rails)
 - [ ] Port `MetadataTransformer` from Python
@@ -740,9 +747,9 @@ end
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| Migration | ⬜ | |
-| LLM Client | ⬜ | |
-| Enrichment | ⬜ | |
+| Migration | ✅ | `rag_status`, `search_text`, `period`, `normalized_genre` added |
+| LLM Client | ✅ | Groq/Gemini/LMStudio support, needs API key testing |
+| Enrichment | 🟡 | PeriodInferrer done (47%), genre/instrument → LLM |
 | Text Gen | ⬜ | |
 | Jobs | ⬜ | |
 | Rake Tasks | ⬜ | |
