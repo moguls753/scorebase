@@ -1,6 +1,6 @@
 """LLM integration for RAG system."""
 
-from .description_agent import (
+from .description_generator import (
     DescriptionGenerator,
     GenerationResult,
     validate_description,
