@@ -48,7 +48,6 @@ class NormalizeInstrumentsJob < ApplicationJob
   def eligible_scores(limit)
     Score.instruments_pending
          .where.not(composer_status: "pending")
-         .safe_for_ai
          .where.not(title: [nil, ""])
          .limit(limit)
   end

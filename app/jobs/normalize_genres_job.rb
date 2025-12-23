@@ -49,7 +49,6 @@ class NormalizeGenresJob < ApplicationJob
     Score.genre_pending
          .where.not(composer_status: "pending")
          .where.not(instruments_status: "pending")
-         .safe_for_ai
          .where.not(title: [nil, ""])
          .limit(limit)
   end

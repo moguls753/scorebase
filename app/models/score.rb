@@ -212,18 +212,6 @@ class Score < ApplicationRecord
     indexed: "indexed",      # In vector store, searchable
     failed: "failed"         # Needs investigation
   }, default: :pending, prefix: :rag
-
-  # Filter out corrupted encoding (mojibake) that breaks AI JSON generation
-  scope :safe_for_ai, -> {
-    where.not("composer LIKE ?", "%Ð%Ð%")         # Cyrillic mojibake
-         .where.not("composer LIKE ?", "%ààà%")   # Corrupted Thai
-         .where.not("composer LIKE ?", "%ä%ä%")   # Double-encoded CJK
-         .where.not("composer LIKE ?", "%å%å%")   # Double-encoded CJK
-         .where.not("composer LIKE ?", "%ã%ã%")   # Double-encoded Japanese
-         .where.not("composer LIKE ?", "%Å%")     # Double-encoded European
-         .where.not("composer LIKE ?", "%Î%Î%")   # Corrupted Greek
-  }
-
   # Scopes for filtering
   scope :by_key_signature, ->(key) { where(key_signature: key) if key.present? }
   scope :by_time_signature, ->(time) { where(time_signature: time) if time.present? }
@@ -494,29 +482,18 @@ class Score < ApplicationRecord
   # ─────────────────────────────────────────────────────────────────
   # RAG Pipeline Readiness
   # ─────────────────────────────────────────────────────────────────
-
-  # Check if this record has encoding issues (mojibake)
-  def safe_for_ai?
-    return false if composer.blank?
-    # Cyrillic mojibake, corrupted Thai, double-encoded CJK/Japanese/European, corrupted Greek
-    !composer.match?(/Ð.*Ð|ààà|ä.*ä|å.*å|ã.*ã|Å|Î.*Î/)
-  end
-
   # Check if score is ready for RAG search_text generation
   def ready_for_rag?
-    return false unless safe_for_ai?
     return false if title.blank?
     return false if composer.blank?
     return false unless composer_normalized?
 
     # At least some musical context (need normalized fields)
-    has_musical_context = [
+    [
       voicing.present?,
       genre_normalized?,
       period_normalized?,
       key_signature.present?
     ].count(true) >= 2
-
-    has_musical_context
   end
 end

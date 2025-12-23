@@ -98,8 +98,7 @@ class ComposerNormalizerBase
 
   def process_with_api
     # Get remaining uncached scores (with all fields for AI context)
-    # Use safe_for_ai to filter out corrupted encoding that breaks AI JSON generation
-    scores = Score.composer_pending.safe_for_ai
+    scores = Score.composer_pending
                   .distinct
                   .pluck(:composer, :title, :editor, :genre, :language)
                   .uniq { |row| row[0] }

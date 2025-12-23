@@ -1,178 +1,101 @@
 # RAG Pipeline
 
-Rails owns all data writes. Python reads `search_text` from SQLite and indexes to ChromaDB.
-
-**Core Principle:** Garbage in, garbage out. The RAG system is only as good as the text we embed.
+Rails owns all writes. Python reads `search_text` from SQLite and indexes to ChromaDB.
 
 ## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│ RAILS (SQLite owner - ALL writes)                               │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
+│ RAILS (SQLite)                                                  │
 │  Import → Normalize → Enrich → Validate → Generate search_text  │
-│                                                                 │
-│  Background jobs handle everything. Single source of truth.     │
-│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
-                              ↓
-                         SQLite DB
-                    (scores + search_text)
                               ↓
 ┌─────────────────────────────────────────────────────────────────┐
-│ PYTHON (ChromaDB owner - read-only from SQLite)                 │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
+│ PYTHON (ChromaDB)                                               │
 │  Read search_text → Embed (sentence-transformers) → Index       │
-│                                                                 │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-## Pipeline Flow
+## Pipeline
 
 ```
-Composer ──→ Period (strict: requires composer_normalized)
-         │
-         └─→ Instruments ──→ Genre ──→ Search Text ──→ Indexer
-             (relaxed: any composer status except pending)
+Composer → Period → Instruments → Genre → mark_ready → generate → index
+                                              │            │          │
+                                        rag:pending   rag:ready   rag:templated → rag:indexed
 ```
-
-## Status
-
-| Step | Status | Requires | Job |
-|------|--------|----------|-----|
-| Composer | ✅ | - | `NormalizeComposersJob` |
-| Period | ✅ | `composer_normalized` | `NormalizePeriodsJob` |
-| Instruments | ✅ | composer processed | `NormalizeInstrumentsJob` |
-| Genre | ✅ | composer + instruments processed | `NormalizeGenresJob` |
-| Search Text | ⬜ | all normalizers | TODO |
-| Python Indexer | ⬜ | search_text generated | TODO (simplify) |
 
 ## Commands
 
 ```bash
-bin/rails rag:stats
-
+# Normalization (run in order)
 bin/rails normalize:composers LIMIT=1000
 bin/rails normalize:periods LIMIT=1000
 bin/rails normalize:instruments LIMIT=100 BACKEND=groq
 bin/rails normalize:genres LIMIT=100 BACKEND=groq
 
-# Reset tasks
-bin/rails normalize:reset_instruments SCOPE=failed
-bin/rails normalize:reset_genres SCOPE=failed
-```
+# RAG Pipeline
+bin/rails rag:mark_ready                     # Move eligible → ready
+bin/rails rag:generate LIMIT=100             # Generate search_text
+bin/rails rag:generate LIMIT=100 FORCE=true  # Regenerate existing
+bin/rails rag:reset SCOPE=failed             # Reset failed scores
+bin/rails rag:stats                          # Show pipeline stats
 
-## Scope Guards
-
-Jobs self-filter via enum scopes:
-
-```ruby
-Score.period_pending.composer_normalized
-Score.instruments_pending.where.not(composer_status: "pending").safe_for_ai
-Score.genre_pending.where.not(composer_status: "pending").where.not(instruments_status: "pending").safe_for_ai
+# Python Indexer
+cd rag && python -m rag.src.pipeline.indexer 100   # batch
+cd rag && python -m rag.src.pipeline.indexer -1    # all
 ```
 
 ## LLM Backends
 
-All LLM operations support multiple backends:
-
-| Backend | Use Case | Cost |
-|---------|----------|------|
-| **Groq** | Fast, production | API costs |
-| **Gemini** | Alternative | API costs |
-| **LMStudio** | Local testing, bulk | Free (GPU) |
-
 ```bash
-BACKEND=groq bin/rails normalize:instruments LIMIT=100
-BACKEND=lmstudio bin/rails normalize:genres LIMIT=1000
+BACKEND=groq bin/rails rag:generate LIMIT=100      # Fast, API costs
+BACKEND=lmstudio bin/rails rag:generate LIMIT=1000 # Local, free
 ```
 
-## RAG Status Enum
+## RAG Status
 
 ```ruby
 enum :rag_status, {
-  pending: "pending",      # Waiting for enrichment
-  ready: "ready",          # All fields validated, ready for text generation
+  pending: "pending",      # Waiting for normalization
+  ready: "ready",          # Validated, ready for LLM
   templated: "templated",  # search_text generated
-  indexed: "indexed",      # In vector store, searchable
-  failed: "failed"         # Needs investigation
+  indexed: "indexed",      # In ChromaDB
+  failed: "failed"
 }
 ```
 
-## Validation: Ready for RAG?
+## Validation
 
 ```ruby
 def ready_for_rag?
-  return false unless safe_for_ai?
   return false if title.blank? || composer.blank?
   return false unless composer_normalized?
-
-  # At least 2 of these must be present
+  # Need at least 2 of: voicing, genre, period, key_signature
   [voicing.present?, genre_normalized?, period_normalized?, key_signature.present?].count(true) >= 2
 end
 ```
 
-## Search Text Generation (TODO)
+## Current State (2025-01)
 
-Port from Python. Rails generates `search_text`, Python just embeds.
-
-```ruby
-# app/services/rag/search_text_generator.rb
-PROMPT = <<~PROMPT
-  Write a searchable description (150-250 words) covering:
-  - Difficulty (easy/intermediate/advanced)
-  - Character (mood/style)
-  - Best for (sight-reading, recitals, church, exams)
-  - Musical features (texture, harmony)
-  - Key details (voicing, key, period)
-
-  Use words musicians search: "sight-reading", "recital piece", "church anthem"
-
-  Data: %{metadata_json}
-  Return JSON: {"description": "..."}
-PROMPT
+```
+Total scores: ~93k
+├── composer_normalized: ~50k (real composers)
+└── composer_failed:     ~43k (Traditional, Unknown, etc.)
 ```
 
-## Implementation Checklist
+## Data Notes
 
-### Done ✅
-- [x] Database migration (rag_status, search_text, period, etc.)
-- [x] LlmClient with Groq/Gemini/LMStudio support
-- [x] PeriodInferrer (composer → period lookup)
-- [x] InstrumentInferrer (LLM-based)
-- [x] GenreInferrer (LLM-based)
-- [x] NormalizeComposersJob
-- [x] NormalizePeriodsJob
-- [x] NormalizeInstrumentsJob
-- [x] NormalizeGenresJob
-- [x] `ready_for_rag?` validation
+- Deleted 156k PDMX garbage, 45 corrupted scores
+- Fixed 72 mojibake composers
+- Traditional/Unknown marked `failed` (won't re-process)
+- IMSLP/CPDL: no music21 data, indexed with basic metadata
 
-### Next ⬜
-- [ ] SearchTextGenerator (port from Python)
-- [ ] GenerateSearchTextJob
-- [ ] `rag:generate` rake task
-- [ ] Simplify Python indexer (remove LLM, just embed)
-- [ ] Bulk processing locally
+## Next Steps
+
+- [ ] Bulk processing locally (test full pipeline)
 - [ ] Production deploy
-
-## Data Quality Notes
-
-- **Cleanup (2024-12):** Deleted 156k PDMX scores with `composer_status: failed` and `genre: NA` (garbage metadata). Now ~93k scores.
-- **Mojibake:** Filtered via `safe_for_ai` scope.
-- **IMSLP/CPDL:** No music21 data. Index with basic metadata.
 
 ## Open Questions
 
-1. **Re-indexing:** When prompt changes, re-index all? Use `index_version`?
-2. **Failed scores:** Manual review? Auto-retry?
-3. **Bulk processing:** Local first (iterate on prompts), then production.
-
-## Success Metrics
-
-- **Coverage:** % scores with `rag_status: indexed`
-- **Quality:** Search result relevance (manual testing)
-- **Completeness:** % scores with period, genre, instruments filled
-
-Target: 80% of scores indexed with valid data.
+1. Re-indexing strategy when prompt changes?
+2. Failed scores: manual review or auto-retry?
