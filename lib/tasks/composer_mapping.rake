@@ -35,9 +35,9 @@ namespace :composers do
     puts "Found #{known_composers.size} known composers in mapping"
 
     # Update pending scores that have these composers
-    updated = Score.pending
+    updated = Score.composer_pending
                    .where(composer: known_composers)
-                   .update_all(normalization_status: "normalized")
+                   .update_all(composer_status: "normalized")
 
     puts "Marked #{updated} scores as normalized"
   end

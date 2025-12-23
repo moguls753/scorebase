@@ -11,6 +11,7 @@
 #  clefs_used               :text
 #  complexity               :integer
 #  composer                 :string
+#  composer_status          :string           default("pending"), not null
 #  cpdl_number              :string
 #  data_path                :string
 #  description              :text
@@ -19,6 +20,7 @@
 #  dynamic_range            :string
 #  editor                   :string
 #  expression_markings      :text
+#  external_id              :string
 #  external_url             :string
 #  extracted_at             :datetime
 #  extracted_lyrics         :text
@@ -27,7 +29,8 @@
 #  favorites                :integer          default(0)
 #  final_cadence            :string
 #  form_analysis            :string
-#  genres                   :text
+#  genre                    :text
+#  genre_status             :string           default("pending"), not null
 #  harmonic_rhythm          :float
 #  has_accompaniment        :boolean
 #  has_articulations        :boolean
@@ -41,6 +44,7 @@
 #  indexed_at               :datetime
 #  instrument_families      :text
 #  instruments              :string
+#  instruments_status       :string           default("pending"), not null
 #  interval_distribution    :json
 #  is_instrumental          :boolean
 #  is_vocal                 :boolean
@@ -63,8 +67,6 @@
 #  music21_version          :string
 #  musicxml_source          :string
 #  mxl_path                 :string
-#  normalization_status     :string           default("pending"), not null
-#  normalized_genre         :string
 #  note_count               :integer
 #  note_density             :float
 #  num_parts                :integer
@@ -72,7 +74,7 @@
 #  part_names               :text
 #  pdf_path                 :string
 #  period                   :string
-#  period_source            :string
+#  period_status            :string           default("pending"), not null
 #  pitch_range_per_part     :json
 #  polyphonic_density       :float
 #  posted_date              :date
@@ -103,7 +105,6 @@
 #  voicing                  :string
 #  created_at               :datetime         not null
 #  updated_at               :datetime         not null
-#  external_id              :string
 #
 # Indexes
 #
@@ -111,14 +112,17 @@
 #  index_scores_on_chromatic_complexity  (chromatic_complexity)
 #  index_scores_on_complexity            (complexity)
 #  index_scores_on_composer              (composer)
+#  index_scores_on_composer_status       (composer_status)
 #  index_scores_on_duration_seconds      (duration_seconds)
 #  index_scores_on_external_id           (external_id)
 #  index_scores_on_extraction_status     (extraction_status)
-#  index_scores_on_genres                (genres)
+#  index_scores_on_genre                 (genre)
+#  index_scores_on_genre_status          (genre_status)
 #  index_scores_on_has_extracted_lyrics  (has_extracted_lyrics)
 #  index_scores_on_highest_pitch         (highest_pitch)
 #  index_scores_on_indexed_at            (indexed_at)
 #  index_scores_on_instruments           (instruments)
+#  index_scores_on_instruments_status    (instruments_status)
 #  index_scores_on_is_vocal              (is_vocal)
 #  index_scores_on_key_confidence        (key_confidence)
 #  index_scores_on_key_signature         (key_signature)
@@ -126,10 +130,10 @@
 #  index_scores_on_measure_count         (measure_count)
 #  index_scores_on_melodic_complexity    (melodic_complexity)
 #  index_scores_on_modulation_count      (modulation_count)
-#  index_scores_on_normalization_status  (normalization_status)
 #  index_scores_on_note_count            (note_count)
 #  index_scores_on_num_parts             (num_parts)
 #  index_scores_on_period                (period)
+#  index_scores_on_period_status         (period_status)
 #  index_scores_on_rag_status            (rag_status)
 #  index_scores_on_rating                (rating)
 #  index_scores_on_source                (source)
@@ -164,11 +168,35 @@ class Score < ApplicationRecord
   scope :from_imslp, -> { where(source: "imslp") }
   scope :by_source, ->(source) { where(source: source) if source.present? }
 
-  enum :normalization_status, {
+  # Status enums for normalized fields
+  # All use: pending | normalized | not_applicable | failed
+  enum :composer_status, {
     pending: "pending",
     normalized: "normalized",
+    not_applicable: "not_applicable",
     failed: "failed"
-  }, default: :pending, prefix: :normalization
+  }, default: :pending, prefix: :composer
+
+  enum :genre_status, {
+    pending: "pending",
+    normalized: "normalized",
+    not_applicable: "not_applicable",
+    failed: "failed"
+  }, default: :pending, prefix: :genre
+
+  enum :period_status, {
+    pending: "pending",
+    normalized: "normalized",
+    not_applicable: "not_applicable",
+    failed: "failed"
+  }, default: :pending, prefix: :period
+
+  enum :instruments_status, {
+    pending: "pending",
+    normalized: "normalized",
+    not_applicable: "not_applicable",
+    failed: "failed"
+  }, default: :pending, prefix: :instruments
 
   enum :extraction_status, {
     pending: "pending",
@@ -202,35 +230,35 @@ class Score < ApplicationRecord
   scope :by_complexity, ->(complexity) { where(complexity: complexity) if complexity.present? }
   scope :by_num_parts, ->(parts) { where(num_parts: parts) if parts.present? }
 
-  # Genre filter (genres stored as comma-separated text)
+  # Genre filter
   # Special handling for "Sacred" to match both "Sacred" and "religiousmusic"
-  scope :by_genre, ->(genre) {
-    return all if genre.blank?
+  scope :by_genre, ->(genre_name) {
+    return all if genre_name.blank?
 
-    if genre.downcase == "sacred"
-      where("genres LIKE ? OR genres LIKE ?", "%Sacred%", "%religiousmusic%")
+    if genre_name.downcase == "sacred"
+      where("genre LIKE ? OR genre LIKE ?", "%Sacred%", "%religiousmusic%")
     else
-      where("genres LIKE ?", "%#{sanitize_sql_like(genre)}%")
+      where("genre LIKE ?", "%#{sanitize_sql_like(genre_name)}%")
     end
   }
 
   # Period filter (historical period from genre tags) - case-insensitive for UI filters
-  scope :by_period, ->(period) {
-    return all if period.blank?
+  scope :by_period, ->(period_name) {
+    return all if period_name.blank?
 
-    case period.downcase
+    case period_name.downcase
     when "medieval"
-      where("genres LIKE ?", "%Medieval%")
+      where("genre LIKE ?", "%Medieval%")
     when "renaissance"
-      where("genres LIKE ?", "%Renaissance music%")
+      where("genre LIKE ?", "%Renaissance music%")
     when "baroque"
-      where("genres LIKE ?", "%Baroque music%")
+      where("genre LIKE ?", "%Baroque music%")
     when "classical"
-      where("genres LIKE ?", "%Classical music%")
+      where("genre LIKE ?", "%Classical music%")
     when "romantic"
-      where("genres LIKE ?", "%Romantic music%")
+      where("genre LIKE ?", "%Romantic music%")
     when "modern"
-      where("genres LIKE ? OR genres LIKE ?", "%Modern music%", "%20th century%")
+      where("genre LIKE ? OR genre LIKE ?", "%Modern music%", "%20th century%")
     else
       all
     end
@@ -242,7 +270,7 @@ class Score < ApplicationRecord
     variants = HubDataBuilder::PERIODS[period_name]
     return none unless variants
 
-    conditions = variants.map { "genres GLOB ?" }.join(" OR ")
+    conditions = variants.map { "genre GLOB ?" }.join(" OR ")
     values = variants.map { |v| "*#{v}*" }
     where(conditions, *values)
   }
@@ -278,7 +306,7 @@ class Score < ApplicationRecord
     normalized = normalize_for_search(query)
 
     where(
-      "title LIKE :q OR composer LIKE :q OR genres LIKE :q",
+      "title LIKE :q OR composer LIKE :q OR genre LIKE :q",
       q: "%#{sanitize_sql_like(normalized)}%"
     )
   }
@@ -307,9 +335,12 @@ class Score < ApplicationRecord
     time_signature&.split(",")&.first&.strip
   end
 
-  # Helper to parse genres array (filters out NA/N/A values)
+  # Helper to parse genre field (filters out NA/N/A values)
+  # Before normalization: parses hyphen-delimited tags
+  # After normalization: returns single-element array with clean genre
   def genre_list
-    (genres&.split("-")&.map(&:strip) || []).reject { |g| g.blank? || g.upcase.in?(%w[NA N/A]) }
+    return [] if genre.blank? || genre.upcase.in?(%w[NA N/A])
+    genre.include?("-") ? genre.split("-").map(&:strip).reject(&:blank?) : [genre]
   end
 
   # Helper to parse tags array (filters out NA/N/A values)
@@ -476,13 +507,13 @@ class Score < ApplicationRecord
     return false unless safe_for_ai?
     return false if title.blank?
     return false if composer.blank?
-    return false unless normalization_normalized?
+    return false unless composer_normalized?
 
-    # At least some musical context
+    # At least some musical context (need normalized fields)
     has_musical_context = [
       voicing.present?,
-      normalized_genre.present?,
-      period.present?,
+      genre_normalized?,
+      period_normalized?,
       key_signature.present?
     ].count(true) >= 2
 

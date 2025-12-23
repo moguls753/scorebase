@@ -134,7 +134,7 @@ class PdmxImporter
       key_signature: key_sig,
       time_signature: time_sig,
       num_parts: csv_row["n_tracks"].to_i,
-      genres: csv_row["genres"],
+      genre: csv_row["genres"],
       tags: csv_row["tags"],
       complexity: csv_row["complexity"].to_i,
       rating: csv_row["rating"].to_f,

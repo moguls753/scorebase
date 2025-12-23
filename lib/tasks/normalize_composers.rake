@@ -7,9 +7,9 @@ namespace :normalize do
     ComposerNormalizer.new(limit: limit).normalize!
   end
 
-  desc "Reset normalization progress (marks all scores as pending)"
+  desc "Reset composer normalization progress (marks all scores as pending)"
   task reset: :environment do
-    count = Score.update_all(normalization_status: "pending")
-    puts "Reset #{count} scores to pending."
+    count = Score.update_all(composer_status: "pending")
+    puts "Reset #{count} scores to composer_status=pending."
   end
 end

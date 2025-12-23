@@ -74,7 +74,7 @@ SitemapGenerator::Sitemap.create do
 
   # Genre pages
   genre_counts = Hash.new(0)
-  Score.where.not(genres: [nil, ""]).pluck(:genres).each do |genres_str|
+  Score.where.not(genre: [nil, ""]).pluck(:genre).each do |genres_str|
     genres_str.split("-").map(&:strip).reject(&:blank?).each do |genre|
       genre_counts[genre] += 1
     end
@@ -139,7 +139,7 @@ SitemapGenerator::Sitemap.create do
 
     # Find instruments that have enough scores with this genre
     instrument_for_genre = Hash.new(0)
-    Score.where("genres LIKE ?", "%#{genre_name}%")
+    Score.where("genre LIKE ?", "%#{Score.sanitize_sql_like(genre_name)}%")
          .where.not(instruments: [nil, ""])
          .pluck(:instruments).each do |instruments_str|
       instruments_str.split(/[;,]/).map(&:strip).reject(&:blank?).each do |instrument|
