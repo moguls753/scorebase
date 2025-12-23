@@ -27,7 +27,9 @@
       "Bash(python3 -m py_compile:*)",
       "Bash(./venv/bin/python:*)",
       "Bash(./venv/bin/pip:*)",
-      "Bash(xargs ls:*)"
+      "Bash(xargs ls:*)",
+      "Bash(sqlite3:*)",
+      "Bash(ruby -ryaml -e:*)"
     ]
   }
 }

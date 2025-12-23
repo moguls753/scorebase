@@ -132,29 +132,17 @@
           </div>
         <% end %>
 
-        <%# 6. GENRES & TAGS %>
-        <% if @score.genre_list.any? || @score.tag_list.any? %>
+        <%# 6. TAGS %>
+        <% if @score.tag_list.any? %>
           <div class="score-tags-section">
-            <% if @score.genre_list.any? %>
-              <div>
-                <h3 class="score-tags-header"><%= t('score.genres') %></h3>
-                <div class="score-tags-list">
-                  <% @score.genre_list.each do |genre| %>
-                    <span class="mm-badge"><%= genre %></span>
-                  <% end %>
-                </div>
+            <div>
+              <h3 class="score-tags-header"><%= t('score.tags') %></h3>
+              <div class="score-tags-list">
+                <% @score.tag_list.each do |tag| %>
+                  <span class="mm-badge mm-badge-tag"><%= tag %></span>
+                <% end %>
               </div>
-            <% end %>
-            <% if @score.tag_list.any? %>
-              <div>
-                <h3 class="score-tags-header"><%= t('score.tags') %></h3>
-                <div class="score-tags-list">
-                  <% @score.tag_list.each do |tag| %>
-                    <span class="mm-badge mm-badge-tag"><%= tag %></span>
-                  <% end %>
-                </div>
-              </div>
-            <% end %>
+            </div>
           </div>
         <% end %>
 

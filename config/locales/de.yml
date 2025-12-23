@@ -124,6 +124,7 @@ de:
   score:
     back: "Zurück"
     period: "Epoche"
+    genre: "Genre"
     preview_not_generated: "Vorschau noch nicht erstellt"
     open_pdf: "PDF öffnen"
     download_mxl: "MXL herunterladen"
