@@ -530,12 +530,11 @@ end
 
 ### Phase 2: Core Services (Rails)
 
-1. `PeriodInferrer` - Composer → Period mapping
-2. `GenreNormalizer` - Standardize genre vocabulary
-3. `TitleGenreDetector` - Check if title is actually a genre
+1. `PeriodInferrer` - Composer → Period mapping (config/composer_periods.yml) ✅
+2. `LlmClient` - Unified client for Groq/Gemini/LMStudio ✅
+3. `Score#ready_for_rag?` - Check if score is ready ✅
 4. `Rag::MetadataTransformer` - Prepare data for LLM (port from Python)
-5. `Rag::SearchTextGenerator` - LLM generates description (port from Python)
-6. `RagReadinessValidator` - Check if score is ready
+5. `Rag::SearchTextGenerator` - LLM generates description + genre/instrument inference
 
 ### Phase 3: Background Jobs
 
@@ -546,17 +545,13 @@ class RagEnrichmentJob < ApplicationJob
     score = Score.find(score_id)
     return if score.rag_status_indexed?
 
-    # Step 1: Infer period from composer
+    # Step 1: Infer period from composer (uses config/composer_periods.yml)
     if score.period.blank? && score.normalization_normalized?
-      period = PeriodInferrer.new.infer(score.composer)
+      period = PeriodInferrer.infer(score.composer)
       score.update(period: period, period_source: "composer_map") if period
     end
 
-    # Step 2: Normalize genre
-    if score.genres.present? && score.normalized_genre.blank?
-      normalized = GenreNormalizer.new.normalize(score.genres)
-      score.update(normalized_genre: normalized)
-    end
+    # Step 2: Genre/instrument inference handled by LLM in search_text generation
 
     # Step 3: Check readiness
     if score.ready_for_rag?
