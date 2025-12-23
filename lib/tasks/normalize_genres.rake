@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 namespace :normalize do
-  desc "Infer genres using LLM. LIMIT=100, BACKEND=groq|gemini|lmstudio. Requires: composer_normalized"
+  desc "Infer genres using LLM. LIMIT=100, BACKEND=groq|gemini|lmstudio. Requires: composer processed, instruments processed"
   task genres: :environment do
     limit = ENV.fetch("LIMIT", 100).to_i
     backend = ENV.fetch("BACKEND", "groq").to_sym

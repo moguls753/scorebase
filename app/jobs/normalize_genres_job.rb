@@ -1,8 +1,7 @@
 # frozen_string_literal: true
 
 # Infers genre using LLM.
-# Requires: composer_normalized
-# Future: will also require instruments_normalized
+# Requires: composer processed, instruments processed (any status except pending)
 #
 # Usage:
 #   NormalizeGenresJob.perform_later
@@ -31,6 +30,7 @@ class NormalizeGenresJob < ApplicationJob
       elsif result.success?
         score.update!(genre_status: :not_applicable)
         stats[:not_applicable] += 1
+        logger.info "[NormalizeGenres] #{i + 1}. #{score.title&.truncate(40)} -> N/A"
       else
         score.update!(genre_status: :failed)
         stats[:failed] += 1
@@ -47,7 +47,8 @@ class NormalizeGenresJob < ApplicationJob
 
   def eligible_scores(limit)
     Score.genre_pending
-         .composer_normalized
+         .where.not(composer_status: "pending")
+         .where.not(instruments_status: "pending")
          .safe_for_ai
          .where.not(title: [nil, ""])
          .limit(limit)
@@ -55,7 +56,7 @@ class NormalizeGenresJob < ApplicationJob
 
   def log_start(count, backend)
     logger.info "[NormalizeGenres] Processing #{count} scores with #{backend}"
-    logger.info "[NormalizeGenres] Requires: composer_normalized"
+    logger.info "[NormalizeGenres] Requires: composer processed, instruments processed"
   end
 
   def log_complete(stats)
