@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_23_095424) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_24_112044) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -76,6 +76,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_095424) do
     t.integer "complexity"
     t.string "composer"
     t.string "composer_status", default: "pending", null: false
+    t.integer "computed_difficulty"
     t.string "cpdl_number"
     t.datetime "created_at", null: false
     t.string "data_path"
@@ -122,6 +123,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_095424) do
     t.string "lowest_pitch"
     t.text "lyrics"
     t.string "lyrics_language"
+    t.integer "max_chord_span"
     t.integer "measure_count"
     t.float "melodic_complexity"
     t.string "melodic_contour"
@@ -142,6 +144,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_095424) do
     t.string "period_status", default: "pending", null: false
     t.json "pitch_range_per_part"
     t.float "polyphonic_density"
+    t.integer "position_shift_count"
+    t.float "position_shifts_per_measure"
     t.date "posted_date"
     t.string "predominant_rhythm"
     t.string "rag_status", default: "pending", null: false
@@ -159,6 +163,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_095424) do
     t.text "tags"
     t.integer "tempo_bpm"
     t.string "tempo_marking"
+    t.json "tessitura"
     t.string "texture_type"
     t.string "thumbnail_url"
     t.string "time_signature"
@@ -174,6 +179,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_23_095424) do
     t.index ["complexity"], name: "index_scores_on_complexity"
     t.index ["composer"], name: "index_scores_on_composer"
     t.index ["composer_status"], name: "index_scores_on_composer_status"
+    t.index ["computed_difficulty"], name: "index_scores_on_computed_difficulty"
     t.index ["duration_seconds"], name: "index_scores_on_duration_seconds"
     t.index ["external_id"], name: "index_scores_on_external_id"
     t.index ["extraction_status"], name: "index_scores_on_extraction_status"

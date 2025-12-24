@@ -31,6 +31,7 @@ from music21 import (
     interval,
     meter,
     note,
+    pitch,
     roman,
     stream,
     tempo,
@@ -229,7 +230,7 @@ def extract_rhythm(score, result):
         result["_warnings"].append(f"rhythm: {e}")
 
 
-def extract_harmony(score, result):
+def extract_harmony(score, result, get_chordified=None):
     """Analyze key, harmony, and chord progressions."""
     try:
         # Key analysis
@@ -283,7 +284,7 @@ def extract_harmony(score, result):
 
         # Chord analysis
         try:
-            chordified = score.chordify()
+            chordified = get_chordified() if get_chordified else score.chordify()
             chords = list(chordified.flatten().getElementsByClass(chord.Chord))[:50]
             chord_names = []
             for c in chords:
@@ -376,7 +377,7 @@ def extract_melody(score, result):
         result["_warnings"].append(f"melody: {e}")
 
 
-def extract_structure(score, result):
+def extract_structure(score, result, get_chordified=None):
     """Analyze structural elements."""
     try:
         # Time signature
@@ -396,7 +397,7 @@ def extract_structure(score, result):
 
         # Final cadence detection
         try:
-            chordified = score.chordify()
+            chordified = get_chordified() if get_chordified else score.chordify()
             final_chords = list(chordified.flatten().getElementsByClass(chord.Chord))[-4:]
 
             if len(final_chords) >= 2:
@@ -565,7 +566,7 @@ def extract_instrumentation(score, result):
         result["_warnings"].append(f"instrumentation: {e}")
 
 
-def extract_texture(score, result):
+def extract_texture(score, result, get_chordified=None):
     """Analyze musical texture."""
     try:
         if not score.parts:
@@ -579,7 +580,7 @@ def extract_texture(score, result):
             result["voice_independence"] = 0.0
             return
 
-        chordified = score.chordify()
+        chordified = get_chordified() if get_chordified else score.chordify()
         chords = list(chordified.flatten().getElementsByClass(chord.Chord))[:100]
 
         if not chords:
@@ -618,6 +619,179 @@ def extract_texture(score, result):
         result["_warnings"].append(f"texture: {e}")
 
 
+def extract_hand_span(score, result):
+    """
+    Find the largest simultaneous chord span in semitones.
+    Only relevant for keyboard instruments.
+
+    Use cases:
+        - "Piano pieces for small hands" (span < 9)
+        - "No large stretches" (span < 12)
+    """
+    try:
+        max_span = 0
+
+        for part in score.parts:
+            part_name = get_part_name(part).lower()
+            if not any(k in part_name for k in KEYBOARD_KEYWORDS):
+                continue
+
+            for c in part.flatten().getElementsByClass(chord.Chord):
+                if len(c.pitches) >= 2:
+                    pitches_sorted = sorted(c.pitches, key=lambda p: p.ps)
+                    span = int(pitches_sorted[-1].ps - pitches_sorted[0].ps)
+                    max_span = max(max_span, span)
+
+        if max_span > 0:
+            result["max_chord_span"] = max_span
+
+    except Exception as e:
+        result["_warnings"].append(f"hand_span: {e}")
+
+
+def extract_tessitura(score, result):
+    """
+    Calculate average pitch (tessitura) for each part.
+    More useful than just min/max range for vocal queries.
+
+    Use cases:
+        - "Comfortable for alto" (tessitura avg 60-72 MIDI)
+        - "Doesn't sit too high for soprano"
+    """
+    try:
+        tessitura = {}
+
+        for part in score.parts:
+            part_name = get_part_name(part)
+            pitches = [n.pitch.ps for n in part.flatten().notes if isinstance(n, note.Note)]
+
+            if pitches:
+                avg_pitch = sum(pitches) / len(pitches)
+                avg_note = pitch.Pitch()
+                avg_note.ps = avg_pitch
+
+                tessitura[part_name] = {
+                    "average_pitch": avg_note.nameWithOctave,
+                    "average_midi": round(avg_pitch, 1)
+                }
+
+        if tessitura:
+            result["tessitura"] = tessitura
+
+    except Exception as e:
+        result["_warnings"].append(f"tessitura: {e}")
+
+
+def extract_register_shifts(score, result):
+    """
+    Count large melodic jumps (>5 semitones) that indicate position changes.
+    Relevant for strings, winds, brass - indicates technical difficulty.
+
+    Use cases:
+        - "No position changes" (beginner pieces)
+        - "Stays in one position" (shift_count low)
+    """
+    try:
+        shift_count = 0
+
+        for part in score.parts:
+            notes_list = [n for n in part.flatten().notes if isinstance(n, note.Note)]
+
+            for i in range(1, len(notes_list)):
+                interval_size = abs(notes_list[i].pitch.ps - notes_list[i-1].pitch.ps)
+                if interval_size > 5:  # Larger than fourth
+                    shift_count += 1
+
+        if shift_count > 0:
+            result["position_shift_count"] = shift_count
+
+            if result.get("measure_count") and result["measure_count"] > 0:
+                result["position_shifts_per_measure"] = round(
+                    shift_count / result["measure_count"], 2
+                )
+
+    except Exception as e:
+        result["_warnings"].append(f"register_shifts: {e}")
+
+
+def compute_difficulty_score(result) -> int:
+    """
+    Compute difficulty score (1-5) based on ALL extracted metrics.
+
+    Returns:
+        1 = Beginner, 2 = Easy, 3 = Intermediate, 4 = Advanced, 5 = Expert
+
+    Scoring (0-13 points):
+        - Note density: 0-2, Chromatic: 0-2, Rhythm: 0-2, Melodic: 0-2
+        - Tempo: 0-1, Modulations: 0-1, Polyphony: 0-1, Hand span: 0-1, Shifts: 0-1
+    """
+    def get(key, default=0):
+        """Get value from result, treating None as default."""
+        val = result.get(key)
+        return default if val is None else val
+
+    points = 0
+
+    # Note Density (0-2)
+    density = get("note_density")
+    if density > 20:
+        points += 2
+    elif density > 10:
+        points += 1
+
+    # Chromatic Complexity (0-2)
+    chromatic = get("chromatic_complexity")
+    if chromatic > 0.3:
+        points += 2
+    elif chromatic > 0.15:
+        points += 1
+
+    # Rhythm Complexity (0-2)
+    if get("syncopation_level") > 0.3:
+        points += 1
+    if get("rhythmic_variety") > 0.7:
+        points += 1
+
+    # Melodic Intervals (0-2)
+    largest = get("largest_interval")
+    if largest > 12:
+        points += 2
+    elif largest > 7:
+        points += 1
+
+    # Tempo (0-1)
+    if get("tempo_bpm", 120) > 150:
+        points += 1
+
+    # Modulations (0-1)
+    if get("modulation_count") > 2:
+        points += 1
+
+    # Polyphony (0-1)
+    if get("voice_independence") > 0.7:
+        points += 1
+
+    # Hand Span - Piano (0-1)
+    if get("max_chord_span") > 12:
+        points += 1
+
+    # Position Shifts (0-1)
+    if get("position_shifts_per_measure") > 0.5:
+        points += 1
+
+    # Map to 1-5
+    if points <= 2:
+        return 1
+    elif points <= 5:
+        return 2
+    elif points <= 8:
+        return 3
+    elif points <= 11:
+        return 4
+    else:
+        return 5
+
+
 # ─────────────────────────────────────────────────────────────────
 # MAIN EXTRACTION
 # ─────────────────────────────────────────────────────────────────
@@ -648,18 +822,35 @@ def extract(file_path: str) -> dict:
             wrapper.append(score)
             score = wrapper
 
+        # Cache chordify - expensive operation used by 3 functions
+        _chordified_cache = None
+
+        def get_chordified():
+            nonlocal _chordified_cache
+            if _chordified_cache is None:
+                _chordified_cache = score.chordify()
+            return _chordified_cache
+
         # Run all extractions
         extract_pitch_range(score, result)
         extract_tempo_duration(score, result)
         extract_complexity(score, result)
         extract_rhythm(score, result)
-        extract_harmony(score, result)
+        extract_harmony(score, result, get_chordified)
         extract_melody(score, result)
-        extract_structure(score, result)
+        extract_structure(score, result, get_chordified)
         extract_notation(score, result)
         extract_lyrics(score, result)
         extract_instrumentation(score, result)
-        extract_texture(score, result)
+        extract_texture(score, result, get_chordified)
+
+        # New extractions
+        extract_hand_span(score, result)
+        extract_tessitura(score, result)
+        extract_register_shifts(score, result)
+
+        # Compute final difficulty from all metrics
+        result["computed_difficulty"] = compute_difficulty_score(result)
 
         result["extraction_status"] = "extracted"
 

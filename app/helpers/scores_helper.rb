@@ -153,19 +153,21 @@ module ScoresHelper
 
   # ─────────────────────────────────────────────────────────────────
   # Difficulty Meter Component
-  # Visual 4-block scale: easy → medium → hard → virtuoso
+  # Visual 5-block scale: beginner → easy → intermediate → advanced → expert
   # ─────────────────────────────────────────────────────────────────
 
-  DIFFICULTY_LABELS = { 1 => "easy", 2 => "medium", 3 => "hard", 4 => "virtuoso" }.freeze
+  DIFFICULTY_LABELS = {
+    1 => "beginner", 2 => "easy", 3 => "intermediate", 4 => "advanced", 5 => "expert"
+  }.freeze
 
   def difficulty_meter(level)
     level = level.to_i
-    return nil unless level.between?(1, 4)
+    return nil unless level.between?(1, 5)
 
     label = DIFFICULTY_LABELS[level]
 
     content_tag(:div, class: "difficulty-meter", aria: { label: "#{t('score.difficulty')}: #{label}" }) do
-      blocks = (1..4).map do |i|
+      blocks = (1..5).map do |i|
         content_tag(:span, "", class: "difficulty-block #{'is-filled' if i <= level}".strip)
       end
       safe_join(blocks) + content_tag(:span, label, class: "difficulty-label")
@@ -280,17 +282,24 @@ module ScoresHelper
 
   private
 
-  # Get difficulty level (1-4) from score, preferring music21 analysis over PDMX
+  # Get difficulty level (1-5) from score
+  # Priority: computed_difficulty > melodic_complexity > legacy complexity
   def score_difficulty_level(score)
-    if score.melodic_complexity.present?
+    # Prefer new computed_difficulty (uses ALL metrics)
+    if score.computed_difficulty.present?
+      score.computed_difficulty.to_i.clamp(1, 5)
+    # Fallback to melodic_complexity
+    elsif score.melodic_complexity.present?
       mc = score.melodic_complexity.to_f
-      if    mc < 0.3 then 1  # easy
-      elsif mc < 0.5 then 2  # medium
-      elsif mc < 0.7 then 3  # hard
-      else                4  # virtuoso
+      if    mc < 0.2 then 1
+      elsif mc < 0.4 then 2
+      elsif mc < 0.6 then 3
+      elsif mc < 0.8 then 4
+      else                5
       end
+    # Final fallback to PDMX legacy complexity
     elsif score.complexity.to_i.positive?
-      score.complexity.to_i.clamp(1, 4)
+      score.complexity.to_i.clamp(1, 5)
     end
   end
 

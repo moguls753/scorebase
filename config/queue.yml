@@ -22,6 +22,14 @@ production:
     - polling_interval: 1
       batch_size: 500
   workers:
+    # Memory & CPU-intensive: music21 extraction (Python)
+    # Single thread to prevent OOM kills
+    - queues:
+        - extractions
+      threads: 1
+      processes: 1
+      polling_interval: 0.5
+
     # CPU-heavy: PDF-to-image conversion (ImageMagick/Ghostscript)
     # Temporarily 3 threads for initial bulk run (reduce to 1 after)
     - queues:

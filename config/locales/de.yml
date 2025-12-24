@@ -104,12 +104,13 @@ de:
     mens: "Männerchor"
     unison: "Einstimmig"
 
-  # Difficulty levels
+  # Difficulty levels (1-5 scale)
   difficulty:
     beginner: "Anfänger"
     easy: "Leicht"
     intermediate: "Mittel"
     advanced: "Fortgeschritten"
+    expert: "Virtuos"
 
   # Historical periods
   periods:

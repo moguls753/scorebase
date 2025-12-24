@@ -7,7 +7,7 @@
 #   ExtractPendingScoresJob.perform_later(limit: 100)
 #
 class ExtractPendingScoresJob < ApplicationJob
-  queue_as :default
+  queue_as :extractions
 
   def perform(limit: 100)
     scores = Score.extraction_pending

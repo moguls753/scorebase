@@ -104,12 +104,13 @@ en:
     mens: "Men's"
     unison: "Unison"
 
-  # Difficulty levels
+  # Difficulty levels (1-5 scale)
   difficulty:
     beginner: "Beginner"
     easy: "Easy"
     intermediate: "Intermediate"
     advanced: "Advanced"
+    expert: "Expert"
 
   # Historical periods
   periods:

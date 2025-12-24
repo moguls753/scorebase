@@ -19,7 +19,7 @@ servers:
       - 46.224.124.123
     cmd: bin/jobs
     options:
-      memory: 1g
+      memory: 2g  # Increased for music21 extraction
 
 # Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
 # If used with Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
