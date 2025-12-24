@@ -230,26 +230,10 @@ class Score < ApplicationRecord
     end
   }
 
-  # Period filter (historical period from genre tags) - case-insensitive for UI filters
+  # Period filter - uses normalized period column
   scope :by_period, ->(period_name) {
     return all if period_name.blank?
-
-    case period_name.downcase
-    when "medieval"
-      where("genre LIKE ?", "%Medieval%")
-    when "renaissance"
-      where("genre LIKE ?", "%Renaissance music%")
-    when "baroque"
-      where("genre LIKE ?", "%Baroque music%")
-    when "classical"
-      where("genre LIKE ?", "%Classical music%")
-    when "romantic"
-      where("genre LIKE ?", "%Romantic music%")
-    when "modern"
-      where("genre LIKE ? OR genre LIKE ?", "%Modern music%", "%20th century%")
-    else
-      all
-    end
+    where(period: period_name.capitalize)
   }
 
   # Period filter with case-sensitive matching (GLOB) for hub pages.
