@@ -11,7 +11,7 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from music21 import converter, key, meter, note, stream, tempo
+from music21 import chord, converter, key, meter, note, stream, tempo
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 from extract import extract
@@ -53,6 +53,27 @@ def make_satb_score():
             m.append(note.Note(pitch, quarterLength=1.0))
         p.append(m)
         s.append(p)
+    return s
+
+
+def make_piano_score():
+    """Piano score with chords to test hand span."""
+    s = stream.Score()
+    p = stream.Part()
+    p.partName = "Piano"
+
+    m = stream.Measure(number=1)
+    m.append(meter.TimeSignature("4/4"))
+    # C-E-G chord (7 semitones span)
+    m.append(chord.Chord(["C4", "E4", "G4"], quarterLength=1.0))
+    # C-G-C chord (12 semitones span - octave)
+    m.append(chord.Chord(["C4", "G4", "C5"], quarterLength=1.0))
+    # Single notes
+    m.append(note.Note("D4", quarterLength=1.0))
+    m.append(note.Note("E4", quarterLength=1.0))
+
+    p.append(m)
+    s.append(p)
     return s
 
 
@@ -123,6 +144,52 @@ class TestExtraction:
         result = extract("/no/such/file.mxl")
         assert result["extraction_status"] == "failed"
         assert result["extraction_error"] is not None
+
+
+class TestDifficulty:
+    """Difficulty scoring tests."""
+
+    def test_computed_difficulty_always_present(self):
+        """computed_difficulty should always be 1-5 for successful extraction."""
+        path = save_temp(make_simple_score())
+        try:
+            result = extract(path)
+            assert result["extraction_status"] == "extracted"
+            assert "computed_difficulty" in result
+            assert 1 <= result["computed_difficulty"] <= 5
+        finally:
+            Path(path).unlink()
+
+    def test_simple_score_is_easy(self):
+        """A simple C major scale should score low difficulty."""
+        path = save_temp(make_simple_score())
+        try:
+            result = extract(path)
+            # Simple scale = beginner/easy (1-2)
+            assert result["computed_difficulty"] <= 2
+        finally:
+            Path(path).unlink()
+
+    def test_hand_span_extracted_for_piano(self):
+        """Piano scores should have max_chord_span."""
+        path = save_temp(make_piano_score())
+        try:
+            result = extract(path)
+            assert "max_chord_span" in result
+            assert result["max_chord_span"] == 12  # C4 to C5 = octave
+        finally:
+            Path(path).unlink()
+
+    def test_tessitura_extracted(self):
+        """Parts should have tessitura (average pitch)."""
+        path = save_temp(make_satb_score())
+        try:
+            result = extract(path)
+            assert "tessitura" in result
+            assert "Soprano" in result["tessitura"]
+            assert "average_midi" in result["tessitura"]["Soprano"]
+        finally:
+            Path(path).unlink()
 
 
 class TestCLI:
