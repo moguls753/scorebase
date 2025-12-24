@@ -27,7 +27,7 @@ production:
   extract_pending_scores:
     class: ExtractPendingScoresJob
     queue: extractions
-    args: [ { limit: 3000 } ]
+    args: [ { limit: 2800 } ]
     schedule: every 4 hours
 
   # generate_missing_thumbnails:
