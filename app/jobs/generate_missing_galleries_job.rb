@@ -5,7 +5,7 @@
 class GenerateMissingGalleriesJob < ApplicationJob
   queue_as :default
 
-  def perform(source: nil, limit: nil)
+  def perform(source: nil, limit: 1000)
     scope = Score.needing_gallery
     scope = scope.where(source: source) if source.present?
     scope = scope.limit(limit) if limit
