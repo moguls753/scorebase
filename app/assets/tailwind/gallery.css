@@ -1,22 +1,20 @@
 /* ========================================
    GALLERY - Sheet Music Page Viewer
-   Neobrutalist page-flip gallery with
-   keyboard, touch, and fullscreen support
+   Dark Neon Theme with smooth transitions
    ======================================== */
 
 .gallery-container {
   position: relative;
   display: flex;
   flex-direction: column;
-  background: var(--color-bg);
-  border: 2px solid var(--color-border);
-  border-radius: 2px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
   overflow: hidden;
 }
 
 /* ─────────────────────────────────────────
    Floating Fullscreen Button (Mobile)
-   Neobrutalist solid style, top-right
    ───────────────────────────────────────── */
 
 .gallery-fullscreen-float {
@@ -31,12 +29,11 @@
   height: 40px;
   padding: 0;
   background: var(--color-bg-card);
-  border: 2px solid var(--color-border);
-  border-radius: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   color: var(--color-text);
   cursor: pointer;
-  box-shadow: 2px 2px 0 var(--shadow-color);
-  transition: all 0.1s ease;
+  transition: all 0.3s ease;
   opacity: 0.9;
 }
 
@@ -47,22 +44,18 @@
 
 .gallery-fullscreen-float:hover {
   opacity: 1;
-  background: var(--color-accent);
-  color: #ffffff;
-  border-color: var(--color-border);
-  box-shadow: 3px 3px 0 var(--shadow-color);
+  background: var(--neon-cyan);
+  color: var(--color-bg-deep);
+  border-color: var(--neon-cyan);
+  box-shadow: var(--glow-cyan);
 }
 
 .gallery-fullscreen-float:active {
-  transform: translate(2px, 2px);
-  box-shadow: none;
-  background: var(--color-accent);
-  color: #ffffff;
+  transform: scale(0.95);
 }
 
 /* ─────────────────────────────────────────
-   Gallery Footer Nav (New compact layout)
-   Prev + Dots + Counter + Next
+   Gallery Footer Nav
    ───────────────────────────────────────── */
 
 .gallery-footer-nav {
@@ -70,8 +63,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
-  background: var(--color-bg-card);
-  border-top: 2px solid var(--color-border);
+  background: var(--color-bg-elevated);
+  border-top: 1px solid var(--color-border);
   gap: 8px;
 }
 
@@ -82,12 +75,12 @@
   width: 44px;
   height: 44px;
   padding: 0;
-  background: var(--color-bg);
-  border: 2px solid var(--color-border);
-  border-radius: 2px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   color: var(--color-text);
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
@@ -98,14 +91,15 @@
 
 .gallery-nav-btn:hover:not(:disabled) {
   background: var(--color-bg-elevated);
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: var(--glow-soft);
 }
 
 .gallery-nav-btn:active:not(:disabled) {
   transform: scale(0.9);
-  background: var(--color-accent);
-  color: #ffffff;
+  background: var(--neon-cyan);
+  color: var(--color-bg-deep);
 }
 
 .gallery-nav-btn:disabled {
@@ -122,19 +116,16 @@
 }
 
 /* ─────────────────────────────────────────
-   Gallery Dots - Mobile-First Design
-   Wrapper provides 44px touch target
-   Inner dot is small visual indicator
+   Gallery Dots
    ───────────────────────────────────────── */
 
 .gallery-dots {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 2px; /* Tight—wrappers provide spacing */
+  gap: 2px;
 }
 
-/* Invisible 44px touch wrapper */
 .gallery-dot-wrap {
   display: flex;
   align-items: center;
@@ -149,25 +140,23 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Visual dot indicator - circles, not squares */
 .gallery-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
   background: var(--color-border-subtle);
   border: none;
-  transition: all 0.15s ease;
-  pointer-events: none; /* Parent handles interaction */
+  transition: all 0.2s ease;
+  pointer-events: none;
 }
 
-/* Active state */
 .gallery-dot.is-active {
   width: 10px;
   height: 10px;
-  background: var(--color-accent);
+  background: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
 }
 
-/* Hover/focus on wrapper affects dot */
 .gallery-dot-wrap:hover .gallery-dot,
 .gallery-dot-wrap:focus-visible .gallery-dot {
   background: var(--color-text-muted);
@@ -176,26 +165,23 @@
 
 .gallery-dot-wrap:hover .gallery-dot.is-active,
 .gallery-dot-wrap:focus-visible .gallery-dot.is-active {
-  background: var(--color-accent-hover);
+  background: var(--neon-cyan);
   transform: scale(1.1);
 }
 
-/* Touch feedback */
 .gallery-dot-wrap:active .gallery-dot {
   transform: scale(0.9);
-  background: var(--color-accent);
+  background: var(--neon-cyan);
 }
 
-/* Focus ring on wrapper, not dot */
 .gallery-dot-wrap:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--neon-cyan);
   outline-offset: -4px;
   border-radius: 50%;
 }
 
 /* ─────────────────────────────────────────
-   Gallery Progress Bar - For 5+ pages
-   Brutalist scrubber with chunky thumb
+   Gallery Progress Bar
    ───────────────────────────────────────── */
 
 .gallery-progress-wrap {
@@ -214,22 +200,20 @@
   }
 }
 
-/* Current page counter - bold display font */
 .gallery-progress-counter {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-mono);
   font-size: 18px;
   font-weight: 900;
-  color: var(--color-accent);
+  color: var(--neon-cyan);
   min-width: 24px;
   text-align: right;
   letter-spacing: -0.5px;
   line-height: 1;
 }
 
-/* Total pages - muted, readable */
 .gallery-progress-total {
-  font-family: var(--font-family-display);
-  font-size: 14px; /* Mobile minimum */
+  font-family: var(--font-family-mono);
+  font-size: 14px;
   font-weight: 700;
   color: var(--color-text-muted);
   min-width: 20px;
@@ -237,15 +221,12 @@
   line-height: 1;
 }
 
-/* The progress bar container
-   Uses --progress custom property (0-1) set by JS
-   CSS handles all positioning math - no JS pixel calculations needed */
 .gallery-progress {
   --progress: 0;
   --padding: 10px;
   position: relative;
   flex: 1;
-  height: 44px; /* Touch-friendly height */
+  height: 44px;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -253,74 +234,69 @@
   padding: 0 var(--padding);
 }
 
-/* Background track - brutalist chunky */
 .gallery-progress-track {
   position: absolute;
   left: var(--padding);
   right: var(--padding);
   height: 6px;
-  background: var(--color-border-subtle);
-  border: 2px solid var(--color-border);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 3px;
 }
 
-/* Filled portion - width driven by --progress */
 .gallery-progress-fill {
   position: absolute;
   left: var(--padding);
   height: 6px;
-  /* CSS does the math: progress * track width */
   width: calc(var(--progress) * (100% - var(--padding) * 2));
-  background: var(--color-accent);
-  border: 2px solid var(--color-border);
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+  border: 1px solid var(--color-border);
   border-right: none;
+  border-radius: 3px 0 0 3px;
   transition: width 0.15s ease-out;
 }
 
-/* Thumb/marker - position driven by --progress */
 .gallery-progress-thumb {
   position: absolute;
-  /* CSS does the math: padding + progress * track width */
   left: calc(var(--padding) + var(--progress) * (100% - var(--padding) * 2));
   width: 20px;
   height: 20px;
-  background: var(--color-accent);
-  border: 3px solid var(--color-border);
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+  border: 2px solid var(--color-bg-deep);
+  border-radius: 50%;
   transform: translateX(-50%);
   transition: left 0.15s ease-out, transform 0.1s ease;
-  box-shadow: 2px 2px 0 var(--shadow-color);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
   z-index: 1;
 }
 
 .gallery-progress:hover .gallery-progress-thumb {
   transform: translateX(-50%) scale(1.1);
-  box-shadow: 3px 3px 0 var(--shadow-color);
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
 }
 
 .gallery-progress:active .gallery-progress-thumb {
   transform: translateX(-50%) scale(0.95);
-  box-shadow: 1px 1px 0 var(--shadow-color);
 }
 
-/* Dragging state - more prominent thumb */
 .gallery-progress.is-dragging .gallery-progress-thumb {
   transform: translateX(-50%) scale(1.15);
-  box-shadow: 3px 3px 0 var(--shadow-color);
-  transition: none; /* Immediate response while dragging */
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.8);
+  transition: none;
 }
 
 .gallery-progress.is-dragging .gallery-progress-fill {
-  transition: none; /* Immediate response while dragging */
+  transition: none;
 }
 
-/* Focus state */
 .gallery-progress:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--neon-cyan);
   outline-offset: 4px;
 }
 
 /* Fullscreen mode adjustments */
 .gallery-container:fullscreen .gallery-progress-counter {
-  color: var(--color-accent);
+  color: var(--neon-cyan);
 }
 
 .gallery-container:fullscreen .gallery-progress-total {
@@ -333,21 +309,20 @@
 }
 
 .gallery-container:fullscreen .gallery-progress-fill {
-  background: var(--color-accent);
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
   border-color: rgba(255, 255, 255, 0.25);
 }
 
 .gallery-container:fullscreen .gallery-progress-thumb {
-  background: var(--color-accent);
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
   border-color: rgba(255, 255, 255, 0.4);
-  box-shadow: none;
 }
 
 /* Desktop keyboard hints */
 .gallery-hints-desktop {
   display: none;
   padding: 6px 12px;
-  background: var(--color-bg);
+  background: var(--color-bg-deep);
   border-top: 1px solid var(--color-border-subtle);
   font-size: 11px;
   color: var(--color-text-muted);
@@ -358,11 +333,11 @@
   display: inline-block;
   padding: 2px 5px;
   margin: 0 2px;
-  font-family: var(--font-family-mono, monospace);
+  font-family: var(--font-family-mono);
   font-size: 10px;
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border-subtle);
-  border-radius: 2px;
+  border-radius: 4px;
 }
 
 @media (min-width: 1024px) {
@@ -379,7 +354,7 @@
   align-items: center;
   justify-content: center;
   min-height: 300px;
-  background: var(--color-bg);
+  background: var(--color-bg-deep);
   overflow: hidden;
   cursor: pointer;
 }
@@ -402,15 +377,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg);
+  background: var(--color-bg-deep);
 }
 
 .gallery-loading-spinner {
   width: 32px;
   height: 32px;
   border: 3px solid var(--color-border-subtle);
-  border-top-color: var(--color-accent);
-  border-radius: 2px;
+  border-top-color: var(--neon-cyan);
+  border-radius: 50%;
   animation: gallery-spin 0.8s linear infinite;
 }
 
@@ -429,33 +404,32 @@
   z-index: 9999;
   border: none;
   border-radius: 0;
-  background: #0a0a0a;
+  background: var(--color-bg-deep);
   height: 100vh !important;
   max-height: none !important;
 }
 
 .gallery-container:fullscreen .gallery-image-wrap {
-  background: #0a0a0a;
+  background: var(--color-bg-deep);
   min-height: auto;
   flex: 1;
 }
 
-/* Floating fullscreen button in fullscreen mode */
 .gallery-container:fullscreen .gallery-fullscreen-float {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.2);
   color: #ffffff;
   box-shadow: none;
 }
 
 .gallery-container:fullscreen .gallery-fullscreen-float:hover {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  background: var(--neon-cyan);
+  border-color: var(--neon-cyan);
+  color: var(--color-bg-deep);
 }
 
-/* Footer nav in fullscreen mode */
 .gallery-container:fullscreen .gallery-footer-nav {
-  background: rgba(15, 13, 10, 0.95);
+  background: rgba(10, 10, 18, 0.95);
   border-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
 }
@@ -468,21 +442,20 @@
 
 .gallery-container:fullscreen .gallery-nav-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.2);
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
 }
 
 .gallery-container:fullscreen .gallery-nav-btn:disabled {
   opacity: 0.2;
 }
 
-/* Fullscreen dots */
 .gallery-container:fullscreen .gallery-dot {
   background: rgba(255, 255, 255, 0.3);
 }
 
 .gallery-container:fullscreen .gallery-dot.is-active {
-  background: var(--color-accent);
+  background: var(--neon-cyan);
 }
 
 .gallery-container:fullscreen .gallery-dot-wrap:hover .gallery-dot {
@@ -490,10 +463,9 @@
 }
 
 .gallery-container:fullscreen .gallery-dot-wrap:hover .gallery-dot.is-active {
-  background: var(--color-accent-hover);
+  background: var(--neon-cyan);
 }
 
-/* Hide desktop hints in fullscreen */
 .gallery-container:fullscreen .gallery-hints-desktop {
   display: none;
 }
@@ -502,16 +474,12 @@
    GALLERY RESPONSIVE
    ======================================== */
 
-/* Touch devices: No pointer cursor on image */
 @media (hover: none) and (pointer: coarse) {
   .gallery-image-wrap {
     cursor: default;
   }
 }
 
-
-/* Fixed Height Gallery (for show page) */
-/* Mobile: 55vh gives room to see downloads below */
 .gallery-fixed-height {
   height: 55vh;
   min-height: 280px;
@@ -526,7 +494,6 @@
   }
 }
 
-/* Desktop: Balanced height - prominent but not dominating */
 @media (min-width: 1024px) {
   .gallery-fixed-height {
     height: calc(100vh - 320px);
@@ -535,7 +502,6 @@
   }
 }
 
-/* Tall screens (1200px+ height): allow slightly more */
 @media (min-width: 1024px) and (min-height: 900px) {
   .gallery-fixed-height {
     height: calc(100vh - 360px);
@@ -543,7 +509,6 @@
   }
 }
 
-/* Portrait monitors: don't let gallery dominate */
 @media (min-width: 1024px) and (orientation: portrait) {
   .gallery-fixed-height {
     max-height: 55vh;

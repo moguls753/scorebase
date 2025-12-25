@@ -10,18 +10,10 @@
       <%= score.composer.presence || t('search.unknown_composer') %>
     </p>
 
-    <!-- Metadata Badges -->
-    <div class="flex items-center gap-1.5 flex-wrap">
-      <% if score.source.present? %>
-        <span class="mm-badge-source mm-badge-<%= score.source %> inline-block">
-          <%= score.source.upcase %>
-        </span>
-      <% end %>
-      <% if score.primary_key_signature.present? %>
-        <span class="mm-badge text-[10px] inline-block">
-          <%= score.primary_key_signature %>
-        </span>
-      <% end %>
-    </div>
+    <% if score.primary_key_signature.present? %>
+      <span class="mm-badge text-[10px] inline-block">
+        <%= score.primary_key_signature %>
+      </span>
+    <% end %>
   </div>
 <% end %>

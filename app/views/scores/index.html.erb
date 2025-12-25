@@ -226,33 +226,7 @@
       <!-- Score Cards Grid -->
       <div class="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 [&>*]:max-w-[280px]">
         <% @scores.each do |score| %>
-          <%= link_to score_path(score), data: { turbo_frame: "_top" }, class: "mm-card overflow-hidden block" do %>
-            <%= render "scores/thumbnail", score: score %>
-
-            <!-- Card Content -->
-            <div class="p-2.5 sm:p-3">
-              <h4 class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] mb-1 leading-tight font-bold line-clamp-2 xs:line-clamp-1">
-                <%= score.title %>
-              </h4>
-              <p class="text-sm text-[var(--color-text-muted)] mb-2 line-clamp-1 font-medium">
-                <%= score.composer.presence || t('search.unknown_composer') %>
-              </p>
-
-              <!-- Metadata Badges -->
-              <div class="flex items-center gap-1.5 flex-wrap">
-                <% if score.source.present? %>
-                  <span class="mm-badge-source mm-badge-<%= score.source %> inline-block">
-                    <%= score.source.upcase %>
-                  </span>
-                <% end %>
-                <% if score.primary_key_signature.present? %>
-                  <span class="mm-badge text-xs inline-block">
-                    <%= score.primary_key_signature %>
-                  </span>
-                <% end %>
-              </div>
-            </div>
-          <% end %>
+          <%= render "hub_pages/score_card", score: score %>
         <% end %>
       </div>
 

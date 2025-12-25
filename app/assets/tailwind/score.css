@@ -1,7 +1,7 @@
 /* ========================================
    SCORE SHOW PAGE LAYOUT
+   Dark Neon Theme
    50/50 grid with A4-constrained gallery
-   Downloads prioritized in sidebar
    ======================================== */
 
 .score-show-container {
@@ -32,7 +32,7 @@
   gap: 1rem;
   padding: 1rem 0;
   margin-bottom: 1rem;
-  border-bottom: 2px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 @media (min-width: 640px) {
@@ -58,10 +58,11 @@
   justify-content: center;
   width: 44px;
   height: 44px;
-  background: var(--color-bg-elevated);
-  border: 2px solid var(--color-border);
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   color: var(--color-text);
-  transition: all 0.15s ease;
+  transition: all 0.3s ease;
 }
 
 .score-back-button svg {
@@ -71,27 +72,26 @@
 }
 
 .score-back-button:hover {
-  background: var(--color-bg-card);
-  border-color: var(--color-accent);
-  color: var(--color-accent);
+  background: var(--color-bg-elevated);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
   transform: translateX(-2px);
-  box-shadow: 4px 4px 0 var(--color-accent);
+  box-shadow: var(--glow-soft);
 }
 
 .score-back-button:active {
   transform: translateX(0);
-  box-shadow: 2px 2px 0 var(--color-accent);
 }
 
 .score-back-button:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--neon-cyan);
   outline-offset: 2px;
 }
 
 /* Masthead: Title + Composer */
 .score-masthead {
   flex: 1;
-  min-width: 0; /* Allow text truncation */
+  min-width: 0;
 }
 
 .score-masthead-title {
@@ -102,7 +102,6 @@
   letter-spacing: -0.02em;
   line-height: 1.15;
   color: var(--color-primary);
-  /* Truncate very long titles */
   display: -webkit-box;
   -webkit-line-clamp: 2;
   line-clamp: 2;
@@ -132,9 +131,8 @@
   font-family: var(--font-family-body);
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--color-text-muted);
+  color: var(--neon-magenta);
   margin-top: 0.25rem;
-  /* Truncate */
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -151,7 +149,7 @@
 .score-masthead-badge {
   flex-shrink: 0;
   align-self: center;
-  display: none; /* Hidden on mobile to save space */
+  display: none;
 }
 
 @media (min-width: 640px) {
@@ -175,7 +173,6 @@
     grid-template-columns: 1fr 1fr;
     gap: 2rem;
     align-items: start;
-    /* Center the content block under header */
     max-width: 1200px;
     margin: 0 auto;
   }
@@ -193,16 +190,15 @@
   }
 }
 
-/* Gallery Column - A4 Portrait Friendly */
+/* Gallery Column */
 .score-gallery-column {
-  min-width: 0; /* Prevent overflow */
+  min-width: 0;
 }
 
-/* Constrain gallery to A4-friendly width */
 .score-gallery-column .gallery-container,
 .score-gallery-column .gallery-fixed-height {
   width: 100%;
-  max-width: 550px; /* Approximate A4 width at reasonable height */
+  max-width: 550px;
 }
 
 /* ─────────────────────────────────────────
@@ -215,7 +211,6 @@
     top: 1.5rem;
     max-height: calc(100vh - 3rem);
     overflow-y: auto;
-    /* Subtle scrollbar */
     scrollbar-width: thin;
     scrollbar-color: var(--color-border-subtle) transparent;
   }
@@ -234,7 +229,7 @@
   }
 
   .score-sidebar::-webkit-scrollbar-thumb:hover {
-    background: var(--color-text-muted);
+    background: var(--neon-cyan);
   }
 }
 
@@ -246,7 +241,7 @@
 
 @media (min-width: 1024px) {
   .score-sidebar-inner {
-    gap: 0.75rem; /* Tighter on desktop */
+    gap: 0.75rem;
   }
 }
 
@@ -258,7 +253,7 @@
   display: flex;
   gap: 1.5rem;
   padding-top: 1rem;
-  border-top: 2px solid var(--color-border-subtle);
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 .score-stat {
@@ -268,10 +263,10 @@
 }
 
 .score-stat-value {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-mono);
   font-size: 0.875rem;
   font-weight: 900;
-  color: var(--color-accent);
+  color: var(--neon-cyan);
 }
 
 .score-stat-label {
@@ -284,7 +279,7 @@
 }
 
 /* ─────────────────────────────────────────
-   Section Headers (consolidated)
+   Section Headers
    ───────────────────────────────────────── */
 
 .score-section-header {
@@ -301,28 +296,24 @@
 }
 
 .score-section-icon {
-  color: var(--color-accent);
+  color: var(--neon-magenta);
 }
 
 /* ─────────────────────────────────────────
-   Download Buttons - Compact Industrial Style
-   Single row layout, file-extension tags
+   Download Buttons - Neon Style
    ───────────────────────────────────────── */
 
-/* Row container - horizontal by default */
 .dl-row {
   display: flex;
   gap: 6px;
 }
 
-/* Stack container - for sidebar */
 .dl-stack {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-/* Base button - 44px touch target */
 .dl-btn {
   display: inline-flex;
   align-items: center;
@@ -336,62 +327,57 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   text-decoration: none;
-  border: 2px solid var(--color-border);
-  border-radius: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.1s ease;
+  transition: all 0.3s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Primary (PDF) - accent color, takes more space */
+/* Primary (PDF) - Neon gradient */
 .dl-btn--primary {
   flex: 2;
   min-width: 0;
-  background: var(--color-accent);
-  color: #ffffff;
-  box-shadow: 3px 3px 0 var(--shadow-color);
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+  color: var(--color-bg-deep);
+  border: none;
+  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
 }
 
 .dl-btn--primary:hover {
-  background: var(--color-accent-hover);
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--shadow-color);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 240, 255, 0.5);
 }
 
 .dl-btn--primary:active {
-  transform: translate(1px, 1px);
-  box-shadow: 2px 2px 0 var(--shadow-color);
+  transform: translateY(0);
+  box-shadow: 0 2px 10px rgba(0, 240, 255, 0.3);
 }
 
-/* Secondary (MIDI, MXL) - subtle, equal size */
+/* Secondary (MIDI, MXL) */
 .dl-btn--secondary {
   flex: 1;
   min-width: 0;
   background: var(--color-bg-card);
   color: var(--color-text);
-  box-shadow: 2px 2px 0 var(--shadow-color);
 }
 
 .dl-btn--secondary:hover {
   background: var(--color-bg-elevated);
-  border-color: var(--color-accent);
-  color: var(--color-accent);
-  transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 var(--color-accent);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: var(--glow-soft);
 }
 
 .dl-btn--secondary:active {
-  transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 var(--shadow-color);
+  background: var(--color-bg-surface);
 }
 
-/* Full-width variant for sidebar */
 .dl-btn--full {
   flex: none;
   width: 100%;
 }
 
-/* Download icon */
 .dl-icon {
   width: 14px;
   height: 14px;
@@ -399,31 +385,25 @@
   stroke-width: 2;
 }
 
-/* Label */
 .dl-label {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Focus states */
 .dl-btn:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid var(--neon-cyan);
   outline-offset: 2px;
 }
 
 /* Touch feedback */
 @media (hover: none) and (pointer: coarse) {
   .dl-btn--primary:active {
-    background: var(--color-accent-dark);
     transform: scale(0.97);
-    box-shadow: 2px 2px 0 var(--shadow-color);
   }
 
   .dl-btn--secondary:active {
-    background: var(--color-bg-elevated);
     transform: scale(0.97);
-    box-shadow: 1px 1px 0 var(--shadow-color);
   }
 }
 
@@ -454,7 +434,7 @@
 }
 
 /* ========================================
-   MOBILE DOWNLOADS - Compact, below gallery
+   MOBILE DOWNLOADS
    ======================================== */
 
 .score-mobile-downloads {
@@ -470,21 +450,17 @@
 
 /* ─────────────────────────────────────────
    MOBILE SIDEBAR ADJUSTMENTS
-   Hide duplicate download card on mobile
    ───────────────────────────────────────── */
 
 @media (max-width: 1023px) {
-  /* Hide sidebar downloads card on mobile (shown in mobile-actions instead) */
   .score-sidebar .score-downloads-card {
     display: none;
   }
 
-  /* Section headers - readable on mobile */
   .score-sidebar .score-section-header {
     font-size: 13px;
   }
 
-  /* Tighter sidebar spacing on mobile */
   .score-sidebar-inner {
     gap: 1rem;
   }
@@ -530,24 +506,22 @@
 .vocal-range-track {
   position: relative;
   height: 12px;
-  background: var(--color-bg);
-  border: 2px solid var(--color-border-subtle);
-  border-radius: 2px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 4px;
   overflow: hidden;
 }
-
 
 .vocal-range-bar {
   position: absolute;
   top: 0;
   bottom: 0;
-  background: var(--color-accent);
-  border-radius: 1px;
+  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+  border-radius: 3px;
   min-width: 4px;
   transition: all 0.2s ease;
 }
 
-/* Animated striping on the bar */
 .vocal-range-bar::after {
   content: '';
   position: absolute;
@@ -562,11 +536,12 @@
 }
 
 .vocal-range-row:hover .vocal-range-bar {
-  filter: brightness(1.1);
+  filter: brightness(1.2);
+  box-shadow: var(--glow-soft);
 }
 
 .vocal-range-notes {
-  font-family: var(--font-family-display);
+  font-family: var(--font-family-mono);
   font-size: 11px;
   font-weight: 600;
   color: var(--color-text-muted);
@@ -574,63 +549,71 @@
   white-space: nowrap;
 }
 
-/* Dark mode: different bar color */
-[data-theme="dark"] .vocal-range-bar {
-  background: var(--color-accent);
+/* Middle C reference line */
+.vocal-range-track::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--neon-cyan);
+  opacity: 0.3;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Octave tick marks */
+.vocal-range-track {
+  background-image:
+    linear-gradient(90deg,
+      transparent 0%,
+      transparent 24.5%,
+      var(--color-border-subtle) 25%,
+      transparent 25.5%,
+      transparent 74.5%,
+      var(--color-border-subtle) 75%,
+      transparent 75.5%,
+      transparent 100%
+    );
+  background-size: 100% 100%;
 }
 
 /* ─────────────────────────────────────────
    MOBILE TOUCH FEEDBACK
-   Visible active states for touch devices
    ───────────────────────────────────────── */
 
 @media (hover: none) and (pointer: coarse) {
-  /* Lyrics accordion touch feedback */
   .lyrics-accordion summary:active {
     background: var(--color-bg-elevated);
   }
 
-  /* Download buttons - visible press effect */
   .mm-button:active {
-    transform: scale(0.92);
+    transform: scale(0.95);
     opacity: 0.95;
   }
 
-  .mm-button-primary:active {
-    background: var(--color-accent-hover) !important;
-  }
-
-  .mm-button-secondary:active {
-    background: var(--color-bg-elevated) !important;
-    border-color: var(--color-accent) !important;
-  }
-
-  /* Gallery nav buttons - strong feedback */
   .gallery-nav-btn:active:not(:disabled) {
     transform: scale(0.85);
-    background: var(--color-accent);
-    color: #ffffff;
-    border-color: var(--color-accent);
+    background: var(--neon-cyan);
+    color: var(--color-bg-deep);
+    border-color: var(--neon-cyan);
   }
 
-  /* Floating fullscreen - press down effect */
   .gallery-fullscreen-float:active {
-    transform: translate(2px, 2px) scale(0.95);
-    box-shadow: none;
-    background: var(--color-accent);
-    color: #ffffff;
+    transform: scale(0.95);
+    background: var(--neon-cyan);
+    color: var(--color-bg-deep);
   }
 
-  /* Gallery dots - visible tap */
   .gallery-dot:active {
     transform: scale(1.3);
-    background: var(--color-accent);
+    background: var(--neon-cyan);
   }
 }
 
 /* ========================================
-   SCORE FACTS GRID - 2-Column Waffle Layout
-   Works gracefully with 2-12 items
+   SCORE FACTS GRID - Neon Style
    ======================================== */
 
 .score-facts-grid {
@@ -638,13 +621,11 @@
   grid-template-columns: repeat(2, 1fr);
   gap: 1px;
   background: var(--color-border-subtle);
-  border: 2px solid var(--color-border);
-  border-radius: 2px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 4px 4px 0 var(--shadow-color);
 }
 
-/* Single column on very narrow screens */
 @media (max-width: 360px) {
   .score-facts-grid {
     grid-template-columns: 1fr;
@@ -659,19 +640,17 @@
   padding: 12px 14px;
   background: var(--color-bg-card);
   min-height: 56px;
-  transition: background 0.15s ease;
+  transition: background 0.2s ease;
 }
 
-/* Full width for last odd item - looks intentional */
 .score-fact-cell:last-child:nth-child(odd) {
   grid-column: 1 / -1;
 }
 
-/* Divider row spanning both columns */
 .score-facts-divider {
   grid-column: 1 / -1;
   height: 0;
-  border-top: 2px dashed var(--color-border-subtle);
+  border-top: 1px dashed var(--color-border-subtle);
   background: transparent;
 }
 
@@ -698,7 +677,7 @@
   text-align: left;
 }
 
-/* Icon prefix for musical facts — wayfinding, not content */
+/* Icon prefix */
 .score-fact-icon {
   display: inline-flex;
   align-items: center;
@@ -706,15 +685,14 @@
   width: 14px;
   font-size: 12px;
   line-height: 1;
-  color: var(--color-accent);
+  color: var(--neon-magenta);
   flex-shrink: 0;
 }
 
-/* Baseline nudges for glyphs that sit high */
 .score-fact-icon--nudge-1 { padding-bottom: 1px; }
 .score-fact-icon--nudge-2 { padding-bottom: 2px; }
 
-/* Linkable facts - tap to discover more */
+/* Linkable facts */
 .score-fact-cell--link {
   cursor: pointer;
   text-decoration: none;
@@ -726,58 +704,57 @@
 }
 
 .score-fact-cell--link:hover .score-fact-value {
-  color: var(--color-accent);
+  color: var(--neon-cyan);
 }
 
 .score-fact-cell--link:active {
-  background: var(--color-bg);
+  background: var(--color-bg-surface);
 }
 
-/* Link indicator arrow */
 .score-fact-link-arrow {
   margin-left: auto;
   font-size: 10px;
   color: var(--color-border-subtle);
-  transition: all 0.15s ease;
+  transition: all 0.2s ease;
 }
 
 .score-fact-cell--link:hover .score-fact-link-arrow {
-  color: var(--color-accent);
+  color: var(--neon-cyan);
   transform: translateX(2px);
 }
 
 /* ========================================
-   DIFFICULTY METER - Visual 4-Block Scale
+   DIFFICULTY METER - Neon Style
    ======================================== */
 
 .difficulty-meter {
   display: inline-flex;
-  gap: 4px; /* gap-1 */
+  gap: 4px;
   align-items: center;
 }
 
 .difficulty-block {
   width: 12px;
   height: 10px;
-  background: var(--color-bg);
-  border: 2px solid var(--color-border-subtle);
-  border-radius: 1px;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 2px;
+  transition: all 0.2s ease;
 }
 
 .difficulty-block.is-filled {
-  background: var(--color-accent);
-  border-color: var(--color-border);
-  box-shadow: 1px 1px 0 var(--shadow-color);
+  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
+  border-color: transparent;
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
 }
 
 .difficulty-meter:hover .difficulty-block.is-filled {
   transform: translateY(-1px);
-  box-shadow: 2px 2px 0 var(--shadow-color);
+  box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
 }
 
 .difficulty-label {
-  font-size: 12px; /* Readable on mobile, compact on desktop */
+  font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -817,4 +794,5 @@
       transparent 100%
     );
   background-size: 100% 100%;
+  margin-left: 8px;
 }
