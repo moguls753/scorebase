@@ -280,7 +280,107 @@ module ScoresHelper
     score.attributes.slice(*EXTRACTION_FIELDS).compact
   end
 
+  # ─────────────────────────────────────────────────────────────────
+  # JSON-LD Structured Data
+  # ─────────────────────────────────────────────────────────────────
+
+  # Generate JSON-LD structured data for a music composition
+  # Returns valid JSON string ready for <script type="application/ld+json">
+  def score_json_ld(score)
+    data = {
+      "@context" => "https://schema.org",
+      "@type" => "MusicComposition",
+      "name" => score.title,
+      "url" => request.original_url,
+      "isAccessibleForFree" => true,
+      "inLanguage" => score.language.presence || "en",
+      "provider" => {
+        "@type" => "Organization",
+        "name" => "ScoreBase",
+        "url" => request.base_url
+      }
+    }
+
+    # Composer
+    data["composer"] = {
+      "@type" => "Person",
+      "name" => score.composer
+    } if score.composer.present?
+
+    # Description
+    data["description"] = score.description.truncate(160) if score.description.present?
+
+    # Genre (array including period for broader discovery)
+    # Musicians search "Baroque motet" or "Romantic piano"
+    genres = score.genre_list.dup
+    genres << score.period if score.period.present? && !genres.include?(score.period)
+    data["genre"] = genres if genres.any?
+
+    # Music arrangement (voicing/instrumentation for discovery)
+    # Critical for searches like "SATB choir" or "piano solo"
+    arrangement = [score.voicing, score.instruments].compact.join(", ")
+    data["musicArrangement"] = arrangement if arrangement.present?
+
+    # Musical key
+    data["musicalKey"] = score.primary_key_signature if score.key_signature.present?
+
+    # Time signature
+    data["timeRequired"] = format_duration_iso8601(score.duration_seconds) if score.duration_seconds.to_f > 0
+
+    # Number of pages
+    data["numberOfPages"] = score.page_count if score.page_count.to_i > 0
+
+    # Date published (for SEO freshness signals)
+    data["datePublished"] = score.posted_date.iso8601 if score.posted_date.present?
+
+    # License (critical for public domain music)
+    data["license"] = score.license if score.license.present?
+
+    # Editor/arranger
+    data["contributor"] = {
+      "@type" => "Person",
+      "name" => score.editor
+    } if score.editor.present?
+
+    # Lyrics
+    if score.lyrics.present?
+      data["lyrics"] = {
+        "@type" => "CreativeWork",
+        "text" => score.lyrics.truncate(500),
+        "inLanguage" => score.lyrics_language || score.language || "en"
+      }
+    end
+
+    # PDF encoding
+    if score.has_pdf?
+      data["encoding"] = {
+        "@type" => "MediaObject",
+        "encodingFormat" => "application/pdf",
+        "contentUrl" => "#{request.base_url}#{file_score_path(score, 'pdf')}"
+      }
+    end
+
+    data.to_json
+  end
+
   private
+
+  # Format duration in seconds to ISO 8601 duration format (PT3M30S)
+  # Required format for schema.org timeRequired property
+  def format_duration_iso8601(seconds)
+    return nil if seconds.blank? || seconds <= 0
+
+    minutes = (seconds / 60).floor
+    remaining_seconds = (seconds % 60).round
+
+    if minutes > 0 && remaining_seconds > 0
+      "PT#{minutes}M#{remaining_seconds}S"
+    elsif minutes > 0
+      "PT#{minutes}M"
+    else
+      "PT#{remaining_seconds}S"
+    end
+  end
 
   # Get difficulty level (1-5) from score
   # Priority: computed_difficulty > melodic_complexity > legacy complexity

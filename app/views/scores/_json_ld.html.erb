@@ -3,45 +3,5 @@
 %>
 <% score ||= @score %>
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "MusicComposition",
-  "name": "<%= j score.title %>",
-  <% if score.composer.present? %>
-  "composer": {
-    "@type": "Person",
-    "name": "<%= j score.composer %>"
-  },
-  <% end %>
-  <% if score.description.present? %>
-  "description": "<%= j score.description.truncate(160) %>",
-  <% end %>
-  <% if score.genre_list.any? %>
-  "genre": <%= score.genre_list.to_json.html_safe %>,
-  <% end %>
-  <% if score.key_signature.present? %>
-  "musicalKey": "<%= j score.primary_key_signature %>",
-  <% end %>
-  <% if score.lyrics.present? %>
-  "lyrics": {
-    "@type": "CreativeWork",
-    "text": "<%= j score.lyrics.truncate(500) %>"
-  },
-  <% end %>
-  "url": "<%= request.original_url %>",
-  "isAccessibleForFree": true,
-  "inLanguage": "<%= score.language.presence || 'en' %>",
-  <% if score.has_pdf? %>
-  "encoding": {
-    "@type": "MediaObject",
-    "encodingFormat": "application/pdf",
-    "contentUrl": "<%= request.base_url %><%= file_score_path(score, 'pdf') %>"
-  },
-  <% end %>
-  "provider": {
-    "@type": "Organization",
-    "name": "ScoreBase",
-    "url": "<%= request.base_url %>"
-  }
-}
+<%= score_json_ld(score).html_safe %>
 </script>
