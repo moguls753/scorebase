@@ -1,9 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <!-- Rounded circle background - dark theme -->
-  <circle cx="50" cy="50" r="48" fill="#1c1c1e"/>
-  <!-- Inner circle highlight -->
-  <circle cx="50" cy="50" r="44" fill="none" stroke="#2a2a2a" stroke-width="2"/>
-  <!-- Letter S with shadow - green accent -->
-  <text x="53" y="72" font-family="system-ui, -apple-system, sans-serif" font-size="65" font-weight="900" fill="#006644" opacity="0.5">S</text>
-  <text x="50" y="70" font-family="system-ui, -apple-system, sans-serif" font-size="65" font-weight="900" fill="#00d97e">S</text>
+  <defs>
+    <!-- Neon glow filter -->
+    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <!-- Gradient for subtle ring -->
+    <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.4"/>
+      <stop offset="50%" stop-color="#ff0080" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.3"/>
+    </linearGradient>
+  </defs>
+  <!-- Dark background circle -->
+  <circle cx="50" cy="50" r="48" fill="#0a0a12"/>
+  <!-- Subtle gradient ring -->
+  <circle cx="50" cy="50" r="44" fill="none" stroke="url(#ringGradient)" stroke-width="2"/>
+  <!-- Letter S with neon cyan glow -->
+  <text x="50" y="70" font-family="system-ui, -apple-system, sans-serif" font-size="65" font-weight="900" fill="#00f0ff" filter="url(#neonGlow)" text-anchor="middle">S</text>
 </svg>

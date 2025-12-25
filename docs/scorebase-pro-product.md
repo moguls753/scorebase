@@ -1,3 +1,8 @@
+design ideas:
+
+2. Dark Mode + Neon Accents
+    High contrast dark backgrounds with vibrant neon colors. Futuristic, immersive, and easy on the eyes.
+
 # ScoreBase Pro — Product Overview
 
 ## What Is ScoreBase?

@@ -4,7 +4,6 @@ de:
     about: "Info"
     impressum: "Impressum"
     github: "GitHub"
-    toggle_dark_mode: "Dunkelmodus umschalten"
     toggle_language: "Sprache wechseln"
 
   # Footer
@@ -20,7 +19,6 @@ de:
   meta:
     title: "ScoreBase — Freie Noten"
     description: "Durchsuche und lade tausende freie Musiknoten herunter. Kostenlose Noten von CPDL, IMSLP und PDMX."
-    sources_tagline: "Noten von CPDL + IMSLP + PDMX"
 
   # Index / Search Page
   search:
