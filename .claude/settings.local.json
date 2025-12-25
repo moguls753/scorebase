@@ -29,7 +29,9 @@
       "Bash(./venv/bin/pip:*)",
       "Bash(xargs ls:*)",
       "Bash(sqlite3:*)",
-      "Bash(ruby -ryaml -e:*)"
+      "Bash(ruby -ryaml -e:*)",
+      "WebFetch(domain:www.musicxml.com)",
+      "WebFetch(domain:github.com)"
     ]
   }
 }
