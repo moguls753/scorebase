@@ -285,7 +285,7 @@ module ScoresHelper
   # ─────────────────────────────────────────────────────────────────
 
   # Generate JSON-LD structured data for a music composition
-  # Returns valid JSON string ready for <script type="application/ld+json">
+  # Returns HTML-safe JSON (safe because .to_json escapes all user input for JSON context)
   def score_json_ld(score)
     data = {
       "@context" => "https://schema.org",
@@ -360,7 +360,8 @@ module ScoresHelper
       }
     end
 
-    data.to_json
+    # Safe because .to_json properly escapes all strings for JSON context
+    data.to_json.html_safe
   end
 
   private
