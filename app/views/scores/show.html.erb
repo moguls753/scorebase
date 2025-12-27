@@ -113,13 +113,13 @@
           </div>
         <% end %>
 
-        <%# 5. VOCAL RANGES (for choral scores) - Visual pitch bars with C4 reference %>
-        <% if has_vocal_ranges?(@score) %>
+        <%# 5. PITCH RANGES - Visual pitch bars with C4 reference %>
+        <% if has_pitch_ranges?(@score) %>
           <div class="mm-card p-3 sm:p-4">
-            <%= score_section_header("♫", "score.vocal_ranges") %>
+            <%= score_section_header("♫", "score.pitch_ranges") %>
             <div class="vocal-ranges mt-4">
               <% @score.pitch_range_per_part.each do |part_name, range_data| %>
-                <% range_style = vocal_range_bar_style(range_data) %>
+                <% range_style = pitch_range_bar_style(range_data) %>
                 <div class="vocal-range-row">
                   <span class="vocal-range-part"><%= part_name %></span>
                   <div class="vocal-range-track">

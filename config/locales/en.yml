@@ -171,7 +171,7 @@ en:
     duration: "Duration"
     tempo: "Tempo"
     range: "Range"
-    vocal_ranges: "Vocal Ranges"
+    pitch_ranges: "Pitch Ranges"
     texture: "Texture"
     measures: "Measures"
     features: "Features"

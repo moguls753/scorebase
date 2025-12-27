@@ -218,27 +218,27 @@ module ScoresHelper
     score.extraction_extracted?
   end
 
-  # Check if score has vocal range data worth showing
-  def has_vocal_ranges?(score)
-    score.pitch_range_per_part.present? && score.pitch_range_per_part.keys.length > 1
+  # Check if score has pitch range data worth showing
+  def has_pitch_ranges?(score)
+    score.pitch_range_per_part.present?
   end
 
   # ─────────────────────────────────────────────────────────────────
-  # Vocal Range Helpers
+  # Pitch Range Helpers
   # ─────────────────────────────────────────────────────────────────
 
-  # MIDI reference range for visualization (C2 to C6 = common vocal range)
+  # MIDI reference range for visualization (C2 to C6 = common musical range)
   MIDI_RANGE_MIN = 36  # C2
   MIDI_RANGE_MAX = 84  # C6
 
-  # Format vocal range from hash: "C3 – G5"
+  # Format pitch range from hash: "C3 – G5"
   def format_part_range(range_data)
     low, high = extract_range(range_data)
     format_pitch_range(low, high)
   end
 
-  # Calculate CSS style for vocal range bar visualization
-  def vocal_range_bar_style(range_data)
+  # Calculate CSS style for pitch range bar visualization
+  def pitch_range_bar_style(range_data)
     low, high = extract_range(range_data)
     return "" if low.blank? || high.blank?
 
