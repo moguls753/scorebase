@@ -28,6 +28,9 @@ class HubPagesController < ApplicationController
   def composer
     @composer_name = find_or_404(:composers, params[:slug])
     @scores = paginate(Score.where(composer: @composer_name))
+    @composer_period = Score.where(composer: @composer_name)
+                            .where.not(period: [nil, ""])
+                            .pick(:period)
     set_detail_meta(:composer, @composer_name)
   end
 

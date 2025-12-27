@@ -4,7 +4,6 @@ en:
     about: "About"
     impressum: "Impressum"
     github: "GitHub"
-    toggle_dark_mode: "Toggle dark mode"
     toggle_language: "Toggle language"
 
   # Footer
@@ -20,7 +19,6 @@ en:
   meta:
     title: "ScoreBase — Public Domain Music Scores"
     description: "Browse and download thousands of public domain music scores. Free sheet music from CPDL, IMSLP, and PDMX."
-    sources_tagline: "Scores from CPDL + IMSLP + PDMX"
 
   # Index / Search Page
   search:
