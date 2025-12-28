@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# Run sitemap refresh in the background, don't block deployment
+kamal app exec --reuse "bin/rails sitemap:refresh:no_ping" &
+
+echo "Sitemap refresh triggered in background"

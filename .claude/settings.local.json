@@ -31,7 +31,8 @@
       "Bash(sqlite3:*)",
       "Bash(ruby -ryaml -e:*)",
       "WebFetch(domain:www.musicxml.com)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(bundle exec rails runner:*)"
     ]
   }
 }

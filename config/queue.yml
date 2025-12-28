@@ -31,11 +31,11 @@ production:
       polling_interval: 0.5
 
     # CPU-heavy: PDF-to-image conversion (ImageMagick/Ghostscript)
-    # Temporarily 3 threads for initial bulk run (reduce to 1 after)
+    # Single thread to avoid starving extraction queue
     - queues:
         - galleries
         - thumbnails
-      threads: 3
+      threads: 1
       processes: 1
       polling_interval: 1
 

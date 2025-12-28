@@ -1,4 +1,8 @@
 # Shared HTTP download functionality for ThumbnailGenerator and PdfSyncer
+require "net/http"
+require "uri"
+require "openssl"
+
 module HttpDownloadable
   extend ActiveSupport::Concern
 
@@ -15,6 +19,13 @@ module HttpDownloadable
     http.use_ssl = uri.scheme == "https"
     http.open_timeout = 15
     http.read_timeout = timeout
+
+    # Configure SSL to avoid CRL verification issues
+    if http.use_ssl?
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      http.cert_store = OpenSSL::X509::Store.new
+      http.cert_store.set_default_paths
+    end
 
     request = Net::HTTP::Get.new(uri)
     request["User-Agent"] = "ScorebaseBot/1.0"

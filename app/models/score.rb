@@ -356,10 +356,11 @@ class Score < ApplicationRecord
     cpdl? || imslp?
   end
 
-  # For CPDL scores, generate direct file URLs
+  # For CPDL scores, return the file URL
+  # Note: CPDL pdf_path already contains full URLs
   def cpdl_file_url(filename)
     return nil unless cpdl? && filename.present?
-    "https://www.cpdl.org/wiki/images/#{filename}"
+    filename
   end
 
   # For IMSLP scores, generate file URLs via Special:ImagefromIndex
