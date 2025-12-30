@@ -43,9 +43,17 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
+    - SMTP_PASSWORD
   clear:
     PDMX_DATA_PATH: /opt/pdmx
     SITE_URL: https://scorebase.org
+
+    # SMTP configuration (non-sensitive)
+    SMTP_ADDRESS: smtp.resend.com
+    SMTP_PORT: 587
+    SMTP_DOMAIN: scorebase.org
+    SMTP_USERNAME: resend
+    MAILER_FROM: noreply@scorebase.org
 
     # Puma: 2 workers × 3 threads = 6 concurrent requests
     WEB_CONCURRENCY: 2

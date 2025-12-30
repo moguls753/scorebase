@@ -58,15 +58,14 @@ Rails.application.configure do
   config.action_mailer.perform_deliveries = true
   config.action_mailer.default_url_options = { host: "scorebase.org" }
 
-  # For Docker/Kamal deployments, use SMTP (sendmail not available in containers)
-  # Supports any free SMTP provider - see docs/waitlist-implementation.md for options
+  # SMTP via Resend (config in deploy.yml, password in credentials)
   config.action_mailer.delivery_method = :smtp
   config.action_mailer.smtp_settings = {
-    address: ENV.fetch("SMTP_ADDRESS", "smtp.gmail.com"),
-    port: ENV.fetch("SMTP_PORT", "587").to_i,
-    domain: ENV.fetch("SMTP_DOMAIN", "scorebase.org"),
-    user_name: ENV["SMTP_USERNAME"],
-    password: ENV["SMTP_PASSWORD"],
+    address: ENV.fetch("SMTP_ADDRESS"),
+    port: ENV.fetch("SMTP_PORT").to_i,
+    domain: ENV.fetch("SMTP_DOMAIN"),
+    user_name: ENV.fetch("SMTP_USERNAME"),
+    password: ENV.fetch("SMTP_PASSWORD"),
     authentication: :plain,
     enable_starttls_auto: true
   }
