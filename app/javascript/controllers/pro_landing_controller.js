@@ -117,13 +117,14 @@ export default class extends Controller {
     if (!this.hasWaitlistMessageTarget) return
 
     const messageEl = this.waitlistMessageTarget
-    messageEl.textContent = message
+    messageEl.innerHTML = message
     messageEl.className = `waitlist-message waitlist-message-${type}`
     messageEl.style.display = 'block'
 
-    // Hide after 5 seconds
+    // Hide after 10 seconds if it contains a link, otherwise 5 seconds
+    const timeout = message.includes('<a') ? 10000 : 5000
     setTimeout(() => {
       messageEl.style.display = 'none'
-    }, 5000)
+    }, timeout)
   }
 }

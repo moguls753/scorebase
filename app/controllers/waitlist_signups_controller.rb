@@ -7,12 +7,24 @@ class WaitlistSignupsController < ApplicationController
 
     if @waitlist_signup.save
       begin
-        WaitlistMailer.confirmation(@waitlist_signup).deliver_later
+        # Use deliver_now in development for immediate letter_opener preview
+        if Rails.env.development?
+          WaitlistMailer.confirmation(@waitlist_signup).deliver_now
+        else
+          WaitlistMailer.confirmation(@waitlist_signup).deliver_later
+        end
       rescue StandardError => e
         Rails.logger.error("Failed to queue waitlist email: #{e.message}")
       end
 
-      render json: { success: true, message: I18n.t("waitlist.success") }, status: :created
+      message = if Rails.env.development?
+        preview_url = "/rails/mailers/waitlist_mailer/confirmation_#{@waitlist_signup.locale}"
+        I18n.t("waitlist.success_with_preview", preview_url: preview_url).html_safe
+      else
+        I18n.t("waitlist.success")
+      end
+
+      render json: { success: true, message: message }, status: :created
     else
       if @waitlist_signup.errors.of_kind?(:email, :taken)
         render json: { success: true, message: I18n.t("waitlist.already_subscribed") }, status: :ok

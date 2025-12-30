@@ -324,7 +324,7 @@ en:
     use_case_student_query: "\"Repertoire for my junior recital, romantic and 20th century, around 30 minutes total\""
 
     # Pricing section
-    pricing_title: "Simple pricing"
+    pricing_title: "Pricing"
     pricing_amount: "$2.99"
     pricing_period: "per month"
     pricing_desc: "Smart Search, saved searches, favorites, collections, and difficulty filtering. Cancel anytime. The free catalog (%{count} scores) stays free."
@@ -360,6 +360,7 @@ en:
   # Waitlist form messages
   waitlist:
     success: "Thanks! Check your email for confirmation."
+    success_with_preview: "Thanks! Check your email for confirmation or <a href=\"%{preview_url}\" target=\"_blank\" rel=\"noopener noreferrer\">preview it here</a>."
     already_subscribed: "You're already on the list! We'll email you when we launch."
     error: "Something went wrong. Please try again."
     rate_limit: "Too many requests. Please try again in an hour."

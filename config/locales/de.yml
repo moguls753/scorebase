@@ -360,6 +360,7 @@ de:
   # Waitlist form messages
   waitlist:
     success: "Danke! Prüfe deine E-Mails für die Bestätigung."
+    success_with_preview: "Danke! Prüfe deine E-Mails für die Bestätigung oder <a href=\"%{preview_url}\" target=\"_blank\" rel=\"noopener noreferrer\">sieh sie hier an</a>."
     already_subscribed: "Du stehst bereits auf der Liste! Wir schicken dir eine E-Mail beim Start."
     error: "Etwas ist schiefgelaufen. Bitte versuche es erneut."
     rate_limit: "Zu viele Anfragen. Bitte versuche es in einer Stunde erneut."
