@@ -28,6 +28,7 @@
 @import "./hub.css";        /* Browse, pagination, hub pages */
 @import "./gallery.css";    /* Sheet music viewer */
 @import "./score.css";      /* Score show page */
+@import "./pro.css";        /* Pro landing page */
 
 /* ========================================
    NEON ANIMATIONS

@@ -293,19 +293,19 @@ en:
     status_coming_soon: "Coming Soon"
 
     # Hero section
-    hero_headline: "Search for sheet music the way you actually think"
-    hero_subhead: "Stop typing keywords. Start describing what you need. We're building AI-powered search that understands musical context."
+    hero_headline: "Search the way you think about music"
+    hero_subhead: "Stop typing keywords. Start describing what you need. I'm building AI-powered search that understands musical context."
 
     # Problem section
     problem_title: "Here's the problem"
-    problem_p1: "You're a piano teacher looking for something appropriate for a student who's been playing for two years. Or a choir director who needs an SATB piece where the soprano doesn't go above B5. Or a church musician searching for a quiet communion meditation."
+    problem_p1: "You're a piano teacher looking for something appropriate for a student who's been playing for two years. Or a choir director who needs an SATB piece where the soprano doesn't go above B5. Or an amateur musician who wants to learn something new this weekend."
     problem_p2: "Regular search can't help you. It only understands keywords: \"Bach\", \"piano\", \"SATB\". It doesn't understand difficulty, vocal ranges, duration, or context."
 
     # Comparison
     comparison_bad_title: "What doesn't work"
     comparison_bad_query: "piano beginner Bach"
     comparison_bad_desc: "Returns 47,000 results. Every Bach piano piece. No understanding of \"beginner.\""
-    comparison_good_title: "What we're building"
+    comparison_good_title: "What I'm building"
     comparison_good_query: "Easy Bach for piano students who've been playing 2 years"
     comparison_good_desc: "Understands difficulty level, filters by suitable pieces, returns 12 relevant scores."
 
@@ -318,30 +318,31 @@ en:
     use_case_teacher_query: "\"Piano duets for teacher and beginner student\""
     use_case_director: "Choir Director"
     use_case_director_query: "\"SATB Easter piece, 3-4 minutes, soprano stays below B5\""
-    use_case_church: "Church Musician"
-    use_case_church_query: "\"Communion meditation for organ, quiet, 3-4 minutes\""
+    use_case_amateur: "Amateur Musician"
+    use_case_amateur_query: "\"Piano pieces I can learn in a weekend, sounds impressive but not too hard\""
     use_case_student: "Music Student"
-    use_case_student_query: "\"Virtuoso piano pieces that sound harder than they are\""
+    use_case_student_query: "\"Repertoire for my junior recital, romantic and 20th century, around 30 minutes total\""
 
     # Pricing section
     pricing_title: "Simple pricing"
     pricing_amount: "$2.99"
     pricing_period: "per month"
-    pricing_desc: "Smart Search, saved searches, favorites, collections, and difficulty filtering. Cancel anytime. The free catalog (300,000+ scores) stays free forever."
+    pricing_desc: "Smart Search, saved searches, favorites, collections, and difficulty filtering. Cancel anytime. The free catalog (%{count} scores) stays free."
 
     # Waitlist section
-    waitlist_title: "We're building this now"
-    waitlist_subtitle: "Join the waitlist. We'll email you when it launches."
+    waitlist_title: "I'm working on this"
+    waitlist_subtitle: "Join the waitlist. I'll email you when it launches."
     waitlist_email_placeholder: "your@email.com"
     waitlist_button: "Notify Me"
-    waitlist_disclaimer: "No spam. One email when we launch. That's it."
+    waitlist_cta: "Join Waitlist"
+    waitlist_disclaimer: "No spam. One email when it launches. That's it."
 
     # FAQ section
     faq_title: "Questions"
     faq_1_q: "When will this be ready?"
-    faq_1_a: "Soon. We're building the AI model and search infrastructure now. If you join the waitlist, you'll know when it launches."
+    faq_1_a: "Soon. I'm building the AI model and search infrastructure now. If you join the waitlist, you'll know when it launches."
     faq_2_q: "What about the free version?"
-    faq_2_a: "The free catalog stays free. 300,000+ public domain scores, browsable and searchable with basic keyword search. Forever. Pro adds Smart Search and organization features."
+    faq_2_a: "The free catalog stays free. %{count} public domain scores, browsable and searchable with basic keyword search. Pro adds Smart Search and organization features."
     faq_3_q: "How is this different from IMSLP?"
     faq_3_a: "IMSLP is a score archive with keyword search. ScoreBase aggregates multiple sources (IMSLP, CPDL, PDMX) and adds Smart Search that understands musical context: difficulty, ranges, duration, style."
     faq_4_q: "Can I cancel anytime?"

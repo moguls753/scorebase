@@ -293,19 +293,19 @@ de:
     status_coming_soon: "Demnächst"
 
     # Hero section
-    hero_headline: "Suche nach Noten, wie du wirklich denkst"
-    hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst. Wir bauen eine KI-gestützte Suche, die musikalischen Kontext versteht."
+    hero_headline: "Such so, wie du über Musik denkst"
+    hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst. Ich baue eine KI-gestützte Suche, die musikalischen Kontext versteht."
 
     # Problem section
     problem_title: "Das Problem"
-    problem_p1: "Du bist Klavierlehrer und suchst etwas Passendes für einen Schüler, der seit zwei Jahren spielt. Oder Chorleiter und brauchst ein SATB-Stück, bei dem der Sopran nicht über H5 geht. Oder Kirchenmusiker auf der Suche nach einer ruhigen Kommunionsmeditation."
+    problem_p1: "Du unterrichtest Klavier und suchst etwas Passendes für jemanden, der seit zwei Jahren spielt. Oder du leitest einen Chor und brauchst ein SATB-Stück, bei dem der Sopran nicht über H5 geht. Oder du machst Musik als Hobby und willst am Wochenende was Neues lernen."
     problem_p2: "Normale Suche kann dir nicht helfen. Sie versteht nur Stichwörter: \"Bach\", \"Klavier\", \"SATB\". Sie versteht keine Schwierigkeitsgrade, Stimmumfänge, Dauer oder Kontext."
 
     # Comparison
     comparison_bad_title: "Was nicht funktioniert"
     comparison_bad_query: "Klavier Anfänger Bach"
     comparison_bad_desc: "47.000 Ergebnisse. Jedes Bach-Klavierstück. Kein Verständnis von \"Anfänger\"."
-    comparison_good_title: "Was wir bauen"
+    comparison_good_title: "Was ich baue"
     comparison_good_query: "Einfache Bach-Stücke für Klavierschüler nach 2 Jahren"
     comparison_good_desc: "Versteht Schwierigkeitsgrad, filtert nach passenden Stücken, liefert 12 relevante Noten."
 
@@ -314,34 +314,35 @@ de:
     solution_intro: "Es versteht Schwierigkeitsgrade, Stimmumfänge, Besetzung, Dauer, Stil, Anlass und Stimmung. Du beschreibst, was du brauchst, in einfachem Deutsch. Es findet, wonach du suchst."
 
     # Use cases
-    use_case_teacher: "Klavierlehrer"
+    use_case_teacher: "Klavierlehrer:in"
     use_case_teacher_query: "\"Klavierduette für Lehrer und Anfänger-Schüler\""
-    use_case_director: "Chorleiter"
+    use_case_director: "Chorleiter:in"
     use_case_director_query: "\"SATB-Osterstück, 3-4 Minuten, Sopran bleibt unter H5\""
-    use_case_church: "Kirchenmusiker"
-    use_case_church_query: "\"Kommunionsmeditation für Orgel, ruhig, 3-4 Minuten\""
-    use_case_student: "Musikstudent"
-    use_case_student_query: "\"Virtuose Klavierstücke, die schwerer klingen als sie sind\""
+    use_case_amateur: "Hobbymusiker:in"
+    use_case_amateur_query: "\"Klavierstücke, die ich am Wochenende lernen kann und beeindruckend klingen\""
+    use_case_student: "Musikstudent:in"
+    use_case_student_query: "\"Repertoire für mein Abschlusskonzert, Romantik und 20. Jahrhundert, ca. 30 Minuten\""
 
     # Pricing section
     pricing_title: "Einfache Preise"
     pricing_amount: "2,99 €"
     pricing_period: "pro Monat"
-    pricing_desc: "Smart Search, gespeicherte Suchen, Favoriten, Sammlungen und Schwierigkeitsfilter. Jederzeit kündbar. Der kostenlose Katalog (300.000+ Noten) bleibt für immer kostenlos."
+    pricing_desc: "Smart Search, gespeicherte Suchen, Favoriten, Sammlungen und Schwierigkeitsfilter. Jederzeit kündbar. Der kostenlose Katalog (%{count} Noten) bleibt kostenlos."
 
     # Waitlist section
-    waitlist_title: "Wir bauen das gerade"
-    waitlist_subtitle: "Tritt der Warteliste bei. Wir schicken dir eine E-Mail, wenn es startet."
+    waitlist_title: "In Arbeit"
+    waitlist_subtitle: "Tritt der Warteliste bei. Ich schicke dir eine E-Mail, wenn es startet."
     waitlist_email_placeholder: "deine@email.de"
-    waitlist_button: "Benachrichtige mich"
+    waitlist_button: "Beitreten"
+    waitlist_cta: "Warteliste beitreten"
     waitlist_disclaimer: "Kein Spam. Eine E-Mail beim Start. Das war's."
 
     # FAQ section
     faq_title: "Fragen"
-    faq_1_q: "Wann wird das fertig sein?"
-    faq_1_a: "Bald. Wir bauen gerade das KI-Modell und die Such-Infrastruktur. Wenn du der Warteliste beitrittst, erfährst du es, sobald wir starten."
+    faq_1_q: "Wann geht's los?"
+    faq_1_a: "Bald. Ich baue gerade das KI-Modell und die Such-Infrastruktur. Wenn du der Warteliste beitrittst, erfährst du es, sobald es startet."
     faq_2_q: "Was ist mit der kostenlosen Version?"
-    faq_2_a: "Der kostenlose Katalog bleibt kostenlos. 300.000+ gemeinfreie Noten, durchsuchbar mit einfacher Stichwortsuche. Für immer. Pro fügt Smart Search und Organisationsfunktionen hinzu."
+    faq_2_a: "Der kostenlose Katalog bleibt kostenlos. %{count} gemeinfreie Noten, durchsuchbar mit einfacher Stichwortsuche. Pro fügt Smart Search und Organisationsfunktionen hinzu."
     faq_3_q: "Was ist der Unterschied zu IMSLP?"
     faq_3_a: "IMSLP ist ein Noten-Archiv mit Stichwortsuche. ScoreBase vereint mehrere Quellen (IMSLP, CPDL, PDMX) und fügt Smart Search hinzu, die musikalischen Kontext versteht: Schwierigkeit, Umfänge, Dauer, Stil."
     faq_4_q: "Kann ich jederzeit kündigen?"
