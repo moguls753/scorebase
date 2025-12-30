@@ -1,0 +1,425 @@
+<% content_for :title, t('pro.meta_title') %>
+<% content_for :meta_description, t('pro.meta_description') %>
+
+<style>
+  /* 37signals-inspired: Typography-first, generous spacing */
+  .pro-hero {
+    max-width: 42rem;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 3rem;
+  }
+
+  .pro-headline {
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    font-family: var(--font-family-display);
+    font-weight: 900;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    margin-bottom: 1.5rem;
+    color: var(--color-text);
+  }
+
+  .pro-subhead {
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
+    line-height: 1.4;
+    color: var(--color-text-muted);
+    margin-bottom: 2rem;
+    font-weight: 400;
+  }
+
+  .pro-section {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+  }
+
+  .pro-section-narrow {
+    max-width: 38rem;
+  }
+
+  /* Query examples - terminal/code aesthetic */
+  .query-example {
+    background: var(--color-bg-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin: 1rem 0;
+    font-family: var(--font-family-mono);
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: var(--neon-cyan);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .query-example::before {
+    content: '→';
+    position: absolute;
+    left: 1rem;
+    top: 1.5rem;
+    color: var(--neon-magenta);
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+
+  .query-example-text {
+    padding-left: 2rem;
+  }
+
+  /* Comparison layout */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 2rem;
+    margin: 2rem 0 3rem;
+  }
+
+  @media (min-width: 768px) {
+    .comparison-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+    }
+  }
+
+  .comparison-column h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: var(--color-text-muted);
+  }
+
+  .comparison-bad h3 {
+    color: var(--color-text-subtle);
+  }
+
+  .comparison-good h3 {
+    color: var(--neon-cyan);
+  }
+
+  /* Waitlist form - prominent */
+  .waitlist-box {
+    background: var(--color-bg-card);
+    border: 2px solid var(--color-border);
+    border-radius: 12px;
+    padding: 2.5rem;
+    max-width: 32rem;
+    margin: 3rem auto;
+  }
+
+  .waitlist-form {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .waitlist-input {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    border: 2px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-bg-elevated);
+    color: var(--color-text);
+    font-family: var(--font-family-body);
+  }
+
+  .waitlist-input:focus {
+    outline: none;
+    border-color: var(--neon-cyan);
+    box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.1);
+  }
+
+  .waitlist-button {
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--neon-magenta), var(--neon-purple));
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: var(--font-family-display);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: all 0.2s ease;
+  }
+
+  .waitlist-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(255, 0, 128, 0.4);
+  }
+
+  @media (max-width: 640px) {
+    .waitlist-form {
+      flex-direction: column;
+    }
+  }
+
+  /* Use case cards */
+  .use-case {
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .use-case-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 0.75rem;
+  }
+
+  .use-case-query {
+    font-family: var(--font-family-mono);
+    font-size: 0.9rem;
+    color: var(--neon-cyan);
+    background: var(--color-bg-elevated);
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    border-left: 3px solid var(--neon-magenta);
+    margin-top: 0.5rem;
+  }
+
+  /* Pricing badge */
+  .price-badge {
+    display: inline-block;
+    font-size: 3rem;
+    font-weight: 900;
+    font-family: var(--font-family-display);
+    background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+
+  /* FAQ */
+  .faq-item {
+    margin-bottom: 2rem;
+  }
+
+  .faq-q {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+  }
+
+  .faq-a {
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--color-text-muted);
+  }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--neon-cyan);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 2rem;
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    background: var(--neon-cyan);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+  }
+
+  /* Divider */
+  .pro-divider {
+    height: 1px;
+    background: var(--color-border);
+    margin: 4rem auto;
+    max-width: 48rem;
+  }
+</style>
+
+<!-- Hero -->
+<div class="pro-hero">
+  <div class="status-badge">
+    <span class="status-dot"></span>
+    <%= t('pro.status_coming_soon') %>
+  </div>
+
+  <h1 class="pro-headline">
+    <%= t('pro.hero_headline') %>
+  </h1>
+
+  <p class="pro-subhead">
+    <%= t('pro.hero_subhead') %>
+  </p>
+</div>
+
+<!-- The Problem -->
+<div class="pro-section">
+  <h2 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--color-text);">
+    <%= t('pro.problem_title') %>
+  </h2>
+
+  <p style="font-size: 1.1rem; line-height: 1.7; color: var(--color-text-muted); margin-bottom: 2rem;">
+    <%= t('pro.problem_p1') %>
+  </p>
+
+  <p style="font-size: 1.1rem; line-height: 1.7; color: var(--color-text-muted); margin-bottom: 2rem;">
+    <%= t('pro.problem_p2') %>
+  </p>
+
+  <div class="comparison-grid">
+    <div class="comparison-column comparison-bad">
+      <h3><%= t('pro.comparison_bad_title') %></h3>
+      <div class="query-example" style="opacity: 0.5;">
+        <div class="query-example-text"><%= t('pro.comparison_bad_query') %></div>
+      </div>
+      <p style="font-size: 0.9rem; color: var(--color-text-subtle); line-height: 1.6;">
+        <%= t('pro.comparison_bad_desc') %>
+      </p>
+    </div>
+
+    <div class="comparison-column comparison-good">
+      <h3><%= t('pro.comparison_good_title') %></h3>
+      <div class="query-example">
+        <div class="query-example-text"><%= t('pro.comparison_good_query') %></div>
+      </div>
+      <p style="font-size: 0.9rem; color: var(--color-text-muted); line-height: 1.6;">
+        <%= t('pro.comparison_good_desc') %>
+      </p>
+    </div>
+  </div>
+</div>
+
+<div class="pro-divider"></div>
+
+<!-- The Solution -->
+<div class="pro-section pro-section-narrow">
+  <h2 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 1.5rem; color: var(--color-text);">
+    <%= t('pro.solution_title') %>
+  </h2>
+
+  <p style="font-size: 1.1rem; line-height: 1.7; color: var(--color-text-muted); margin-bottom: 2rem;">
+    <%= t('pro.solution_intro') %>
+  </p>
+
+  <div class="use-case">
+    <div class="use-case-title"><%= t('pro.use_case_teacher') %></div>
+    <div class="use-case-query"><%= t('pro.use_case_teacher_query') %></div>
+  </div>
+
+  <div class="use-case">
+    <div class="use-case-title"><%= t('pro.use_case_director') %></div>
+    <div class="use-case-query"><%= t('pro.use_case_director_query') %></div>
+  </div>
+
+  <div class="use-case">
+    <div class="use-case-title"><%= t('pro.use_case_church') %></div>
+    <div class="use-case-query"><%= t('pro.use_case_church_query') %></div>
+  </div>
+
+  <div class="use-case">
+    <div class="use-case-title"><%= t('pro.use_case_student') %></div>
+    <div class="use-case-query"><%= t('pro.use_case_student_query') %></div>
+  </div>
+</div>
+
+<div class="pro-divider"></div>
+
+<!-- Pricing -->
+<div class="pro-section pro-section-narrow" style="text-align: center;">
+  <h2 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 1rem; color: var(--color-text);">
+    <%= t('pro.pricing_title') %>
+  </h2>
+
+  <div class="price-badge"><%= t('pro.pricing_amount') %></div>
+  <p style="font-size: 1.1rem; color: var(--color-text-muted); margin-top: 0.5rem;"><%= t('pro.pricing_period') %></p>
+
+  <p style="font-size: 1rem; line-height: 1.7; color: var(--color-text-muted); margin-top: 2rem; max-width: 28rem; margin-left: auto; margin-right: auto;">
+    <%= t('pro.pricing_desc') %>
+  </p>
+</div>
+
+<div class="pro-divider"></div>
+
+<!-- Waitlist -->
+<div class="pro-section">
+  <div class="waitlist-box">
+    <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--color-text); text-align: center;">
+      <%= t('pro.waitlist_title') %>
+    </h2>
+    <p style="font-size: 1rem; color: var(--color-text-muted); text-align: center;">
+      <%= t('pro.waitlist_subtitle') %>
+    </p>
+
+    <%# TODO: Wire up to email service (Mailchimp, ConvertKit, etc) %>
+    <form class="waitlist-form" action="#" method="post" onsubmit="alert('Waitlist form - connect to your email service'); return false;">
+      <input
+        type="email"
+        name="email"
+        placeholder="<%= t('pro.waitlist_email_placeholder') %>"
+        required
+        class="waitlist-input"
+      />
+      <button type="submit" class="waitlist-button">
+        <%= t('pro.waitlist_button') %>
+      </button>
+    </form>
+
+    <p style="font-size: 0.85rem; color: var(--color-text-subtle); margin-top: 1rem; text-align: center;">
+      <%= t('pro.waitlist_disclaimer') %>
+    </p>
+  </div>
+</div>
+
+<div class="pro-divider"></div>
+
+<!-- FAQ -->
+<div class="pro-section pro-section-narrow">
+  <h2 style="font-size: 1.75rem; font-weight: 700; margin-bottom: 2rem; color: var(--color-text);">
+    <%= t('pro.faq_title') %>
+  </h2>
+
+  <div class="faq-item">
+    <div class="faq-q"><%= t('pro.faq_1_q') %></div>
+    <div class="faq-a"><%= t('pro.faq_1_a') %></div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q"><%= t('pro.faq_2_q') %></div>
+    <div class="faq-a"><%= t('pro.faq_2_a') %></div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q"><%= t('pro.faq_3_q') %></div>
+    <div class="faq-a"><%= t('pro.faq_3_a') %></div>
+  </div>
+
+  <div class="faq-item">
+    <div class="faq-q"><%= t('pro.faq_4_q') %></div>
+    <div class="faq-a"><%= t('pro.faq_4_a') %></div>
+  </div>
+</div>
+
+<!-- Back to browsing -->
+<div class="pro-section" style="text-align: center; padding-bottom: 6rem;">
+  <%= link_to root_path, class: "mm-button mm-button-secondary", style: "display: inline-block; text-decoration: none;" do %>
+    <%= t('pro.back_to_catalog') %>
+  <% end %>
+</div>

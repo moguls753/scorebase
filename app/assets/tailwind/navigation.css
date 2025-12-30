@@ -105,6 +105,35 @@ main a:not(.mm-button):not(.mm-card):hover {
   background-color: var(--color-bg-elevated);
 }
 
+/* Pro Badge Button - Neon Gradient */
+.nav-pro-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(255, 0, 128, 0.15));
+  border: 1px solid rgba(0, 240, 255, 0.3);
+  border-radius: 8px;
+  color: var(--neon-cyan);
+  font-family: var(--font-family-display);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.nav-pro-btn:hover {
+  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+  transform: translateY(-1px);
+  border-color: var(--neon-cyan);
+}
+
+.nav-pro-btn:active {
+  transform: translateY(0);
+}
+
 /* Navigation Icon Buttons - Neon Style */
 .nav-icon-btn {
   display: flex;
@@ -275,6 +304,18 @@ main a:not(.mm-button):not(.mm-card):hover {
 
 .mobile-menu-link:active {
   background: var(--color-bg-surface);
+}
+
+/* Pro link variant for mobile menu */
+.mobile-menu-link--pro {
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(255, 0, 128, 0.1));
+  border: 1px solid rgba(0, 240, 255, 0.2);
+  margin-bottom: 12px;
+}
+
+.mobile-menu-link--pro span {
+  color: var(--neon-cyan);
+  font-weight: 700;
 }
 
 .mobile-menu-link-wrapper {
