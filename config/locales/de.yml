@@ -283,3 +283,69 @@ de:
     no_genres_found: "Keine Genres gefunden"
     no_genres_matching: "Keine Genres für"
     try_different_spelling: "Versuche eine andere Schreibweise oder durchsuche alphabetisch"
+
+  # Pro Landing Page
+  pro:
+    meta_title: "Smart Search - Demnächst - ScoreBase"
+    meta_description: "KI-gestützte intelligente Suche für Noten. Beschreibe in einfachem Deutsch, was du brauchst. Demnächst verfügbar."
+
+    # Status badge
+    status_coming_soon: "Demnächst"
+
+    # Hero section
+    hero_headline: "Suche nach Noten, wie du wirklich denkst"
+    hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst. Wir bauen eine KI-gestützte Suche, die musikalischen Kontext versteht."
+
+    # Problem section
+    problem_title: "Das Problem"
+    problem_p1: "Du bist Klavierlehrer und suchst etwas Passendes für einen Schüler, der seit zwei Jahren spielt. Oder Chorleiter und brauchst ein SATB-Stück, bei dem der Sopran nicht über H5 geht. Oder Kirchenmusiker auf der Suche nach einer ruhigen Kommunionsmeditation."
+    problem_p2: "Normale Suche kann dir nicht helfen. Sie versteht nur Stichwörter: \"Bach\", \"Klavier\", \"SATB\". Sie versteht keine Schwierigkeitsgrade, Stimmumfänge, Dauer oder Kontext."
+
+    # Comparison
+    comparison_bad_title: "Was nicht funktioniert"
+    comparison_bad_query: "Klavier Anfänger Bach"
+    comparison_bad_desc: "47.000 Ergebnisse. Jedes Bach-Klavierstück. Kein Verständnis von \"Anfänger\"."
+    comparison_good_title: "Was wir bauen"
+    comparison_good_query: "Einfache Bach-Stücke für Klavierschüler nach 2 Jahren"
+    comparison_good_desc: "Versteht Schwierigkeitsgrad, filtert nach passenden Stücken, liefert 12 relevante Noten."
+
+    # Solution section
+    solution_title: "Smart Search versteht, was du meinst"
+    solution_intro: "Es versteht Schwierigkeitsgrade, Stimmumfänge, Besetzung, Dauer, Stil, Anlass und Stimmung. Du beschreibst, was du brauchst, in einfachem Deutsch. Es findet, wonach du suchst."
+
+    # Use cases
+    use_case_teacher: "Klavierlehrer"
+    use_case_teacher_query: "\"Klavierduette für Lehrer und Anfänger-Schüler\""
+    use_case_director: "Chorleiter"
+    use_case_director_query: "\"SATB-Osterstück, 3-4 Minuten, Sopran bleibt unter H5\""
+    use_case_church: "Kirchenmusiker"
+    use_case_church_query: "\"Kommunionsmeditation für Orgel, ruhig, 3-4 Minuten\""
+    use_case_student: "Musikstudent"
+    use_case_student_query: "\"Virtuose Klavierstücke, die schwerer klingen als sie sind\""
+
+    # Pricing section
+    pricing_title: "Einfache Preise"
+    pricing_amount: "2,99 €"
+    pricing_period: "pro Monat"
+    pricing_desc: "Smart Search, gespeicherte Suchen, Favoriten, Sammlungen und Schwierigkeitsfilter. Jederzeit kündbar. Der kostenlose Katalog (300.000+ Noten) bleibt für immer kostenlos."
+
+    # Waitlist section
+    waitlist_title: "Wir bauen das gerade"
+    waitlist_subtitle: "Tritt der Warteliste bei. Wir schicken dir eine E-Mail, wenn es startet."
+    waitlist_email_placeholder: "deine@email.de"
+    waitlist_button: "Benachrichtige mich"
+    waitlist_disclaimer: "Kein Spam. Eine E-Mail beim Start. Das war's."
+
+    # FAQ section
+    faq_title: "Fragen"
+    faq_1_q: "Wann wird das fertig sein?"
+    faq_1_a: "Bald. Wir bauen gerade das KI-Modell und die Such-Infrastruktur. Wenn du der Warteliste beitrittst, erfährst du es, sobald wir starten."
+    faq_2_q: "Was ist mit der kostenlosen Version?"
+    faq_2_a: "Der kostenlose Katalog bleibt kostenlos. 300.000+ gemeinfreie Noten, durchsuchbar mit einfacher Stichwortsuche. Für immer. Pro fügt Smart Search und Organisationsfunktionen hinzu."
+    faq_3_q: "Was ist der Unterschied zu IMSLP?"
+    faq_3_a: "IMSLP ist ein Noten-Archiv mit Stichwortsuche. ScoreBase vereint mehrere Quellen (IMSLP, CPDL, PDMX) und fügt Smart Search hinzu, die musikalischen Kontext versteht: Schwierigkeit, Umfänge, Dauer, Stil."
+    faq_4_q: "Kann ich jederzeit kündigen?"
+    faq_4_a: "Ja. Keine Vertragsbindung. Kündige wann immer du willst."
+
+    # Footer
+    back_to_catalog: "← Zurück zum kostenlosen Katalog"

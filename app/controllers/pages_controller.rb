@@ -6,4 +6,9 @@ class PagesController < ApplicationController
 
   def impressum
   end
+
+  def pro
+    # Pro landing page / waitlist
+    # TODO: Wire up waitlist form to email service (Mailchimp, ConvertKit, etc)
+  end
 end

@@ -10,8 +10,16 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   scope "(:locale)", locale: /en|de/ do
-    # Smart Search (Pro feature)
-    get "smart-search", to: "scores#smart_search", as: :smart_search
+    # Pro Landing Page (waitlist) - canonical URL for SEO
+    get "smart-search", to: "pages#pro", as: :pro_landing
+
+    # Short redirect for branding
+    get "pro", to: redirect { |params, request|
+      params[:locale] ? "/#{params[:locale]}/smart-search" : "/smart-search"
+    }
+
+    # Smart Search Feature (actual tool - will be gated behind auth when ready)
+    get "search/ai", to: "scores#smart_search", as: :smart_search
 
     # Scores
     resources :scores, only: [:index, :show] do
