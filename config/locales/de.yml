@@ -294,7 +294,7 @@ de:
 
     # Hero section
     hero_headline: "Such so, wie du über Musik denkst"
-    hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst. Ich baue eine KI-gestützte Suche, die musikalischen Kontext versteht."
+    hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst. Ich entwickle eine KI-gestützte Suche, die musikalischen Kontext versteht."
 
     # Problem section
     problem_title: "Das Problem"
@@ -302,10 +302,10 @@ de:
     problem_p2: "Normale Suche kann dir nicht helfen. Sie versteht nur Stichwörter: \"Bach\", \"Klavier\", \"SATB\". Sie versteht keine Schwierigkeitsgrade, Stimmumfänge, Dauer oder Kontext."
 
     # Comparison
-    comparison_bad_title: "Was nicht funktioniert"
+    comparison_bad_title: "Normale Suche"
     comparison_bad_query: "Klavier Anfänger Bach"
     comparison_bad_desc: "47.000 Ergebnisse. Jedes Bach-Klavierstück. Kein Verständnis von \"Anfänger\"."
-    comparison_good_title: "Was ich baue"
+    comparison_good_title: "Smart Search"
     comparison_good_query: "Einfache Bach-Stücke für Klavierschüler nach 2 Jahren"
     comparison_good_desc: "Versteht Schwierigkeitsgrad, filtert nach passenden Stücken, liefert 12 relevante Noten."
 
@@ -324,10 +324,10 @@ de:
     use_case_student_query: "\"Repertoire für mein Abschlusskonzert, Romantik und 20. Jahrhundert, ca. 30 Minuten\""
 
     # Pricing section
-    pricing_title: "Einfache Preise"
+    pricing_title: "Preis"
     pricing_amount: "2,99 €"
     pricing_period: "pro Monat"
-    pricing_desc: "Smart Search, gespeicherte Suchen, Favoriten, Sammlungen und Schwierigkeitsfilter. Jederzeit kündbar. Der kostenlose Katalog (%{count} Noten) bleibt kostenlos."
+    pricing_desc: "Smart Search, gespeicherte Suchen, Favoriten, Sammlungen und Schwierigkeitsfilter. Jederzeit kündbar."
 
     # Waitlist section
     waitlist_title: "In Arbeit"
