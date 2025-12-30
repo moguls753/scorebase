@@ -334,6 +334,7 @@ de:
     waitlist_subtitle: "Tritt der Warteliste bei. Ich schicke dir eine E-Mail, wenn es startet."
     waitlist_email_placeholder: "deine@email.de"
     waitlist_button: "Beitreten"
+    waitlist_sending: "Wird gesendet..."
     waitlist_cta: "Warteliste beitreten"
     waitlist_disclaimer: "Kein Spam. Eine E-Mail beim Start. Das war's."
 
@@ -350,3 +351,15 @@ de:
 
     # Footer
     back_to_catalog: "← Zurück zum kostenlosen Katalog"
+
+  # Mailers
+  waitlist_mailer:
+    confirmation:
+      subject: "Sie stehen auf der ScoreBase Pro Warteliste"
+
+  # Waitlist form messages
+  waitlist:
+    success: "Danke! Prüfe deine E-Mails für die Bestätigung."
+    already_subscribed: "Du stehst bereits auf der Liste! Wir schicken dir eine E-Mail beim Start."
+    error: "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+    rate_limit: "Zu viele Anfragen. Bitte versuche es in einer Stunde erneut."

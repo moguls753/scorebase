@@ -123,7 +123,6 @@
         <%= t('pro.waitlist_subtitle') %>
       </p>
 
-      <%# TODO: Wire up to email service (Mailchimp, ConvertKit, etc) %>
       <form class="waitlist-form" data-action="submit->pro-landing#submitWaitlist">
         <input
           type="email"
@@ -133,10 +132,17 @@
           class="waitlist-input"
           aria-label="<%= t('pro.waitlist_email_placeholder') %>"
         />
-        <button type="submit" class="waitlist-button">
+        <button
+          type="submit"
+          class="waitlist-button"
+          data-original-text="<%= t('pro.waitlist_button') %>"
+          data-submitting="<%= t('pro.waitlist_sending') %>"
+        >
           <%= t('pro.waitlist_button') %>
         </button>
       </form>
+
+      <div class="waitlist-message" data-pro-landing-target="waitlistMessage" style="display: none;"></div>
 
       <p class="waitlist-disclaimer">
         <%= t('pro.waitlist_disclaimer') %>

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["reveal"]
+  static targets = ["reveal", "waitlistForm", "waitlistMessage"]
 
   connect() {
     this.setupScrollReveal()
@@ -60,9 +60,70 @@ export default class extends Controller {
     }
   }
 
-  submitWaitlist(event) {
+  async submitWaitlist(event) {
     event.preventDefault()
-    // TODO: Wire up to email service (Mailchimp, ConvertKit, etc)
-    alert('Waitlist form - connect to your email service')
+
+    const form = event.target
+    const emailInput = form.querySelector('input[name="email"]')
+    const submitButton = form.querySelector('button[type="submit"]')
+    const email = emailInput.value.trim()
+
+    if (!email) return
+
+    // Store original button text before changing
+    const originalText = submitButton.textContent
+
+    // Disable form during submission
+    submitButton.disabled = true
+    submitButton.textContent = submitButton.dataset.submitting || 'Sending...'
+
+    try {
+      const locale = document.documentElement.lang || 'en'
+      const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content
+
+      if (!csrfToken) {
+        throw new Error('CSRF token not found')
+      }
+
+      const response = await fetch(`/${locale}/waitlist`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken
+        },
+        body: JSON.stringify({
+          waitlist_signup: { email }
+        })
+      })
+
+      const data = await response.json()
+
+      if (data.success) {
+        this.showMessage(data.message, 'success')
+        form.reset()
+      } else {
+        this.showMessage(data.errors?.join(', ') || 'Something went wrong', 'error')
+      }
+    } catch (error) {
+      console.error('Waitlist submission error:', error)
+      this.showMessage('Network error. Please try again.', 'error')
+    } finally {
+      submitButton.disabled = false
+      submitButton.textContent = originalText
+    }
+  }
+
+  showMessage(message, type) {
+    if (!this.hasWaitlistMessageTarget) return
+
+    const messageEl = this.waitlistMessageTarget
+    messageEl.textContent = message
+    messageEl.className = `waitlist-message waitlist-message-${type}`
+    messageEl.style.display = 'block'
+
+    // Hide after 5 seconds
+    setTimeout(() => {
+      messageEl.style.display = 'none'
+    }, 5000)
   }
 }

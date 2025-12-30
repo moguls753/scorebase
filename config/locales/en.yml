@@ -334,6 +334,7 @@ en:
     waitlist_subtitle: "Join the waitlist. I'll email you when it launches."
     waitlist_email_placeholder: "your@email.com"
     waitlist_button: "Notify Me"
+    waitlist_sending: "Sending..."
     waitlist_cta: "Join Waitlist"
     waitlist_disclaimer: "No spam. One email when it launches. That's it."
 
@@ -350,3 +351,15 @@ en:
 
     # Footer
     back_to_catalog: "← Back to Free Catalog"
+
+  # Mailers
+  waitlist_mailer:
+    confirmation:
+      subject: "You're on the ScoreBase Pro waitlist"
+
+  # Waitlist form messages
+  waitlist:
+    success: "Thanks! Check your email for confirmation."
+    already_subscribed: "You're already on the list! We'll email you when we launch."
+    error: "Something went wrong. Please try again."
+    rate_limit: "Too many requests. Please try again in an hour."

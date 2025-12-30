@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   scope "(:locale)", locale: /en|de/ do
     # Pro Landing Page (waitlist) - canonical URL for SEO
     get "smart-search", to: "pages#pro", as: :pro_landing
+    post "waitlist", to: "waitlist_signups#create", as: :waitlist_signup
 
     # Short redirect for branding
     get "pro", to: redirect { |params, request|

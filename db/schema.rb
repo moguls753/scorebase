@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_24_112044) do
+ActiveRecord::Schema[8.1].define(version: 2025_12_30_153036) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -209,6 +209,14 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_24_112044) do
     t.index ["time_signature"], name: "index_scores_on_time_signature"
     t.index ["views"], name: "index_scores_on_views"
     t.index ["voicing"], name: "index_scores_on_voicing"
+  end
+
+  create_table "waitlist_signups", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "email", null: false
+    t.string "locale", default: "en", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_waitlist_signups_on_email", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"

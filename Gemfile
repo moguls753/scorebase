@@ -76,6 +76,9 @@ group :development do
 
   # Annotate models with schema info [https://github.com/drwl/annotaterb]
   gem "annotaterb"
+
+  # Preview emails in browser instead of sending them
+  gem "letter_opener"
 end
 
 group :test do
