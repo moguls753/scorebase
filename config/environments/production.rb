@@ -59,16 +59,19 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: "scorebase.org" }
 
   # SMTP via Resend (config in deploy.yml, password in credentials)
-  config.action_mailer.delivery_method = :smtp
-  config.action_mailer.smtp_settings = {
-    address: ENV.fetch("SMTP_ADDRESS"),
-    port: ENV.fetch("SMTP_PORT").to_i,
-    domain: ENV.fetch("SMTP_DOMAIN"),
-    user_name: ENV.fetch("SMTP_USERNAME"),
-    password: ENV.fetch("SMTP_PASSWORD"),
-    authentication: :plain,
-    enable_starttls_auto: true
-  }
+  # Only configure SMTP if environment variables are present (not available during build)
+  if ENV["SMTP_ADDRESS"].present?
+    config.action_mailer.delivery_method = :smtp
+    config.action_mailer.smtp_settings = {
+      address: ENV.fetch("SMTP_ADDRESS"),
+      port: ENV.fetch("SMTP_PORT").to_i,
+      domain: ENV.fetch("SMTP_DOMAIN"),
+      user_name: ENV.fetch("SMTP_USERNAME"),
+      password: ENV.fetch("SMTP_PASSWORD"),
+      authentication: :plain,
+      enable_starttls_auto: true
+    }
+  end
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
