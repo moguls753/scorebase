@@ -15,7 +15,7 @@ gem "turbo-rails"
 # Hotwire's modest JavaScript framework [https://stimulus.hotwired.dev]
 gem "stimulus-rails"
 # Build JSON APIs with ease [https://github.com/rails/jbuilder]
-gem "jbuilder" 
+gem "jbuilder"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
@@ -76,6 +76,9 @@ group :development do
 
   # Annotate models with schema info [https://github.com/drwl/annotaterb]
   gem "annotaterb"
+
+  # Preview emails in browser instead of sending them
+  gem "letter_opener"
 end
 
 group :test do

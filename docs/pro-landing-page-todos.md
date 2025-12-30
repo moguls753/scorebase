@@ -34,18 +34,23 @@ pro:
   # ... etc
 ```
 
-### 2. Waitlist Form Implementation
-**Issue**: Form has dummy action with JavaScript alert.
+### 2. Waitlist Form Implementation ✅ COMPLETED
+**Status**: Fully implemented. Works out of the box with NO external service required.
 
-**What needs to be done**:
-- Choose email service (Mailchimp, ConvertKit, Buttondown, etc.)
-- Create `WaitlistSignup` model or use email service API directly
-- Add form endpoint in routes and controller
-- Handle success/error states
-- Add email validation
-- Consider GDPR compliance (checkbox, privacy policy link)
+**What was done**:
+- ✅ Created `WaitlistSignup` model with email and locale
+- ✅ Implemented `WaitlistMailer` with beautiful HTML emails (EN/DE)
+- ✅ Added controller action with duplicate detection
+- ✅ Wired up frontend form with Ajax submission
+- ✅ Configured `letter_opener` for dev (emails open in browser)
+- ✅ Configured `sendmail` for production (works on standard Linux servers)
+- ✅ Added success/error message display
+- ✅ Zero configuration needed - works immediately
 
-**Location**: `app/views/pages/pro.html.erb:197-207`
+**Development**: `bundle install && bin/dev` → emails open in browser automatically
+**Production**: Uses sendmail (built-in) or falls back to any SMTP provider
+
+**See**: `docs/waitlist-implementation.md` for details
 
 ### 3. Analytics & Tracking
 **Recommendation**: Add event tracking for:

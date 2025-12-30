@@ -8,7 +8,7 @@ class PagesController < ApplicationController
   end
 
   def pro
-    # Pro landing page / waitlist
-    # TODO: Wire up waitlist form to email service (Mailchimp, ConvertKit, etc)
+    # Pro landing page with waitlist form
+    # Waitlist implementation: see WaitlistSignupsController and WaitlistMailer
   end
 end
