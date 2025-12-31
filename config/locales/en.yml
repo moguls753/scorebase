@@ -286,8 +286,8 @@ en:
 
   # Pro Landing Page
   pro:
-    meta_title: "Find Sheet Music by Difficulty, Range & Style — ScoreBase Smart Search"
-    meta_description: "Stop filtering. Start describing. Search 300,000+ public domain scores by difficulty, vocal range, duration, and mood. For teachers, choir directors, and students. $2.99/mo."
+    meta_title: "Smart Sheet Music Search — ScoreBase"
+    meta_description: "Search %{count} public domain scores by difficulty, range, duration, and mood. Natural language search. $2.99/mo."
 
     # Status badge
     status_coming_soon: "Coming Soon"
@@ -336,7 +336,7 @@ en:
     waitlist_button: "Notify Me"
     waitlist_sending: "Sending..."
     waitlist_cta: "Join Waitlist"
-    waitlist_disclaimer: "No spam. One email when it launches. That's it."
+    waitlist_disclaimer: "I'll email you once when it's ready. No spam."
 
     # FAQ section
     faq_title: "Questions"
