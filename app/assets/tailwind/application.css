@@ -22,13 +22,14 @@
    PARTIALS - Split by feature/concern
    ======================================== */
 
-@import "./base.css";       /* Theme vars, core components */
-@import "./navigation.css"; /* Hero, nav, mobile menu */
-@import "./player.css";     /* MIDI player, tooltips */
-@import "./hub.css";        /* Browse, pagination, hub pages */
-@import "./gallery.css";    /* Sheet music viewer */
-@import "./score.css";      /* Score show page */
-@import "./pro.css";        /* Pro landing page */
+@import "./base.css";             /* Theme vars, core components */
+@import "./navigation.css";       /* Hero, nav, mobile menu */
+@import "./player.css";           /* MIDI player, tooltips */
+@import "./hub.css";              /* Browse, pagination, hub pages */
+@import "./gallery.css";          /* Sheet music viewer */
+@import "./score.css";            /* Score show page */
+@import "./pro.css";              /* Pro landing page */
+@import "./smart_search_hint.css"; /* Smart search hint teaser */
 
 /* ========================================
    NEON ANIMATIONS

@@ -88,6 +88,13 @@
           <%= t('search.browse_periods') %>
         <% end %>
         </nav>
+
+        <!-- Smart Search Teaser - Desktop only, mobile users have Pro nav link -->
+        <div class="smart-search-teaser">
+          <%= link_to pro_landing_path, class: "smart-search-teaser-link" do %>
+            <span class="teaser-coming-soon">Coming soon:</span> <span class="teaser-name">Smart Search</span> <span class="teaser-arrow">→</span> <span class="teaser-cta">Learn more</span>
+          <% end %>
+        </div>
       </div>
     </div>
   </div>
