@@ -5,9 +5,6 @@ mkdir -p .kamal
 cat > .kamal/secrets <<EOF
 RAILS_MASTER_KEY=${RAILS_MASTER_KEY:?required}
 KAMAL_REGISTRY_PASSWORD=${KAMAL_REGISTRY_PASSWORD:?required}
-SMTP_PASSWORD=${SMTP_PASSWORD:?required}
-GEMINI_API_KEY=${GEMINI_API_KEY:-}
-GROQ_API_KEY=${GROQ_API_KEY:-}
 EOF
 
 exec bin/kamal deploy "$@"

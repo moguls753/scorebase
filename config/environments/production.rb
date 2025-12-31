@@ -58,7 +58,7 @@ Rails.application.configure do
   config.action_mailer.perform_deliveries = true
   config.action_mailer.default_url_options = { host: "scorebase.org" }
 
-  # SMTP via Resend (config in deploy.yml, password in credentials)
+  # SMTP via Resend (37signals approach: non-sensitive config in deploy.yml, password in credentials)
   # Only configure SMTP if environment variables are present (not available during build)
   if ENV["SMTP_ADDRESS"].present?
     config.action_mailer.delivery_method = :smtp
@@ -67,7 +67,7 @@ Rails.application.configure do
       port: ENV.fetch("SMTP_PORT").to_i,
       domain: ENV.fetch("SMTP_DOMAIN"),
       user_name: ENV.fetch("SMTP_USERNAME"),
-      password: ENV.fetch("SMTP_PASSWORD"),
+      password: Rails.application.credentials.resend.api_key,
       authentication: :plain,
       enable_starttls_auto: true
     }

@@ -43,7 +43,6 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
-    - SMTP_PASSWORD
   clear:
     PDMX_DATA_PATH: /opt/pdmx
     SITE_URL: https://scorebase.org
