@@ -286,8 +286,8 @@ en:
 
   # Pro Landing Page
   pro:
-    meta_title: "Smart Search - Coming Soon - ScoreBase"
-    meta_description: "AI-powered smart search for sheet music. Describe what you need in plain English. Coming soon."
+    meta_title: "Find Sheet Music by Difficulty, Range & Style — ScoreBase Smart Search"
+    meta_description: "Stop filtering. Start describing. Search 300,000+ public domain scores by difficulty, vocal range, duration, and mood. For teachers, choir directors, and students. $2.99/mo."
 
     # Status badge
     status_coming_soon: "Coming Soon"

@@ -286,8 +286,8 @@ de:
 
   # Pro Landing Page
   pro:
-    meta_title: "Smart Search - Demnächst - ScoreBase"
-    meta_description: "KI-gestützte intelligente Suche für Noten. Beschreibe in einfachem Deutsch, was du brauchst. Demnächst verfügbar."
+    meta_title: "Noten finden nach Schwierigkeit, Tonumfang & Stil — ScoreBase Smart Search"
+    meta_description: "Schluss mit Filtern. Einfach beschreiben. Durchsuche 300.000+ gemeinfreie Noten nach Schwierigkeit, Stimmumfang, Dauer und Stimmung. Für Lehrer, Chorleiter und Studenten. 2,99 €/Monat."
 
     # Status badge
     status_coming_soon: "Demnächst"

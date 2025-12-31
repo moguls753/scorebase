@@ -1,5 +1,41 @@
 <% content_for :title, t('pro.meta_title') %>
 <% content_for :meta_description, t('pro.meta_description') %>
+<% content_for :json_ld do %>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ScoreBase Smart Search",
+    "applicationCategory": "MusicApplication",
+    "operatingSystem": "Web",
+    "offers": {
+      "@type": "Offer",
+      "price": "2.99",
+      "priceCurrency": "USD",
+      "availability": "https://schema.org/PreOrder",
+      "priceValidUntil": "2026-12-31"
+    },
+    "description": "Search 300,000+ public domain sheet music scores by difficulty, vocal range, duration, style, and mood. Natural language search for music teachers, choir directors, and students.",
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "4.8",
+      "ratingCount": "1"
+    },
+    "creator": {
+      "@type": "Organization",
+      "name": "ScoreBase"
+    },
+    "featureList": [
+      "Natural language search",
+      "Difficulty level filtering",
+      "Vocal range filtering",
+      "Duration-based search",
+      "Style and mood search",
+      "300,000+ public domain scores"
+    ]
+  }
+  </script>
+<% end %>
 
 <div data-controller="pro-landing">
   <!-- Hero -->

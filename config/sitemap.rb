@@ -29,6 +29,10 @@ SitemapGenerator::Sitemap.create do
   add about_path, changefreq: "monthly", priority: 0.6
   add about_path(locale: :de), changefreq: "monthly", priority: 0.6
 
+  # Pro landing page (Smart Search)
+  add pro_landing_path, changefreq: "weekly", priority: 0.8
+  add pro_landing_path(locale: :de), changefreq: "weekly", priority: 0.8
+
   # Impressum (legal, low priority)
   add impressum_path, changefreq: "yearly", priority: 0.2
   add impressum_path(locale: :de), changefreq: "yearly", priority: 0.2
