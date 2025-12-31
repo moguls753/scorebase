@@ -286,8 +286,8 @@ de:
 
   # Pro Landing Page
   pro:
-    meta_title: "Noten finden nach Schwierigkeit, Tonumfang & Stil — ScoreBase Smart Search"
-    meta_description: "Schluss mit Filtern. Einfach beschreiben. Durchsuche 300.000+ gemeinfreie Noten nach Schwierigkeit, Stimmumfang, Dauer und Stimmung. Für Lehrer, Chorleiter und Studenten. 2,99 €/Monat."
+    meta_title: "Intelligente Notensuche — ScoreBase"
+    meta_description: "Durchsuche %{count} gemeinfreie Noten nach Schwierigkeit, Tonumfang, Dauer und Stimmung. Natürlichsprachige Suche. 2,99 €/Monat."
 
     # Status badge
     status_coming_soon: "Demnächst"
@@ -336,7 +336,7 @@ de:
     waitlist_button: "Beitreten"
     waitlist_sending: "Wird gesendet..."
     waitlist_cta: "Warteliste beitreten"
-    waitlist_disclaimer: "Kein Spam. Eine E-Mail beim Start. Das war's."
+    waitlist_disclaimer: "Ich schicke dir eine E-Mail, wenn es live geht. Kein Spam."
 
     # FAQ section
     faq_title: "Fragen"

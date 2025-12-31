@@ -10,5 +10,6 @@ class PagesController < ApplicationController
   def pro
     # Pro landing page with waitlist form
     # Waitlist implementation: see WaitlistSignupsController and WaitlistMailer
+    @total_count = Score.count
   end
 end
