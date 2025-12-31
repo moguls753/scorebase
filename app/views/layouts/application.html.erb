@@ -154,8 +154,6 @@
         <% end %>
       </div>
       <div class="mobile-menu-footer">
-        <a href="https://github.com/moguls753/scorebase" target="_blank" rel="noopener nofollow" class="text-xs text-[var(--color-text-muted)] hover:text-[var(--neon-cyan)] transition-colors">GitHub</a>
-        <span class="text-[var(--color-text-subtle)]">·</span>
         <%= link_to t('nav.impressum'), impressum_path, class: "text-xs text-[var(--color-text-muted)] hover:text-[var(--neon-cyan)] transition-colors", data: { action: "click->mobile-menu#close" } %>
       </div>
     </nav>
@@ -173,8 +171,6 @@
             <span class="font-bold text-[var(--neon-cyan)]"><%= number_with_delimiter(Score.count) %></span> <%= t('footer.public_domain_scores') %>
           </p>
           <p class="text-[var(--color-text-muted)] font-medium">
-            <a href="https://github.com/moguls753/scorebase" target="_blank" rel="noopener nofollow" class="hover:text-[var(--neon-cyan)] transition-colors"><%= t('nav.github') %></a>
-            <span class="mx-2 text-[var(--color-border)]">·</span>
             <%= link_to t('nav.impressum'), impressum_path, class: "hover:text-[var(--neon-cyan)] transition-colors" %>
           </p>
         </div>

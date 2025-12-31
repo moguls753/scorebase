@@ -3,7 +3,6 @@ en:
   nav:
     about: "About"
     impressum: "Impressum"
-    github: "GitHub"
     toggle_language: "Toggle language"
 
   # Footer

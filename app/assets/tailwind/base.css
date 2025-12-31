@@ -265,6 +265,11 @@ a.mm-card:hover::before {
 /* Link reset for buttons */
 a.mm-button {
   text-decoration: none;
+  /* Don't set display here - let Tailwind utilities control it */
+}
+
+/* Default display for mm-button links when no utility is specified */
+a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
   display: inline-block;
 }
 

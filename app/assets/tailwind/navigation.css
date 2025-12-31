@@ -109,7 +109,9 @@ main a:not(.mm-button):not(.mm-card):hover {
 .nav-pro-btn {
   display: inline-flex;
   align-items: center;
-  padding: 8px 14px;
+  justify-content: center;
+  height: 44px;
+  padding: 0 16px;
   background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(255, 0, 128, 0.15));
   border: 1px solid rgba(0, 240, 255, 0.3);
   border-radius: 8px;

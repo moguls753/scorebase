@@ -1,0 +1,136 @@
+/* ========================================
+   SMART SEARCH TEASER
+   37signals minimalism - clear, confident, readable
+   ======================================== */
+
+.smart-search-teaser {
+  text-align: center;
+  margin-top: 32px;
+  margin-bottom: 0;
+}
+
+.smart-search-teaser-link {
+  display: inline-block;
+  font-family: var(--font-family-body);
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.6;
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: color 0.3s ease;
+
+  /* Generous spacing between words */
+  word-spacing: 0.15em;
+}
+
+/* "Coming soon:" - same size as Smart Search for equal weight */
+.teaser-coming-soon {
+  display: inline-block;
+  font-family: var(--font-family-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--color-text-muted);
+  transition: all 0.3s ease;
+
+  /* Optical baseline adjustment */
+  position: relative;
+  top: 1px;
+}
+
+/* "Smart Search" - bold, larger, glowing cyan */
+.teaser-name {
+  display: inline-block;
+  font-family: var(--font-family-display);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 18px rgba(0, 240, 255, 0.4);
+  transition: all 0.3s ease;
+
+  /* Optical baseline adjustment */
+  position: relative;
+  top: 1px;
+}
+
+/* Arrow */
+.teaser-arrow {
+  display: inline-block;
+  font-size: 16px;
+  color: var(--color-text-subtle);
+  transition: all 0.3s ease;
+  margin: 0 0.3em;
+}
+
+/* "Learn more" */
+.teaser-cta {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  transition: color 0.3s ease;
+}
+
+/* Hover - everything lights up cyan */
+.smart-search-teaser-link:hover {
+  color: var(--neon-cyan);
+}
+
+.smart-search-teaser-link:hover .teaser-coming-soon {
+  color: var(--neon-cyan);
+}
+
+.smart-search-teaser-link:hover .teaser-name {
+  text-shadow:
+    0 0 28px rgba(0, 240, 255, 0.6),
+    0 0 14px rgba(0, 240, 255, 0.4);
+  transform: scale(1.03);
+}
+
+.smart-search-teaser-link:hover .teaser-arrow {
+  color: var(--neon-cyan);
+  transform: translateX(3px);
+}
+
+.smart-search-teaser-link:hover .teaser-cta {
+  color: var(--neon-cyan);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .smart-search-teaser {
+    display: none;
+  }
+}
+
+/* Tablet - slightly smaller to prevent wrapping */
+@media (min-width: 641px) and (max-width: 768px) {
+  .smart-search-teaser-link {
+    font-size: 14px;
+  }
+
+  .teaser-coming-soon,
+  .teaser-name {
+    font-size: 17px;
+  }
+
+  .teaser-cta {
+    font-size: 14px;
+  }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .smart-search-teaser-link,
+  .teaser-coming-soon,
+  .teaser-name,
+  .teaser-arrow,
+  .teaser-cta {
+    transition: none !important;
+  }
+
+  .smart-search-teaser-link:hover .teaser-name,
+  .smart-search-teaser-link:hover .teaser-arrow {
+    transform: none !important;
+  }
+}
