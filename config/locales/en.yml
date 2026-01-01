@@ -297,7 +297,7 @@ en:
 
     # Problem section
     problem_title: "Here's the problem"
-    problem_p1: "You're a piano teacher looking for something appropriate for a student who's been playing for two years. Or a choir director who needs an SATB piece where the soprano doesn't go above B5. Or an amateur musician who wants to learn something new this weekend."
+    problem_p1: "You're a piano teacher looking for something appropriate for a student who's been playing for two years. Or a choir director who needs an SATB piece where the soprano doesn't go above G5. Or an amateur musician who wants to learn something new this weekend."
     problem_p2: "Regular search can't help you. It only understands keywords: \"Bach\", \"piano\", \"SATB\". It doesn't understand difficulty, vocal ranges, duration, or context."
 
     # Comparison
@@ -316,7 +316,7 @@ en:
     use_case_teacher: "Piano Teacher"
     use_case_teacher_query: "\"Piano duets for teacher and beginner student\""
     use_case_director: "Choir Director"
-    use_case_director_query: "\"SATB Easter piece, 3-4 minutes, soprano stays below B5\""
+    use_case_director_query: "\"Easter motet, SATB, 3-4 minutes, soprano stays below G5\""
     use_case_amateur: "Amateur Musician"
     use_case_amateur_query: "\"Piano pieces I can learn in a weekend, sounds impressive but not too hard\""
     use_case_student: "Music Student"
