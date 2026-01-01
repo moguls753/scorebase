@@ -17,6 +17,7 @@
 "Victoria, Tomás Luis de": Renaissance
 "Byrd, William": Renaissance
 "Lasso, Orlando": Renaissance
+"Lasso, Orlando di": Renaissance
 "Lassus, Orlande de": Renaissance
 "Tallis, Thomas": Renaissance
 "Dowland, John": Renaissance
@@ -40,6 +41,15 @@
 "Narváez, Luis de": Renaissance
 "Narvaez, Luis de": Renaissance
 "Mudarra, Alonso": Renaissance
+"Isaac, Heinrich": Renaissance
+"Hassler, Hans Leo": Renaissance
+"Crecquillon, Thomas": Renaissance
+"Monte, Philippe de": Renaissance
+"Wert, Giaches de": Renaissance
+"Ravenscroft, Thomas": Renaissance
+"Tollius, Jan": Renaissance
+"Massaino, Tiburtio": Renaissance
+"Pallavicino, Benedetto": Renaissance
 
 # 20th Century (misplaced in Renaissance section of original)
 "Bentzon, Niels Viggo": 20th Century
@@ -84,6 +94,14 @@
 "Visée, Robert de": Baroque
 "O'Carolan, Turlough": Baroque
 "Carolan, Turlough": Baroque
+"Playford, John": Baroque
+"Playford, Henry": Baroque
+"Valls, Francisco": Baroque
+"Kapsperger, Giovanni Girolamo": Baroque
+"d'India, Sigismondo": Baroque
+"Ghizzolo, Giovanni": Baroque
+"Micheli, Domenico": Baroque
+"Vierendeels, André": Baroque
 
 # Classical (1750-1820)
 "Mozart, Wolfgang Amadeus": Classical
@@ -114,6 +132,18 @@
 "Holden, Oliver": Classical
 "Clark, Thomas": Classical
 "Billings, William": Classical
+"Gow, Neil": Classical
+"Mackintosh, Robert": Classical
+"Mackintosh, Abraham": Classical
+"French, Jacob": Classical
+"Ingalls, Jeremiah": Classical
+"Rolla, Alessandro": Classical
+"Holyoke, Samuel": Classical
+"Belknap, Daniel": Classical
+"Webbe, Samuel": Classical
+"Dow, Daniel": Classical
+"Devienne, François": Classical
+"Petrie, Robert": Classical
 
 # Romantic (1820-1900)
 "Schubert, Franz": Romantic
@@ -179,6 +209,11 @@
 "Mason, Lowell": Romantic
 "Dykes, John Bacchus": Romantic
 "Stainer, John": Romantic
+"Abt, Franz": Romantic
+"Sullivan, Arthur": Romantic
+"Milne, Peter": Romantic
+"Foster, Stephen": Romantic
+"Skinner, J.": Romantic
 
 # Late Romantic (1890-1920)
 "Mahler, Gustav": Late Romantic
@@ -192,6 +227,7 @@
 "Korngold, Erich Wolfgang": Late Romantic
 "Zemlinsky, Alexander": Late Romantic
 "Pfitzner, Hans": Late Romantic
+"Stanford, Charles Villiers": Late Romantic
 
 # Impressionist
 "Debussy, Claude": Impressionist
@@ -312,3 +348,4 @@
 "Zimmer, Hans": Contemporary
 "Morricone, Ennio": Contemporary
 "Shore, Howard": Contemporary
+"Jennings, Jordan": Contemporary
