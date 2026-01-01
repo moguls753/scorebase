@@ -297,7 +297,7 @@ de:
 
     # Problem section
     problem_title: "Das Problem"
-    problem_p1: "Du unterrichtest Klavier und suchst etwas Passendes für jemanden, der seit zwei Jahren spielt. Oder du leitest einen Chor und brauchst ein SATB-Stück, bei dem der Sopran nicht über h'' geht. Oder du machst Musik als Hobby und willst am Wochenende was Neues lernen."
+    problem_p1: "Du unterrichtest Klavier und suchst etwas Passendes für jemanden, der seit zwei Jahren spielt. Oder du leitest einen Chor und brauchst ein SATB-Stück, bei dem der Sopran nicht über g'' geht. Oder du machst Musik als Hobby und willst am Wochenende was Neues lernen."
     problem_p2: "Normale Suche kann dir nicht helfen. Sie versteht nur Stichwörter: \"Bach\", \"Klavier\", \"SATB\". Sie versteht keine Schwierigkeitsgrade, Stimmumfänge, Dauer oder Kontext."
 
     # Comparison
@@ -316,7 +316,7 @@ de:
     use_case_teacher: "Klavierlehrer:in"
     use_case_teacher_query: "\"Klavierduette für Lehrer und Anfänger\""
     use_case_director: "Chorleiter:in"
-    use_case_director_query: "\"Ostermotette, SATB, 3-4 Minuten, Sopran nicht über h''\""
+    use_case_director_query: "\"Ostermotette, SATB, 3-4 Minuten, Sopran nicht über g''\""
     use_case_amateur: "Hobbymusiker:in"
     use_case_amateur_query: "\"Klavierstücke, die ich am Wochenende lernen kann und beeindruckend klingen\""
     use_case_student: "Musikstudent:in"
