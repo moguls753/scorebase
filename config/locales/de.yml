@@ -293,7 +293,7 @@ de:
 
     # Hero section
     hero_headline: "Such so, wie du über Musik denkst"
-    hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst. Ich entwickle eine KI-gestützte Suche, die musikalischen Kontext versteht."
+    hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst – in natürlicher Sprache."
 
     # Problem section
     problem_title: "Das Problem"
@@ -316,7 +316,7 @@ de:
     use_case_teacher: "Klavierlehrer:in"
     use_case_teacher_query: "\"Klavierduette für Lehrer und Anfänger\""
     use_case_director: "Chorleiter:in"
-    use_case_director_query: "\"SATB-Osterstück, 3-4 Minuten, Sopran bleibt unter h''\""
+    use_case_director_query: "\"Ostermotette, SATB, 3-4 Minuten, Sopran nicht über h''\""
     use_case_amateur: "Hobbymusiker:in"
     use_case_amateur_query: "\"Klavierstücke, die ich am Wochenende lernen kann und beeindruckend klingen\""
     use_case_student: "Musikstudent:in"
