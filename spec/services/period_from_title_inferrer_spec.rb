@@ -17,6 +17,22 @@ RSpec.describe PeriodFromTitleInferrer do
       expect(result).to be_found
     end
 
+    it "includes existing period in prompt for validation" do
+      score_with_period = create(:score,
+        title: "Ave maris stella",
+        composer: "Traditional",
+        composer_status: "failed",
+        period: "Baroque"
+      )
+
+      expect(client).to receive(:chat_json) do |prompt|
+        expect(prompt).to include("Current period (from source): Baroque")
+        { "period" => "Renaissance", "confidence" => "high" }
+      end
+
+      inferrer.infer(score_with_period)
+    end
+
     it "handles null response" do
       allow(client).to receive(:chat_json).and_return({ "period" => nil, "confidence" => "none" })
 
