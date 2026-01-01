@@ -21,6 +21,15 @@ require "json"
 class LlmClient
   BACKENDS = %i[groq gemini lmstudio].freeze
 
+  # SSL certificate store for HTTPS requests
+  # OpenSSL 3.6+ requires explicit configuration to work with modern APIs
+  # that don't provide CRL (Certificate Revocation List) endpoints
+  SSL_CERT_STORE = begin
+    store = OpenSSL::X509::Store.new
+    store.set_default_paths
+    store
+  end.freeze
+
   class Error < StandardError; end
   class QuotaExceededError < Error; end
   class ConfigurationError < Error; end
@@ -185,7 +194,10 @@ class LlmClient
   def http_post(uri, payload, headers = {}, use_ssl: true)
     http = Net::HTTP.new(uri.host, uri.port)
     http.use_ssl = use_ssl && uri.scheme == "https"
-    http.verify_mode = OpenSSL::SSL::VERIFY_PEER if http.use_ssl?
+    if http.use_ssl?
+      http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+      http.cert_store = SSL_CERT_STORE
+    end
     http.read_timeout = 120
 
     req = Net::HTTP::Post.new(uri)
