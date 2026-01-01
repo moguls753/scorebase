@@ -97,7 +97,7 @@ de:
   # Voice type options (choir type)
   voice_type:
     mixed: "Gemischter Chor"
-    treble: "Frauenchor"
+    treble: "Oberstimmen"
     mens: "Männerchor"
     unison: "Einstimmig"
 
@@ -158,7 +158,7 @@ de:
     music_details: "Musikalische Details"
     download_files: "Downloads"
     external_source: "Externe Quelle"
-    lyrics_text: "Text / Lyrics"
+    lyrics_text: "Liedtext"
     listen: "Anhören"
     loading_player: "Player wird geladen..."
     midi_hint: "Klicke auf Play für eine synthetisierte Vorschau"
@@ -198,7 +198,7 @@ de:
     feature_3_title: "Interaktive Galerie"
     feature_3_desc: "Durchblättere die komplette Partitur vor dem Download. Mit Navigation, Tastaturkürzeln und Vollbildmodus."
     feature_4_title: "Intelligente Suche (Demnächst)"
-    feature_4_desc: "KI-gestützte Suche in natürlicher Sprache. Stellen Sie Fragen wie 'barocke Violinsonaten' oder 'einfache Klavierstücke in C-Dur' anstatt Filter zu verwenden."
+    feature_4_desc: "KI-gestützte Suche in natürlicher Sprache. Beschreibe einfach, was du suchst – etwa 'barocke Violinsonaten' oder 'einfache Klavierstücke in C-Dur'."
     back_to_search: "Zurück zur Suche"
     imslp_name: "International Music Score Library Project"
     imslp_description: "Auch bekannt als Petrucci-Musikbibliothek. Die größte Sammlung freier Noten mit über 800.000 Partituren von mehr als 27.000 Komponisten."
@@ -286,7 +286,7 @@ de:
   # Pro Landing Page
   pro:
     meta_title: "Intelligente Notensuche — ScoreBase"
-    meta_description: "Durchsuche %{count} gemeinfreie Noten nach Schwierigkeit, Tonumfang, Dauer und Stimmung. Natürlichsprachige Suche. 2,99 €/Monat."
+    meta_description: "Durchsuche %{count} gemeinfreie Noten nach Schwierigkeit, Tonumfang, Dauer und Stimmung. Suche in natürlicher Sprache. 2,99 €/Monat."
 
     # Status badge
     status_coming_soon: "Demnächst"
@@ -297,7 +297,7 @@ de:
 
     # Problem section
     problem_title: "Das Problem"
-    problem_p1: "Du unterrichtest Klavier und suchst etwas Passendes für jemanden, der seit zwei Jahren spielt. Oder du leitest einen Chor und brauchst ein SATB-Stück, bei dem der Sopran nicht über H5 geht. Oder du machst Musik als Hobby und willst am Wochenende was Neues lernen."
+    problem_p1: "Du unterrichtest Klavier und suchst etwas Passendes für jemanden, der seit zwei Jahren spielt. Oder du leitest einen Chor und brauchst ein SATB-Stück, bei dem der Sopran nicht über h'' geht. Oder du machst Musik als Hobby und willst am Wochenende was Neues lernen."
     problem_p2: "Normale Suche kann dir nicht helfen. Sie versteht nur Stichwörter: \"Bach\", \"Klavier\", \"SATB\". Sie versteht keine Schwierigkeitsgrade, Stimmumfänge, Dauer oder Kontext."
 
     # Comparison
@@ -314,9 +314,9 @@ de:
 
     # Use cases
     use_case_teacher: "Klavierlehrer:in"
-    use_case_teacher_query: "\"Klavierduette für Lehrer und Anfänger-Schüler\""
+    use_case_teacher_query: "\"Klavierduette für Lehrer und Anfänger\""
     use_case_director: "Chorleiter:in"
-    use_case_director_query: "\"SATB-Osterstück, 3-4 Minuten, Sopran bleibt unter H5\""
+    use_case_director_query: "\"SATB-Osterstück, 3-4 Minuten, Sopran bleibt unter h''\""
     use_case_amateur: "Hobbymusiker:in"
     use_case_amateur_query: "\"Klavierstücke, die ich am Wochenende lernen kann und beeindruckend klingen\""
     use_case_student: "Musikstudent:in"
@@ -344,7 +344,7 @@ de:
     faq_2_q: "Was ist mit der kostenlosen Version?"
     faq_2_a: "Der kostenlose Katalog bleibt kostenlos. %{count} gemeinfreie Noten, durchsuchbar mit einfacher Stichwortsuche. Pro fügt Smart Search und Organisationsfunktionen hinzu."
     faq_3_q: "Was ist der Unterschied zu IMSLP?"
-    faq_3_a: "IMSLP ist ein Noten-Archiv mit Stichwortsuche. ScoreBase vereint mehrere Quellen (IMSLP, CPDL, PDMX) und fügt Smart Search hinzu, die musikalischen Kontext versteht: Schwierigkeit, Umfänge, Dauer, Stil."
+    faq_3_a: "IMSLP ist ein Noten-Archiv mit Stichwortsuche. ScoreBase vereint mehrere Quellen (IMSLP, CPDL, PDMX) und fügt Smart Search hinzu, die musikalischen Kontext versteht: Schwierigkeit, Stimmumfänge, Dauer, Stil."
     faq_4_q: "Kann ich jederzeit kündigen?"
     faq_4_a: "Ja. Keine Vertragsbindung. Kündige wann immer du willst."
 
@@ -354,12 +354,12 @@ de:
   # Mailers
   waitlist_mailer:
     confirmation:
-      subject: "Sie stehen auf der ScoreBase Pro Warteliste"
+      subject: "Du stehst auf der ScoreBase Pro Warteliste"
 
   # Waitlist form messages
   waitlist:
     success: "Danke! Prüfe deine E-Mails für die Bestätigung."
     success_with_preview: "Danke! Prüfe deine E-Mails für die Bestätigung oder <a href=\"%{preview_url}\" target=\"_blank\" rel=\"noopener noreferrer\">sieh sie hier an</a>."
-    already_subscribed: "Du stehst bereits auf der Liste! Wir schicken dir eine E-Mail beim Start."
+    already_subscribed: "Du stehst bereits auf der Liste! Ich schicke dir eine E-Mail beim Start."
     error: "Etwas ist schiefgelaufen. Bitte versuche es erneut."
     rate_limit: "Zu viele Anfragen. Bitte versuche es in einer Stunde erneut."
