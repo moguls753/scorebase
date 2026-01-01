@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 namespace :infer do
-  desc "Infer periods from title/metadata for failed composers. LIMIT=100 BACKEND=groq|gemini|lmstudio"
+  desc "Infer periods from title/metadata for failed composers. LIMIT=100 BACKEND=groq|gemini|lmstudio MODEL=llama-3.3-70b-versatile"
   task periods_from_title: :environment do
     limit = ENV.fetch("LIMIT", 100).to_i
     backend = ENV.fetch("BACKEND", "groq").to_sym
+    model = ENV["MODEL"]
 
-    InferPeriodsFromTitleJob.perform_now(limit: limit, backend: backend)
+    InferPeriodsFromTitleJob.perform_now(limit: limit, backend: backend, model: model)
     print_period_stats
   end
 

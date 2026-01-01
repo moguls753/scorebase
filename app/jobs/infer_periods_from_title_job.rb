@@ -10,13 +10,13 @@
 class InferPeriodsFromTitleJob < ApplicationJob
   queue_as :normalization
 
-  def perform(limit: 100, backend: :groq)
+  def perform(limit: 100, backend: :groq, model: nil)
     scores = eligible_scores(limit)
 
-    log_start(scores.count, backend)
+    log_start(scores.count, backend, model)
     return if scores.empty?
 
-    client = LlmClient.new(backend: backend)
+    client = LlmClient.new(backend: backend, model: model)
     inferrer = PeriodFromTitleInferrer.new(client: client)
     stats = { normalized: 0, not_applicable: 0, failed: 0 }
 
@@ -52,8 +52,8 @@ class InferPeriodsFromTitleJob < ApplicationJob
          .limit(limit)
   end
 
-  def log_start(count, backend)
-    logger.info "[InferPeriods] Processing #{count} scores with #{backend}"
+  def log_start(count, backend, model)
+    logger.info "[InferPeriods] Processing #{count} scores with #{backend}#{model ? " (#{model})" : ''}"
     logger.info "[InferPeriods] Requires: composer_status = 'failed'"
   end
 
