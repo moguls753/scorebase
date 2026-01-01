@@ -31,29 +31,38 @@ class PeriodFromTitleInferrer
     {"period": "Renaissance", "confidence": "high"}
 
     Valid periods (use exactly these):
-    - Medieval
-    - Renaissance
-    - Baroque
-    - Classical
-    - Romantic
-    - Late Romantic
-    - Impressionist
-    - 20th Century
-    - Contemporary
+    - Medieval (before 1400)
+    - Renaissance (1400-1600)
+    - Baroque (1600-1750)
+    - Classical (1750-1820)
+    - Romantic (1820-1900)
+    - Late Romantic (1880-1920)
+    - Impressionist (1890-1920)
+    - 20th Century (1900-2000)
+    - Contemporary (2000+)
 
-    Rules:
-    - Use title, language, and style hints to infer period
-    - Latin titles often indicate Medieval/Renaissance
-    - Traditional folk songs: identify by cultural origin and era
-    - Spirituals: typically 19th/20th century
-    - If current period seems correct, keep it (return same value)
-    - If current period is wrong or unknown, return the correct period
-    - If truly unknown/impossible to determine: return {"period": null, "confidence": "none"}
-    - Confidence: "high" if clear indicators, "medium" if inferred, "low" if guessing, "none" if unknown
+    CRITICAL RULES - READ CAREFULLY:
+    - Return null for MOST pieces - be very conservative
+    - ONLY return a period if you have SPECIFIC factual knowledge about when this exact piece was composed
+    - "Sweet Child O Mine" by Guns N' Roses (1987) → "Contemporary"
+    - "Jingle Bells" by James Lord Pierpont (1857) → "Romantic"
+    - "santa baby" by Joan Javits (1953) → "20th Century"
+    - If you know the composer name or year from your training: use it
+    - If you only recognize the title vaguely: return null
+    - If it "sounds like" a hymn/folk song but you don't know WHEN: return null
+    - DO NOT guess periods based on title style, language, or genre
+    - When in doubt: return null
+
+    Test yourself:
+    - "Ave maris stella" → Do you know the century? If yes: Medieval. If no: null
+    - "random church hymn title" → Don't know when? → null
+    - Generic title like "[ID 5-46]" → null (obviously)
+
+    If you return a period, you MUST be able to cite the approximate year or century from memory.
   PROMPT
 
-  def initialize(client: nil)
-    @client = client || LlmClient.new
+  def initialize(client: nil, model: nil)
+    @client = client || LlmClient.new(model: model)
   end
 
   def infer(score)
