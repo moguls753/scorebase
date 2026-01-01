@@ -23,6 +23,7 @@ class PeriodFromTitleInferrer
     - Genre: %{genre}
     - Description: %{description}
     - Language: %{language}
+    - Current period (from source): %{current_period}
 
     What musical period is this piece from?
 
@@ -45,6 +46,8 @@ class PeriodFromTitleInferrer
     - Latin titles often indicate Medieval/Renaissance
     - Traditional folk songs: identify by cultural origin and era
     - Spirituals: typically 19th/20th century
+    - If current period seems correct, keep it (return same value)
+    - If current period is wrong or unknown, return the correct period
     - If truly unknown/impossible to determine: return {"period": null, "confidence": "none"}
     - Confidence: "high" if clear indicators, "medium" if inferred, "low" if guessing, "none" if unknown
   PROMPT
@@ -79,7 +82,8 @@ class PeriodFromTitleInferrer
       composer: score.composer.to_s,
       genre: score.genre.presence || "unknown",
       description: score.description.to_s.truncate(200),
-      language: score.language.presence || "unknown"
+      language: score.language.presence || "unknown",
+      current_period: score.period.presence || "unknown"
     )
   end
 end
