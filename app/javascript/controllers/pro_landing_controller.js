@@ -85,7 +85,9 @@ export default class extends Controller {
         throw new Error('CSRF token not found')
       }
 
-      const response = await fetch(`/${locale}/waitlist`, {
+      // English is the default locale with no prefix (routes redirect /en/* to /*)
+      const url = locale === 'en' ? '/waitlist' : `/${locale}/waitlist`
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
