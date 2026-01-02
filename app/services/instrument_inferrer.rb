@@ -15,28 +15,27 @@ class InstrumentInferrer
   end
 
   PROMPT = <<~PROMPT
-    You identify musical instruments from sheet music metadata.
+    Identify instruments from sheet music metadata.
 
-    Score metadata:
-    - Title: %{title}
-    - Composer: %{composer}
-    - Period: %{period}
-    - Voicing: %{voicing}
-    - Number of parts: %{num_parts}
-    - Detected (hint, may be wrong): %{detected}
+    Title: %{title}
+    Composer: %{composer}
+    Period: %{period}
+    Voicing: %{voicing}
+    Parts: %{num_parts}
 
-    What instrument(s) is this piece for?
-
-    Respond with JSON only:
-    {"instruments": "Piano", "confidence": "high"}
+    JSON: {"instruments": "Piano", "confidence": "high/medium/low"}
 
     Rules:
-    - Use standard English names: Piano, Violin, Flute, Organ, Guitar, etc.
-    - List instruments comma-separated: "Violin, Viola, Cello" (not "String Trio")
-    - For full symphony orchestra (15+ instruments): "Orchestra"
-    - For vocal music: include "Vocal" plus any accompaniment ("Vocal, Piano" or "Vocal, Orchestra")
-    - For a cappella (voices only): just "Vocal"
-    - Confidence: "high" if explicit in title, "medium" if inferred, "low" if guessing
+    - Standard English names: Piano, Violin, Flute, Organ, Guitar, etc.
+    - Comma-separated: "Violin, Viola, Cello" (not "String Trio")
+    - Orchestra (15+ instruments): "Orchestra"
+    - Vocal with accompaniment: "Vocal, Piano" or "Vocal, Orchestra"
+    - A cappella: "Vocal"
+    - Some composers mainly wrote for one instrument:
+      Sor, Giuliani, Carulli, Tárrega, Barrios → Guitar
+      Chopin, Liszt, Czerny → Piano
+      Paganini → Violin
+    - Return null if truly unknown
   PROMPT
 
   def initialize(client: nil)
@@ -69,8 +68,7 @@ class InstrumentInferrer
       composer: score.composer.to_s,
       period: score.period.presence || "unknown",
       voicing: score.voicing.presence || "unknown",
-      num_parts: score.num_parts.to_i,
-      detected: score.detected_instruments.presence || "none"
+      num_parts: score.num_parts.to_i
     )
   end
 end
