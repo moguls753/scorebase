@@ -74,5 +74,21 @@ RSpec.describe HubDataBuilder do
     it "returns nil for invalid slug" do
       expect(described_class.find_by_slug(:genres, "nonexistent")).to be_nil
     end
+
+    it "returns nil when cached item no longer meets threshold (stale cache)" do
+      # Create scores to meet threshold
+      scores = 12.times.map { create(:score, genre: "StaleGenre") }
+
+      # Warm cache - will include StaleGenre with count 12
+      Rails.cache.delete("hub/genres")
+      genres = described_class.genres
+      expect(genres.find { |g| g[:slug] == "stalegenre" }).to be_present
+
+      # Delete scores - cache is now stale
+      scores.each(&:destroy)
+
+      # Should return nil despite being in cache
+      expect(described_class.find_by_slug(:genres, "stalegenre")).to be_nil
+    end
   end
 end
