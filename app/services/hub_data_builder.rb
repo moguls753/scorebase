@@ -61,13 +61,28 @@ class HubDataBuilder
       Rails.logger.info "[HubDataBuilder] Cache warm complete"
     end
 
-    # Slug lookups
+    # Slug lookups - verifies item still meets threshold (cache can be stale)
     def find_by_slug(type, slug)
       data = public_send(type)
-      data.find { |item| item[:slug] == slug }&.dig(:name)
+      item = data.find { |i| i[:slug] == slug }
+      return nil unless item
+
+      name = item[:name]
+      count = current_count(type, name)
+      count >= THRESHOLD ? name : nil
     end
 
     private
+
+    def current_count(type, name)
+      case type
+      when :composers then Score.where(composer: name).count
+      when :genres then Score.by_genre(name).count
+      when :instruments then Score.by_instrument(name).count
+      when :periods then Score.by_period_strict(name).count
+      else 0
+      end
+    end
 
     def fetch_or_build(key, &block)
       Rails.cache.fetch(key, expires_in: CACHE_FALLBACK_TTL, &block)
