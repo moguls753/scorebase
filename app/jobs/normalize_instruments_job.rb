@@ -1,22 +1,22 @@
 # frozen_string_literal: true
 
 # Infers instruments using LLM.
-# Requires: composer processed (any status except pending)
+# Requires: composer and period processed (any status except pending)
 #
 # Usage:
 #   NormalizeInstrumentsJob.perform_later
-#   NormalizeInstrumentsJob.perform_later(limit: 100, backend: :groq)
+#   NormalizeInstrumentsJob.perform_later(limit: 100, backend: :openai)
 #
 class NormalizeInstrumentsJob < ApplicationJob
-  queue_as :normalization
+  queue_as :default
 
-  def perform(limit: 100, backend: :groq)
+  def perform(limit: 100, backend: :openai, model: nil)
     scores = eligible_scores(limit)
 
     log_start(scores.count, backend)
     return if scores.empty?
 
-    client = LlmClient.new(backend: backend)
+    client = LlmClient.new(backend: backend, model: model)
     inferrer = InstrumentInferrer.new(client: client)
     stats = { normalized: 0, not_applicable: 0, failed: 0 }
 
@@ -48,13 +48,13 @@ class NormalizeInstrumentsJob < ApplicationJob
   def eligible_scores(limit)
     Score.instruments_pending
          .where.not(composer_status: "pending")
+         .where.not(period_status: "pending")
          .where.not(title: [nil, ""])
          .limit(limit)
   end
 
   def log_start(count, backend)
     logger.info "[NormalizeInstruments] Processing #{count} scores with #{backend}"
-    logger.info "[NormalizeInstruments] Requires: composer processed"
   end
 
   def log_complete(stats)
