@@ -19,7 +19,8 @@ Disallow: /rails/
 # Crawl-delay for politeness (optional, respected by some bots)
 Crawl-delay: 1
 
-# Block AI training bots from downloading score files
+# Block AI/training bots from downloading score files
+# They can crawl pages, just not trigger PDF redirects
 User-agent: GPTBot
 User-agent: ChatGPT-User
 User-agent: Google-Extended
@@ -27,8 +28,11 @@ User-agent: ClaudeBot
 User-agent: anthropic-ai
 User-agent: CCBot
 User-agent: Bytespider
-User-agent: FacebookBot
+User-agent: Amazonbot
+User-agent: PerplexityBot
+User-agent: YouBot
 Disallow: /scores/*/file/
+Disallow: /*/scores/*/file/
 
 # Sitemap location
 Sitemap: https://scorebase.org/sitemap.xml.gz
