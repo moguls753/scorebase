@@ -16,10 +16,11 @@ require "json"
 # Backends:
 #   :groq     - Groq API (fast, production)
 #   :gemini   - Google Gemini API
+#   :openai   - OpenAI API (gpt-4o-mini, etc.)
 #   :lmstudio - Local LMStudio server (free, for testing/bulk)
 #
 class LlmClient
-  BACKENDS = %i[groq gemini lmstudio].freeze
+  BACKENDS = %i[groq gemini openai lmstudio].freeze
 
   # SSL certificate store for HTTPS requests
   # OpenSSL 3.6+ requires explicit configuration to work with modern APIs
@@ -83,6 +84,9 @@ class LlmClient
     when :gemini
       api_key = Rails.application.credentials.dig(:gemini, :api_key)
       raise ConfigurationError, "Gemini API key not set in Rails credentials" if api_key.blank?
+    when :openai
+      api_key = Rails.application.credentials.dig(:openai, :api_key)
+      raise ConfigurationError, "OpenAI API key not set in Rails credentials" if api_key.blank?
     when :lmstudio
       # LMStudio runs locally, no API key needed
       # Just verify the server URL is configured
@@ -95,6 +99,7 @@ class LlmClient
     case @backend
     when :groq    then send_groq_request(prompt, json_mode: json_mode, temperature: temperature)
     when :gemini  then send_gemini_request(prompt, json_mode: json_mode, temperature: temperature)
+    when :openai  then send_openai_request(prompt, json_mode: json_mode, temperature: temperature)
     when :lmstudio then send_lmstudio_request(prompt, json_mode: json_mode, temperature: temperature)
     end
   end
@@ -112,7 +117,7 @@ class LlmClient
 
   def extract_text(body)
     case @backend
-    when :groq, :lmstudio
+    when :groq, :openai, :lmstudio
       body.dig("choices", 0, "message", "content") || raise(Error, "No content in response")
     when :gemini
       body.dig("candidates", 0, "content", "parts", 0, "text") || raise(Error, "No content in response")
@@ -160,6 +165,27 @@ class LlmClient
     }
 
     http_post(uri, payload)
+  end
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # OpenAI
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions"
+  OPENAI_DEFAULT_MODEL = "gpt-4o-mini"
+
+  def send_openai_request(prompt, json_mode:, temperature:)
+    uri = URI(OPENAI_ENDPOINT)
+    api_key = Rails.application.credentials.dig(:openai, :api_key)
+
+    payload = {
+      model: @model || ENV.fetch("OPENAI_MODEL", OPENAI_DEFAULT_MODEL),
+      temperature: temperature,
+      messages: [{ role: "user", content: prompt }]
+    }
+    payload[:response_format] = { type: "json_object" } if json_mode
+
+    http_post(uri, payload, { "Authorization" => "Bearer #{api_key}" })
   end
 
   # ═══════════════════════════════════════════════════════════════════════════
