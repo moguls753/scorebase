@@ -285,14 +285,14 @@ en:
 
   # Pro Landing Page
   pro:
-    meta_title: "Smart Sheet Music Search — ScoreBase"
-    meta_description: "Search %{count} public domain scores by difficulty, range, duration, and mood. Natural language search. $2.99/mo."
+    meta_title: "AI Sheet Music Search — Find Scores by Description | ScoreBase"
+    meta_description: "Free AI-powered sheet music search. Describe what you need: 'easy piano for beginners' or 'SATB choir piece for Easter'. Search %{count} public domain scores by difficulty, vocal range, and mood."
 
     # Status badge
     status_coming_soon: "Coming Soon"
 
     # Hero section
-    hero_headline: "Search the way you think about music"
+    hero_headline: "AI-Powered Sheet Music Search"
     hero_subhead: "Stop typing keywords. Start describing what you need. I'm building AI-powered search that understands musical context."
 
     # Problem section
