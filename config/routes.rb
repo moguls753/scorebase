@@ -9,7 +9,11 @@ Rails.application.routes.draw do
   # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
-  scope "(:locale)", locale: /en|de/ do
+  # Redirect /en/* to /* (English is default, no prefix needed)
+  get "/en/*path", to: redirect("/%{path}", status: 301)
+  get "/en", to: redirect("/", status: 301)
+
+  scope "(:locale)", locale: /de/ do
     # Pro Landing Page (waitlist) - canonical URL for SEO
     get "smart-search", to: "pages#pro", as: :pro_landing
     post "waitlist", to: "waitlist_signups#create", as: :waitlist_signup

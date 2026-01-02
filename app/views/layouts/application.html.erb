@@ -41,7 +41,7 @@
     <!-- Open Graph / Social Sharing -->
     <meta property="og:type" content="<%= content_for(:og_type) || 'website' %>">
     <meta property="og:title" content="<%= content_for(:title) || t('meta.title') %>">
-    <meta property="og:description" content="<%= content_for(:meta_description) || t('meta.description') %>">
+    <meta property="og:description" content="<%= content_for(:og_description) || content_for(:meta_description) || t('meta.description') %>">
     <meta property="og:url" content="<%= request.original_url %>">
     <meta property="og:image" content="<%= content_for(:og_image) || "#{request.base_url}/og-image.png" %>">
     <meta property="og:image:width" content="1200">

@@ -4,10 +4,10 @@ RSpec.describe "Waitlist Signups", type: :request do
   let(:valid_params) { { waitlist_signup: { email: "test@example.com" } } }
   let(:headers) { { "Content-Type" => "application/json" } }
 
-  describe "POST /en/waitlist" do
+  describe "POST /waitlist" do
     it "creates a signup with valid email" do
       expect {
-        post "/en/waitlist", params: valid_params.to_json, headers: headers
+        post "/waitlist", params: valid_params.to_json, headers: headers
       }.to change(WaitlistSignup, :count).by(1)
 
       expect(response).to have_http_status(:created)
@@ -24,11 +24,11 @@ RSpec.describe "Waitlist Signups", type: :request do
 
     it "handles duplicate email gracefully" do
       # First signup
-      post "/en/waitlist", params: valid_params.to_json, headers: headers
+      post "/waitlist", params: valid_params.to_json, headers: headers
       expect(response).to have_http_status(:created)
 
       # Duplicate signup
-      post "/en/waitlist", params: valid_params.to_json, headers: headers
+      post "/waitlist", params: valid_params.to_json, headers: headers
       expect(response).to have_http_status(:ok)
 
       json = JSON.parse(response.body)
@@ -39,7 +39,7 @@ RSpec.describe "Waitlist Signups", type: :request do
     it "rejects invalid email" do
       invalid_params = { waitlist_signup: { email: "not-an-email" } }
 
-      post "/en/waitlist", params: invalid_params.to_json, headers: headers
+      post "/waitlist", params: invalid_params.to_json, headers: headers
 
       expect(response).to have_http_status(:unprocessable_entity)
       json = JSON.parse(response.body)
