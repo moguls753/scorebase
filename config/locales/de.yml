@@ -285,14 +285,14 @@ de:
 
   # Pro Landing Page
   pro:
-    meta_title: "Intelligente Notensuche — ScoreBase"
-    meta_description: "Durchsuche %{count} gemeinfreie Noten nach Schwierigkeit, Tonumfang, Dauer und Stimmung. Suche in natürlicher Sprache. 2,99 €/Monat."
+    meta_title: "KI-Notensuche — Noten per Beschreibung finden | ScoreBase"
+    meta_description: "Kostenlose KI-gestützte Notensuche. Beschreibe was du suchst: 'leichtes Klavierstück für Anfänger' oder 'SATB-Chorstück für Ostern'. Durchsuche %{count} gemeinfreie Noten nach Schwierigkeit, Stimmumfang und Stimmung."
 
     # Status badge
     status_coming_soon: "Demnächst"
 
     # Hero section
-    hero_headline: "Such so, wie du über Musik denkst"
+    hero_headline: "KI-gestützte Notensuche"
     hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst – in natürlicher Sprache."
 
     # Problem section
