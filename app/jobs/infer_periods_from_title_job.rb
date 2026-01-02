@@ -8,7 +8,7 @@
 #   InferPeriodsFromTitleJob.perform_later(limit: 1000, batch_size: 5)
 #
 class InferPeriodsFromTitleJob < ApplicationJob
-  queue_as :normalization
+  queue_as :default
 
   BATCH_SIZE = 5
 
