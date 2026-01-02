@@ -23,13 +23,13 @@ RSpec.describe NormalizePeriodsJob, type: :job do
       expect(score.period_status).to eq("normalized")
     end
 
-    it "marks as not_applicable when composer not in lookup" do
+    it "leaves as pending when composer not in lookup (for next stage)" do
       score = create(:score, composer: "Unknown, Joe", composer_status: :normalized)
 
       described_class.perform_now(limit: 100)
 
       expect(score.reload.period).to be_nil
-      expect(score.period_status).to eq("not_applicable")
+      expect(score.period_status).to eq("pending")
     end
 
     it "skips already processed scores" do

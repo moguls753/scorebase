@@ -31,13 +31,10 @@ class NormalizePeriodsJob < ApplicationJob
       if period.present?
         Score.where(id: ids).update_all(period: period, period_status: "normalized")
         stats[:normalized] += ids.size
-      else
-        Score.where(id: ids).update_all(period_status: "not_applicable")
-        stats[:not_applicable] += ids.size
       end
     end
 
-    logger.info "[NormalizePeriods] Complete: #{stats[:normalized]} normalized, #{stats[:not_applicable]} not applicable"
+    logger.info "[NormalizePeriods] Complete: #{stats[:normalized]} normalized"
   end
 
   private

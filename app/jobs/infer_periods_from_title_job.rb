@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-# Infers musical period from title/metadata for scores with failed composer normalization.
-# Requires: composer_status = 'failed'
+# Infers musical period from title/metadata for scores that couldn't be normalized via composer lookup.
+# This is the second stage of period normalization after NormalizePeriodsJob.
 #
 # Usage:
 #   InferPeriodsFromTitleJob.perform_later
@@ -47,14 +47,13 @@ class InferPeriodsFromTitleJob < ApplicationJob
 
   def eligible_scores(limit)
     Score.period_pending
-         .where(composer_status: "failed")
          .where.not(title: [nil, ""])
          .limit(limit)
   end
 
   def log_start(count, backend, model)
     logger.info "[InferPeriods] Processing #{count} scores with #{backend}#{model ? " (#{model})" : ''}"
-    logger.info "[InferPeriods] Requires: composer_status = 'failed'"
+    logger.info "[InferPeriods] Stage 2: inferring from title/metadata"
   end
 
   def log_complete(stats)
