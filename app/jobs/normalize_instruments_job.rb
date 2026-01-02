@@ -1,43 +1,37 @@
 # frozen_string_literal: true
 
-# Infers instruments using LLM.
+# Infers instruments using LLM in batches.
 # Requires: composer and period processed (any status except pending)
 #
 # Usage:
 #   NormalizeInstrumentsJob.perform_later
-#   NormalizeInstrumentsJob.perform_later(limit: 100, backend: :openai)
+#   NormalizeInstrumentsJob.perform_later(limit: 1000, batch_size: 10)
 #
 class NormalizeInstrumentsJob < ApplicationJob
   queue_as :default
 
-  def perform(limit: 100, backend: :openai, model: nil)
-    scores = eligible_scores(limit)
+  BATCH_SIZE = 10  # scores per API call (same as period job)
 
-    log_start(scores.count, backend)
-    return if scores.empty?
+  def perform(limit: 100, backend: :openai, model: nil, batch_size: BATCH_SIZE)
+    scores = eligible_scores(limit).to_a
+    return log_empty if scores.empty?
+
+    log_start(scores.count, backend, batch_size)
 
     client = LlmClient.new(backend: backend, model: model)
     inferrer = InstrumentInferrer.new(client: client)
     stats = { normalized: 0, not_applicable: 0, failed: 0 }
 
-    scores.find_each.with_index do |score, i|
-      result = inferrer.infer(score)
+    scores.each_slice(batch_size).with_index do |batch, batch_idx|
+      results = inferrer.infer(batch)
 
-      if result.found?
-        score.update!(instruments: result.instruments, instruments_status: :normalized)
-        stats[:normalized] += 1
-        logger.info "[NormalizeInstruments] #{i + 1}. #{score.title&.truncate(40)} -> #{result.instruments}"
-      elsif result.success?
-        score.update!(instruments_status: :not_applicable)
-        stats[:not_applicable] += 1
-        logger.info "[NormalizeInstruments] #{i + 1}. #{score.title&.truncate(40)} -> N/A"
-      else
-        score.update!(instruments_status: :failed)
-        stats[:failed] += 1
-        logger.warn "[NormalizeInstruments] #{i + 1}. #{score.title&.truncate(40)} -> FAILED: #{result.error}"
+      results.each_with_index do |result, i|
+        score = batch[i]
+        index = batch_idx * batch_size + i + 1
+        apply_result(score, result, stats, index)
       end
 
-      sleep 0.1 if backend != :lmstudio
+      sleep 0.5 # Rate limiting
     end
 
     log_complete(stats)
@@ -53,8 +47,28 @@ class NormalizeInstrumentsJob < ApplicationJob
          .limit(limit)
   end
 
-  def log_start(count, backend)
-    logger.info "[NormalizeInstruments] Processing #{count} scores with #{backend}"
+  def apply_result(score, result, stats, index)
+    if result.found?
+      score.update!(instruments: result.instruments, instruments_status: :normalized)
+      stats[:normalized] += 1
+      logger.info "[NormalizeInstruments] #{index}. #{score.title&.truncate(40)} -> #{result.instruments}"
+    elsif result.success?
+      score.update!(instruments_status: :not_applicable)
+      stats[:not_applicable] += 1
+      logger.info "[NormalizeInstruments] #{index}. #{score.title&.truncate(40)} -> N/A"
+    else
+      score.update!(instruments_status: :failed)
+      stats[:failed] += 1
+      logger.warn "[NormalizeInstruments] #{index}. #{score.title&.truncate(40)} -> FAILED: #{result.error}"
+    end
+  end
+
+  def log_empty
+    logger.info "[NormalizeInstruments] No eligible scores to process"
+  end
+
+  def log_start(count, backend, batch_size)
+    logger.info "[NormalizeInstruments] Processing #{count} scores with #{backend} (batch_size: #{batch_size})"
   end
 
   def log_complete(stats)

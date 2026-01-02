@@ -33,7 +33,12 @@ class LlmClient
 
   class Error < StandardError; end
   class QuotaExceededError < Error; end
+  class RateLimitError < Error; end
   class ConfigurationError < Error; end
+
+  # Retry configuration for rate limits
+  MAX_RETRIES = 5
+  BASE_DELAY = 2.0 # seconds
 
   # Default backend from ENV or config
   def self.default_backend
@@ -58,8 +63,19 @@ class LlmClient
   # @param temperature [Float] Temperature for response generation (0.0-1.0)
   # @return [String] The response text
   def chat(prompt, json_mode: false, temperature: 0.1)
-    response = send_request(prompt, json_mode: json_mode, temperature: temperature)
-    parse_response(response)
+    retries = 0
+    begin
+      response = send_request(prompt, json_mode: json_mode, temperature: temperature)
+      parse_response(response)
+    rescue RateLimitError
+      retries += 1
+      raise QuotaExceededError, "Rate limit exceeded after #{MAX_RETRIES} retries" if retries > MAX_RETRIES
+
+      delay = BASE_DELAY * (2**(retries - 1)) + rand(0.0..1.0) # 2s, 4s, 8s, 16s, 32s
+      Rails.logger.warn "[LlmClient] Rate limited, retry #{retries}/#{MAX_RETRIES} after #{delay.round(1)}s"
+      sleep(delay)
+      retry
+    end
   end
 
   # Convenience method for JSON responses - parses the result
@@ -105,7 +121,19 @@ class LlmClient
   end
 
   def parse_response(response)
-    raise QuotaExceededError, "API quota exceeded" if response.code == "429"
+    if response.code == "429"
+      # Parse error body to distinguish rate limit from billing quota
+      error_body = JSON.parse(response.body) rescue {}
+      error_type = error_body.dig("error", "type") || ""
+      error_msg = error_body.dig("error", "message") || "Rate limited"
+
+      # Billing quota exceeded is not retryable
+      if error_type.include?("insufficient_quota") || error_msg.include?("exceeded your current quota")
+        raise QuotaExceededError, "Billing quota exceeded: #{error_msg}"
+      else
+        raise RateLimitError, error_msg
+      end
+    end
 
     unless response.code == "200"
       raise Error, "API Error #{response.code}: #{response.body[0..500]}"
