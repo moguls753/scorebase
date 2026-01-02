@@ -287,6 +287,7 @@ de:
   pro:
     meta_title: "KI-Notensuche — Noten per Beschreibung finden | ScoreBase"
     meta_description: "Kostenlose KI-gestützte Notensuche. Beschreibe was du suchst: 'leichtes Klavierstück für Anfänger' oder 'SATB-Chorstück für Ostern'. Durchsuche %{count} gemeinfreie Noten nach Schwierigkeit, Stimmumfang und Stimmung."
+    og_description: "Finde das passende Stück für deine Schüler, deinen Chor oder dein nächstes Konzert. %{count} freie Noten, durchsuchbar nach dem, was du wirklich brauchst."
 
     # Status badge
     status_coming_soon: "Demnächst"

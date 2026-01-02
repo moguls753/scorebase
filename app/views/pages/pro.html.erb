@@ -1,5 +1,6 @@
 <% content_for :title, t('pro.meta_title') %>
 <% content_for :meta_description, t('pro.meta_description', count: number_with_delimiter(@total_count)) %>
+<% content_for :og_description, t('pro.og_description', count: number_with_delimiter(@total_count)) %>
 <% content_for :json_ld do %>
   <script type="application/ld+json">
   {

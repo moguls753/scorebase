@@ -287,6 +287,7 @@ en:
   pro:
     meta_title: "AI Sheet Music Search — Find Scores by Description | ScoreBase"
     meta_description: "Free AI-powered sheet music search. Describe what you need: 'easy piano for beginners' or 'SATB choir piece for Easter'. Search %{count} public domain scores by difficulty, vocal range, and mood."
+    og_description: "Find the right piece for your students, choir, or next recital. %{count} free scores, searchable by what you actually need."
 
     # Status badge
     status_coming_soon: "Coming Soon"
