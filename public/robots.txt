@@ -7,9 +7,9 @@ User-agent: *
 # Allow everything
 Allow: /
 
-# Block query parameter variations to prevent duplicate content
-Disallow: /*?sort=
-Disallow: /*?page=
+# Block search queries to prevent thin/duplicate content
+# Note: pagination (?page=) is NOT blocked - canonical tags handle deduplication
+# Note: sort (?sort=) is NOT blocked - handled by canonical tags
 Disallow: /*?q=
 
 # Block internal/admin paths (if any exist in future)
