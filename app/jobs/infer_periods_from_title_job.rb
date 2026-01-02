@@ -5,39 +5,33 @@
 #
 # Usage:
 #   InferPeriodsFromTitleJob.perform_later
-#   InferPeriodsFromTitleJob.perform_later(limit: 100, backend: :groq)
+#   InferPeriodsFromTitleJob.perform_later(limit: 1000, batch_size: 5)
 #
 class InferPeriodsFromTitleJob < ApplicationJob
   queue_as :normalization
 
-  def perform(limit: 100, backend: :groq, model: nil)
-    scores = eligible_scores(limit)
+  BATCH_SIZE = 5
 
-    log_start(scores.count, backend, model)
-    return if scores.empty?
+  def perform(limit: 100, backend: :openai, model: nil, batch_size: BATCH_SIZE)
+    scores = eligible_scores(limit).to_a
+    return log_empty if scores.empty?
+
+    log_start(scores.count, backend, batch_size)
 
     client = LlmClient.new(backend: backend, model: model)
     inferrer = PeriodFromTitleInferrer.new(client: client)
     stats = { normalized: 0, not_applicable: 0, failed: 0 }
 
-    scores.find_each.with_index do |score, i|
-      result = inferrer.infer(score)
+    scores.each_slice(batch_size).with_index do |batch, batch_idx|
+      results = inferrer.infer(batch)
 
-      if result.found?
-        score.update!(period: result.period, period_status: :normalized)
-        stats[:normalized] += 1
-        logger.info "[InferPeriods] #{i + 1}. #{score.title&.truncate(40)} -> #{result.period}"
-      elsif result.success?
-        score.update!(period_status: :not_applicable)
-        stats[:not_applicable] += 1
-        logger.info "[InferPeriods] #{i + 1}. #{score.title&.truncate(40)} -> N/A"
-      else
-        score.update!(period_status: :failed)
-        stats[:failed] += 1
-        logger.warn "[InferPeriods] #{i + 1}. #{score.title&.truncate(40)} -> FAILED: #{result.error}"
+      results.each_with_index do |result, i|
+        score = batch[i]
+        index = batch_idx * batch_size + i + 1
+        apply_result(score, result, stats, index)
       end
 
-      sleep 0.1 if backend != :lmstudio
+      sleep 0.2 # Rate limiting
     end
 
     log_complete(stats)
@@ -51,9 +45,28 @@ class InferPeriodsFromTitleJob < ApplicationJob
          .limit(limit)
   end
 
-  def log_start(count, backend, model)
-    logger.info "[InferPeriods] Processing #{count} scores with #{backend}#{model ? " (#{model})" : ''}"
-    logger.info "[InferPeriods] Stage 2: inferring from title/metadata"
+  def apply_result(score, result, stats, index)
+    if result.found?
+      score.update!(period: result.period, period_status: :normalized)
+      stats[:normalized] += 1
+      logger.info "[InferPeriods] #{index}. #{score.title&.truncate(40)} -> #{result.period}"
+    elsif result.success?
+      score.update!(period_status: :not_applicable)
+      stats[:not_applicable] += 1
+      logger.info "[InferPeriods] #{index}. #{score.title&.truncate(40)} -> N/A"
+    else
+      score.update!(period_status: :failed)
+      stats[:failed] += 1
+      logger.warn "[InferPeriods] #{index}. #{score.title&.truncate(40)} -> FAILED: #{result.error}"
+    end
+  end
+
+  def log_empty
+    logger.info "[InferPeriods] No eligible scores to process"
+  end
+
+  def log_start(count, backend, batch_size)
+    logger.info "[InferPeriods] Processing #{count} scores with #{backend} (batch_size: #{batch_size})"
   end
 
   def log_complete(stats)

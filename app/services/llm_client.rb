@@ -14,9 +14,9 @@ require "json"
 #   response = client.chat("Return JSON: {answer: 4}", json_mode: true)
 #
 # Backends:
-#   :groq     - Groq API (fast, production)
+#   :groq     - Groq API (llama-3.1-8b) - DEFAULT, cheapest
+#   :openai   - OpenAI API (gpt-4o-mini) - best quality for complex tasks
 #   :gemini   - Google Gemini API
-#   :openai   - OpenAI API (gpt-4o-mini, etc.)
 #   :lmstudio - Local LMStudio server (free, for testing/bulk)
 #
 class LlmClient
