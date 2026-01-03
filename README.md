@@ -24,8 +24,8 @@ Smart Search runs on AI. AI costs money. Your subscription keeps it running whil
 This is fully open source. You can run your own instance:
 
 ```bash
-bin/dev              # Start Rails
-cd rag && python -m src.api.main  # Start RAG service
+bin/dev
+cd rag && python -m src.api.main
 ```
 
 See `rag/` for the Python RAG service (FastAPI + ChromaDB + sentence-transformers).
