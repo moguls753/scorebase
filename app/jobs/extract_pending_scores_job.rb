@@ -5,15 +5,17 @@
 # Usage:
 #   ExtractPendingScoresJob.perform_later
 #   ExtractPendingScoresJob.perform_later(limit: 100)
+#   ExtractPendingScoresJob.perform_later(source: "openscore-lieder")
+#   ExtractPendingScoresJob.perform_later(source: %w[openscore-lieder openscore-quartets])
 #
 class ExtractPendingScoresJob < ApplicationJob
   queue_as :extractions
 
-  def perform(limit: 100)
+  def perform(limit: 100, source: nil)
     scores = Score.extraction_pending
-                  .where.not(mxl_path: [nil, "", "N/A"])
-                  .limit(limit)
-                  .to_a
+                  .where.not(mxl_path: [nil, "", "N/A", "NA"])
+    scores = scores.where(source: source) if source.present?
+    scores = scores.limit(limit).to_a
 
     logger.info "[ExtractPendingScores] Processing #{scores.size} scores"
     return if scores.empty?

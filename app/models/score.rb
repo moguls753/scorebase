@@ -363,11 +363,11 @@ class Score < ApplicationRecord
     filename
   end
 
-  # For IMSLP scores, generate file URLs via Special:ImagefromIndex
+  # For IMSLP scores, generate file URLs via Special:IMSLPImageHandler (requires cookie)
   def imslp_file_url(filename)
     return nil unless imslp? && filename.present? && external_id.present?
     encoded_filename = URI.encode_www_form_component(filename)
-    "https://imslp.org/wiki/Special:ImagefromIndex/#{external_id}/#{encoded_filename}"
+    "https://imslp.org/wiki/Special:IMSLPImageHandler/#{external_id}/#{encoded_filename}"
   end
 
   # Get the full PDF URL for external scores

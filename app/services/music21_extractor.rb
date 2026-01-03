@@ -51,24 +51,43 @@ class Music21Extractor
     ext = File.extname(@score.mxl_path).presence || ".mxl"
     dest = File.join(dir, "score#{ext}")
 
-    if File.exist?(source)
+    # Local file
+    if File.exist?(source.to_s)
       FileUtils.cp(source, dest)
       return dest
     end
 
-    uri = URI(source)
-    response = Net::HTTP.get_response(uri)
+    # CPDL is Cloudflare-protected
+    raise Error, "CPDL downloads blocked by Cloudflare" if @score.cpdl?
 
-    5.times do
-      break unless response.is_a?(Net::HTTPRedirection)
-      uri = URI(response["location"])
-      response = Net::HTTP.get_response(uri)
-    end
+    # IMSLP needs cookie to bypass disclaimer
+    headers = @score.imslp? ? { "Cookie" => "imslpdisclaimeraccepted=yes" } : {}
+
+    uri = URI(source)
+    response = fetch_with_redirects(uri, headers)
 
     raise Error, "Download failed: #{response.code}" unless response.is_a?(Net::HTTPSuccess)
-
     File.binwrite(dest, response.body)
     dest
+  end
+
+  def fetch_with_redirects(uri, headers = {}, limit = 5)
+    raise Error, "Too many redirects" if limit == 0
+
+    request = Net::HTTP::Get.new(uri)
+    headers.each { |k, v| request[k] = v }
+
+    response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == "https") do |http|
+      http.request(request)
+    end
+
+    if response.is_a?(Net::HTTPRedirection)
+      location = response["location"]
+      location = "#{uri.scheme}://#{uri.host}#{location}" if location.start_with?("/")
+      fetch_with_redirects(URI(location), {}, limit - 1)
+    else
+      response
+    end
   end
 
   def run_python(file)
