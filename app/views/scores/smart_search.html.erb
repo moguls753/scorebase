@@ -5,11 +5,22 @@
   <div class="text-center mb-8">
     <h1 class="text-2xl sm:text-3xl font-[var(--font-family-display)] font-black text-[var(--color-primary)] tracking-tight">
       Smart Search
-      <span class="inline-flex items-center ml-2 px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-[var(--color-accent)] text-white rounded">Pro</span>
+      <% if pro_user? %>
+        <span class="inline-flex items-center ml-2 px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-[var(--color-accent)] text-white rounded">Pro</span>
+      <% end %>
     </h1>
     <p class="mt-2 text-sm text-[var(--color-text-muted)]">
       Describe what you're looking for in natural language
     </p>
+    <% unless pro_user? %>
+      <p class="mt-2 text-sm <%= @searches_remaining.to_i <= 1 ? 'text-amber-500' : 'text-[var(--color-text-muted)]' %>">
+        <% if @searches_remaining.to_i == 1 %>
+          <%= t('search_limit.last_search') %>
+        <% else %>
+          <%= t('search_limit.searches_remaining', count: @searches_remaining.to_i) %>
+        <% end %>
+      </p>
+    <% end %>
   </div>
 
   <!-- Search Form -->

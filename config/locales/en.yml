@@ -682,3 +682,26 @@ en:
     already_subscribed: "You're already on the list! We'll email you when we launch."
     error: "Something went wrong. Please try again."
     rate_limit: "Too many requests. Please try again in an hour."
+
+  # Search limits
+  search_limit:
+    # Free users
+    free_limit_title: "You've used your free searches"
+    free_limit_message: "Your 3 free Smart Searches helped you discover what's possible. Upgrade to Pro for unlimited access."
+    upgrade_title: "Upgrade to Pro"
+    upgrade_message: "Get %{limit} Smart Searches per month, plus saved searches and favorites."
+    upgrade_button: "Subscribe Now"
+
+    # Pro users
+    pro_limit_title: "Monthly limit reached"
+    pro_limit_message: "You've used all %{limit} Smart Searches this month."
+    resets_on: "Your searches reset on %{date}."
+
+    # Common
+    browse_catalog_hint: "You can still browse our free catalog of 300,000+ scores."
+    browse_catalog_link: "Browse Catalog"
+
+    # Remaining counter (shown in smart_search view)
+    searches_remaining: "%{count} searches remaining"
+    searches_remaining_one: "1 search remaining"
+    last_search: "Last free search!"

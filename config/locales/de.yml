@@ -682,3 +682,26 @@ de:
     already_subscribed: "Du stehst bereits auf der Liste! Ich schicke dir eine E-Mail beim Start."
     error: "Etwas ist schiefgelaufen. Bitte versuche es erneut."
     rate_limit: "Zu viele Anfragen. Bitte versuche es in einer Stunde erneut."
+
+  # Search limits
+  search_limit:
+    # Free users
+    free_limit_title: "Kostenlose Suchen aufgebraucht"
+    free_limit_message: "Deine 3 kostenlosen Smart Searches haben gezeigt, was möglich ist. Upgrade auf Pro für unbegrenzten Zugang."
+    upgrade_title: "Upgrade auf Pro"
+    upgrade_message: "%{limit} Smart Searches pro Monat, plus gespeicherte Suchen und Favoriten."
+    upgrade_button: "Jetzt abonnieren"
+
+    # Pro users
+    pro_limit_title: "Monatliches Limit erreicht"
+    pro_limit_message: "Du hast alle %{limit} Smart Searches diesen Monat verwendet."
+    resets_on: "Deine Suchen werden am %{date} zurückgesetzt."
+
+    # Common
+    browse_catalog_hint: "Du kannst weiterhin unseren kostenlosen Katalog mit über 300.000 Partituren durchsuchen."
+    browse_catalog_link: "Katalog durchsuchen"
+
+    # Remaining counter
+    searches_remaining: "%{count} Suchen übrig"
+    searches_remaining_one: "1 Suche übrig"
+    last_search: "Letzte kostenlose Suche!"

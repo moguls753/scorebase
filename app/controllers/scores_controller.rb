@@ -1,15 +1,21 @@
 class ScoresController < ApplicationController
   allow_unauthenticated_access except: [:smart_search]
-  before_action :require_pro_subscription, only: [:smart_search]
+  before_action :require_authentication, only: [:smart_search]
+  before_action :check_search_limit, only: [:smart_search]
 
   def smart_search
     @query = params[:q].to_s.strip
+    @searches_remaining = Current.user.searches_remaining
 
     if @query.blank?
       @rag_result = RagSearch::Result.new({})
       @scores = Score.none
       return
     end
+
+    # Increment count before search (so failed API calls still count)
+    Current.user.use_smart_search!
+    @searches_remaining = Current.user.searches_remaining
 
     # Call RAG API for smart recommendations
     @rag_result = RagSearch.smart_search(@query)
@@ -239,6 +245,13 @@ class ScoresController < ApplicationController
       scores.order_by_composer
     else
       scores.order_by_popularity # Default
+    end
+  end
+
+  def check_search_limit
+    Current.user.ensure_monthly_reset!
+    unless Current.user.can_smart_search?
+      render :search_limit_reached
     end
   end
 end

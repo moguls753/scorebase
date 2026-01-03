@@ -228,6 +228,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_142840) do
     t.datetime "created_at", null: false
     t.string "email_address", null: false
     t.string "password_digest", null: false
+    t.datetime "search_count_reset_at"
+    t.integer "smart_search_count", default: 0, null: false
     t.string "stripe_customer_id"
     t.datetime "subscribed_until"
     t.datetime "updated_at", null: false

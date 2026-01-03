@@ -194,12 +194,18 @@
       <% if pro_user? %>
         <%= link_to t('pro.cta_open_search'), smart_search_path, class: "mm-button mm-button-primary" %>
       <% elsif authenticated? %>
-        <%# TODO: Link to Stripe checkout when ready %>
-        <span class="mm-button mm-button-secondary" style="opacity: 0.6; cursor: not-allowed;">
-          <%= t('pro.cta_subscribe') %>
-        </span>
+        <% searches_left = Current.user.searches_remaining %>
+        <% if searches_left > 0 %>
+          <%= link_to t('pro.cta_try_now'), smart_search_path, class: "mm-button mm-button-primary" %>
+          <p class="pricing-login-hint">
+            <%= t('search_limit.searches_remaining', count: searches_left) %>
+          </p>
+        <% else %>
+          <%# TODO: Link to Stripe checkout when ready %>
+          <%= link_to t('pro.cta_subscribe'), pro_landing_path, class: "mm-button mm-button-primary" %>
+        <% end %>
       <% else %>
-        <%= link_to t('pro.cta_subscribe'), new_user_path, class: "mm-button mm-button-primary" %>
+        <%= link_to t('pro.cta_get_started'), new_user_path, class: "mm-button mm-button-primary" %>
         <p class="pricing-login-hint">
           <%= t('pro.already_member') %> <%= link_to t('pro.sign_in'), new_session_path %>
         </p>

@@ -110,7 +110,7 @@ RSpec.describe "Authentication", type: :request do
       expect(response).to redirect_to(new_session_path)
     end
 
-    it "redirects authenticated non-pro users to pro landing page" do
+    it "allows authenticated users with remaining searches" do
       user = create(:user)
       post session_path, params: {
         email_address: user.email_address,
@@ -119,11 +119,11 @@ RSpec.describe "Authentication", type: :request do
 
       get smart_search_path
 
-      expect(response).to redirect_to(pro_landing_path)
+      expect(response).to be_successful
     end
 
-    it "allows pro users" do
-      user = create(:user, subscribed_until: 1.month.from_now)
+    it "shows limit reached page when free searches exhausted" do
+      user = create(:user, smart_search_count: 3)
       post session_path, params: {
         email_address: user.email_address,
         password: "password123"
@@ -132,6 +132,31 @@ RSpec.describe "Authentication", type: :request do
       get smart_search_path
 
       expect(response).to be_successful
+      expect(response.body).to include("used your free searches")
+    end
+
+    it "allows pro users" do
+      user = create(:user, :pro)
+      post session_path, params: {
+        email_address: user.email_address,
+        password: "password123"
+      }
+
+      get smart_search_path
+
+      expect(response).to be_successful
+    end
+
+    it "increments search count on search" do
+      user = create(:user)
+      post session_path, params: {
+        email_address: user.email_address,
+        password: "password123"
+      }
+
+      expect {
+        get smart_search_path, params: { q: "easy bach" }
+      }.to change { user.reload.smart_search_count }.by(1)
     end
   end
 
