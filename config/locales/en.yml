@@ -4,6 +4,16 @@ en:
     about: "About"
     impressum: "Impressum"
     toggle_language: "Toggle language"
+    toggle_menu: "Toggle menu"
+    menu: "Menu"
+    close_menu: "Close menu"
+    pro_coming_soon: "Pro (Coming Soon)"
+
+  # Smart Search Teaser
+  smart_search_teaser:
+    coming_soon: "Coming soon:"
+    name: "Smart Search"
+    learn_more: "Learn more"
 
   # Footer
   footer:

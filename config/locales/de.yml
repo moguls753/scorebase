@@ -4,6 +4,16 @@ de:
     about: "Info"
     impressum: "Impressum"
     toggle_language: "Sprache wechseln"
+    toggle_menu: "Menü öffnen"
+    menu: "Menü"
+    close_menu: "Menü schließen"
+    pro_coming_soon: "Pro (Demnächst)"
+
+  # Smart Search Teaser
+  smart_search_teaser:
+    coming_soon: "Demnächst:"
+    name: "Smart Search"
+    learn_more: "Mehr erfahren"
 
   # Footer
   footer:

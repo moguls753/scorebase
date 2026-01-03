@@ -92,7 +92,7 @@
         <!-- Smart Search Teaser - Desktop only, mobile users have Pro nav link -->
         <div class="smart-search-teaser">
           <%= link_to pro_landing_path, class: "smart-search-teaser-link" do %>
-            <span class="teaser-coming-soon">Coming soon:</span> <span class="teaser-name">Smart Search</span> <span class="teaser-arrow">→</span> <span class="teaser-cta">Learn more</span>
+            <span class="teaser-coming-soon"><%= t('smart_search_teaser.coming_soon') %></span> <span class="teaser-name"><%= t('smart_search_teaser.name') %></span> <span class="teaser-arrow">→</span> <span class="teaser-cta"><%= t('smart_search_teaser.learn_more') %></span>
           <% end %>
         </div>
       </div>
