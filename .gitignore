@@ -39,3 +39,6 @@
 
 # Test coverage
 /coverage/
+
+# Internal documentation (keep locally, not in public repo)
+/docs/

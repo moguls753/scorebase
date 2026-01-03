@@ -1,50 +1,56 @@
- # ScoreBase Pro
+# ScoreBase
 
- Private repo. Deploys to scorebase.org.
+Open source sheet music catalog. Deploys to scorebase.org.
 
- ## What Is This?
+## What Is This?
 
- Sheet music catalog (300k+ public domain scores) with AI-powered smart search.
+Sheet music catalog (300k+ public domain scores) with AI-powered smart search.
 
- - **Free:** Browse, basic search, download
- - **Pro ($2.99/mo):** Natural language RAG search, favorites, collections
+- **Free:** Browse, basic search, download
+- **Pro ($2.99/mo):** Natural language RAG search, favorites, collections
 
- ## Architecture
+## Tech Stack
 
- ```
- scorebase-pro (this repo)  →  deployed to scorebase.org
- scorebase (public repo)    →  portfolio showcase only (manual sync)
- ```
+- Rails 8
+- SQLite (scores) + Postgres (users, vectors)
+- Python/FastAPI RAG service
+- ChromaDB + sentence-transformers for embeddings
+- Stripe for billing
+- Kamal for deployment
+- Cloudflare CDN
 
- One app. Pro features behind subscription. See `docs/pro-architecture.md`.
+## Development
 
- ## Tech Stack
+```bash
+bin/dev              # Start Rails
+bin/rails test       # Run tests
+bin/kamal deploy     # Deploy to production
+```
 
- - Rails 8
- - SQLite (scores) + Postgres (users, vectors)
- - Python/FastAPI RAG service
- - pgvector for embeddings
- - Stripe for billing
- - Kamal for deployment
- - Cloudflare CDN
+## RAG Service
 
- ## Key Docs
+Located in `rag/` directory:
+- FastAPI service
+- Embeds score metadata using sentence-transformers
+- Vector search via ChromaDB
+- LLM reranking via Groq (Llama 3.3 70B)
+- Called by Rails for smart search
 
- - `docs/pro-architecture.md` — architecture decisions
- - `docs/scorebase-pro-product.md` — product spec, target users, example queries
+```bash
+cd rag
+python -m venv venv && source venv/bin/activate
+pip install -e .
+python -m src.api.main  # Runs on :8001
+```
 
- ## Development
+## Project Structure
 
- ```bash
- bin/dev              # Start Rails
- bin/rails test       # Run tests
- bin/kamal deploy     # Deploy to production
- ```
-
- ## RAG Service (TODO)
-
- Located in `rag/` directory:
- - FastAPI service
- - Embeds score metadata
- - Handles natural language queries
- - Called by Rails for pro users
+```
+app/                  # Rails app
+rag/                  # Python RAG service
+  src/
+    api/              # FastAPI endpoints
+    pipeline/         # Indexing and search
+    llm/              # Result selection with explanations
+config/               # Rails + Kamal config
+```
