@@ -453,10 +453,20 @@ en:
 
     # Status badge
     status_coming_soon: "Coming Soon"
+    status_live: "Now Available"
 
     # Hero section
     hero_headline: "AI-Powered Sheet Music Search"
     hero_subhead: "Stop typing keywords. Start describing what you need. I'm building AI-powered search that understands musical context."
+    hero_subhead_live: "Stop typing keywords. Start describing what you need. Smart Search understands musical context."
+
+    # CTA buttons
+    cta_get_started: "Get Started"
+    cta_try_now: "Try Smart Search"
+    cta_subscribe: "Subscribe Now"
+    cta_open_search: "Open Smart Search"
+    already_member: "Already a member?"
+    sign_in: "Sign in"
 
     # Problem section
     problem_title: "Here's the problem"
@@ -502,8 +512,8 @@ en:
 
     # FAQ section
     faq_title: "Questions"
-    faq_1_q: "When will this be ready?"
-    faq_1_a: "Soon. I'm building the AI model and search infrastructure now. If you join the waitlist, you'll know when it launches."
+    faq_1_q: "How does Smart Search work?"
+    faq_1_a: "Smart Search uses AI to understand your natural language queries. Instead of keywords, you describe what you need — difficulty level, vocal range, duration, style — and it finds matching scores from our catalog."
     faq_2_q: "What about the free version?"
     faq_2_a: "The free catalog stays free. %{count} scores, browsable and searchable with basic keyword search. Pro adds Smart Search and organization features."
     faq_3_q: "How is this different from IMSLP?"

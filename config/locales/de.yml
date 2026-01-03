@@ -453,10 +453,20 @@ de:
 
     # Status badge
     status_coming_soon: "Demnächst"
+    status_live: "Jetzt verfügbar"
 
     # Hero section
     hero_headline: "KI-gestützte Notensuche"
     hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst – in natürlicher Sprache."
+    hero_subhead_live: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst. Smart Search versteht musikalischen Kontext."
+
+    # CTA buttons
+    cta_get_started: "Jetzt starten"
+    cta_try_now: "Smart Search testen"
+    cta_subscribe: "Jetzt abonnieren"
+    cta_open_search: "Smart Search öffnen"
+    already_member: "Bereits Mitglied?"
+    sign_in: "Anmelden"
 
     # Problem section
     problem_title: "Das Problem"
@@ -502,8 +512,8 @@ de:
 
     # FAQ section
     faq_title: "Fragen"
-    faq_1_q: "Wann geht's los?"
-    faq_1_a: "Bald. Ich baue gerade das KI-Modell und die Such-Infrastruktur. Wenn du der Warteliste beitrittst, erfährst du es, sobald es startet."
+    faq_1_q: "Wie funktioniert Smart Search?"
+    faq_1_a: "Smart Search nutzt KI, um deine natürlichsprachlichen Anfragen zu verstehen. Statt Stichwörtern beschreibst du, was du brauchst — Schwierigkeitsgrad, Stimmumfang, Dauer, Stil — und es findet passende Noten aus unserem Katalog."
     faq_2_q: "Was ist mit der kostenlosen Version?"
     faq_2_a: "Der kostenlose Katalog bleibt kostenlos. %{count} Noten, durchsuchbar mit einfacher Stichwortsuche. Pro fügt Smart Search und Organisationsfunktionen hinzu."
     faq_3_q: "Was ist der Unterschied zu IMSLP?"

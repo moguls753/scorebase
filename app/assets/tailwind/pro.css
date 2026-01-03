@@ -369,6 +369,53 @@
   box-shadow: 2px 2px 0 var(--color-bg-deep);
 }
 
+/* Live status badge - green/magenta variant */
+.status-badge-live {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: rgba(0, 255, 136, 0.4);
+  color: #00ff88;
+}
+
+.status-badge-live .status-dot {
+  background: #00ff88;
+  box-shadow: 0 0 10px #00ff88;
+}
+
+/* Hero CTA */
+.pro-hero-cta {
+  margin-top: 2rem;
+}
+
+.pro-hero-cta .mm-button {
+  font-size: 1rem;
+  padding: 1rem 2.5rem;
+}
+
+/* Pricing CTA */
+.pricing-cta {
+  margin-top: 2rem;
+}
+
+.pricing-cta .mm-button {
+  font-size: 1rem;
+  padding: 1rem 2.5rem;
+}
+
+.pricing-login-hint {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+}
+
+.pricing-login-hint a {
+  color: var(--neon-cyan);
+  text-decoration: none;
+}
+
+.pricing-login-hint a:hover {
+  text-decoration: underline;
+}
+
 .status-dot {
   width: 8px;
   height: 8px;

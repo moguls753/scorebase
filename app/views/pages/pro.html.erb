@@ -14,7 +14,7 @@
       "@type": "Offer",
       "price": "2.99",
       "priceCurrency": "USD",
-      "availability": "https://schema.org/PreOrder",
+      "availability": "https://schema.org/InStock",
       "priceValidUntil": "2026-12-31",
       "billingIncrement": "P1M",
       "url": "<%= request.base_url %><%= pro_landing_path %>"
@@ -88,9 +88,9 @@
 <div data-controller="pro-landing">
   <!-- Hero -->
   <div class="pro-hero">
-    <div class="status-badge">
+    <div class="status-badge status-badge-live">
       <span class="status-dot"></span>
-      <%= t('pro.status_coming_soon') %>
+      <%= t('pro.status_live') %>
     </div>
 
     <h1 class="pro-headline">
@@ -98,8 +98,16 @@
     </h1>
 
     <p class="pro-subhead">
-      <%= t('pro.hero_subhead') %>
+      <%= t('pro.hero_subhead_live') %>
     </p>
+
+    <div class="pro-hero-cta">
+      <% if authenticated? %>
+        <%= link_to t('pro.cta_open_search'), smart_search_path, class: "mm-button mm-button-primary" %>
+      <% else %>
+        <%= link_to t('pro.cta_get_started'), new_user_path, class: "mm-button mm-button-primary" %>
+      <% end %>
+    </div>
   </div>
 
   <!-- The Problem -->
@@ -138,11 +146,10 @@
       </div>
     </div>
 
-    <!-- Secondary CTA after comparison -->
     <div class="cta-container">
-      <a href="#waitlist" class="cta-secondary" data-action="click->pro-landing#scrollToWaitlist" aria-label="<%= t('pro.waitlist_cta') %>">
-        <%= t('pro.waitlist_cta') %>
-      </a>
+      <% unless authenticated? %>
+        <%= link_to t('pro.cta_try_now'), new_user_path, class: "cta-secondary" %>
+      <% end %>
     </div>
   </div>
 
@@ -193,44 +200,16 @@
     <p class="pro-section-text-centered">
       <%= t('pro.pricing_desc', count: number_with_delimiter(@total_count)) %>
     </p>
-  </div>
 
-  <div class="pro-divider"></div>
-
-  <!-- Waitlist -->
-  <div class="pro-section" id="waitlist">
-    <div class="waitlist-box">
-      <h2 class="waitlist-heading">
-        <%= t('pro.waitlist_title') %>
-      </h2>
-      <p class="waitlist-subtitle">
-        <%= t('pro.waitlist_subtitle') %>
-      </p>
-
-      <form class="waitlist-form" data-action="submit->pro-landing#submitWaitlist">
-        <input
-          type="email"
-          name="email"
-          placeholder="<%= t('pro.waitlist_email_placeholder') %>"
-          required
-          class="waitlist-input"
-          aria-label="<%= t('pro.waitlist_email_placeholder') %>"
-        />
-        <button
-          type="submit"
-          class="waitlist-button"
-          data-original-text="<%= t('pro.waitlist_button') %>"
-          data-submitting="<%= t('pro.waitlist_sending') %>"
-        >
-          <%= t('pro.waitlist_button') %>
-        </button>
-      </form>
-
-      <div class="waitlist-message" data-pro-landing-target="waitlistMessage" style="display: none;"></div>
-
-      <p class="waitlist-disclaimer">
-        <%= t('pro.waitlist_disclaimer') %>
-      </p>
+    <div class="pricing-cta">
+      <% if authenticated? %>
+        <%= link_to t('pro.cta_open_search'), smart_search_path, class: "mm-button mm-button-primary" %>
+      <% else %>
+        <%= link_to t('pro.cta_subscribe'), new_user_path, class: "mm-button mm-button-primary" %>
+        <p class="pricing-login-hint">
+          <%= t('pro.already_member') %> <%= link_to t('pro.sign_in'), new_session_path %>
+        </p>
+      <% end %>
     </div>
   </div>
 

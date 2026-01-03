@@ -1,0 +1,34 @@
+<% content_for :title, "Reset password — ScoreBase" %>
+
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-title">Forgot password?</h1>
+      <p class="auth-subtitle">We'll send you reset instructions</p>
+    </div>
+
+    <% if flash[:alert] %>
+      <div class="auth-alert auth-alert-error"><%= flash[:alert] %></div>
+    <% end %>
+
+    <%= form_with url: passwords_path, class: "auth-form" do |form| %>
+      <div class="auth-field">
+        <label class="auth-label" for="email_address">Email</label>
+        <%= form.email_field :email_address,
+            id: "email_address",
+            required: true,
+            autofocus: true,
+            autocomplete: "username",
+            placeholder: "you@example.com",
+            value: params[:email_address],
+            class: "mm-input" %>
+      </div>
+
+      <%= form.submit "Send reset link", class: "mm-button mm-button-primary auth-submit" %>
+    <% end %>
+
+    <div class="auth-footer">
+      Remember your password? <%= link_to "Sign in", new_session_path, class: "auth-footer-link" %>
+    </div>
+  </div>
+</div>

@@ -101,6 +101,7 @@ GEM
     aws-sigv4 (1.12.1)
       aws-eventstream (~> 1, >= 1.0.2)
     base64 (0.3.0)
+    bcrypt (3.1.21)
     bcrypt_pbkdf (1.1.2)
     bigdecimal (3.3.1)
     bindex (0.8.1)
@@ -488,6 +489,7 @@ PLATFORMS
 DEPENDENCIES
   annotaterb
   aws-sdk-s3
+  bcrypt (~> 3.1.7)
   bootsnap
   brakeman
   bundler-audit
@@ -548,6 +550,7 @@ CHECKSUMS
   aws-sdk-s3 (1.208.0) sha256=3fce13500171bae425ffb0fd30f4caef081c5e9780714ac3484b48e0a1797d6d
   aws-sigv4 (1.12.1) sha256=6973ff95cb0fd0dc58ba26e90e9510a2219525d07620c8babeb70ef831826c00
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
+  bcrypt (3.1.21) sha256=5964613d750a42c7ee5dc61f7b9336fb6caca429ba4ac9f2011609946e4a2dcf
   bcrypt_pbkdf (1.1.2) sha256=c2414c23ce66869b3eb9f643d6a3374d8322dfb5078125c82792304c10b94cf6
   bigdecimal (3.3.1) sha256=eaa01e228be54c4f9f53bf3cc34fe3d5e845c31963e7fcc5bedb05a4e7d52218
   bindex (0.8.1) sha256=7b1ecc9dc539ed8bccfc8cb4d2732046227b09d6f37582ff12e50a5047ceb17e

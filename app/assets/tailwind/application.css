@@ -30,6 +30,7 @@
 @import "./gallery.css";          /* Sheet music viewer */
 @import "./score.css";            /* Score show page */
 @import "./pro.css";              /* Pro landing page */
+@import "./auth.css";             /* Authentication pages */
 @import "./smart_search_hint.css"; /* Smart search hint teaser */
 
 /* ========================================
