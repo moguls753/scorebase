@@ -367,6 +367,9 @@ en:
     # Footer
     back_to_catalog: "← Back to Free Catalog"
 
+    # Access control
+    subscription_required: "Smart Search requires a Pro subscription."
+
   # Authentication
   auth:
     # Sign in page

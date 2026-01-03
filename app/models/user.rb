@@ -2,15 +2,18 @@
 #
 # Table name: users
 #
-#  id              :integer          not null, primary key
-#  email_address   :string           not null
-#  password_digest :string           not null
-#  created_at      :datetime         not null
-#  updated_at      :datetime         not null
+#  id                 :integer          not null, primary key
+#  email_address      :string           not null
+#  password_digest    :string           not null
+#  subscribed_until   :datetime
+#  created_at         :datetime         not null
+#  updated_at         :datetime         not null
+#  stripe_customer_id :string
 #
 # Indexes
 #
-#  index_users_on_email_address  (email_address) UNIQUE
+#  index_users_on_email_address       (email_address) UNIQUE
+#  index_users_on_stripe_customer_id  (stripe_customer_id) UNIQUE
 #
 class User < ApplicationRecord
   has_secure_password
@@ -24,4 +27,9 @@ class User < ApplicationRecord
 
   validates :email_address, presence: true, uniqueness: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :password, length: { minimum: 8 }, allow_nil: true
+
+  # Returns true if user has an active Pro subscription
+  def pro?
+    subscribed_until.present? && subscribed_until > Time.current
+  end
 end

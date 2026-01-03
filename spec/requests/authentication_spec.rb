@@ -110,8 +110,20 @@ RSpec.describe "Authentication", type: :request do
       expect(response).to redirect_to(new_session_path)
     end
 
-    it "allows authenticated users" do
+    it "redirects authenticated non-pro users to pro landing page" do
       user = create(:user)
+      post session_path, params: {
+        email_address: user.email_address,
+        password: "password123"
+      }
+
+      get smart_search_path
+
+      expect(response).to redirect_to(pro_landing_path)
+    end
+
+    it "allows pro users" do
+      user = create(:user, subscribed_until: 1.month.from_now)
       post session_path, params: {
         email_address: user.email_address,
         password: "password123"

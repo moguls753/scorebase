@@ -3,7 +3,7 @@ module Authentication
 
   included do
     before_action :require_authentication
-    helper_method :authenticated?
+    helper_method :authenticated?, :pro_user?
   end
 
   class_methods do
@@ -15,6 +15,16 @@ module Authentication
   private
     def authenticated?
       resume_session
+    end
+
+    def pro_user?
+      Current.user&.pro?
+    end
+
+    def require_pro_subscription
+      unless pro_user?
+        redirect_to pro_landing_path, alert: I18n.t("pro.subscription_required")
+      end
     end
 
     def require_authentication
