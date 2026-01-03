@@ -4,7 +4,7 @@ Open source sheet music catalog. Deploys to scorebase.org.
 
 ## What Is This?
 
-Sheet music catalog (300k+ public domain scores) with AI-powered smart search.
+Sheet music catalog (100k+ public domain scores) with AI-powered smart search.
 
 - **Free:** Browse, basic search, download
 - **Pro ($2.99/mo):** Natural language RAG search, favorites, collections
