@@ -105,14 +105,15 @@ main a:not(.mm-button):not(.mm-card):hover {
   background-color: var(--color-bg-elevated);
 }
 
-/* Pro Badge Button - Neon Gradient */
-.nav-pro-btn {
+/* Smart Search Button - Primary action for logged-in users */
+.nav-smart-search-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 6px;
   height: 44px;
   padding: 0 16px;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(255, 0, 128, 0.15));
+  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(0, 180, 255, 0.1));
   border: 1px solid rgba(0, 240, 255, 0.3);
   border-radius: 8px;
   color: var(--neon-cyan);
@@ -126,14 +127,43 @@ main a:not(.mm-button):not(.mm-card):hover {
   cursor: pointer;
 }
 
-.nav-pro-btn:hover {
+.nav-smart-search-btn:hover {
   box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
   transform: translateY(-1px);
   border-color: var(--neon-cyan);
 }
 
-.nav-pro-btn:active {
+.nav-smart-search-btn:active {
   transform: translateY(0);
+}
+
+/* Sign In Button - Subtle but clear for logged-out users */
+.nav-sign-in-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 16px;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  color: var(--color-text);
+  font-family: var(--font-family-display);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.nav-sign-in-btn:hover {
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: var(--glow-soft);
+}
+
+.nav-sign-in-btn:active {
+  background: var(--color-bg-surface);
 }
 
 /* Navigation Icon Buttons - Neon Style */
