@@ -1,10 +1,10 @@
-<% content_for :title, "Sign up — ScoreBase Pro" %>
+<% content_for :title, t('auth.sign_up_title') %>
 
 <div class="auth-container">
   <div class="auth-card">
     <div class="auth-header">
-      <h1 class="auth-title">Create account</h1>
-      <p class="auth-subtitle">Start using Smart Search</p>
+      <h1 class="auth-title"><%= t('auth.create_account') %></h1>
+      <p class="auth-subtitle"><%= t('auth.sign_up_subtitle') %></p>
     </div>
 
     <% if flash[:alert] %>
@@ -21,43 +21,43 @@
       <% end %>
 
       <div class="auth-field">
-        <label class="auth-label" for="email_address">Email</label>
+        <label class="auth-label" for="email_address"><%= t('auth.email') %></label>
         <%= form.email_field :email_address,
             id: "email_address",
             required: true,
             autofocus: true,
             autocomplete: "email",
-            placeholder: "you@example.com",
+            placeholder: t('auth.email_placeholder'),
             class: "mm-input" %>
       </div>
 
       <div class="auth-field">
-        <label class="auth-label" for="password">Password</label>
+        <label class="auth-label" for="password"><%= t('auth.password') %></label>
         <%= form.password_field :password,
             id: "password",
             required: true,
             autocomplete: "new-password",
-            placeholder: "At least 8 characters",
+            placeholder: t('auth.password_hint'),
             maxlength: 72,
             class: "mm-input" %>
       </div>
 
       <div class="auth-field">
-        <label class="auth-label" for="password_confirmation">Confirm password</label>
+        <label class="auth-label" for="password_confirmation"><%= t('auth.confirm_password') %></label>
         <%= form.password_field :password_confirmation,
             id: "password_confirmation",
             required: true,
             autocomplete: "new-password",
-            placeholder: "Repeat your password",
+            placeholder: t('auth.confirm_password_placeholder'),
             maxlength: 72,
             class: "mm-input" %>
       </div>
 
-      <%= form.submit "Create account", class: "mm-button mm-button-primary auth-submit" %>
+      <%= form.submit t('auth.create_account'), class: "mm-button mm-button-primary auth-submit" %>
     <% end %>
 
     <div class="auth-footer">
-      Already have an account? <%= link_to "Sign in", new_session_path, class: "auth-footer-link" %>
+      <%= t('auth.already_have_account') %> <%= link_to t('auth.sign_in'), new_session_path, class: "auth-footer-link" %>
     </div>
   </div>
 </div>

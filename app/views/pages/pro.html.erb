@@ -96,18 +96,17 @@
       <%= t('pro.hero_subhead_live') %>
     </p>
 
-    <% if authenticated? %>
-      <div class="pro-hero-link">
+    <div class="pro-hero-link">
+      <% if authenticated? %>
         <%= link_to smart_search_path, class: "hero-text-link" do %>
-          Open Smart Search <span class="hero-arrow">→</span>
+          <%= t('pro.cta_open_search') %> <span class="hero-arrow">→</span>
         <% end %>
-      </div>
-    <% else %>
-      <div class="pro-hero-scroll-hint">
-        <span class="scroll-hint-text">See how it works</span>
-        <span class="scroll-hint-arrow">↓</span>
-      </div>
-    <% end %>
+      <% else %>
+        <%= link_to new_user_path, class: "hero-text-link" do %>
+          <%= t('pro.cta_get_started') %> <span class="hero-arrow">→</span>
+        <% end %>
+      <% end %>
+    </div>
   </div>
 
   <!-- The Problem -->

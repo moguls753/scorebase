@@ -4,16 +4,11 @@ en:
     about: "About"
     impressum: "Impressum"
     toggle_language: "Toggle language"
-    toggle_menu: "Toggle menu"
+    sign_in: "Sign in"
+    smart_search: "Smart Search"
     menu: "Menu"
+    toggle_menu: "Toggle menu"
     close_menu: "Close menu"
-    pro_coming_soon: "Pro (Coming Soon)"
-
-  # Smart Search Teaser
-  smart_search_teaser:
-    coming_soon: "Coming soon:"
-    name: "Smart Search"
-    learn_more: "Learn more"
 
   # Footer
   footer:
@@ -635,6 +630,43 @@ en:
       renaissance: "Renaissance"
       medieval: "Medieval"
       modern: "Modern"
+
+  # Authentication
+  auth:
+    # Sign in page
+    sign_in_title: "Sign in — ScoreBase"
+    sign_in: "Sign in"
+    sign_in_subtitle: "Access your Smart Search"
+    email: "Email"
+    email_placeholder: "you@example.com"
+    password: "Password"
+    password_placeholder: "Your password"
+    forgot_password: "Forgot password?"
+    no_account: "Don't have an account?"
+
+    # Sign up page
+    sign_up_title: "Sign up — ScoreBase Pro"
+    sign_up: "Sign up"
+    create_account: "Create account"
+    sign_up_subtitle: "Start using Smart Search"
+    password_hint: "At least 8 characters"
+    confirm_password: "Confirm password"
+    confirm_password_placeholder: "Repeat your password"
+    already_have_account: "Already have an account?"
+
+    # Reset password page
+    reset_password_title: "Reset password — ScoreBase"
+    forgot_password_heading: "Forgot password?"
+    reset_instructions: "We'll send you reset instructions"
+    send_reset_link: "Send reset link"
+    remember_password: "Remember your password?"
+
+    # Set new password page
+    set_password_title: "Set new password — ScoreBase"
+    set_new_password: "Set new password"
+    choose_strong_password: "Choose a strong password"
+    new_password: "New password"
+    update_password: "Update password"
 
   # Mailers
   waitlist_mailer:

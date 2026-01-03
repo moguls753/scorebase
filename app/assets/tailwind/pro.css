@@ -410,46 +410,6 @@
   transition: transform 0.3s ease;
 }
 
-/* Hero - Scroll hint for unauthenticated users */
-.pro-hero-scroll-hint {
-  margin-top: 3rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  opacity: 0.6;
-  transition: opacity 0.3s ease;
-  cursor: default;
-}
-
-.pro-hero-scroll-hint:hover {
-  opacity: 1;
-}
-
-.scroll-hint-text {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: var(--color-text-muted);
-  letter-spacing: 0.02em;
-}
-
-.scroll-hint-arrow {
-  font-size: 1.25rem;
-  color: var(--neon-cyan);
-  animation: scroll-bounce 2s ease-in-out infinite;
-}
-
-@keyframes scroll-bounce {
-  0%, 100% {
-    transform: translateY(0);
-    opacity: 0.6;
-  }
-  50% {
-    transform: translateY(6px);
-    opacity: 1;
-  }
-}
-
 /* Pricing CTA */
 .pricing-cta {
   margin-top: 2rem;
@@ -654,7 +614,6 @@
   .use-case,
   .waitlist-button,
   .faq-item,
-  .scroll-hint-arrow,
   .hero-text-link,
   .hero-arrow {
     transition: none;
@@ -664,10 +623,6 @@
   [data-scroll-reveal] {
     opacity: 1;
     transform: none;
-  }
-
-  .scroll-hint-arrow {
-    opacity: 1;
   }
 }
 
