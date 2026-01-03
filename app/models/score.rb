@@ -397,6 +397,8 @@ class Score < ApplicationRecord
       Rails.application.config.x.pdmx_path.join(mxl_path.delete_prefix("./")).to_s
     when "openscore"
       OpenscoreImporter.root_path.join(mxl_path.delete_prefix("./")).to_s
+    when "openscore-quartets"
+      OpenscoreQuartetsImporter.root_path.join(mxl_path.delete_prefix("./")).to_s
     else
       mxl_path
     end
