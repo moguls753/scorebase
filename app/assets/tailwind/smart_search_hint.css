@@ -71,32 +71,14 @@
   transition: color 0.3s ease;
 }
 
-/* Hover - Smart Search shifts cyan→magenta, others light up */
-.smart-search-teaser-link:hover {
-  color: var(--neon-cyan);
-}
-
-.smart-search-teaser-link:hover .teaser-prefix {
-  color: var(--neon-magenta);
-  opacity: 0.9;
-}
-
+/* Hover - only Smart Search changes (cyan→magenta with scale) */
 .smart-search-teaser-link:hover .teaser-name {
   color: var(--neon-magenta);
   text-shadow:
     0 0 32px rgba(255, 0, 128, 0.5),
     0 0 16px rgba(255, 0, 128, 0.35),
     0 0 8px rgba(255, 0, 128, 0.2);
-  transform: scale(1.02);
-}
-
-.smart-search-teaser-link:hover .teaser-arrow {
-  color: var(--neon-magenta);
-  transform: translateX(4px);
-}
-
-.smart-search-teaser-link:hover .teaser-cta {
-  color: var(--neon-cyan);
+  transform: scale(1.03);
 }
 
 /* Responsive */
