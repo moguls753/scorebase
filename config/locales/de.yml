@@ -216,6 +216,10 @@ de:
     cpdl_description: "Auch bekannt als ChoralWiki. Die größte Seite für kostenlose Chornoten, mit starker Abdeckung von Renaissance- und Barockvokalwerken."
     pdmx_name: "Public Domain MusicXML"
     pdmx_description: "Ein Datensatz mit über 250.000 freien MusicXML-Dateien von MuseScore. Nützlich für Notationssoftware wie MuseScore, Sibelius oder Finale."
+    openscore_lieder_name: "OpenScore Lieder Corpus"
+    openscore_lieder_description: "Eine Sammlung von über 1.300 Kunstliedern des 19. Jahrhunderts in hochwertiger Kodierung. Mit Werken von Schubert, Schumann, Brahms und Wolf."
+    openscore_quartets_name: "OpenScore String Quartets"
+    openscore_quartets_description: "Eine Sammlung von Streichquartetten des langen 19. Jahrhunderts in hochwertiger Kodierung."
 
   # Impressum Page
   impressum:
@@ -358,6 +362,8 @@ de:
     faq_3_a: "IMSLP ist ein Noten-Archiv mit Stichwortsuche. ScoreBase vereint mehrere Quellen (IMSLP, CPDL, PDMX) und fügt Smart Search hinzu, die musikalischen Kontext versteht: Schwierigkeit, Stimmumfänge, Dauer, Stil."
     faq_4_q: "Kann ich jederzeit kündigen?"
     faq_4_a: "Ja. Keine Vertragsbindung. Kündige wann immer du willst."
+    faq_5_q: "Warum kostet Smart Search Geld?"
+    faq_5_a: "Jede Suche nutzt KI, um deine Anfrage zu verstehen und die besten Treffer zu finden. Diese API-Aufrufe kosten echtes Geld. Dein Abo finanziert die Infrastruktur, während der gesamte Katalog für alle kostenlos bleibt."
 
     # Footer
     back_to_catalog: "← Zurück zum kostenlosen Katalog"

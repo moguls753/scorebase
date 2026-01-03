@@ -8,7 +8,7 @@
 #   NormalizeGenresJob.perform_later(limit: 100, backend: :groq)
 #
 class NormalizeGenresJob < ApplicationJob
-  queue_as :normalization
+  queue_as :default
 
   def perform(limit: 100, backend: :groq)
     scores = eligible_scores(limit)
