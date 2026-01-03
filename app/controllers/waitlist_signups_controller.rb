@@ -1,4 +1,5 @@
 class WaitlistSignupsController < ApplicationController
+  allow_unauthenticated_access
   before_action :check_rate_limit, only: :create
 
   def create

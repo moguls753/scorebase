@@ -1,5 +1,5 @@
 class ScoresController < ApplicationController
-  before_action :require_authentication, only: [:smart_search]
+  allow_unauthenticated_access except: [:smart_search]
 
   def smart_search
     @query = params[:q].to_s.strip

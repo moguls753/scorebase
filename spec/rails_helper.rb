@@ -54,6 +54,15 @@ rescue ActiveRecord::PendingMigrationError => e
   abort e.to_s.strip
 end
 RSpec.configure do |config|
+  # Compile Tailwind CSS before running tests (if not already built)
+  config.before(:suite) do
+    css_path = Rails.root.join('app/assets/builds/tailwind.css')
+    unless css_path.exist? && css_path.size > 0
+      puts "\n🎨 Compiling Tailwind CSS for tests..."
+      system("bin/rails tailwindcss:build", exception: true)
+    end
+  end
+
   # Remove this line if you're not using ActiveRecord or ActiveRecord fixtures
   config.fixture_paths = [
     Rails.root.join('spec/fixtures')

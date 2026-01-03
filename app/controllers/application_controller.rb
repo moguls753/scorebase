@@ -1,6 +1,5 @@
 class ApplicationController < ActionController::Base
   include Authentication
-  allow_unauthenticated_access # Public by default, only Smart Search requires auth
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
 
