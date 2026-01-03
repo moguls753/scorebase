@@ -2,13 +2,15 @@
 #
 # Table name: users
 #
-#  id                 :integer          not null, primary key
-#  email_address      :string           not null
-#  password_digest    :string           not null
-#  subscribed_until   :datetime
-#  created_at         :datetime         not null
-#  updated_at         :datetime         not null
-#  stripe_customer_id :string
+#  id                    :integer          not null, primary key
+#  email_address         :string           not null
+#  password_digest       :string           not null
+#  search_count_reset_at :datetime
+#  smart_search_count    :integer          default(0), not null
+#  subscribed_until      :datetime
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
+#  stripe_customer_id    :string
 #
 # Indexes
 #

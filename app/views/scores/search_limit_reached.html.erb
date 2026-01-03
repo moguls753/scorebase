@@ -1,0 +1,67 @@
+<% content_for :title do %>Search Limit Reached - ScoreBase<% end %>
+
+<div class="max-w-2xl mx-auto px-4 sm:px-6 py-12 sm:py-20">
+  <div class="text-center">
+    <!-- Icon -->
+    <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[var(--color-accent)]/10 mb-6">
+      <svg xmlns="http://www.w3.org/2000/svg" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--color-accent)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"></circle>
+        <path d="m21 21-4.3-4.3"></path>
+        <path d="M11 8v4"></path>
+        <path d="M11 16h.01"></path>
+      </svg>
+    </div>
+
+    <% if Current.user.pro? %>
+      <!-- Pro user hit monthly limit -->
+      <h1 class="text-2xl sm:text-3xl font-[var(--font-family-display)] font-black text-[var(--color-text)] mb-3">
+        <%= t('search_limit.pro_limit_title') %>
+      </h1>
+      <p class="text-[var(--color-text-muted)] mb-8 max-w-md mx-auto">
+        <%= t('search_limit.pro_limit_message', limit: User::PRO_MONTHLY_LIMIT) %>
+      </p>
+      <p class="text-sm text-[var(--color-text-muted)]">
+        <%= t('search_limit.resets_on', date: l(Time.current.next_month.beginning_of_month, format: :long)) %>
+      </p>
+
+    <% else %>
+      <!-- Free user used all trial searches -->
+      <h1 class="text-2xl sm:text-3xl font-[var(--font-family-display)] font-black text-[var(--color-text)] mb-3">
+        <%= t('search_limit.free_limit_title') %>
+      </h1>
+      <p class="text-[var(--color-text-muted)] mb-8 max-w-md mx-auto">
+        <%= t('search_limit.free_limit_message') %>
+      </p>
+
+      <!-- Upgrade CTA -->
+      <div class="bg-gradient-to-br from-[var(--color-accent)]/10 to-[var(--color-primary)]/10 border border-[var(--color-accent)]/20 rounded-2xl p-8 mb-8">
+        <h2 class="text-xl font-bold text-[var(--color-text)] mb-2">
+          <%= t('search_limit.upgrade_title') %>
+        </h2>
+        <p class="text-[var(--color-text-muted)] mb-6">
+          <%= t('search_limit.upgrade_message', limit: User::PRO_MONTHLY_LIMIT) %>
+        </p>
+
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <%# TODO: Replace with Stripe checkout link %>
+          <%= link_to pro_landing_path, class: "inline-flex items-center gap-2 px-6 py-3 text-base font-semibold bg-[var(--color-accent)] text-white rounded-xl hover:bg-[var(--color-accent)]/90 transition-colors" do %>
+            <%= t('search_limit.upgrade_button') %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14"></path>
+              <path d="m12 5 7 7-7 7"></path>
+            </svg>
+          <% end %>
+          <span class="text-2xl font-bold text-[var(--color-text)]">
+            <%= User::PRO_PRICE %><span class="text-sm font-normal text-[var(--color-text-muted)]">/month</span>
+          </span>
+        </div>
+      </div>
+    <% end %>
+
+    <!-- Back to catalog -->
+    <p class="text-sm text-[var(--color-text-muted)]">
+      <%= t('search_limit.browse_catalog_hint') %>
+      <%= link_to t('search_limit.browse_catalog_link'), scores_path, class: "text-[var(--color-accent)] hover:underline font-medium" %>
+    </p>
+  </div>
+</div>
