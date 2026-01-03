@@ -80,8 +80,9 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  # OpenScore Lieder corpus path (for import task)
+  # OpenScore corpus paths (for import tasks)
   config.x.openscore_path = Pathname.new("/opt/openscore-lieder")
+  config.x.openscore_quartets_path = Pathname.new("/opt/openscore-quartets")
 
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]

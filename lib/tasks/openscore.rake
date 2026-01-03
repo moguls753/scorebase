@@ -10,6 +10,19 @@ namespace :openscore do
     OpenscoreImporter.new(limit: limit).import!
   end
 
+  namespace :quartets do
+    desc "Import all scores from OpenScore String Quartets corpus"
+    task import: :environment do
+      OpenscoreQuartetsImporter.new.import!
+    end
+
+    desc "Import a sample of OpenScore String Quartets. Use openscore:quartets:sample[100]"
+    task :sample, [:limit] => :environment do |_t, args|
+      limit = (args[:limit] || 10).to_i
+      OpenscoreQuartetsImporter.new(limit: limit).import!
+    end
+  end
+
   desc "Show OpenScore import statistics"
   task stats: :environment do
     total = Score.where(source: "openscore").count
