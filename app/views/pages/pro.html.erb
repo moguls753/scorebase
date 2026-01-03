@@ -96,7 +96,7 @@
       <%= t('pro.hero_subhead_live') %>
     </p>
 
-    <% if authenticated? %>
+    <% if pro_user? %>
       <div class="pro-hero-link">
         <%= link_to smart_search_path, class: "hero-text-link" do %>
           <%= t('pro.cta_open_search') %> <span class="hero-arrow">→</span>
@@ -191,8 +191,13 @@
     </p>
 
     <div class="pricing-cta">
-      <% if authenticated? %>
+      <% if pro_user? %>
         <%= link_to t('pro.cta_open_search'), smart_search_path, class: "mm-button mm-button-primary" %>
+      <% elsif authenticated? %>
+        <%# TODO: Link to Stripe checkout when ready %>
+        <span class="mm-button mm-button-secondary" style="opacity: 0.6; cursor: not-allowed;">
+          <%= t('pro.cta_subscribe') %>
+        </span>
       <% else %>
         <%= link_to t('pro.cta_subscribe'), new_user_path, class: "mm-button mm-button-primary" %>
         <p class="pricing-login-hint">

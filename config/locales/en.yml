@@ -630,6 +630,8 @@ en:
       renaissance: "Renaissance"
       medieval: "Medieval"
       modern: "Modern"
+    # Access control
+    subscription_required: "Smart Search requires a Pro subscription."
 
   # Authentication
   auth:

@@ -91,7 +91,7 @@
 
         <!-- Smart Search Teaser - Desktop only -->
         <div class="smart-search-teaser">
-          <% if authenticated? %>
+          <% if pro_user? %>
             <%= link_to smart_search_path, class: "smart-search-teaser-link" do %>
               <span class="teaser-name">Smart Search</span> <span class="teaser-arrow">→</span> <span class="teaser-cta">Describe what you need</span>
             <% end %>
