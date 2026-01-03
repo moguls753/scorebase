@@ -1,0 +1,279 @@
+require "csv"
+require "set"
+
+class OpenscoreImporter
+  BATCH_SIZE = 500
+
+  def self.root_path
+    # Configurable via Rails config, fallback to default
+    configured = Rails.application.config.x.openscore_path
+    if configured.present? && configured.is_a?(Pathname)
+      configured
+    else
+      Pathname.new(File.expand_path("~/data/openscore-lieder"))
+    end
+  end
+
+  def initialize(limit: nil)
+    @limit = limit
+    @imported_count = 0
+    @skipped_count = 0
+    @errors = []
+  end
+
+  def import!
+    puts "Starting OpenScore Lieder import..."
+    puts "Path: #{self.class.root_path}"
+    puts "Limit: #{@limit || 'none'}"
+    puts "(Existing scores are always skipped - never overwritten)"
+    puts ""
+
+    unless self.class.root_path.exist?
+      puts "ERROR: OpenScore path not found: #{self.class.root_path}"
+      puts "Clone it first: git clone --depth 1 https://github.com/OpenScore/Lieder.git ~/data/openscore-lieder"
+      return
+    end
+
+    # Load lookup tables
+    @composers = load_composers
+    puts "Loaded #{@composers.size} composers"
+
+    @sets = load_sets
+    puts "Loaded #{@sets.size} sets"
+
+    # Load scores
+    scores_data = load_scores
+    puts "Found #{scores_data.size} scores in TSV"
+
+    # Pre-filter existing
+    existing_paths = Score.where(source: "openscore").pluck(:data_path).to_set
+    original_count = scores_data.size
+    scores_data = scores_data.reject { |row| existing_paths.include?(data_path_for(row)) }
+    puts "Skipping #{original_count - scores_data.size} already-imported scores (#{scores_data.size} remaining)"
+
+    scores_data = scores_data.first(@limit) if @limit
+    puts "Will import #{scores_data.size} scores"
+    puts ""
+
+    # Process in batches
+    scores_data.each_slice(BATCH_SIZE).with_index do |batch, batch_index|
+      puts "Processing batch #{batch_index + 1} (#{@imported_count}/#{scores_data.size})..."
+      process_batch(batch)
+    end
+
+    puts ""
+    puts "✅ Import complete!"
+    puts "  Imported: #{@imported_count}"
+    puts "  Skipped: #{@skipped_count}"
+    puts "  Errors: #{@errors.size}"
+
+    if @errors.any?
+      puts ""
+      puts "First 10 errors:"
+      @errors.first(10).each { |e| puts "  - #{e}" }
+    end
+  end
+
+  private
+
+  def load_composers
+    path = self.class.root_path.join("data", "composers.tsv")
+    return {} unless path.exist?
+
+    composers = {}
+    CSV.foreach(path, col_sep: "\t", headers: true, liberal_parsing: true) do |row|
+      composers[row["id"]] = {
+        name: row["name"],
+        born: row["born"],
+        died: row["died"]
+      }
+    end
+    composers
+  end
+
+  def load_sets
+    path = self.class.root_path.join("data", "sets.tsv")
+    return {} unless path.exist?
+
+    sets = {}
+    CSV.foreach(path, col_sep: "\t", headers: true, liberal_parsing: true) do |row|
+      sets[row["id"]] = {
+        name: row["name"],
+        composer_id: row["composer_id"]
+      }
+    end
+    sets
+  end
+
+  def load_scores
+    path = self.class.root_path.join("data", "scores.tsv")
+    raise "scores.tsv not found at #{path}" unless path.exist?
+
+    scores = []
+    CSV.foreach(path, col_sep: "\t", headers: true, liberal_parsing: true) do |row|
+      scores << row.to_h
+    end
+    scores
+  end
+
+  def data_path_for(row)
+    "openscore:#{row['id']}"
+  end
+
+  def process_batch(batch)
+    records = batch.map do |row|
+      build_score_record(row)
+    rescue => e
+      @errors << "#{row['id']}: #{e.message}"
+      @skipped_count += 1
+      nil
+    end.compact
+
+    if records.any?
+      Score.insert_all(records)
+      @imported_count += records.size
+    end
+  end
+
+  def build_score_record(row)
+    musescore_id = row["id"]
+    score_path = row["path"]
+
+    # Lookup composer
+    set_info = @sets[row["set_id"]]
+    composer_id = set_info&.dig(:composer_id)
+    composer_info = @composers[composer_id]
+    composer_name = composer_info&.dig(:name) || parse_composer_from_path(score_path)
+
+    # Find local files
+    mscx_path = find_mscx_file(score_path, musescore_id)
+    lyrics = read_lyrics_file(score_path, musescore_id)
+
+    # Extract basic info from .mscx if available
+    mscx_data = parse_mscx_metadata(mscx_path)
+
+    {
+      title: row["name"],
+      composer: composer_name,
+      source: "openscore",
+      data_path: data_path_for(row),
+      external_id: musescore_id,
+      external_url: row["link"],
+      mxl_path: mscx_path,
+      extracted_lyrics: lyrics,
+      has_extracted_lyrics: lyrics.present?,
+      # From .mscx parsing
+      key_signature: mscx_data[:key_signature],
+      time_signature: mscx_data[:time_signature],
+      num_parts: mscx_data[:num_parts] || 2,
+      part_names: mscx_data[:part_names],
+      # Inferred/default values
+      genre: "Art song",
+      period: infer_period(composer_info),
+      is_vocal: true,
+      instruments: mscx_data[:part_names] || "Voice, Piano",
+      license: "CC0",
+      created_at: Time.current,
+      updated_at: Time.current
+    }
+  end
+
+  def parse_composer_from_path(path)
+    return nil if path.blank?
+    parts = path.split("/")
+    return nil if parts.empty?
+    # "Composer,_Name" -> "Composer, Name"
+    parts.first.tr("_", " ")
+  end
+
+  def find_mscx_file(score_path, musescore_id)
+    dir = self.class.root_path.join("scores", score_path)
+    mscx_file = dir.join("lc#{musescore_id}.mscx")
+
+    # Store relative path for portability (resolved via OpenscoreImporter.root_path)
+    if mscx_file.exist?
+      "./scores/#{score_path}/lc#{musescore_id}.mscx"
+    else
+      found = Dir.glob(dir.join("*.mscx")).first
+      found ? "./scores/#{score_path}/#{File.basename(found)}" : nil
+    end
+  end
+
+  def read_lyrics_file(score_path, musescore_id)
+    dir = self.class.root_path.join("scores", score_path)
+    txt_file = dir.join("lc#{musescore_id}.txt")
+    return nil unless txt_file.exist?
+    File.read(txt_file, encoding: "UTF-8").strip
+  rescue
+    nil
+  end
+
+  def parse_mscx_metadata(mscx_path)
+    return {} unless mscx_path && File.exist?(mscx_path)
+
+    content = File.read(mscx_path, encoding: "UTF-8")
+
+    # Extract key signature (accidentals: positive = sharps, negative = flats)
+    key_sig = extract_key_from_mscx(content)
+
+    # Extract time signature
+    time_sig = extract_time_from_mscx(content)
+
+    # Count <Part> elements for accurate part count
+    num_parts = content.scan(/<Part>/).size
+
+    # Extract part names from <Part><trackName> only (not nested <Instrument><trackName>)
+    part_names = content.scan(/<Part>\s*<[^>]*>*\s*<trackName>([^<]+)<\/trackName>/).flatten
+    # Fallback: if regex didn't match, try simpler approach
+    if part_names.empty?
+      part_names = content.scan(/<Part>.*?<trackName>([^<]+)<\/trackName>/m).flatten.first(num_parts)
+    end
+
+    {
+      key_signature: key_sig,
+      time_signature: time_sig,
+      num_parts: num_parts.positive? ? num_parts : nil,
+      part_names: part_names.any? ? part_names.uniq.join(", ") : nil
+    }
+  rescue
+    {}
+  end
+
+  def extract_key_from_mscx(content)
+    # <KeySig><accidental>N</accidental></KeySig>
+    # N: 0=C, 1=G, 2=D, ... -1=F, -2=Bb, etc.
+    match = content.match(/<KeySig>\s*<accidental>(-?\d+)<\/accidental>/)
+    return nil unless match
+
+    accidentals = match[1].to_i
+    key_map = {
+      0 => "C major", 1 => "G major", 2 => "D major", 3 => "A major",
+      4 => "E major", 5 => "B major", 6 => "F# major", 7 => "C# major",
+      -1 => "F major", -2 => "Bb major", -3 => "Eb major", -4 => "Ab major",
+      -5 => "Db major", -6 => "Gb major", -7 => "Cb major"
+    }
+    key_map[accidentals]
+  end
+
+  def extract_time_from_mscx(content)
+    # <TimeSig><sigN>4</sigN><sigD>4</sigD></TimeSig>
+    n_match = content.match(/<sigN>(\d+)<\/sigN>/)
+    d_match = content.match(/<sigD>(\d+)<\/sigD>/)
+    return nil unless n_match && d_match
+    "#{n_match[1]}/#{d_match[1]}"
+  end
+
+  def infer_period(composer_info)
+    return nil unless composer_info
+    born = composer_info[:born].to_i
+    return nil if born == 0
+
+    case born
+    when 0..1600 then "Renaissance"
+    when 1601..1750 then "Baroque"
+    when 1751..1820 then "Classical"
+    when 1821..1910 then "Romantic"
+    else "Modern"
+    end
+  end
+end
