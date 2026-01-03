@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class HubPagesController < ApplicationController
+  allow_unauthenticated_access
   before_action :set_sort
 
   # Index pages
