@@ -196,7 +196,6 @@ en:
     label: "About"
     title: "ScoreBase"
     subtitle: "Search public domain music scores from IMSLP, CPDL, and PDMX in one place."
-    total_scores: "Total Scores"
     why_exists_title: "Why?"
     why_exists_p1: "IMSLP, CPDL, PDMX – there are several good sources for free sheet music. But each site has its own search, and finding what you need often means checking multiple places."
     why_exists_p2: "ScoreBase solves exactly that – one search for all sources."

@@ -196,7 +196,6 @@ de:
     label: "Info"
     title: "ScoreBase"
     subtitle: "Durchsuche freie Noten von IMSLP, CPDL und PDMX an einem Ort."
-    total_scores: "Noten gesamt"
     why_exists_title: "Warum?"
     why_exists_p1: "IMSLP, CPDL, PDMX – es gibt einige gute Quellen für freie Noten. Aber jede Seite hat ihre eigene Suche, und oft muss man überall einzeln schauen, bis man findet was man sucht."
     why_exists_p2: "ScoreBase löst genau dieses Problem – eine Suche für alle Quellen."
