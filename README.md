@@ -5,8 +5,7 @@ A search engine for public domain sheet music.
 Aggregates scores from multiple sources:
 - IMSLP (International Music Score Library Project)
 - CPDL (Choral Public Domain Library)
-- OpenScore Lieder
-- OpenScore String Quartets
+- OpenScore
 
 Normalizes composer names across sources, generates thumbnails, and provides filtering by key, time signature, genre, voicing, and more.
 
@@ -18,7 +17,7 @@ Normalizes composer names across sources, generates thumbnails, and provides fil
 
 ### Why a subscription?
 
-Smart Search uses AI for every query—embedding your question, searching vectors, and ranking results with an LLM. These API calls cost real money. Your subscription covers the infrastructure while keeping the catalog free for everyone.
+Smart Search runs on AI. AI costs money. Your subscription keeps it running while the catalog stays free for everyone.
 
 ## Self-Hosting
 
