@@ -88,11 +88,6 @@
 <div data-controller="pro-landing">
   <!-- Hero -->
   <div class="pro-hero">
-    <div class="status-badge status-badge-live">
-      <span class="status-dot"></span>
-      <%= t('pro.status_live') %>
-    </div>
-
     <h1 class="pro-headline">
       <%= t('pro.hero_headline') %>
     </h1>
@@ -101,13 +96,18 @@
       <%= t('pro.hero_subhead_live') %>
     </p>
 
-    <div class="pro-hero-cta">
-      <% if authenticated? %>
-        <%= link_to t('pro.cta_open_search'), smart_search_path, class: "mm-button mm-button-primary" %>
-      <% else %>
-        <%= link_to t('pro.cta_get_started'), new_user_path, class: "mm-button mm-button-primary" %>
-      <% end %>
-    </div>
+    <% if authenticated? %>
+      <div class="pro-hero-link">
+        <%= link_to smart_search_path, class: "hero-text-link" do %>
+          Open Smart Search <span class="hero-arrow">→</span>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="pro-hero-scroll-hint">
+        <span class="scroll-hint-text">See how it works</span>
+        <span class="scroll-hint-arrow">↓</span>
+      </div>
+    <% end %>
   </div>
 
   <!-- The Problem -->
@@ -144,12 +144,6 @@
           <%= t('pro.comparison_good_desc') %>
         </p>
       </div>
-    </div>
-
-    <div class="cta-container">
-      <% unless authenticated? %>
-        <%= link_to t('pro.cta_try_now'), new_user_path, class: "cta-secondary" %>
-      <% end %>
     </div>
   </div>
 

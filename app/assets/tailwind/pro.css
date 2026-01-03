@@ -381,14 +381,73 @@
   box-shadow: 0 0 10px #00ff88;
 }
 
-/* Hero CTA */
-.pro-hero-cta {
-  margin-top: 2rem;
+/* Hero - Text link for authenticated users */
+.pro-hero-link {
+  margin-top: 2.5rem;
 }
 
-.pro-hero-cta .mm-button {
-  font-size: 1rem;
-  padding: 1rem 2.5rem;
+.hero-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--neon-cyan);
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.hero-text-link:hover {
+  color: var(--color-text);
+}
+
+.hero-text-link:hover .hero-arrow {
+  transform: translateX(4px);
+}
+
+.hero-arrow {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+/* Hero - Scroll hint for unauthenticated users */
+.pro-hero-scroll-hint {
+  margin-top: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+  cursor: default;
+}
+
+.pro-hero-scroll-hint:hover {
+  opacity: 1;
+}
+
+.scroll-hint-text {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+  letter-spacing: 0.02em;
+}
+
+.scroll-hint-arrow {
+  font-size: 1.25rem;
+  color: var(--neon-cyan);
+  animation: scroll-bounce 2s ease-in-out infinite;
+}
+
+@keyframes scroll-bounce {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(6px);
+    opacity: 1;
+  }
 }
 
 /* Pricing CTA */
@@ -594,7 +653,10 @@
   .query-example,
   .use-case,
   .waitlist-button,
-  .faq-item {
+  .faq-item,
+  .scroll-hint-arrow,
+  .hero-text-link,
+  .hero-arrow {
     transition: none;
     animation: none;
   }
@@ -602,6 +664,10 @@
   [data-scroll-reveal] {
     opacity: 1;
     transform: none;
+  }
+
+  .scroll-hint-arrow {
+    opacity: 1;
   }
 }
 

@@ -21,12 +21,12 @@
   word-spacing: 0.15em;
 }
 
-/* "Coming soon:" */
-.teaser-coming-soon {
+/* "Try" prefix - subtle lead-in */
+.teaser-prefix {
   display: inline-block;
   font-family: var(--font-family-display);
   font-size: 19px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: -0.3px;
   color: var(--color-text-muted);
   transition: color 0.2s ease;
@@ -83,7 +83,7 @@
     font-size: 14px;
   }
 
-  .teaser-coming-soon,
+  .teaser-prefix,
   .teaser-name {
     font-size: 17px;
   }
@@ -96,7 +96,7 @@
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   .smart-search-teaser-link,
-  .teaser-coming-soon,
+  .teaser-prefix,
   .teaser-name,
   .teaser-arrow,
   .teaser-cta {
