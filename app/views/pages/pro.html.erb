@@ -71,6 +71,14 @@
           "@type": "Answer",
           "text": "<%= t('pro.faq_4_a') %>"
         }
+      },
+      {
+        "@type": "Question",
+        "name": "<%= t('pro.faq_5_q') %>",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "<%= t('pro.faq_5_a') %>"
+        }
       }
     ]
   }
@@ -264,6 +272,14 @@
         <span class="faq-toggle" aria-hidden="true">+</span>
       </button>
       <div class="faq-a"><%= t('pro.faq_4_a') %></div>
+    </div>
+
+    <div class="faq-item" data-scroll-reveal data-pro-landing-target="reveal" data-faq-accordion-target="item">
+      <button type="button" class="faq-q" data-action="click->faq-accordion#toggle" aria-expanded="false">
+        <span><%= t('pro.faq_5_q') %></span>
+        <span class="faq-toggle" aria-hidden="true">+</span>
+      </button>
+      <div class="faq-a"><%= t('pro.faq_5_a') %></div>
     </div>
   </div>
 

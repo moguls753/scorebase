@@ -325,6 +325,12 @@ a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
   border: 1px solid rgba(0, 255, 136, 0.3);
 }
 
+.mm-badge-openscore {
+  background: rgba(255, 160, 0, 0.15);
+  color: #ffa000;
+  border: 1px solid rgba(255, 160, 0, 0.3);
+}
+
 /* Tag badge variant */
 .mm-badge-tag {
   background: var(--color-bg-elevated);
