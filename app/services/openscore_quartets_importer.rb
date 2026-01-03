@@ -139,8 +139,11 @@ class OpenscoreQuartetsImporter
     composer_info = @composers[composer_id]
     composer_name = composer_info&.dig(:name) || parse_composer_from_path(score_path)
 
-    mscx_path = find_mscx_file(score_path, musescore_id)
-    mscx_data = parse_mscx_metadata(mscx_path)
+    mxl_path = find_mxl_file(score_path, musescore_id)
+
+    # Extract basic info from .mscx if available (for key/time sig during import)
+    mscx_file = self.class.root_path.join(score_path, "sq#{musescore_id}.mscx")
+    mscx_data = parse_mscx_metadata(mscx_file.to_s)
 
     {
       title: row["name"],
@@ -149,7 +152,7 @@ class OpenscoreQuartetsImporter
       data_path: data_path_for(row),
       external_id: musescore_id,
       external_url: row["link"],
-      mxl_path: mscx_path,
+      mxl_path: mxl_path,
       key_signature: mscx_data[:key_signature],
       time_signature: mscx_data[:time_signature],
       num_parts: mscx_data[:num_parts] || 4,
@@ -171,24 +174,22 @@ class OpenscoreQuartetsImporter
     parts.first.tr("_", " ")
   end
 
-  def find_mscx_file(score_path, musescore_id)
+  def find_mxl_file(score_path, musescore_id)
     dir = self.class.root_path.join(score_path)
-    mscx_file = dir.join("sq#{musescore_id}.mscx")
+    mxl_file = dir.join("sq#{musescore_id}.mxl")
 
-    if mscx_file.exist?
-      "./#{score_path}/sq#{musescore_id}.mscx"
+    if mxl_file.exist?
+      "./#{score_path}/sq#{musescore_id}.mxl"
     else
-      found = Dir.glob(dir.join("*.mscx")).first
+      found = Dir.glob(dir.join("*.mxl")).first
       found ? "./#{score_path}/#{File.basename(found)}" : nil
     end
   end
 
   def parse_mscx_metadata(mscx_path)
-    return {} unless mscx_path
-    full_path = self.class.root_path.join(mscx_path.delete_prefix("./"))
-    return {} unless File.exist?(full_path)
+    return {} unless mscx_path && File.exist?(mscx_path)
 
-    content = File.read(full_path, encoding: "UTF-8")
+    content = File.read(mscx_path, encoding: "UTF-8")
 
     key_sig = extract_key_from_mscx(content)
     time_sig = extract_time_from_mscx(content)

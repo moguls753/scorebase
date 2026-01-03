@@ -95,6 +95,22 @@
         </div>
       </div>
 
+      <!-- Why Pro? -->
+      <div class="mb-16 md:mb-20">
+        <div class="flex items-center gap-4 mb-8">
+          <h2 class="text-xs font-bold uppercase tracking-[0.15em] text-[var(--color-accent)] font-[var(--font-family-display)]"><%= t('about.transparency_title') %></h2>
+          <div class="flex-1 h-px bg-[var(--color-border-subtle)]"></div>
+        </div>
+
+        <div class="mm-card p-8 md:p-12">
+          <div class="relative pl-6 border-l-[3px] border-[var(--color-accent)]">
+            <p class="text-base text-[var(--color-text-muted)] leading-relaxed">
+              <%= t('about.transparency_p1') %>
+            </p>
+          </div>
+        </div>
+      </div>
+
       <!-- Sources -->
       <div>
         <div class="flex items-center gap-4 mb-8">
@@ -153,6 +169,24 @@
               </a>
               <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
                 <%= t('about.pdmx_description') %>
+              </p>
+            </div>
+          </div>
+
+          <!-- OpenScore -->
+          <div class="mm-card p-6 md:p-8 flex flex-col md:flex-row md:items-start gap-4">
+            <div class="flex items-center gap-3 md:w-40 shrink-0">
+              <span class="mm-badge-source mm-badge-openscore">OpenScore</span>
+              <span class="text-lg font-[var(--font-family-display)] font-black text-[var(--color-primary)]">
+                <%= number_with_delimiter((@source_counts['openscore-lieder'] || 0) + (@source_counts['openscore-quartets'] || 0)) %>
+              </span>
+            </div>
+            <div>
+              <a href="https://musescore.com/openscore" target="_blank" rel="nofollow noopener" class="text-base font-[var(--font-family-display)] font-bold text-[var(--color-primary)] hover:text-[var(--color-accent)] transition-colors mb-1 inline-block">
+                <%= t('about.openscore_name') %>
+              </a>
+              <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
+                <%= t('about.openscore_description') %>
               </p>
             </div>
           </div>

@@ -25,13 +25,13 @@ namespace :openscore do
 
   desc "Show OpenScore import statistics"
   task stats: :environment do
-    total = Score.where(source: "openscore").count
+    total = Score.where(source: "openscore-lieder").count
     puts "OpenScore Lieder Scores: #{total}"
     puts ""
 
     if total > 0
       puts "By composer (top 10):"
-      Score.where(source: "openscore")
+      Score.where(source: "openscore-lieder")
         .group(:composer)
         .order("count_all DESC")
         .limit(10)
@@ -39,16 +39,16 @@ namespace :openscore do
         .each { |composer, count| puts "  #{composer || 'Unknown'}: #{count}" }
 
       puts ""
-      puts "With lyrics: #{Score.where(source: 'openscore', has_extracted_lyrics: true).count}"
-      puts "With MusicXML: #{Score.where(source: 'openscore').where.not(mxl_path: [nil, '']).count}"
+      puts "With lyrics: #{Score.where(source: 'openscore-lieder', has_extracted_lyrics: true).count}"
+      puts "With MusicXML: #{Score.where(source: 'openscore-lieder').where.not(mxl_path: [nil, '']).count}"
 
       puts ""
-      puts "With key signature: #{Score.where(source: 'openscore').where.not(key_signature: [nil, '']).count}"
-      puts "With time signature: #{Score.where(source: 'openscore').where.not(time_signature: [nil, '']).count}"
+      puts "With key signature: #{Score.where(source: 'openscore-lieder').where.not(key_signature: [nil, '']).count}"
+      puts "With time signature: #{Score.where(source: 'openscore-lieder').where.not(time_signature: [nil, '']).count}"
 
       puts ""
       puts "By period:"
-      Score.where(source: "openscore")
+      Score.where(source: "openscore-lieder")
         .group(:period)
         .order("count_all DESC")
         .count
@@ -58,13 +58,13 @@ namespace :openscore do
 
   desc "Clear all OpenScore scores from database"
   task clear: :environment do
-    count = Score.where(source: "openscore").count
-    print "This will delete #{count} OpenScore scores. Continue? (y/N) "
+    count = Score.where(source: "openscore-lieder").count
+    print "This will delete #{count} OpenScore Lieder scores. Continue? (y/N) "
     confirm = $stdin.gets.chomp.downcase
 
     if confirm == "y"
-      Score.where(source: "openscore").delete_all
-      puts "Deleted #{count} OpenScore scores."
+      Score.where(source: "openscore-lieder").delete_all
+      puts "Deleted #{count} OpenScore Lieder scores."
     else
       puts "Aborted."
     end

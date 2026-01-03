@@ -46,7 +46,7 @@ class OpenscoreImporter
     puts "Found #{scores_data.size} scores in TSV"
 
     # Pre-filter existing
-    existing_paths = Score.where(source: "openscore").pluck(:data_path).to_set
+    existing_paths = Score.where(source: "openscore-lieder").pluck(:data_path).to_set
     original_count = scores_data.size
     scores_data = scores_data.reject { |row| existing_paths.include?(data_path_for(row)) }
     puts "Skipping #{original_count - scores_data.size} already-imported scores (#{scores_data.size} remaining)"
@@ -117,7 +117,7 @@ class OpenscoreImporter
   end
 
   def data_path_for(row)
-    "openscore:#{row['id']}"
+    "openscore-lieder:#{row['id']}"
   end
 
   def process_batch(batch)
@@ -146,20 +146,21 @@ class OpenscoreImporter
     composer_name = composer_info&.dig(:name) || parse_composer_from_path(score_path)
 
     # Find local files
-    mscx_path = find_mscx_file(score_path, musescore_id)
+    mxl_path = find_mxl_file(score_path, musescore_id)
     lyrics = read_lyrics_file(score_path, musescore_id)
 
-    # Extract basic info from .mscx if available
-    mscx_data = parse_mscx_metadata(mscx_path)
+    # Extract basic info from .mscx if available (for key/time sig during import)
+    mscx_file = self.class.root_path.join("scores", score_path, "lc#{musescore_id}.mscx")
+    mscx_data = parse_mscx_metadata(mscx_file.to_s)
 
     {
       title: row["name"],
       composer: composer_name,
-      source: "openscore",
+      source: "openscore-lieder",
       data_path: data_path_for(row),
       external_id: musescore_id,
       external_url: row["link"],
-      mxl_path: mscx_path,
+      mxl_path: mxl_path,
       extracted_lyrics: lyrics,
       has_extracted_lyrics: lyrics.present?,
       # From .mscx parsing
@@ -186,15 +187,14 @@ class OpenscoreImporter
     parts.first.tr("_", " ")
   end
 
-  def find_mscx_file(score_path, musescore_id)
+  def find_mxl_file(score_path, musescore_id)
     dir = self.class.root_path.join("scores", score_path)
-    mscx_file = dir.join("lc#{musescore_id}.mscx")
+    mxl_file = dir.join("lc#{musescore_id}.mxl")
 
-    # Store relative path for portability (resolved via OpenscoreImporter.root_path)
-    if mscx_file.exist?
-      "./scores/#{score_path}/lc#{musescore_id}.mscx"
+    if mxl_file.exist?
+      "./scores/#{score_path}/lc#{musescore_id}.mxl"
     else
-      found = Dir.glob(dir.join("*.mscx")).first
+      found = Dir.glob(dir.join("*.mxl")).first
       found ? "./scores/#{score_path}/#{File.basename(found)}" : nil
     end
   end

@@ -170,8 +170,10 @@
           <p class="text-[var(--color-text-muted)] font-medium text-center sm:text-left">
             <span class="font-bold text-[var(--neon-cyan)]"><%= number_with_delimiter(Score.count) %></span> <%= t('footer.public_domain_scores') %>
           </p>
-          <p class="text-[var(--color-text-muted)] font-medium">
+          <p class="text-[var(--color-text-muted)] font-medium flex items-center gap-3">
             <%= link_to t('nav.impressum'), impressum_path, class: "hover:text-[var(--neon-cyan)] transition-colors" %>
+            <span class="text-[var(--color-border)]">·</span>
+            <%= link_to t('footer.open_source'), "https://github.com/era/scorebase", target: "_blank", rel: "noopener", class: "hover:text-[var(--neon-cyan)] transition-colors" %>
           </p>
         </div>
       </div>

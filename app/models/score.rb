@@ -155,7 +155,7 @@ class Score < ApplicationRecord
   include PdfSyncable
 
   # Sources
-  SOURCES = %w[pdmx cpdl imslp openscore].freeze
+  SOURCES = %w[pdmx cpdl imslp openscore-lieder openscore-quartets].freeze
 
   # Active Storage attachments
   has_one_attached :pdf_file
@@ -395,7 +395,7 @@ class Score < ApplicationRecord
       imslp_file_url(mxl_path)
     when "pdmx"
       Rails.application.config.x.pdmx_path.join(mxl_path.delete_prefix("./")).to_s
-    when "openscore"
+    when "openscore-lieder"
       OpenscoreImporter.root_path.join(mxl_path.delete_prefix("./")).to_s
     when "openscore-quartets"
       OpenscoreQuartetsImporter.root_path.join(mxl_path.delete_prefix("./")).to_s

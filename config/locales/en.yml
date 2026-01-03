@@ -18,6 +18,7 @@ en:
   # Footer
   footer:
     public_domain_scores: "public domain scores"
+    open_source: "Open Source"
 
   # Pagination
   pagination:
@@ -216,10 +217,10 @@ en:
     cpdl_description: "Also known as ChoralWiki. The largest site for free choral sheet music, with strong coverage of Renaissance and Baroque vocal works."
     pdmx_name: "Public Domain MusicXML"
     pdmx_description: "A research dataset of 250K+ public domain MusicXML files collected from MuseScore. Useful for notation software like MuseScore, Sibelius, or Finale."
-    openscore_lieder_name: "OpenScore Lieder Corpus"
-    openscore_lieder_description: "A collection of 1,300+ 19th-century art songs (Lieder) with high-quality encodings. Includes works by Schubert, Schumann, Brahms, and Wolf."
-    openscore_quartets_name: "OpenScore String Quartets"
-    openscore_quartets_description: "A collection of string quartets from the long 19th century with high-quality encodings."
+    openscore_name: "OpenScore"
+    openscore_description: "High-quality encodings of 19th-century art songs and string quartets. Includes works by Schubert, Schumann, Brahms, Beethoven, and more."
+    transparency_title: "Why Pro?"
+    transparency_p1: "Smart Search runs on AI. AI costs money. Your subscription keeps it running while the catalog stays free for everyone."
 
   # Impressum Page
   impressum:
