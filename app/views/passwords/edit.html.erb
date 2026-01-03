@@ -1,0 +1,41 @@
+<% content_for :title, "Set new password — ScoreBase" %>
+
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1 class="auth-title">Set new password</h1>
+      <p class="auth-subtitle">Choose a strong password</p>
+    </div>
+
+    <% if flash[:alert] %>
+      <div class="auth-alert auth-alert-error"><%= flash[:alert] %></div>
+    <% end %>
+
+    <%= form_with url: password_path(params[:token]), method: :put, class: "auth-form" do |form| %>
+      <div class="auth-field">
+        <label class="auth-label" for="password">New password</label>
+        <%= form.password_field :password,
+            id: "password",
+            required: true,
+            autofocus: true,
+            autocomplete: "new-password",
+            placeholder: "At least 8 characters",
+            maxlength: 72,
+            class: "mm-input" %>
+      </div>
+
+      <div class="auth-field">
+        <label class="auth-label" for="password_confirmation">Confirm password</label>
+        <%= form.password_field :password_confirmation,
+            id: "password_confirmation",
+            required: true,
+            autocomplete: "new-password",
+            placeholder: "Repeat your password",
+            maxlength: 72,
+            class: "mm-input" %>
+      </div>
+
+      <%= form.submit "Update password", class: "mm-button mm-button-primary auth-submit" %>
+    <% end %>
+  </div>
+</div>
