@@ -72,7 +72,7 @@ class OpenscoreQuartetsImporter
   private
 
   def load_composers
-    path = self.class.root_path.join("Data", "composers.tsv")
+    path = self.class.root_path.join("data", "composers.tsv")
     return {} unless path.exist?
 
     composers = {}
@@ -87,7 +87,7 @@ class OpenscoreQuartetsImporter
   end
 
   def load_sets
-    path = self.class.root_path.join("Data", "sets.tsv")
+    path = self.class.root_path.join("data", "sets.tsv")
     return {} unless path.exist?
 
     sets = {}
@@ -101,7 +101,7 @@ class OpenscoreQuartetsImporter
   end
 
   def load_scores
-    path = self.class.root_path.join("Data", "scores.tsv")
+    path = self.class.root_path.join("data", "scores.tsv")
     raise "scores.tsv not found at #{path}" unless path.exist?
 
     scores = []
