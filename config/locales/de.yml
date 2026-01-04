@@ -28,13 +28,13 @@ de:
   # Meta
   meta:
     title: "ScoreBase — Freie Noten"
-    description: "Durchsuche und lade tausende freie Musiknoten herunter. Kostenlose Noten von CPDL, IMSLP und PDMX."
+    description: "Durchsuche und lade tausende freie Musiknoten herunter. Kostenlose Noten aus allen wichtigen Archiven."
 
   # Index / Search Page
   search:
     hero_title_line1: "Freie Noten"
-    hero_title_line2: "Eine Suche für IMSLP, CPDL und PDMX."
-    scores_ready: "%{count} Noten verfügbar"
+    hero_title_line2: "Eine Suche über alle wichtigen freien Notenarchive."
+    scores_ready: "%{count} Noten an einem Ort"
     placeholder: "NOTEN SUCHEN..."
     button: "Suchen"
     browse: "Stöbern"
@@ -195,14 +195,14 @@ de:
   about:
     label: "Info"
     title: "ScoreBase"
-    subtitle: "Durchsuche freie Noten von IMSLP, CPDL und PDMX an einem Ort."
+    subtitle: "Durchsuche freie Noten aus mehreren Archiven — alles an einem Ort."
     why_exists_title: "Warum?"
-    why_exists_p1: "IMSLP, CPDL, PDMX – es gibt einige gute Quellen für freie Noten. Aber jede Seite hat ihre eigene Suche, und oft muss man überall einzeln schauen, bis man findet was man sucht."
-    why_exists_p2: "ScoreBase löst genau dieses Problem – eine Suche für alle Quellen."
+    why_exists_p1: "Freie Noten sind über das Web verstreut."
+    why_exists_p2: "ScoreBase bringt sie zusammen."
     sources_title: "Quellen"
     features_title: "Wie es funktioniert"
     feature_1_title: "Aggregierte Daten"
-    feature_1_desc: "Noten von IMSLP, CPDL und PDMX werden indexiert und sind an einem Ort durchsuchbar."
+    feature_1_desc: "Noten von IMSLP, CPDL, OpenScore und mehr werden indexiert und sind an einem Ort durchsuchbar."
     feature_2_title: "Bereinigt & Angereichert"
     feature_2_desc: "Sauberere, verlässlichere Daten. KI standardisiert Informationen über alle Quellen und ergänzt fehlende Details."
     feature_3_title: "Interaktive Galerie"
@@ -359,7 +359,7 @@ de:
     faq_2_q: "Was ist mit der kostenlosen Version?"
     faq_2_a: "Der kostenlose Katalog bleibt kostenlos. %{count} gemeinfreie Noten, durchsuchbar mit einfacher Stichwortsuche. Pro fügt Smart Search und Organisationsfunktionen hinzu."
     faq_3_q: "Was ist der Unterschied zu IMSLP?"
-    faq_3_a: "IMSLP ist ein Noten-Archiv mit Stichwortsuche. ScoreBase vereint mehrere Quellen (IMSLP, CPDL, PDMX) und fügt Smart Search hinzu, die musikalischen Kontext versteht: Schwierigkeit, Stimmumfänge, Dauer, Stil."
+    faq_3_a: "IMSLP ist ein Noten-Archiv mit Stichwortsuche. ScoreBase vereint mehrere Quellen (IMSLP, CPDL, OpenScore und mehr) und fügt Smart Search hinzu, die musikalischen Kontext versteht: Schwierigkeit, Stimmumfänge, Dauer, Stil."
     faq_4_q: "Kann ich jederzeit kündigen?"
     faq_4_a: "Ja. Keine Vertragsbindung. Kündige wann immer du willst."
     faq_5_q: "Warum kostet Smart Search Geld?"

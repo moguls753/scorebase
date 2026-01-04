@@ -12,6 +12,47 @@ RSpec.describe 'Scores' do
       get scores_path
       expect(response.body).to include('Test Score')
     end
+
+    describe 'voicing filter' do
+      it 'filters by standard forces (solo, duet, etc.)' do
+        create(:score, title: 'Solo Piece', num_parts: 1)
+        create(:score, title: 'Quartet Piece', num_parts: 4)
+
+        get scores_path(voicing: 'solo')
+        expect(response.body).to include('Solo Piece')
+        expect(response.body).not_to include('Quartet Piece')
+      end
+
+      it 'filters by specific SATB voicing' do
+        create(:score, title: 'SATB Piece', voicing: 'SATB')
+        create(:score, title: 'SSAA Piece', voicing: 'SSAA')
+
+        get scores_path(voicing: 'SATB')
+        expect(response.body).to include('SATB Piece')
+        expect(response.body).not_to include('SSAA Piece')
+      end
+
+      it 'handles lowercase voicing param' do
+        create(:score, title: 'SATB Piece', voicing: 'SATB')
+
+        get scores_path(voicing: 'satb')
+        expect(response.body).to include('SATB Piece')
+      end
+
+      it 'returns no results for invalid voicing params' do
+        create(:score, title: 'Some Piece')
+
+        get scores_path(voicing: 'invalid_garbage_123')
+        expect(response.body).not_to include('Some Piece')
+      end
+
+      it 'returns no results for overly long voicing params' do
+        create(:score, title: 'Some Piece')
+
+        get scores_path(voicing: 'SATBSATBSATBSATB') # 16 chars, exceeds limit
+        expect(response.body).not_to include('Some Piece')
+      end
+    end
   end
 
   describe 'GET /scores/:id' do

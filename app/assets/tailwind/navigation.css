@@ -3,6 +3,28 @@
    Dark Neon Theme with Glassmorphism
    ======================================== */
 
+/* Logo "Base" - Neon glow transition */
+.logo-base {
+  display: inline-block;
+  color: var(--neon-cyan);
+  text-shadow: 0 0 18px rgba(0, 240, 255, 0.4);
+  transition: all 0.5s ease;
+}
+
+.group:hover .logo-base {
+  color: var(--neon-magenta);
+  text-shadow:
+    0 0 32px rgba(255, 0, 128, 0.5),
+    0 0 16px rgba(255, 0, 128, 0.35),
+    0 0 8px rgba(255, 0, 128, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-base {
+    transition: none;
+  }
+}
+
 /* Hero Section - Dark with Gradient Orbs */
 .hero-section {
   background: transparent;

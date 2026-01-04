@@ -47,7 +47,7 @@
   letter-spacing: -0.3px;
   color: var(--neon-cyan);
   text-shadow: 0 0 18px rgba(0, 240, 255, 0.4);
-  transition: all 0.3s ease;
+  transition: all 0.5s ease;
 
   /* Optical baseline adjustment */
   position: relative;
@@ -71,29 +71,14 @@
   transition: color 0.3s ease;
 }
 
-/* Hover - everything lights up cyan */
-.smart-search-teaser-link:hover {
-  color: var(--neon-cyan);
-}
-
-.smart-search-teaser-link:hover .teaser-coming-soon {
-  color: var(--neon-cyan);
-}
-
+/* Hover - only Smart Search changes (cyan→magenta with scale) */
 .smart-search-teaser-link:hover .teaser-name {
+  color: var(--neon-magenta);
   text-shadow:
-    0 0 28px rgba(0, 240, 255, 0.6),
-    0 0 14px rgba(0, 240, 255, 0.4);
+    0 0 32px rgba(255, 0, 128, 0.5),
+    0 0 16px rgba(255, 0, 128, 0.35),
+    0 0 8px rgba(255, 0, 128, 0.2);
   transform: scale(1.03);
-}
-
-.smart-search-teaser-link:hover .teaser-arrow {
-  color: var(--neon-cyan);
-  transform: translateX(3px);
-}
-
-.smart-search-teaser-link:hover .teaser-cta {
-  color: var(--neon-cyan);
 }
 
 /* Responsive */

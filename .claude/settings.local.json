@@ -35,7 +35,8 @@
       "Bash(bundle exec rails runner:*)",
       "Bash(node -c:*)",
       "Bash(source venv/bin/activate)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(node -e:*)"
     ]
   }
 }

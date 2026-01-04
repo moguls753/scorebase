@@ -28,13 +28,13 @@ en:
   # Meta
   meta:
     title: "ScoreBase — Public Domain Music Scores"
-    description: "Browse and download thousands of public domain music scores. Free sheet music from CPDL, IMSLP, and PDMX."
+    description: "Browse and download thousands of public domain music scores. Free sheet music from all major archives."
 
   # Index / Search Page
   search:
     hero_title_line1: "Public Domain Scores"
-    hero_title_line2: "One search across IMSLP, CPDL, and PDMX."
-    scores_ready: "%{count} scores ready to download"
+    hero_title_line2: "One search across all major public domain archives."
+    scores_ready: "%{count} scores in one place"
     placeholder: "SEARCH SCORES..."
     button: "Search"
     browse: "Browse"
@@ -195,14 +195,14 @@ en:
   about:
     label: "About"
     title: "ScoreBase"
-    subtitle: "Search public domain music scores from IMSLP, CPDL, and PDMX in one place."
+    subtitle: "Search public domain music scores from multiple archives — all in one place."
     why_exists_title: "Why?"
-    why_exists_p1: "IMSLP, CPDL, PDMX – there are several good sources for free sheet music. But each site has its own search, and finding what you need often means checking multiple places."
-    why_exists_p2: "ScoreBase solves exactly that – one search for all sources."
+    why_exists_p1: "Free sheet music is scattered across the web."
+    why_exists_p2: "ScoreBase brings it together."
     sources_title: "Sources"
     features_title: "How it works"
     feature_1_title: "Aggregated Data"
-    feature_1_desc: "Scores from IMSLP, CPDL, and PDMX are indexed and searchable in one place."
+    feature_1_desc: "Scores from IMSLP, CPDL, OpenScore, and more are indexed and searchable in one place."
     feature_2_title: "Cleaned & Enriched"
     feature_2_desc: "Cleaner, more reliable data. AI standardizes information across sources and completes missing details."
     feature_3_title: "Interactive Gallery"
@@ -359,7 +359,7 @@ en:
     faq_2_q: "What about the free version?"
     faq_2_a: "The free catalog stays free. %{count} public domain scores, browsable and searchable with basic keyword search. Pro adds Smart Search and organization features."
     faq_3_q: "How is this different from IMSLP?"
-    faq_3_a: "IMSLP is a score archive with keyword search. ScoreBase aggregates multiple sources (IMSLP, CPDL, PDMX) and adds Smart Search that understands musical context: difficulty, ranges, duration, style."
+    faq_3_a: "IMSLP is a score archive with keyword search. ScoreBase aggregates multiple sources (IMSLP, CPDL, OpenScore, and more) and adds Smart Search that understands musical context: difficulty, ranges, duration, style."
     faq_4_q: "Can I cancel anytime?"
     faq_4_a: "Yes. No long-term commitment. Cancel whenever you want."
     faq_5_q: "Why does Smart Search cost money?"

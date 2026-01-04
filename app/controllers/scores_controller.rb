@@ -198,7 +198,12 @@ class ScoresController < ApplicationController
     when "ensemble"
       scores.ensemble
     else
-      scores
+      # Handle specific voicings (SATB, SSAA, etc.) from bot traffic
+      if forces.match?(/\A[SATB]{1,12}\z/i)
+        scores.where(voicing: forces.upcase)
+      else
+        scores.none # Invalid voicing param = no results (fast)
+      end
     end
   end
 
