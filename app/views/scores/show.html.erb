@@ -78,7 +78,9 @@
         <% if facts.any? %>
           <div class="score-facts-grid">
             <% facts.each do |fact| %>
-              <% if fact[:divider] %>
+              <% if fact[:filler] %>
+                <div class="score-fact-cell"></div>
+              <% elsif fact[:divider] %>
                 <div class="score-facts-divider"></div>
               <% elsif fact[:difficulty] %>
                 <%# Difficulty meter - special rendering %>

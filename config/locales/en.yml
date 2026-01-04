@@ -368,6 +368,116 @@ en:
     # Footer
     back_to_catalog: "← Back to Free Catalog"
 
+  # Score fact values (for display in facts grid)
+  # Keys are normalized: lowercase, non-alphanumeric chars replaced with underscores
+  # e.g., "CC BY 3.0" -> cc_by_3_0, "20th Century" -> 20th_century
+  score_values:
+    # Periods
+    period:
+      medieval: "Medieval"
+      renaissance: "Renaissance"
+      baroque: "Baroque"
+      classical: "Classical"
+      romantic: "Romantic"
+      modern: "Modern"
+      20th_century: "20th Century"
+      21st_century: "21st Century"
+      19th_century: "19th Century"
+      early_20th_century: "Early 20th Century"
+      late_romantic: "Late Romantic"
+      late_renaissance: "Late Renaissance"
+      contemporary: "Contemporary"
+      traditional: "Traditional"
+      impressionist: "Impressionist"
+
+    # Texture types
+    texture:
+      homophonic: "Homophonic"
+      polyphonic: "Polyphonic"
+      monophonic: "Monophonic"
+      mixed: "Mixed"
+
+    # Languages (text languages)
+    language:
+      latin: "Latin"
+      english: "English"
+      german: "German"
+      french: "French"
+      italian: "Italian"
+      spanish: "Spanish"
+      portuguese: "Portuguese"
+      russian: "Russian"
+      czech: "Czech"
+      dutch: "Dutch"
+      swedish: "Swedish"
+      norwegian: "Norwegian"
+      danish: "Danish"
+      polish: "Polish"
+      hebrew: "Hebrew"
+      chinese: "Chinese"
+      catalan: "Catalan"
+      basque: "Basque"
+      romanian: "Romanian"
+      slovak: "Slovak"
+      unknown: "Unknown"
+      unspecified: "Unspecified"
+
+    # Difficulty labels (for difficulty meter)
+    difficulty:
+      beginner: "Beginner"
+      easy: "Easy"
+      intermediate: "Intermediate"
+      advanced: "Advanced"
+      expert: "Expert"
+
+    # Licenses (keys normalized from e.g. "CC BY-SA 3.0" -> cc_by_sa_3_0)
+    license:
+      cc0: "CC0 (Public Domain)"
+      cc0_1_0: "CC0 (Public Domain)"
+      public_domain: "Public Domain"
+      cpdl: "CPDL License"
+      creative_commons: "Creative Commons"
+      cc_by_3_0: "CC BY 3.0"
+      cc_by_4_0: "CC BY 4.0"
+      cc_by_sa_3_0: "CC BY-SA 3.0"
+      cc_by_sa_4_0: "CC BY-SA 4.0"
+      cc_by_nc_3_0: "CC BY-NC 3.0"
+      cc_by_nc_4_0: "CC BY-NC 4.0"
+
+    # Genres (main ones)
+    genre:
+      sacred_music: "Sacred Music"
+      secular_music: "Secular Music"
+      motets: "Motets"
+      masses: "Masses"
+      madrigals: "Madrigals"
+      cantatas: "Cantatas"
+      hymns: "Hymns"
+      psalms: "Psalms"
+      anthems: "Anthems"
+      carols: "Carols"
+      oratorios: "Oratorios"
+      requiems: "Requiems"
+      chansons: "Chansons"
+      art_song: "Art Song"
+      string_quartet: "String Quartet"
+      concertos: "Concertos"
+      sonatas: "Sonatas"
+      symphonies: "Symphonies"
+      fugues: "Fugues"
+      operas: "Operas"
+      folk: "Folk"
+      traditional: "Traditional"
+      jazz: "Jazz"
+      pop: "Pop"
+      rock: "Rock"
+      classical: "Classical"
+      baroque: "Baroque"
+      romantic: "Romantic"
+      renaissance: "Renaissance"
+      medieval: "Medieval"
+      modern: "Modern"
+
   # Mailers
   waitlist_mailer:
     confirmation:

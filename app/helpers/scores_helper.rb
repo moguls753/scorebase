@@ -53,6 +53,45 @@ module ScoresHelper
     FACT_ICONS.dig(key, :css)
   end
 
+  # ─────────────────────────────────────────────────────────────────
+  # Value Translation Helpers
+  # Translate database values to localized display labels
+  # Falls back to original value if no translation exists
+  # ─────────────────────────────────────────────────────────────────
+
+  def translate_score_value(category, value)
+    return nil if value.blank?
+    # Normalize: "CC BY 3.0" -> "cc_by_3_0", "20th Century" -> "20th_century"
+    key = value.to_s.downcase.strip.gsub(/[^a-z0-9]+/, "_").gsub(/^_|_$/, "")
+    t("score_values.#{category}.#{key}", default: value)
+  end
+
+  def translate_period(value)
+    translate_score_value(:period, value)
+  end
+
+  def translate_genre(value)
+    translate_score_value(:genre, value)
+  end
+
+  def translate_texture(value)
+    translate_score_value(:texture, value)
+  end
+
+  def translate_language(value)
+    translate_score_value(:language, value)
+  end
+
+  def translate_license(value)
+    translate_score_value(:license, value)
+  end
+
+  def translate_difficulty_label(level)
+    return nil unless level.to_i.between?(1, 5)
+    label = DIFFICULTY_LABELS[level.to_i]
+    t("score_values.difficulty.#{label}", default: label)
+  end
+
   # Build a fact entry hash with icon data
   def fact_entry(key, value, link: nil, difficulty: nil, css: nil)
     {
@@ -73,7 +112,10 @@ module ScoresHelper
     catalog = build_catalog_facts(score)
 
     # Add divider if both sections have content
+    # Pad odd-count sections to avoid empty grid cells
     if musical.any? && catalog.any?
+      musical << { filler: true } if musical.size.odd?
+      catalog << { filler: true } if catalog.size.odd?
       musical + [{ divider: true }] + catalog
     else
       musical + catalog
@@ -86,12 +128,12 @@ module ScoresHelper
 
     # Period - linkable (discover scores from the same era)
     if score.period.present?
-      facts << fact_entry("score.period", score.period, link: scores_path(period: score.period))
+      facts << fact_entry("score.period", translate_period(score.period), link: scores_path(period: score.period))
     end
 
     # Genre - linkable (primary genre if multiple exist)
     if (primary_genre = score.genre_list.first)
-      facts << fact_entry("score.genre", primary_genre, link: scores_path(genre: primary_genre))
+      facts << fact_entry("score.genre", translate_genre(primary_genre), link: scores_path(genre: primary_genre))
     end
 
     # Key signature - descriptive, not linkable (too broad for discovery)
@@ -128,12 +170,12 @@ module ScoresHelper
 
     # Language - linkable
     if score.language.present?
-      facts << fact_entry("score.language", score.language, link: scores_path(language: score.language))
+      facts << fact_entry("score.language", translate_language(score.language), link: scores_path(language: score.language))
     end
 
     # Non-linkable facts
     facts << { label: t("score.measures"), value: positive_or_nil(score.measure_count) }
-    facts << { label: t("score.texture"), value: score.texture_type&.capitalize }
+    facts << { label: t("score.texture"), value: translate_texture(score.texture_type) }
     facts << { label: t("score.parts"), value: positive_or_nil(score.num_parts) }
     facts << { label: t("score.instruments"), value: score.instruments }
     facts << { label: t("score.page_count"), value: positive_or_nil(score.page_count) }
@@ -147,7 +189,7 @@ module ScoresHelper
     facts << { label: t("score.cpdl_number"), value: score.cpdl_number, css: "font-mono" }
     facts << { label: t("score.editor"), value: score.editor }
     facts << { label: t("score.posted_date"), value: score.posted_date }
-    facts << { label: t("score.license"), value: score.license }
+    facts << { label: t("score.license"), value: translate_license(score.license) }
     facts.select { |f| f[:value].present? }
   end
 
@@ -164,7 +206,7 @@ module ScoresHelper
     level = level.to_i
     return nil unless level.between?(1, 5)
 
-    label = DIFFICULTY_LABELS[level]
+    label = translate_difficulty_label(level)
 
     content_tag(:div, class: "difficulty-meter", aria: { label: "#{t('score.difficulty')}: #{label}" }) do
       blocks = (1..5).map do |i|
