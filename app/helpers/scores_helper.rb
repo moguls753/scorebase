@@ -112,10 +112,8 @@ module ScoresHelper
     catalog = build_catalog_facts(score)
 
     # Add divider if both sections have content
-    # Pad odd-count sections to avoid empty grid cells
+    # CSS handles odd items with grid-column: 1 / -1 (full width)
     if musical.any? && catalog.any?
-      musical << { filler: true } if musical.size.odd?
-      catalog << { filler: true } if catalog.size.odd?
       musical + [{ divider: true }] + catalog
     else
       musical + catalog
