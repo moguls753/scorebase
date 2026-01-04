@@ -126,6 +126,55 @@ namespace :openscore do
     puts "Run 'bin/rails openscore:generate_visuals' to generate thumbnails and galleries"
   end
 
+  desc "Fix missing mxl_path by searching for actual files on disk"
+  task fix_mxl_paths: :environment do
+    puts "=== Fixing missing mxl_path for OpenScore scores ==="
+
+    [
+      { source: "openscore-lieder", prefix: "lc", root: Rails.application.config.x.openscore_path },
+      { source: "openscore-quartets", prefix: "sq", root: Rails.application.config.x.openscore_quartets_path }
+    ].each do |config|
+      root = config[:root]
+      next unless root.exist?
+
+      scores = Score.where(source: config[:source])
+                    .where(mxl_path: [nil, ""])
+                    .where.not(external_id: [nil, ""])
+
+      total = scores.count
+      puts "#{config[:source]}: #{total} scores need mxl_path fix"
+      next if total.zero?
+
+      # Build lookup hash: external_id => relative_path (fast, single scan)
+      puts "  Scanning #{root} for MXL files..."
+      mxl_lookup = {}
+      Dir.glob(root.join("**", "#{config[:prefix]}*.mxl").to_s).each do |path|
+        # Extract external_id from filename: lc6623221.mxl -> 6623221
+        filename = File.basename(path, ".mxl")
+        external_id = filename.sub(/^#{config[:prefix]}/, "")
+        relative = path.sub(root.to_s + "/", "./")
+        mxl_lookup[external_id] = relative
+      end
+      puts "  Found #{mxl_lookup.size} MXL files on disk"
+
+      fixed = 0
+      not_found = 0
+
+      scores.find_each do |score|
+        if (relative_path = mxl_lookup[score.external_id])
+          score.update_columns(mxl_path: relative_path)
+          fixed += 1
+        else
+          not_found += 1
+        end
+      end
+
+      puts "  Fixed: #{fixed}, Not found: #{not_found}"
+    end
+
+    puts "=== Done ==="
+  end
+
   desc "Generate thumbnails and galleries for OpenScore scores with PDFs"
   task generate_visuals: :environment do
     puts "=== Generating thumbnails for OpenScore scores ==="
