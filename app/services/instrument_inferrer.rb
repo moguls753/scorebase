@@ -14,16 +14,18 @@ class InstrumentInferrer
 
   RULES = <<~RULES
     Rules:
+    - ONLY infer instruments explicitly indicated in metadata. DO NOT GUESS.
+    - If voicing is empty/unknown and no instrument is mentioned in title: return null
     - Standard English names: Piano, Violin, Flute, Organ, Guitar, etc.
     - Comma-separated: "Violin, Viola, Cello" (not "String Trio")
     - Orchestra (15+ instruments): "Orchestra"
     - Vocal with accompaniment: "Vocal, Piano" or "Vocal, Orchestra"
-    - A cappella: "Vocal"
+    - A cappella or SATB/SSA/TTBB voicing without accompaniment: "Vocal"
     - Some composers mainly wrote for one instrument:
       Sor, Giuliani, Carulli, Tárrega, Barrios → Guitar
       Chopin, Liszt, Czerny → Piano
       Paganini → Violin
-    - Return null if truly unknown
+    - Return null if truly unknown (prefer null over guessing)
   RULES
 
   SINGLE_PROMPT = <<~PROMPT
