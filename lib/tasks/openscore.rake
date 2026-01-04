@@ -69,4 +69,102 @@ namespace :openscore do
       puts "Aborted."
     end
   end
+
+  desc "Link local PDFs to OpenScore scores (sets pdf_path based on existing files)"
+  task link_pdfs: :environment do
+    base_path = Rails.application.config.x.openscore_pdfs_path
+    puts "=== Linking OpenScore PDFs ==="
+    puts "Looking in: #{base_path}"
+    puts ""
+
+    unless base_path.exist?
+      puts "ERROR: Path does not exist: #{base_path}"
+      puts "Upload PDFs to #{base_path}/{lieder,quartets}/ first"
+      exit 1
+    end
+
+    [
+      { source: "openscore-lieder", folder: "lieder" },
+      { source: "openscore-quartets", folder: "quartets" }
+    ].each do |config|
+      source = config[:source]
+      folder = config[:folder]
+      folder_path = base_path.join(folder)
+
+      unless folder_path.exist?
+        puts "#{source}: Folder #{folder_path} not found, skipping"
+        next
+      end
+
+      # Find scores without pdf_path set
+      scores = Score.where(source: source)
+                    .where("pdf_path IS NULL OR pdf_path = ''")
+                    .where.not(external_id: [nil, ""])
+
+      total = scores.count
+      puts "#{source}: #{total} scores need pdf_path"
+
+      linked = 0
+      missing = 0
+
+      scores.find_each do |score|
+        pdf_file = folder_path.join("#{score.external_id}.pdf")
+
+        if pdf_file.exist?
+          score.update_columns(pdf_path: "#{folder}/#{score.external_id}.pdf")
+          linked += 1
+        else
+          missing += 1
+        end
+      end
+
+      puts "  Linked: #{linked}, Missing PDF: #{missing}"
+    end
+
+    puts ""
+    puts "=== Done ==="
+    puts "Run 'bin/rails openscore:generate_visuals' to generate thumbnails and galleries"
+  end
+
+  desc "Generate thumbnails and galleries for OpenScore scores with PDFs"
+  task generate_visuals: :environment do
+    puts "=== Generating thumbnails for OpenScore scores ==="
+
+    %w[openscore-lieder openscore-quartets].each do |source|
+      # Scores with pdf_path but no thumbnail
+      scores = Score.where(source: source)
+                    .where.not(pdf_path: [nil, ""])
+                    .left_joins(:thumbnail_image_attachment)
+                    .where(active_storage_attachments: { id: nil })
+
+      count = scores.count
+      puts "#{source}: #{count} scores need thumbnails"
+
+      scores.find_each do |score|
+        GenerateThumbnailJob.perform_later(score.id)
+      end
+    end
+
+    puts ""
+    puts "=== Generating galleries for OpenScore scores ==="
+
+    %w[openscore-lieder openscore-quartets].each do |source|
+      # Scores with pdf_path but no gallery pages
+      scores = Score.where(source: source)
+                    .where.not(pdf_path: [nil, ""])
+                    .left_joins(:score_pages)
+                    .where(score_pages: { id: nil })
+
+      count = scores.count
+      puts "#{source}: #{count} scores need galleries"
+
+      scores.find_each do |score|
+        GenerateGalleryJob.perform_later(score.id)
+      end
+    end
+
+    puts ""
+    puts "=== Jobs enqueued ==="
+    puts "Run 'bin/jobs' to process the queue"
+  end
 end

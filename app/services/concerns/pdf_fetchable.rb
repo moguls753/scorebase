@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Shared PDF fetching logic for services that need to work with PDF files
-# Handles three sources in priority order: R2 storage, local disk (PDMX), external URL
+# Handles four sources in priority order: R2 storage, local disk (PDMX), local disk (OpenScore), external URL
 module PdfFetchable
   extend ActiveSupport::Concern
 
@@ -29,7 +29,16 @@ module PdfFetchable
       end
     end
 
-    # 3. External URL (not yet synced)
+    # 3. Local disk (OpenScore - generated PDFs)
+    if score.openscore? && score.pdf_path.present?
+      local_path = Rails.application.config.x.openscore_pdfs_path.join(score.pdf_path).to_s
+      if File.exist?(local_path)
+        FileUtils.cp(local_path, dest_path)
+        return dest_path
+      end
+    end
+
+    # 4. External URL (not yet synced)
     if score.external? && score.pdf_url.present?
       http_download(score.pdf_url, dest_path, timeout: 120)
       return dest_path

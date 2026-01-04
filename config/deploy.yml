@@ -45,6 +45,9 @@ env:
     - RAILS_MASTER_KEY
   clear:
     PDMX_DATA_PATH: /opt/pdmx
+    OPENSCORE_LIEDER_PATH: /opt/openscore-lieder
+    OPENSCORE_QUARTETS_PATH: /opt/openscore-quartets
+    OPENSCORE_PDFS_PATH: /opt/openscore-pdfs
     SITE_URL: https://scorebase.org
 
     # SMTP configuration (non-sensitive)

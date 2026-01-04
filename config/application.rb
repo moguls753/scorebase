@@ -32,5 +32,14 @@ module Scorebase
     # PDMX dataset path (external, not in repo)
     # Dev: ~/data/pdmx (default), Prod: /opt/pdmx (via PDMX_DATA_PATH)
     config.x.pdmx_path = Pathname.new(ENV.fetch("PDMX_DATA_PATH", File.expand_path("~/data/pdmx")))
+
+    # OpenScore corpus paths (MXL source files)
+    # Dev: ~/data/openscore-*, Prod: /opt/openscore-* (via ENV)
+    config.x.openscore_path = Pathname.new(ENV.fetch("OPENSCORE_LIEDER_PATH", File.expand_path("~/data/openscore-lieder")))
+    config.x.openscore_quartets_path = Pathname.new(ENV.fetch("OPENSCORE_QUARTETS_PATH", File.expand_path("~/data/openscore-quartets")))
+
+    # OpenScore PDFs path (generated from MXL via MuseScore)
+    # Structure: openscore-pdfs/{lieder,quartets}/{external_id}.pdf
+    config.x.openscore_pdfs_path = Pathname.new(ENV.fetch("OPENSCORE_PDFS_PATH", "/opt/openscore-pdfs"))
   end
 end

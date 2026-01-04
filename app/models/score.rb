@@ -356,6 +356,10 @@ class Score < ApplicationRecord
     cpdl? || imslp?
   end
 
+  def openscore?
+    source&.start_with?("openscore")
+  end
+
   # For CPDL scores, return the file URL
   # Note: CPDL pdf_path already contains full URLs
   def cpdl_file_url(filename)

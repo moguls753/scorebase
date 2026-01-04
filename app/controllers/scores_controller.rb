@@ -63,9 +63,10 @@ class ScoresController < ApplicationController
     @score.increment!(:views) unless bot?
   end
 
-  # NOTE: Hybrid file serving - two approaches by design:
+  # NOTE: Hybrid file serving - three approaches by design:
   # 1. IMSLP/CPDL: Active Storage (R2) - CDN speed + cheaper than Hetzner disk
   # 2. PDMX: Local disk (/opt/pdmx) - 16GB already there, no migration needed
+  # 3. OpenScore: Local disk (/opt/openscore-pdfs for PDFs, corpus dir for MXLs)
   # Thumbnails always go to R2 for CDN benefit on grid views.
   def serve_file
     @score = Score.find(params[:id])
@@ -107,9 +108,13 @@ class ScoresController < ApplicationController
       return
     end
 
-    # 3. Local disk - PDMX files (pdf/mxl/mid)
-    base_path = Rails.application.config.x.pdmx_path
-    absolute_path = base_path.join(file_path.delete_prefix("./")).to_s
+    # 3. Local disk - PDMX and OpenScore files
+    absolute_path, base_path = local_file_path_for(@score, file_type, file_path)
+
+    unless absolute_path && base_path
+      render plain: "Unknown source", status: :not_found
+      return
+    end
 
     # Prevent path traversal attacks
     unless absolute_path.start_with?(File.expand_path(base_path))
@@ -152,6 +157,31 @@ class ScoresController < ApplicationController
       "audio/midi"
     else
       "application/octet-stream"
+    end
+  end
+
+  # Returns [absolute_path, base_path] for local file serving
+  # OpenScore has different paths for PDFs (generated) vs MXLs (corpus)
+  def local_file_path_for(score, file_type, file_path)
+    if score.pdmx?
+      base_path = Rails.application.config.x.pdmx_path
+      absolute_path = base_path.join(file_path.delete_prefix("./")).to_s
+      [absolute_path, base_path.to_s]
+    elsif score.openscore?
+      if file_type == "pdf"
+        base_path = Rails.application.config.x.openscore_pdfs_path
+        absolute_path = base_path.join(file_path).to_s
+        [absolute_path, base_path.to_s]
+      elsif file_type == "mxl"
+        # MXLs are in the corpus directory - use corpus root for traversal check
+        base_path = score.source == "openscore-lieder" ? OpenscoreImporter.root_path : OpenscoreQuartetsImporter.root_path
+        absolute_path = base_path.join(file_path.delete_prefix("./")).to_s
+        [absolute_path, base_path.to_s]
+      else
+        [nil, nil]
+      end
+    else
+      [nil, nil]
     end
   end
 
