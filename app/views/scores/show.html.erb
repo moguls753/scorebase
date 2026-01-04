@@ -26,8 +26,9 @@
     </div>
 
     <% if @score.source.present? %>
-      <span class="mm-badge-source mm-badge-<%= @score.source %> score-masthead-badge">
-        <%= @score.source.upcase %>
+      <% source = normalize_source(@score.source) %>
+      <span class="mm-badge-source mm-badge-<%= source %> score-masthead-badge">
+        <%= source.upcase %>
       </span>
     <% end %>
   </header>
@@ -163,16 +164,6 @@
           </details>
         <% end %>
 
-        <%# 8. EXTERNAL SOURCE LINK %>
-        <% if @score.source.present? && (safe_url = safe_external_url(@score.external_url)) %>
-          <%= link_to safe_url,
-                      target: "_blank",
-                      rel: "noopener noreferrer",
-                      class: "dl-btn dl-btn--secondary dl-btn--full" do %>
-            <span class="dl-label"><%= t('score.view_on_source', source: @score.source.upcase) %></span>
-            <span aria-hidden="true">↗</span>
-          <% end %>
-        <% end %>
 
         <%# 9. STATS %>
         <% if @score.has_stats? %>

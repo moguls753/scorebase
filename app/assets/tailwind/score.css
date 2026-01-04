@@ -630,11 +630,6 @@
   .score-facts-grid {
     grid-template-columns: 1fr;
   }
-
-  /* Single column: no right borders needed */
-  .score-fact-cell {
-    border-right: none;
-  }
 }
 
 .score-fact-cell {
@@ -646,25 +641,11 @@
   background: var(--color-bg-card);
   min-height: 56px;
   transition: background 0.2s ease;
-  border-bottom: 1px solid var(--color-border);
-  border-right: 1px solid var(--color-border);
-}
-
-/* Remove right border on right column (every 2nd cell, skipping dividers) */
-.score-fact-cell:nth-child(2n of :not(.score-facts-divider)) {
-  border-right: none;
 }
 
 /* Full-width last cell spans both columns */
 .score-fact-cell:last-child:nth-child(odd) {
   grid-column: 1 / -1;
-  border-right: none;
-}
-
-/* Remove bottom border from the absolute last row */
-.score-fact-cell:last-child,
-.score-fact-cell:has(+ .score-fact-cell:last-child) {
-  border-bottom: none;
 }
 
 /* Section divider - subtle gradient fade */

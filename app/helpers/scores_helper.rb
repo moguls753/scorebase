@@ -16,6 +16,13 @@ module ScoresHelper
   # Score Show Page Helpers
   # ─────────────────────────────────────────────────────────────────
 
+  # Normalize source for display and CSS class
+  # openscore-lieder, openscore-quartets -> openscore
+  def normalize_source(source)
+    return nil if source.blank?
+    source.start_with?("openscore") ? "openscore" : source
+  end
+
   # Section header with icon and title
   # Usage: score_section_header("♪", "score.music_details")
   def score_section_header(icon, title_key)
@@ -248,10 +255,17 @@ module ScoresHelper
     end
   end
 
-  # Format pitch range: "C3 – G5"
+  # Format pitch range with locale-aware notation
+  # English: "C3 – G5" (Scientific)
+  # German:  "c – g''" (Helmholtz)
   def format_pitch_range(low, high)
     return nil if low.blank? || high.blank?
-    "#{low} – #{high}"
+
+    if I18n.locale == :de
+      "#{to_helmholtz(low)} – #{to_helmholtz(high)}"
+    else
+      "#{low} – #{high}"
+    end
   end
 
   def has_extracted_data?(score)
@@ -475,5 +489,28 @@ module ScoresHelper
     offset -= 1 if accidental == "b"
 
     (octave + 1) * 12 + offset
+  end
+
+  # Scientific pitch to Helmholtz notation
+  # C2 -> C, C3 -> c, C4 -> c', C5 -> c'', G5 -> g''
+  def to_helmholtz(pitch)
+    return pitch if pitch.blank?
+
+    match = pitch.to_s.match(/^([A-Ga-g])([#b]?)(-?\d+)$/)
+    return pitch unless match
+
+    note, accidental, octave = match[1], match[2], match[3].to_i
+
+    case octave
+    when 0 then "#{note.upcase}#{accidental},,"
+    when 1 then "#{note.upcase}#{accidental},"
+    when 2 then "#{note.upcase}#{accidental}"
+    when 3 then "#{note.downcase}#{accidental}"
+    when 4 then "#{note.downcase}#{accidental}'"
+    when 5 then "#{note.downcase}#{accidental}''"
+    when 6 then "#{note.downcase}#{accidental}'''"
+    when 7 then "#{note.downcase}#{accidental}''''"
+    else pitch
+    end
   end
 end
