@@ -8,7 +8,7 @@ Open source sheet music search engine. Aggregates 100k+ public domain scores, no
 
 **Free:** Browse, search, download 100k+ public domain scores. Filter by key, time signature, voicing, difficulty, genre, period.
 
-**Pro ($2.99/mo):** AI-powered Smart Search that understands musical context—"easy piano pieces in C major for beginners" or "romantic art songs for soprano with wide range."
+**Pro (€2.99/mo):** AI-powered Smart Search that understands musical context—"easy piano pieces in C major for beginners" or "romantic art songs for soprano with wide range."
 
 ### Why a subscription?
 
