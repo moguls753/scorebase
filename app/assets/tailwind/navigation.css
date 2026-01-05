@@ -81,7 +81,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   font-family: var(--font-family-display);
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  border-right: var(--border-width) solid #1a1612;
+  border-right: var(--border-width) solid var(--color-bg-deep);
   user-select: none;
   cursor: pointer;
 }
@@ -119,6 +119,22 @@ main a:not(.mm-button):not(.mm-card):hover {
   background-color: var(--color-bg-hover);
 }
 
+/* Anchored Sort Control - Full width on mobile for visual weight */
+.sort-control--anchored {
+  width: 100%;
+}
+
+.sort-control--anchored .sort-select {
+  flex: 1;
+  min-width: 120px;
+}
+
+@media (min-width: 640px) {
+  .sort-control--anchored {
+    width: auto;
+  }
+}
+
 /* Pro Badge Button - Bold neubrutalist accent */
 .nav-pro-btn {
   display: inline-flex;
@@ -145,12 +161,12 @@ main a:not(.mm-button):not(.mm-card):hover {
   background: var(--color-accent);
   color: #FFFFFF;
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #1a1612;
+  box-shadow: 4px 4px 0 var(--color-bg-deep);
 }
 
 .nav-pro-btn:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #1a1612;
+  box-shadow: 1px 1px 0 var(--color-bg-deep);
 }
 
 /* Navigation Icon Buttons - Neubrutalist */
@@ -422,7 +438,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   font-weight: 800;
   font-family: var(--font-family-display);
   border-radius: var(--radius-sm);
-  border: var(--border-width) solid #1a1612;
+  border: var(--border-width) solid var(--color-bg-deep);
 }
 
 /* Filter Modal - Mobile Bottom Sheet */

@@ -90,76 +90,60 @@
           <div class="flex-1 h-px bg-[var(--color-border-subtle)]"></div>
         </div>
 
-        <div class="space-y-4">
+        <div class="space-y-3">
           <!-- IMSLP -->
-          <div class="mm-card p-6 md:p-8 flex flex-col md:flex-row md:items-start gap-4">
-            <div class="flex items-center gap-3 md:w-40 shrink-0">
+          <div class="source-item">
+            <div class="source-item__header">
               <span class="mm-badge-source mm-badge-imslp">IMSLP</span>
-              <span class="text-lg font-[var(--font-family-display)] font-black text-[var(--color-primary)]">
-                <%= number_with_delimiter(@source_counts['imslp'] || 0) %>
-              </span>
+              <span class="source-item__count"><%= number_with_delimiter(@source_counts['imslp'] || 0) %></span>
             </div>
-            <div>
-              <a href="https://imslp.org" target="_blank" rel="nofollow noopener" class="text-base font-[var(--font-family-display)] font-bold text-[var(--color-primary)] hover:text-[var(--color-accent)] transition-colors mb-1 inline-block">
-                <%= t('about.imslp_name') %>
+            <div class="source-item__content">
+              <a href="https://imslp.org" target="_blank" rel="nofollow noopener" class="source-item__link">
+                <%= t('about.imslp_name') %> <span class="source-item__arrow">→</span>
               </a>
-              <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
-                <%= t('about.imslp_description') %>
-              </p>
+              <p class="source-item__desc"><%= t('about.imslp_description') %></p>
             </div>
           </div>
 
           <!-- CPDL -->
-          <div class="mm-card p-6 md:p-8 flex flex-col md:flex-row md:items-start gap-4">
-            <div class="flex items-center gap-3 md:w-40 shrink-0">
+          <div class="source-item">
+            <div class="source-item__header">
               <span class="mm-badge-source mm-badge-cpdl">CPDL</span>
-              <span class="text-lg font-[var(--font-family-display)] font-black text-[var(--color-primary)]">
-                <%= number_with_delimiter(@source_counts['cpdl'] || 0) %>
-              </span>
+              <span class="source-item__count"><%= number_with_delimiter(@source_counts['cpdl'] || 0) %></span>
             </div>
-            <div>
-              <a href="https://www.cpdl.org" target="_blank" rel="nofollow noopener" class="text-base font-[var(--font-family-display)] font-bold text-[var(--color-primary)] hover:text-[var(--color-accent)] transition-colors mb-1 inline-block">
-                <%= t('about.cpdl_name') %>
+            <div class="source-item__content">
+              <a href="https://www.cpdl.org" target="_blank" rel="nofollow noopener" class="source-item__link">
+                <%= t('about.cpdl_name') %> <span class="source-item__arrow">→</span>
               </a>
-              <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
-                <%= t('about.cpdl_description') %>
-              </p>
+              <p class="source-item__desc"><%= t('about.cpdl_description') %></p>
             </div>
           </div>
 
           <!-- PDMX -->
-          <div class="mm-card p-6 md:p-8 flex flex-col md:flex-row md:items-start gap-4">
-            <div class="flex items-center gap-3 md:w-40 shrink-0">
+          <div class="source-item">
+            <div class="source-item__header">
               <span class="mm-badge-source mm-badge-pdmx">PDMX</span>
-              <span class="text-lg font-[var(--font-family-display)] font-black text-[var(--color-primary)]">
-                <%= number_with_delimiter(@source_counts['pdmx'] || 0) %>
-              </span>
+              <span class="source-item__count"><%= number_with_delimiter(@source_counts['pdmx'] || 0) %></span>
             </div>
-            <div>
-              <a href="https://github.com/pnlong/PDMX" target="_blank" rel="nofollow noopener" class="text-base font-[var(--font-family-display)] font-bold text-[var(--color-primary)] hover:text-[var(--color-accent)] transition-colors mb-1 inline-block">
-                <%= t('about.pdmx_name') %>
+            <div class="source-item__content">
+              <a href="https://github.com/pnlong/PDMX" target="_blank" rel="nofollow noopener" class="source-item__link">
+                <%= t('about.pdmx_name') %> <span class="source-item__arrow">→</span>
               </a>
-              <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
-                <%= t('about.pdmx_description') %>
-              </p>
+              <p class="source-item__desc"><%= t('about.pdmx_description') %></p>
             </div>
           </div>
 
           <!-- OpenScore -->
-          <div class="mm-card p-6 md:p-8 flex flex-col md:flex-row md:items-start gap-4">
-            <div class="flex items-center gap-3 md:w-40 shrink-0">
+          <div class="source-item">
+            <div class="source-item__header">
               <span class="mm-badge-source mm-badge-openscore">OpenScore</span>
-              <span class="text-lg font-[var(--font-family-display)] font-black text-[var(--color-primary)]">
-                <%= number_with_delimiter((@source_counts['openscore-lieder'] || 0) + (@source_counts['openscore-quartets'] || 0)) %>
-              </span>
+              <span class="source-item__count"><%= number_with_delimiter((@source_counts['openscore-lieder'] || 0) + (@source_counts['openscore-quartets'] || 0)) %></span>
             </div>
-            <div>
-              <a href="https://musescore.com/openscore" target="_blank" rel="nofollow noopener" class="text-base font-[var(--font-family-display)] font-bold text-[var(--color-primary)] hover:text-[var(--color-accent)] transition-colors mb-1 inline-block">
-                <%= t('about.openscore_name') %>
+            <div class="source-item__content">
+              <a href="https://musescore.com/openscore" target="_blank" rel="nofollow noopener" class="source-item__link">
+                <%= t('about.openscore_name') %> <span class="source-item__arrow">→</span>
               </a>
-              <p class="text-sm text-[var(--color-text-muted)] leading-relaxed">
-                <%= t('about.openscore_description') %>
-              </p>
+              <p class="source-item__desc"><%= t('about.openscore_description') %></p>
             </div>
           </div>
         </div>

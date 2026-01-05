@@ -202,19 +202,19 @@
   font-family: var(--font-family-display);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  box-shadow: 3px 3px 0 #1a1612;
+  box-shadow: 3px 3px 0 var(--color-bg-deep);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .waitlist-button:hover {
   background: var(--color-accent-hover);
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #1a1612;
+  box-shadow: 4px 4px 0 var(--color-bg-deep);
 }
 
 .waitlist-button:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #1a1612;
+  box-shadow: 1px 1px 0 var(--color-bg-deep);
 }
 
 @media (max-width: 640px) {
@@ -232,7 +232,7 @@
   }
 }
 
-/* Use case cards - Neubrutalist style */
+/* Use case cards - Static, no fake interactivity */
 .use-case {
   background: var(--color-bg-card);
   border: var(--border-width) solid var(--color-border);
@@ -240,12 +240,6 @@
   padding: 1.5rem;
   margin-bottom: 1.5rem;
   box-shadow: var(--shadow-card);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-.use-case:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--color-border);
 }
 
 .use-case-title {
@@ -276,47 +270,43 @@
   line-height: 1;
 }
 
-/* FAQ - accordion on mobile - Neubrutalist style */
+/* FAQ - Clean, simple list without fake card interactivity */
 .faq-item {
-  margin-bottom: 1.5rem;
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-bg-card);
-  overflow: hidden;
-  box-shadow: var(--shadow-card);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  margin-bottom: 0;
+  padding: 1.5rem 0;
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
-.faq-item:hover {
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 var(--color-border);
+.faq-item:last-child {
+  border-bottom: none;
 }
 
 .faq-q {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-text);
-  padding: 1.25rem 1.5rem;
-  margin: 0;
+  padding: 0;
+  margin: 0 0 0.5rem 0;
   cursor: pointer;
   user-select: none;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 1rem;
   width: 100%;
   background: transparent;
   border: none;
   text-align: left;
-  font-family: var(--font-family-body);
+  font-family: var(--font-family-display);
 }
 
 .faq-toggle {
   color: var(--color-accent);
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   line-height: 1;
   transition: transform 0.2s ease;
   flex-shrink: 0;
+  margin-top: 0.1rem;
 }
 
 .faq-item[data-faq-open="true"] .faq-toggle {
@@ -324,10 +314,10 @@
 }
 
 .faq-a {
-  font-size: 1rem;
+  font-size: 0.95rem;
   line-height: 1.7;
   color: var(--color-text-muted);
-  padding: 0 1.5rem 1.25rem;
+  padding: 0;
   max-height: 0;
   opacity: 0;
   overflow: hidden;
@@ -337,20 +327,17 @@
 .faq-item[data-faq-open="true"] .faq-a {
   max-height: 500px;
   opacity: 1;
-  padding-top: 0.5rem;
+  margin-top: 0.25rem;
 }
 
 @media (min-width: 768px) {
   .faq-item {
-    border: none;
-    background: transparent;
-    margin-bottom: 2rem;
+    padding: 1.75rem 0;
   }
 
   .faq-q {
     cursor: default;
-    padding: 0;
-    margin-bottom: 0.5rem;
+    font-size: 1.05rem;
   }
 
   .faq-toggle {
@@ -360,7 +347,7 @@
   .faq-a {
     max-height: none;
     opacity: 1;
-    padding: 0;
+    margin-top: 0.5rem;
   }
 }
 
@@ -371,7 +358,7 @@
   gap: 0.5rem;
   padding: 0.5rem 1rem;
   background: var(--color-accent);
-  border: var(--border-width) solid #1a1612;
+  border: var(--border-width) solid var(--color-bg-deep);
   border-radius: var(--radius-sm);
   font-size: 0.85rem;
   font-weight: 800;
@@ -379,7 +366,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 2rem;
-  box-shadow: 2px 2px 0 #1a1612;
+  box-shadow: 2px 2px 0 var(--color-bg-deep);
 }
 
 .status-dot {
@@ -443,12 +430,12 @@
   background: var(--color-accent);
   color: #FFFFFF;
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #1a1612;
+  box-shadow: 4px 4px 0 var(--color-bg-deep);
 }
 
 .cta-secondary:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #1a1612;
+  box-shadow: 1px 1px 0 var(--color-bg-deep);
 }
 
 /* Section headings */
@@ -575,7 +562,7 @@
 .waitlist-message {
   margin-top: 1.25rem;
   padding: 1rem 1.5rem;
-  border-radius: 4px;
+  border-radius: var(--radius-md);
   font-size: 0.95rem;
   font-weight: 500;
   text-align: center;

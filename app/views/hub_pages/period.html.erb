@@ -22,8 +22,8 @@
         </p>
       </div>
 
-      <%= form_with url: period_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores" }, class: "inline-block" do |f| %>
-        <div class="sort-control">
+      <%= form_with url: period_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores" }, class: "w-full sm:w-auto" do |f| %>
+        <div class="sort-control sort-control--anchored">
           <label for="sort" class="sort-label"><span class="sort-icon">↕</span><span class="hidden xs:inline"><%= t('search.sort_by') %></span></label>
           <%= f.select :sort, [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]], { selected: @sort }, { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" } %>
         </div>
@@ -36,7 +36,7 @@
 <turbo-frame id="scores" data-turbo-action="advance">
 <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
   <% if @scores.any? %>
-    <div class="grid grid-cols-2 xs:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 sm:gap-4 [&>*]:max-w-[280px]">
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
       <% @scores.each do |score| %>
         <%= render 'score_card', score: score %>
       <% end %>
@@ -51,6 +51,3 @@
 </div>
 </turbo-frame>
 
-<style>
-  .hub-hero { background: linear-gradient(135deg, #2a2520 0%, #1f1b17 50%, #2d2823 100%); }
-</style>
