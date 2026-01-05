@@ -1,6 +1,6 @@
 /* ========================================
    NAVIGATION - Hero, Nav, Mobile Menu
-   Editorial Warmth Theme
+   Dark Warm Neubrutalism Theme
    ======================================== */
 
 /* Logo "Base" - Refined accent color */
@@ -48,19 +48,21 @@ main a:not(.mm-button):not(.mm-card):hover {
   color: var(--color-accent);
 }
 
-/* Sort Control - Clean, functional */
+/* Sort Control - Neubrutalist style */
 .sort-control {
   display: inline-flex;
   align-items: stretch;
   background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
   overflow: hidden;
-  transition: border-color 0.15s ease;
+  box-shadow: 3px 3px 0 var(--color-border);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .sort-control:hover {
-  border-color: var(--color-text-subtle);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--color-border);
 }
 
 .sort-control:focus-within {
@@ -75,11 +77,11 @@ main a:not(.mm-button):not(.mm-card):hover {
   background: var(--color-accent);
   color: #FFFFFF;
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
   font-family: var(--font-family-display);
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
-  border-right: 1px solid var(--color-border);
+  border-right: var(--border-width) solid #1a1612;
   user-select: none;
   cursor: pointer;
 }
@@ -97,15 +99,15 @@ main a:not(.mm-button):not(.mm-card):hover {
   color: var(--color-text);
   font-family: var(--font-family-body);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
   min-width: 90px;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2378716C' stroke-width='1.5' stroke-linecap='square'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23a89c8c' stroke-width='2' stroke-linecap='square'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
   padding-right: 26px;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.1s ease;
 }
 
 .sort-select:hover {
@@ -117,7 +119,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   background-color: var(--color-bg-hover);
 }
 
-/* Pro Badge Button - Refined accent */
+/* Pro Badge Button - Bold neubrutalist accent */
 .nav-pro-btn {
   display: inline-flex;
   align-items: center;
@@ -125,29 +127,33 @@ main a:not(.mm-button):not(.mm-card):hover {
   height: 40px;
   padding: 0 14px;
   background: var(--color-bg-elevated);
-  border: 1px solid var(--color-accent);
-  border-radius: 6px;
+  border: var(--border-width) solid var(--color-accent);
+  border-radius: var(--radius-sm);
   color: var(--color-accent);
   font-family: var(--font-family-display);
   font-size: 12px;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.04em;
   text-decoration: none;
-  transition: all 0.15s ease;
+  box-shadow: 3px 3px 0 var(--color-accent);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
   cursor: pointer;
 }
 
 .nav-pro-btn:hover {
   background: var(--color-accent);
   color: #FFFFFF;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #1a1612;
 }
 
 .nav-pro-btn:active {
-  transform: translateY(1px);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #1a1612;
 }
 
-/* Navigation Icon Buttons - Clean */
+/* Navigation Icon Buttons - Neubrutalist */
 .nav-icon-btn {
   display: flex;
   align-items: center;
@@ -155,22 +161,25 @@ main a:not(.mm-button):not(.mm-card):hover {
   width: 40px;
   height: 40px;
   background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
   color: var(--color-text-muted);
   cursor: pointer;
-  transition: all 0.15s ease;
+  box-shadow: 2px 2px 0 var(--color-border);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
   text-decoration: none;
 }
 
 .nav-icon-btn:hover {
   background: var(--color-bg-hover);
-  border-color: var(--color-text-subtle);
   color: var(--color-text);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--color-border);
 }
 
 .nav-icon-btn:active {
-  background: var(--color-bg-surface);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--color-border);
 }
 
 /* Text variant for language button */
@@ -189,7 +198,7 @@ main a:not(.mm-button):not(.mm-card):hover {
    MOBILE RESPONSIVE COMPONENTS
    ======================================== */
 
-/* Hamburger Menu Button */
+/* Hamburger Menu Button - Neubrutalist */
 .hamburger {
   flex-direction: column;
   justify-content: center;
@@ -197,20 +206,23 @@ main a:not(.mm-button):not(.mm-card):hover {
   width: 40px;
   height: 40px;
   background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   gap: 5px;
   padding: 10px;
-  transition: all 0.15s ease;
+  box-shadow: 2px 2px 0 var(--color-border);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .hamburger:hover {
-  border-color: var(--color-text-subtle);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--color-border);
 }
 
 .hamburger:active {
-  background: var(--color-bg-surface);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--color-border);
 }
 
 .hamburger-line {
@@ -241,7 +253,7 @@ main a:not(.mm-button):not(.mm-card):hover {
 .mobile-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(28, 25, 23, 0.5);
+  background: rgba(26, 22, 18, 0.7);
   backdrop-filter: blur(4px);
   z-index: 40;
   opacity: 0;
@@ -254,7 +266,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   pointer-events: auto;
 }
 
-/* Mobile Slide-out Menu */
+/* Mobile Slide-out Menu - Neubrutalist */
 .mobile-menu {
   position: fixed;
   top: 0;
@@ -263,13 +275,13 @@ main a:not(.mm-button):not(.mm-card):hover {
   height: 100vh;
   height: 100dvh;
   background: var(--color-bg-elevated);
-  border-left: 1px solid var(--color-border);
+  border-left: var(--border-width) solid var(--color-border);
   z-index: 50;
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-lg);
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: -6px 0 0 var(--color-border);
 }
 
 .mobile-menu--open {
@@ -281,7 +293,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   align-items: center;
   justify-content: space-between;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: var(--border-width) solid var(--color-border);
 }
 
 .mobile-menu-content {
@@ -297,30 +309,33 @@ main a:not(.mm-button):not(.mm-card):hover {
   padding: 14px 16px;
   margin-bottom: 8px;
   background: var(--color-bg-surface);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 6px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
   color: var(--color-text);
   font-family: var(--font-family-body);
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   text-decoration: none;
-  transition: all 0.15s ease;
+  box-shadow: 2px 2px 0 var(--color-border);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .mobile-menu-link:hover {
-  border-color: var(--color-border);
-  background: var(--color-bg-hover);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--color-border);
 }
 
 .mobile-menu-link:active {
-  background: var(--color-bg-surface);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--color-border);
 }
 
 /* Pro link variant for mobile menu */
 .mobile-menu-link--pro {
   background: var(--color-bg-elevated);
-  border: 1px solid var(--color-accent);
+  border: var(--border-width) solid var(--color-accent);
   margin-bottom: 12px;
+  box-shadow: 2px 2px 0 var(--color-accent);
 }
 
 .mobile-menu-link--pro span {
@@ -338,7 +353,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   justify-content: center;
   gap: 12px;
   padding: 16px 20px;
-  border-top: 1px solid var(--color-border);
+  border-top: var(--border-width) solid var(--color-border);
 }
 
 /* Mobile Filter Details/Summary */
@@ -377,7 +392,7 @@ main a:not(.mm-button):not(.mm-card):hover {
 
 .filter-content {
   padding: 0 16px 16px;
-  border-top: 1px solid var(--color-border-subtle);
+  border-top: var(--border-width) solid var(--color-border-subtle);
   margin-top: 0;
   animation: filterSlideDown 0.2s ease;
 }
@@ -393,7 +408,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   }
 }
 
-/* Active filter count badge */
+/* Active filter count badge - Neubrutalist */
 .filter-count {
   display: inline-flex;
   align-items: center;
@@ -404,21 +419,23 @@ main a:not(.mm-button):not(.mm-card):hover {
   background: var(--color-accent);
   color: #FFFFFF;
   font-size: 11px;
-  font-weight: 700;
+  font-weight: 800;
   font-family: var(--font-family-display);
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
+  border: var(--border-width) solid #1a1612;
 }
 
 /* Filter Modal - Mobile Bottom Sheet */
 .filter-modal-backdrop {
-  background: rgba(28, 25, 23, 0.6);
+  background: rgba(26, 22, 18, 0.8);
 }
 
 .filter-modal-sheet {
   max-height: 75vh;
-  border-radius: 12px 12px 0 0;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
   background: var(--color-bg-elevated);
-  border-top: 1px solid var(--color-border);
+  border-top: var(--border-width) solid var(--color-border);
+  box-shadow: 0 -4px 0 var(--color-border);
 }
 
 .filter-modal-content {

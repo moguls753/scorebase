@@ -1,6 +1,6 @@
 /* ========================================
    Pro Landing Page Styles
-   Editorial Warmth - Typography-first, generous spacing
+   Dark Warm Neubrutalism - Bold, tactile design
    ======================================== */
 
 .pro-hero {
@@ -43,11 +43,11 @@
   max-width: 38rem;
 }
 
-/* Query examples - terminal/code aesthetic */
+/* Query examples - terminal/code aesthetic with neubrutalist style */
 .query-example {
   background: var(--color-bg-elevated);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
   padding: 1.5rem;
   margin: 1rem 0;
   font-family: var(--font-family-mono);
@@ -57,16 +57,18 @@
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.15s ease;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .query-example:hover {
-  border-color: var(--color-text-subtle);
-  box-shadow: var(--shadow-md);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--color-border);
 }
 
 .query-example:active {
-  box-shadow: var(--shadow-sm);
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-border);
 }
 
 .query-example-text {
@@ -152,14 +154,15 @@
   justify-content: center;
 }
 
-/* Waitlist form */
+/* Waitlist form - Neubrutalist style */
 .waitlist-box {
   background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
   padding: 2.5rem;
   max-width: 32rem;
   margin: 3rem auto;
+  box-shadow: var(--shadow-lg);
 }
 
 .waitlist-form {
@@ -172,41 +175,46 @@
   flex: 1;
   padding: 1rem 1.25rem;
   font-size: 1rem;
-  border: 1px solid var(--color-border);
-  border-radius: 6px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
   background: var(--color-bg-elevated);
   color: var(--color-text);
   font-family: var(--font-family-body);
-  transition: all 0.15s ease;
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.1);
+  transition: border-color 0.1s ease;
 }
 
 .waitlist-input:focus {
   outline: none;
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), 0.1);
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.1), 0 0 0 2px var(--color-accent);
 }
 
 .waitlist-button {
   padding: 0.875rem 1.5rem;
   font-size: 0.9rem;
-  font-weight: 700;
+  font-weight: 800;
   background: var(--color-accent);
   color: white;
-  border: none;
-  border-radius: 6px;
+  border: var(--border-width) solid var(--color-accent);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-family: var(--font-family-display);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: all 0.15s ease;
+  box-shadow: 3px 3px 0 #1a1612;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .waitlist-button:hover {
   background: var(--color-accent-hover);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #1a1612;
 }
 
 .waitlist-button:active {
-  transform: translateY(1px);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #1a1612;
 }
 
 @media (max-width: 640px) {
@@ -224,19 +232,20 @@
   }
 }
 
-/* Use case cards */
+/* Use case cards - Neubrutalist style */
 .use-case {
   background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  transition: all 0.15s ease;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .use-case:hover {
-  border-color: var(--color-text-subtle);
-  box-shadow: var(--shadow-sm);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--color-border);
 }
 
 .use-case-title {
@@ -252,8 +261,8 @@
   color: var(--color-accent);
   background: var(--color-bg-surface);
   padding: 0.75rem 1rem;
-  border-radius: 6px;
-  border-left: 3px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--color-accent);
   margin-top: 0.5rem;
 }
 
@@ -267,18 +276,20 @@
   line-height: 1;
 }
 
-/* FAQ - accordion on mobile */
+/* FAQ - accordion on mobile - Neubrutalist style */
 .faq-item {
   margin-bottom: 1.5rem;
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
   background: var(--color-bg-card);
   overflow: hidden;
-  transition: all 0.15s ease;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .faq-item:hover {
-  border-color: var(--color-text-subtle);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--color-border);
 }
 
 .faq-q {
@@ -353,27 +364,28 @@
   }
 }
 
-/* Status badge */
+/* Status badge - Neubrutalist style */
 .status-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: rgba(var(--color-accent-rgb), 0.1);
-  border: 1px solid rgba(var(--color-accent-rgb), 0.3);
-  border-radius: 20px;
+  background: var(--color-accent);
+  border: var(--border-width) solid #1a1612;
+  border-radius: var(--radius-sm);
   font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--color-accent);
+  font-weight: 800;
+  color: #FFFFFF;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 2rem;
+  box-shadow: 2px 2px 0 #1a1612;
 }
 
 .status-dot {
   width: 8px;
   height: 8px;
-  background: var(--color-accent);
+  background: #FFFFFF;
   border-radius: 50%;
   animation: pulse 2s ease-in-out infinite;
 }
@@ -391,7 +403,7 @@
 
 /* Divider */
 .pro-divider {
-  height: 1px;
+  height: var(--border-width);
   background: var(--color-border);
   margin: 4rem auto;
   max-width: 48rem;
@@ -409,30 +421,34 @@
   transform: translateY(0);
 }
 
-/* Secondary CTA button */
+/* Secondary CTA button - Neubrutalist style */
 .cta-secondary {
   display: inline-block;
   padding: 1rem 2.5rem;
   background: var(--color-bg-elevated);
-  border: 1px solid var(--color-accent);
-  border-radius: 6px;
+  border: var(--border-width) solid var(--color-accent);
+  border-radius: var(--radius-sm);
   color: var(--color-accent);
   font-family: var(--font-family-display);
-  font-weight: 700;
+  font-weight: 800;
   font-size: 1rem;
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: all 0.15s ease;
+  box-shadow: 3px 3px 0 var(--color-accent);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .cta-secondary:hover {
   background: var(--color-accent);
   color: #FFFFFF;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #1a1612;
 }
 
 .cta-secondary:active {
-  transform: translateY(1px);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 #1a1612;
 }
 
 /* Section headings */
@@ -567,27 +583,15 @@
 }
 
 .waitlist-message-success {
-  background-color: #ECFDF5;
-  color: #065F46;
-  border: 1px solid #A7F3D0;
-}
-
-[data-theme="dark"] .waitlist-message-success {
   background-color: rgba(16, 185, 129, 0.15);
   color: #34D399;
-  border-color: rgba(16, 185, 129, 0.3);
+  border: var(--border-width) solid rgba(16, 185, 129, 0.4);
 }
 
 .waitlist-message-error {
-  background-color: #FEF2F2;
-  color: #991B1B;
-  border: 1px solid #FECACA;
-}
-
-[data-theme="dark"] .waitlist-message-error {
   background-color: rgba(239, 68, 68, 0.15);
   color: #F87171;
-  border-color: rgba(239, 68, 68, 0.3);
+  border: var(--border-width) solid rgba(239, 68, 68, 0.4);
 }
 
 @keyframes slideIn {
