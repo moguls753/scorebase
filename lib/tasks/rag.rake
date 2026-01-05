@@ -44,26 +44,34 @@ namespace :rag do
 
   desc "Show normalization and RAG pipeline stats"
   task stats: :environment do
-    puts "Normalization Status"
-    puts "=" * 50
+    puts "RAG Pipeline Status"
+    puts "=" * 80
     puts
-    puts "Composer:"
+    puts "1. Composer Normalization (composer_status):"
     Score.group(:composer_status).count.sort.each { |k, v| puts "  #{k.ljust(15)} #{v}" }
     puts
-    puts "Genre:"
-    Score.group(:genre_status).count.sort.each { |k, v| puts "  #{k.ljust(15)} #{v}" }
-    puts
-    puts "Period:"
+    puts "2. Period Normalization (period_status):"
     Score.group(:period_status).count.sort.each { |k, v| puts "  #{k.ljust(15)} #{v}" }
     puts
-    puts "Instruments:"
+    puts "3. Vocal Detection (has_vocal_status):"
+    Score.group(:has_vocal_status).count.sort.each { |k, v| puts "  #{k.ljust(15)} #{v}" }
+    puts
+    puts "4. Voicing Normalization (voicing_status) - vocal scores:"
+    Score.group(:voicing_status).count.sort.each { |k, v| puts "  #{k.ljust(15)} #{v}" }
+    puts
+    puts "5. Instruments Normalization (instruments_status) - instrumental scores:"
     Score.group(:instruments_status).count.sort.each { |k, v| puts "  #{k.ljust(15)} #{v}" }
     puts
-    puts "=" * 50
-    puts "RAG Pipeline:"
+    puts "6. Genre Normalization (genre_status):"
+    Score.group(:genre_status).count.sort.each { |k, v| puts "  #{k.ljust(15)} #{v}" }
+    puts
+    puts "7. Search Text Generation (rag_status):"
     Score.group(:rag_status).count.sort.each { |k, v| puts "  #{k.ljust(15)} #{v}" }
     puts
-    puts "Ready for RAG: #{Score.where(rag_status: 'ready').count}"
+    puts "=" * 80
+    puts "Summary:"
+    puts "  Ready for RAG: #{Score.where(rag_status: 'ready').count}"
+    puts "  Total scores:  #{Score.count}"
   end
 
   def print_rag_stats
