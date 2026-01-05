@@ -1,5 +1,5 @@
 <!-- Hero Section with Search -->
-<section class="hero-section py-8 sm:py-12 lg:py-16 border-b-2 border-[var(--color-border)]">
+<section class="hero-section py-8 sm:py-12 lg:py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
     <div class="max-w-3xl mx-auto text-center">
       <h2 class="text-3xl sm:text-4xl lg:text-5xl font-[var(--font-family-display)] mb-2 sm:mb-3 leading-tight font-black uppercase tracking-tight hero-title">
@@ -149,7 +149,7 @@
 
     <!-- Desktop Filters Sidebar -->
     <aside class="hidden lg:block w-64 flex-shrink-0">
-      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "mm-card p-5 sticky top-6" } do |f| %>
+      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "sticky top-6" } do |f| %>
         <h3 class="text-lg font-[var(--font-family-display)] text-[var(--color-primary)] mb-5 font-black uppercase tracking-tight">
           <%= t('search.filters') %>
         </h3>
