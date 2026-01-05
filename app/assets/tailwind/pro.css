@@ -1,6 +1,6 @@
 /* ========================================
    Pro Landing Page Styles
-   37signals-inspired: Typography-first, generous spacing
+   Editorial Warmth - Typography-first, generous spacing
    ======================================== */
 
 .pro-hero {
@@ -43,43 +43,37 @@
   max-width: 38rem;
 }
 
-/* Query examples - terminal/code aesthetic with enhanced interactivity */
+/* Query examples - terminal/code aesthetic */
 .query-example {
   background: var(--color-bg-elevated);
-  border: 1px solid rgba(0, 240, 255, 0.2);
-  border-radius: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   padding: 1.5rem;
   margin: 1rem 0;
   font-family: var(--font-family-mono);
   font-size: 0.95rem;
   line-height: 1.6;
-  color: var(--neon-cyan);
+  color: var(--color-accent);
   position: relative;
   overflow: hidden;
   cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow:
-    0 0 20px rgba(0, 240, 255, 0.05),
-    inset 0 0 30px rgba(0, 240, 255, 0.02);
+  transition: all 0.15s ease;
 }
 
 .query-example:hover {
-  border-color: rgba(0, 240, 255, 0.4);
-  transform: translateY(-2px);
-  box-shadow:
-    0 0 30px rgba(0, 240, 255, 0.15),
-    inset 0 0 40px rgba(0, 240, 255, 0.05);
+  border-color: var(--color-text-subtle);
+  box-shadow: var(--shadow-md);
 }
 
 .query-example:active {
-  transform: translateY(0) scale(0.99);
+  box-shadow: var(--shadow-sm);
 }
 
 .query-example-text {
   padding-left: 0;
 }
 
-/* Comparison layout with enhanced visual indicators */
+/* Comparison layout */
 .comparison-grid {
   display: grid;
   grid-template-columns: 1fr;
@@ -123,8 +117,8 @@
 }
 
 .comparison-bad h3::before {
-  content: '✗';
-  color: #ff4444;
+  content: '';
+  color: #DC2626;
   font-size: 1.2rem;
   font-weight: bold;
   display: flex;
@@ -135,44 +129,37 @@
 .comparison-bad .query-example {
   opacity: 0.75;
   filter: grayscale(50%);
-  border-color: rgba(255, 68, 68, 0.2);
+  border-color: rgba(220, 38, 38, 0.2);
   cursor: default;
-  box-shadow:
-    0 0 20px rgba(255, 68, 68, 0.05),
-    inset 0 0 30px rgba(255, 68, 68, 0.02);
 }
 
 .comparison-bad .query-example:hover {
   transform: none;
-  box-shadow:
-    0 0 20px rgba(255, 68, 68, 0.05),
-    inset 0 0 30px rgba(255, 68, 68, 0.02);
+  box-shadow: none;
 }
 
 .comparison-good h3 {
-  color: var(--neon-cyan);
+  color: var(--color-accent);
 }
 
 .comparison-good h3::before {
-  content: '✓';
-  color: var(--neon-cyan);
+  content: '';
+  color: var(--color-accent);
   font-size: 1.2rem;
   font-weight: bold;
   display: flex;
   align-items: center;
   justify-content: center;
-  filter: drop-shadow(0 0 8px var(--neon-cyan));
 }
 
-/* Waitlist form - enhanced with better mobile support */
+/* Waitlist form */
 .waitlist-box {
   background: var(--color-bg-card);
-  border: 2px solid var(--color-border);
-  border-radius: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
   padding: 2.5rem;
   max-width: 32rem;
   margin: 3rem auto;
-  box-shadow: 0 0 40px rgba(0, 240, 255, 0.03);
 }
 
 .waitlist-form {
@@ -185,73 +172,41 @@
   flex: 1;
   padding: 1rem 1.25rem;
   font-size: 1rem;
-  border: 2px solid var(--color-border);
-  border-radius: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
   background: var(--color-bg-elevated);
   color: var(--color-text);
   font-family: var(--font-family-body);
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
 }
 
 .waitlist-input:focus {
   outline: none;
-  border-color: var(--neon-cyan);
-  box-shadow:
-    0 0 0 3px rgba(0, 240, 255, 0.1),
-    0 8px 30px rgba(0, 240, 255, 0.15),
-    inset 0 2px 8px rgba(0, 240, 255, 0.05);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), 0.1);
 }
 
 .waitlist-button {
   padding: 0.875rem 1.5rem;
   font-size: 0.9rem;
   font-weight: 700;
-  background: linear-gradient(135deg, var(--neon-magenta), var(--neon-purple));
+  background: var(--color-accent);
   color: white;
   border: none;
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   font-family: var(--font-family-display);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.waitlist-button::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.2),
-    transparent
-  );
-  transition: left 0.5s ease;
-}
-
-.waitlist-button:hover::before {
-  left: 100%;
+  transition: all 0.15s ease;
 }
 
 .waitlist-button:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 8px 30px rgba(255, 0, 128, 0.4),
-    0 0 50px rgba(0, 240, 255, 0.2),
-    inset 0 0 20px rgba(255, 255, 255, 0.1);
+  background: var(--color-accent-hover);
 }
 
 .waitlist-button:active {
-  transform: translateY(0);
-  box-shadow:
-    0 4px 20px rgba(255, 0, 128, 0.3),
-    inset 0 2px 10px rgba(0, 0, 0, 0.2);
+  transform: translateY(1px);
 }
 
 @media (max-width: 640px) {
@@ -269,19 +224,19 @@
   }
 }
 
-/* Use case cards with scroll animations */
+/* Use case cards */
 .use-case {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: 10px;
+  border-radius: 8px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
 }
 
 .use-case:hover {
-  border-color: rgba(0, 240, 255, 0.3);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.08);
+  border-color: var(--color-text-subtle);
+  box-shadow: var(--shadow-sm);
 }
 
 .use-case-title {
@@ -294,11 +249,11 @@
 .use-case-query {
   font-family: var(--font-family-mono);
   font-size: 0.9rem;
-  color: var(--neon-cyan);
-  background: var(--color-bg-elevated);
+  color: var(--color-accent);
+  background: var(--color-bg-surface);
   padding: 0.75rem 1rem;
   border-radius: 6px;
-  border-left: 3px solid var(--neon-magenta);
+  border-left: 3px solid var(--color-accent);
   margin-top: 0.5rem;
 }
 
@@ -308,10 +263,7 @@
   font-size: 3rem;
   font-weight: 900;
   font-family: var(--font-family-display);
-  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-magenta));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-accent);
   line-height: 1;
 }
 
@@ -322,11 +274,11 @@
   border-radius: 8px;
   background: var(--color-bg-card);
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
 }
 
 .faq-item:hover {
-  border-color: rgba(0, 240, 255, 0.2);
+  border-color: var(--color-text-subtle);
 }
 
 .faq-q {
@@ -349,10 +301,10 @@
 }
 
 .faq-toggle {
-  color: var(--neon-cyan);
+  color: var(--color-accent);
   font-size: 1.5rem;
   line-height: 1;
-  transition: transform 0.3s ease;
+  transition: transform 0.2s ease;
   flex-shrink: 0;
 }
 
@@ -368,7 +320,7 @@
   max-height: 0;
   opacity: 0;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
 }
 
 .faq-item[data-faq-open="true"] .faq-a {
@@ -407,12 +359,12 @@
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: rgba(0, 240, 255, 0.1);
-  border: 1px solid rgba(0, 240, 255, 0.3);
+  background: rgba(var(--color-accent-rgb), 0.1);
+  border: 1px solid rgba(var(--color-accent-rgb), 0.3);
   border-radius: 20px;
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--neon-cyan);
+  color: var(--color-accent);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 2rem;
@@ -421,22 +373,19 @@
 .status-dot {
   width: 8px;
   height: 8px;
-  background: var(--neon-cyan);
+  background: var(--color-accent);
   border-radius: 50%;
   animation: pulse 2s ease-in-out infinite;
-  box-shadow: 0 0 10px var(--neon-cyan);
 }
 
 @keyframes pulse {
   0%, 100% {
     opacity: 1;
     transform: scale(1);
-    box-shadow: 0 0 10px var(--neon-cyan);
   }
   50% {
     opacity: 0.6;
     transform: scale(1.3);
-    box-shadow: 0 0 20px var(--neon-cyan);
   }
 }
 
@@ -452,7 +401,7 @@
 [data-scroll-reveal] {
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.8s ease, transform 0.8s ease;
+  transition: opacity 0.5s ease, transform 0.5s ease;
 }
 
 [data-scroll-reveal].visible {
@@ -460,37 +409,30 @@
   transform: translateY(0);
 }
 
-/* Staggered animation delays for use cases - applied via JavaScript */
-
 /* Secondary CTA button */
 .cta-secondary {
   display: inline-block;
   padding: 1rem 2.5rem;
-  background: var(--color-bg-card);
-  border: 2px solid var(--neon-cyan);
-  border-radius: 8px;
-  color: var(--neon-cyan);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-accent);
+  border-radius: 6px;
+  color: var(--color-accent);
   font-family: var(--font-family-display);
   font-weight: 700;
   font-size: 1rem;
   text-decoration: none;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.1);
+  transition: all 0.15s ease;
 }
 
 .cta-secondary:hover {
-  background: rgba(0, 240, 255, 0.1);
-  border-color: var(--neon-cyan);
-  transform: translateY(-2px);
-  box-shadow:
-    0 0 30px rgba(0, 240, 255, 0.2),
-    0 8px 20px rgba(0, 240, 255, 0.15);
+  background: var(--color-accent);
+  color: #FFFFFF;
 }
 
 .cta-secondary:active {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
 /* Section headings */
@@ -621,19 +563,31 @@
   font-size: 0.95rem;
   font-weight: 500;
   text-align: center;
-  animation: slideIn 0.3s ease-out;
+  animation: slideIn 0.2s ease-out;
 }
 
 .waitlist-message-success {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+[data-theme="dark"] .waitlist-message-success {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 .waitlist-message-error {
-  background-color: #f8d7da;
-  color: #721c24;
-  border: 1px solid #f5c6cb;
+  background-color: #FEF2F2;
+  color: #991B1B;
+  border: 1px solid #FECACA;
+}
+
+[data-theme="dark"] .waitlist-message-error {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #F87171;
+  border-color: rgba(239, 68, 68, 0.3);
 }
 
 @keyframes slideIn {

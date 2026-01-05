@@ -1,15 +1,16 @@
 /* ========================================
-   ScoreBase Pro - Dark Neon Theme
-   Futuristic dark mode with vibrant neon colors
+   ScoreBase - Editorial Warmth Theme
+   Refined, content-focused design inspired by
+   print editorial layouts and music publications
    ======================================== */
 
-/* Google Fonts - Outfit (display) + JetBrains Mono (numbers/code) */
+/* Google Fonts - Outfit for clean, modern typography */
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 @import "tailwindcss";
 
 @theme {
-  /* Typography - Neon Design */
+  /* Typography */
   --font-family-display: 'Outfit', -apple-system, sans-serif;
   --font-family-body: 'Outfit', -apple-system, sans-serif;
   --font-family-mono: 'JetBrains Mono', monospace;
@@ -32,14 +33,14 @@
 @import "./smart_search_hint.css"; /* Smart search hint teaser */
 
 /* ========================================
-   NEON ANIMATIONS
+   SUBTLE ANIMATIONS - Refined, purposeful
    ======================================== */
 
-/* Staggered fade-in animation for cards */
-@keyframes fadeInUp {
+/* Gentle fade-in for cards - subtle, not dramatic */
+@keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
@@ -48,35 +49,15 @@
 }
 
 .animate-fade-in {
-  animation: fadeInUp 0.6s ease-out both;
+  animation: fadeIn 0.3s ease-out both;
 }
 
-/* Staggered delays for grid items */
-.mm-card:nth-child(1) { animation-delay: 0.1s; }
-.mm-card:nth-child(2) { animation-delay: 0.15s; }
-.mm-card:nth-child(3) { animation-delay: 0.2s; }
-.mm-card:nth-child(4) { animation-delay: 0.25s; }
-.mm-card:nth-child(5) { animation-delay: 0.3s; }
-.mm-card:nth-child(6) { animation-delay: 0.35s; }
-.mm-card:nth-child(7) { animation-delay: 0.4s; }
-.mm-card:nth-child(8) { animation-delay: 0.45s; }
-
-/* Pulse animation for live indicators */
-@keyframes neonPulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(1.2); }
-}
-
-.pulse-neon {
-  animation: neonPulse 2s ease-in-out infinite;
-}
-
-/* Glow pulse for important elements */
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 10px rgba(0, 240, 255, 0.3); }
-  50% { box-shadow: 0 0 25px rgba(0, 240, 255, 0.6); }
-}
-
-.glow-pulse {
-  animation: glowPulse 3s ease-in-out infinite;
-}
+/* Staggered delays for grid items - shorter, more refined */
+.mm-card:nth-child(1) { animation-delay: 0.05s; }
+.mm-card:nth-child(2) { animation-delay: 0.08s; }
+.mm-card:nth-child(3) { animation-delay: 0.11s; }
+.mm-card:nth-child(4) { animation-delay: 0.14s; }
+.mm-card:nth-child(5) { animation-delay: 0.17s; }
+.mm-card:nth-child(6) { animation-delay: 0.20s; }
+.mm-card:nth-child(7) { animation-delay: 0.23s; }
+.mm-card:nth-child(8) { animation-delay: 0.26s; }

@@ -1,6 +1,6 @@
 /* ========================================
    SCORE SHOW PAGE LAYOUT
-   Dark Neon Theme
+   Editorial Warmth Theme
    50/50 grid with A4-constrained gallery
    ======================================== */
 
@@ -56,13 +56,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: var(--color-bg-card);
+  width: 40px;
+  height: 40px;
+  background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  color: var(--color-text);
-  transition: all 0.3s ease;
+  border-radius: 6px;
+  color: var(--color-text-muted);
+  transition: all 0.15s ease;
 }
 
 .score-back-button svg {
@@ -72,19 +72,17 @@
 }
 
 .score-back-button:hover {
-  background: var(--color-bg-elevated);
-  border-color: var(--neon-cyan);
-  color: var(--neon-cyan);
-  transform: translateX(-2px);
-  box-shadow: var(--glow-soft);
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-subtle);
+  color: var(--color-text);
 }
 
 .score-back-button:active {
-  transform: translateX(0);
+  background: var(--color-bg-surface);
 }
 
 .score-back-button:focus-visible {
-  outline: 2px solid var(--neon-cyan);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -97,8 +95,7 @@
 .score-masthead-title {
   font-family: var(--font-family-display);
   font-size: 1.25rem;
-  font-weight: 900;
-  text-transform: uppercase;
+  font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.15;
   color: var(--color-primary);
@@ -131,7 +128,7 @@
   font-family: var(--font-family-body);
   font-size: 0.875rem;
   font-weight: 600;
-  color: var(--neon-magenta);
+  color: var(--color-accent);
   margin-top: 0.25rem;
   white-space: nowrap;
   overflow: hidden;
@@ -229,7 +226,7 @@
   }
 
   .score-sidebar::-webkit-scrollbar-thumb:hover {
-    background: var(--neon-cyan);
+    background: var(--color-text-subtle);
   }
 }
 
@@ -265,8 +262,8 @@
 .score-stat-value {
   font-family: var(--font-family-mono);
   font-size: 0.875rem;
-  font-weight: 900;
-  color: var(--neon-cyan);
+  font-weight: 800;
+  color: var(--color-accent);
 }
 
 .score-stat-label {
@@ -289,18 +286,18 @@
   margin-bottom: 0.75rem;
   font-family: var(--font-family-display);
   font-size: 0.875rem;
-  font-weight: 900;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: -0.02em;
+  letter-spacing: 0.02em;
   color: var(--color-primary);
 }
 
 .score-section-icon {
-  color: var(--neon-magenta);
+  color: var(--color-accent);
 }
 
 /* ─────────────────────────────────────────
-   Download Buttons - Neon Style
+   Download Buttons - Clean, Functional
    ───────────────────────────────────────── */
 
 .dl-row {
@@ -325,48 +322,44 @@
   font-size: 14px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.02em;
   text-decoration: none;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Primary (PDF) - Neon gradient */
+/* Primary (PDF) - Accent color */
 .dl-btn--primary {
   flex: 2;
   min-width: 0;
-  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
-  color: var(--color-bg-deep);
-  border: none;
-  box-shadow: 0 4px 20px rgba(0, 240, 255, 0.3);
+  background: var(--color-accent);
+  color: #FFFFFF;
+  border: 1px solid var(--color-accent);
 }
 
 .dl-btn--primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(0, 240, 255, 0.5);
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
 }
 
 .dl-btn--primary:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 10px rgba(0, 240, 255, 0.3);
+  transform: translateY(1px);
 }
 
 /* Secondary (MIDI, MXL) */
 .dl-btn--secondary {
   flex: 1;
   min-width: 0;
-  background: var(--color-bg-card);
+  background: var(--color-bg-elevated);
   color: var(--color-text);
 }
 
 .dl-btn--secondary:hover {
-  background: var(--color-bg-elevated);
-  border-color: var(--neon-cyan);
-  color: var(--neon-cyan);
-  box-shadow: var(--glow-soft);
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-subtle);
 }
 
 .dl-btn--secondary:active {
@@ -392,7 +385,7 @@
 }
 
 .dl-btn:focus-visible {
-  outline: 2px solid var(--neon-cyan);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -423,7 +416,7 @@
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.02em;
   color: var(--color-text-muted);
 }
 
@@ -495,7 +488,7 @@
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.03em;
   color: var(--color-text);
   text-align: right;
   white-space: nowrap;
@@ -516,28 +509,14 @@
   position: absolute;
   top: 0;
   bottom: 0;
-  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
+  background: var(--color-accent);
   border-radius: 3px;
   min-width: 4px;
   transition: all 0.2s ease;
 }
 
-.vocal-range-bar::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    -45deg,
-    transparent,
-    transparent 2px,
-    rgba(255,255,255,0.15) 2px,
-    rgba(255,255,255,0.15) 4px
-  );
-}
-
 .vocal-range-row:hover .vocal-range-bar {
-  filter: brightness(1.2);
-  box-shadow: var(--glow-soft);
+  filter: brightness(1.1);
 }
 
 .vocal-range-notes {
@@ -545,7 +524,7 @@
   font-size: 11px;
   font-weight: 600;
   color: var(--color-text-muted);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
 
@@ -557,8 +536,8 @@
   top: 0;
   bottom: 0;
   width: 1px;
-  background: var(--neon-cyan);
-  opacity: 0.3;
+  background: var(--color-text-subtle);
+  opacity: 0.4;
   z-index: 1;
   pointer-events: none;
 }
@@ -585,44 +564,44 @@
 
 @media (hover: none) and (pointer: coarse) {
   .lyrics-accordion summary:active {
-    background: var(--color-bg-elevated);
+    background: var(--color-bg-surface);
   }
 
   .mm-button:active {
-    transform: scale(0.95);
+    transform: scale(0.97);
     opacity: 0.95;
   }
 
   .gallery-nav-btn:active:not(:disabled) {
-    transform: scale(0.85);
-    background: var(--neon-cyan);
-    color: var(--color-bg-deep);
-    border-color: var(--neon-cyan);
+    transform: scale(0.9);
+    background: var(--color-accent);
+    color: #FFFFFF;
+    border-color: var(--color-accent);
   }
 
   .gallery-fullscreen-float:active {
     transform: scale(0.95);
-    background: var(--neon-cyan);
-    color: var(--color-bg-deep);
+    background: var(--color-accent);
+    color: #FFFFFF;
   }
 
   .gallery-dot:active {
     transform: scale(1.3);
-    background: var(--neon-cyan);
+    background: var(--color-accent);
   }
 }
 
 /* ========================================
-   SCORE FACTS GRID - Neon Style
+   SCORE FACTS GRID - Clean, Functional
    ======================================== */
 
 .score-facts-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 0;
-  background: var(--color-bg-card);
+  background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -638,9 +617,9 @@
   justify-content: center;
   gap: 3px;
   padding: 12px 14px;
-  background: var(--color-bg-card);
+  background: var(--color-bg-elevated);
   min-height: 56px;
-  transition: background 0.2s ease;
+  transition: background 0.15s ease;
 }
 
 /* Full-width last cell spans both columns */
@@ -648,19 +627,13 @@
   grid-column: 1 / -1;
 }
 
-/* Section divider - subtle gradient fade */
+/* Section divider */
 .score-facts-divider {
   grid-column: 1 / -1;
   height: 1px;
   border: none;
-  background: linear-gradient(90deg,
-    transparent 5%,
-    var(--color-border) 25%,
-    var(--color-text-subtle) 50%,
-    var(--color-border) 75%,
-    transparent 95%
-  );
-  margin: 4px 0;
+  background: var(--color-border);
+  margin: 0;
 }
 
 .score-fact-cell .score-fact-label {
@@ -670,7 +643,7 @@
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
   color: var(--color-text-muted);
   border-bottom: none;
   padding: 0;
@@ -680,7 +653,7 @@
 .score-fact-cell .score-fact-value {
   font-family: var(--font-family-display);
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 700;
   line-height: 1.2;
   color: var(--color-text);
   text-align: left;
@@ -694,7 +667,7 @@
   width: 14px;
   font-size: 12px;
   line-height: 1;
-  color: var(--neon-magenta);
+  color: var(--color-accent);
   flex-shrink: 0;
 }
 
@@ -709,11 +682,11 @@
 }
 
 .score-fact-cell--link:hover {
-  background: var(--color-bg-elevated);
+  background: var(--color-bg-hover);
 }
 
 .score-fact-cell--link:hover .score-fact-value {
-  color: var(--neon-cyan);
+  color: var(--color-accent);
 }
 
 .score-fact-cell--link:active {
@@ -725,18 +698,17 @@
   font-size: 10px;
   color: var(--color-text-muted);
   opacity: 0.6;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .score-fact-cell--link:hover .score-fact-link-arrow {
-  color: var(--neon-cyan);
+  color: var(--color-accent);
   opacity: 1;
-  transform: translateX(3px);
-  text-shadow: 0 0 8px rgba(0, 240, 255, 0.5);
+  transform: translateX(2px);
 }
 
 /* ========================================
-   DIFFICULTY METER - Neon Style
+   DIFFICULTY METER - Clean Style
    ======================================== */
 
 .difficulty-meter {
@@ -751,18 +723,12 @@
   background: var(--color-bg-surface);
   border: 1px solid var(--color-border-subtle);
   border-radius: 2px;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .difficulty-block.is-filled {
-  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-  border-color: transparent;
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
-}
-
-.difficulty-meter:hover .difficulty-block.is-filled {
-  transform: translateY(-1px);
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .difficulty-label {
@@ -771,7 +737,7 @@
   text-transform: uppercase;
   letter-spacing: 0.02em;
   color: var(--color-text-muted);
-  margin-left: 8px; /* ml-2 */
+  margin-left: 8px;
 }
 
 /* ========================================

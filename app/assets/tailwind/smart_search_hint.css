@@ -1,6 +1,6 @@
 /* ========================================
    SMART SEARCH TEASER
-   37signals minimalism - clear, confident, readable
+   Editorial Warmth - clear, confident, readable
    ======================================== */
 
 .smart-search-teaser {
@@ -17,13 +17,11 @@
   line-height: 1.6;
   color: var(--color-text-muted);
   text-decoration: none;
-  transition: color 0.3s ease;
-
-  /* Generous spacing between words */
+  transition: color 0.2s ease;
   word-spacing: 0.15em;
 }
 
-/* "Coming soon:" - same size as Smart Search for equal weight */
+/* "Coming soon:" */
 .teaser-coming-soon {
   display: inline-block;
   font-family: var(--font-family-display);
@@ -31,25 +29,20 @@
   font-weight: 700;
   letter-spacing: -0.3px;
   color: var(--color-text-muted);
-  transition: all 0.3s ease;
-
-  /* Optical baseline adjustment */
+  transition: color 0.2s ease;
   position: relative;
   top: 1px;
 }
 
-/* "Smart Search" - bold, larger, glowing cyan */
+/* "Smart Search" - accent color */
 .teaser-name {
   display: inline-block;
   font-family: var(--font-family-display);
   font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.3px;
-  color: var(--neon-cyan);
-  text-shadow: 0 0 18px rgba(0, 240, 255, 0.4);
-  transition: all 0.5s ease;
-
-  /* Optical baseline adjustment */
+  color: var(--color-accent);
+  transition: color 0.2s ease;
   position: relative;
   top: 1px;
 }
@@ -59,7 +52,7 @@
   display: inline-block;
   font-size: 16px;
   color: var(--color-text-subtle);
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   margin: 0 0.3em;
 }
 
@@ -68,17 +61,17 @@
   font-size: 15px;
   font-weight: 600;
   color: var(--color-text-muted);
-  transition: color 0.3s ease;
+  transition: color 0.2s ease;
 }
 
-/* Hover - only Smart Search changes (cyan→magenta with scale) */
+/* Hover - subtle color change */
 .smart-search-teaser-link:hover .teaser-name {
-  color: var(--neon-magenta);
-  text-shadow:
-    0 0 32px rgba(255, 0, 128, 0.5),
-    0 0 16px rgba(255, 0, 128, 0.35),
-    0 0 8px rgba(255, 0, 128, 0.2);
-  transform: scale(1.03);
+  color: var(--color-accent-hover);
+}
+
+.smart-search-teaser-link:hover .teaser-arrow {
+  transform: translateX(2px);
+  color: var(--color-accent);
 }
 
 /* Responsive */
