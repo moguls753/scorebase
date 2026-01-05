@@ -132,7 +132,7 @@ class SearchTextGenerator
       has_dynamics: score.has_dynamics,
       has_articulations: score.has_articulations,
       has_ornaments: score.has_ornaments,
-      is_vocal: score.is_vocal,
+      has_vocal: score.has_vocal,
       is_instrumental: score.is_instrumental,
       part_names: score.part_names,
       detected_instruments: score.detected_instruments

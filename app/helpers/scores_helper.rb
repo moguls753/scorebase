@@ -326,7 +326,7 @@ module ScoresHelper
     has_tempo_changes has_fermatas expression_markings
     has_extracted_lyrics syllable_count lyrics_language
     part_names detected_instruments instrument_families
-    is_vocal is_instrumental has_accompaniment
+    has_vocal is_instrumental has_accompaniment
     texture_type polyphonic_density voice_independence
   ].freeze
 

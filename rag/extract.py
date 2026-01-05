@@ -558,7 +558,7 @@ def extract_instrumentation(score, result):
             result["instrument_families"] = ", ".join(families)
 
         total = len(score.parts)
-        result["is_vocal"] = vocal_parts > 0 and vocal_parts >= total * 0.5
+        result["has_vocal"] = vocal_parts > 0  # Any vocal parts = has_vocal
         result["is_instrumental"] = instrumental_parts > 0 and vocal_parts == 0
         result["has_accompaniment"] = vocal_parts > 0 and (keyboard_parts > 0 or instrumental_parts > 0)
 

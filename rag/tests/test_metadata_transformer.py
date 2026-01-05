@@ -122,10 +122,10 @@ class TestTransformMetadata:
     def test_booleans_preserved(self):
         result = transform_metadata({
             "has_dynamics": True,
-            "is_vocal": False,
+            "has_vocal": False,
         })
         assert result["has_dynamics"] is True
-        assert result["is_vocal"] is False
+        assert result["has_vocal"] is False
 
     def test_full_example(self):
         """Test with realistic data."""

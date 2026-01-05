@@ -159,7 +159,7 @@ class OpenscoreQuartetsImporter
       part_names: mscx_data[:part_names],
       genre: "String quartet",
       period: infer_period(composer_info),
-      is_vocal: false,
+      has_vocal: false,
       instruments: mscx_data[:part_names] || "Violin I, Violin II, Viola, Cello",
       license: "CC0",
       created_at: Time.current,

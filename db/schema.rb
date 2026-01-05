@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_12_30_153036) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_05_132745) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -105,6 +105,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_30_153036) do
     t.boolean "has_fermatas"
     t.boolean "has_ornaments"
     t.boolean "has_tempo_changes"
+    t.boolean "has_vocal"
+    t.string "has_vocal_status", default: "pending", null: false
     t.string "highest_pitch"
     t.integer "index_version"
     t.datetime "indexed_at"
@@ -113,7 +115,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_30_153036) do
     t.string "instruments_status", default: "pending", null: false
     t.json "interval_distribution"
     t.boolean "is_instrumental"
-    t.boolean "is_vocal"
     t.float "key_confidence"
     t.json "key_correlations"
     t.string "key_signature"
@@ -186,11 +187,12 @@ ActiveRecord::Schema[8.1].define(version: 2025_12_30_153036) do
     t.index ["genre"], name: "index_scores_on_genre"
     t.index ["genre_status"], name: "index_scores_on_genre_status"
     t.index ["has_extracted_lyrics"], name: "index_scores_on_has_extracted_lyrics"
+    t.index ["has_vocal"], name: "index_scores_on_has_vocal"
+    t.index ["has_vocal_status"], name: "index_scores_on_has_vocal_status"
     t.index ["highest_pitch"], name: "index_scores_on_highest_pitch"
     t.index ["indexed_at"], name: "index_scores_on_indexed_at"
     t.index ["instruments"], name: "index_scores_on_instruments"
     t.index ["instruments_status"], name: "index_scores_on_instruments_status"
-    t.index ["is_vocal"], name: "index_scores_on_is_vocal"
     t.index ["key_confidence"], name: "index_scores_on_key_confidence"
     t.index ["key_signature"], name: "index_scores_on_key_signature"
     t.index ["lowest_pitch"], name: "index_scores_on_lowest_pitch"

@@ -171,7 +171,7 @@ class OpenscoreImporter
       # Inferred/default values
       genre: "Art song",
       period: infer_period(composer_info),
-      is_vocal: true,
+      has_vocal: true,
       instruments: mscx_data[:part_names] || "Voice, Piano",
       license: "CC0",
       created_at: Time.current,

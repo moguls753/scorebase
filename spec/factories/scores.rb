@@ -39,6 +39,8 @@
 #  has_fermatas                :boolean
 #  has_ornaments               :boolean
 #  has_tempo_changes           :boolean
+#  has_vocal                   :boolean
+#  has_vocal_status            :string           default("pending"), not null
 #  highest_pitch               :string
 #  index_version               :integer
 #  indexed_at                  :datetime
@@ -47,7 +49,6 @@
 #  instruments_status          :string           default("pending"), not null
 #  interval_distribution       :json
 #  is_instrumental             :boolean
-#  is_vocal                    :boolean
 #  key_confidence              :float
 #  key_correlations            :json
 #  key_signature               :string
@@ -125,11 +126,12 @@
 #  index_scores_on_genre                 (genre)
 #  index_scores_on_genre_status          (genre_status)
 #  index_scores_on_has_extracted_lyrics  (has_extracted_lyrics)
+#  index_scores_on_has_vocal             (has_vocal)
+#  index_scores_on_has_vocal_status      (has_vocal_status)
 #  index_scores_on_highest_pitch         (highest_pitch)
 #  index_scores_on_indexed_at            (indexed_at)
 #  index_scores_on_instruments           (instruments)
 #  index_scores_on_instruments_status    (instruments_status)
-#  index_scores_on_is_vocal              (is_vocal)
 #  index_scores_on_key_confidence        (key_confidence)
 #  index_scores_on_key_signature         (key_signature)
 #  index_scores_on_lowest_pitch          (lowest_pitch)

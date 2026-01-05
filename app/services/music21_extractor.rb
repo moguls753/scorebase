@@ -159,7 +159,7 @@ class Music21Extractor
       part_names: result["part_names"],
       detected_instruments: result["detected_instruments"],
       instrument_families: result["instrument_families"],
-      is_vocal: result["is_vocal"],
+      has_vocal: result["has_vocal"],
       is_instrumental: result["is_instrumental"],
       has_accompaniment: result["has_accompaniment"],
       texture_type: result["texture_type"],
