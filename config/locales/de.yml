@@ -17,7 +17,8 @@ de:
 
   # Footer
   footer:
-    public_domain_scores: "freie Noten"
+    tagline: "Notensuche"
+    scores: "Noten"
     open_source: "Open Source"
 
   # Pagination
@@ -27,13 +28,13 @@ de:
 
   # Meta
   meta:
-    title: "ScoreBase — Freie Noten"
-    description: "Durchsuche und lade tausende freie Musiknoten herunter. Kostenlose Noten aus allen wichtigen Archiven."
+    title: "ScoreBase — Notensuche"
+    description: "Suche und entdecke tausende Musiknoten. Noten aus allen wichtigen Archiven."
 
   # Index / Search Page
   search:
-    hero_title_line1: "Freie Noten"
-    hero_title_line2: "Eine Suche über alle wichtigen freien Notenarchive."
+    hero_title_line1: "Notensuche"
+    hero_title_line2: "Eine Suche über alle wichtigen Notenarchive."
     scores_ready: "%{count} Noten an einem Ort"
     placeholder: "NOTEN SUCHEN..."
     button: "Suchen"
@@ -195,9 +196,9 @@ de:
   about:
     label: "Info"
     title: "ScoreBase"
-    subtitle: "Durchsuche freie Noten aus mehreren Archiven — alles an einem Ort."
+    subtitle: "Durchsuche Noten aus mehreren Archiven — alles an einem Ort."
     why_exists_title: "Warum?"
-    why_exists_p1: "Freie Noten sind über das Web verstreut."
+    why_exists_p1: "Noten sind über das Web verstreut."
     why_exists_p2: "ScoreBase bringt sie zusammen."
     sources_title: "Quellen"
     features_title: "Wie es funktioniert"
@@ -211,11 +212,11 @@ de:
     feature_4_desc: "KI-gestützte Suche in natürlicher Sprache. Beschreibe einfach, was du suchst – etwa 'barocke Violinsonaten' oder 'einfache Klavierstücke in C-Dur'."
     back_to_search: "Zurück zur Suche"
     imslp_name: "International Music Score Library Project"
-    imslp_description: "Auch bekannt als Petrucci-Musikbibliothek. Die größte Sammlung freier Noten mit über 800.000 Partituren von mehr als 27.000 Komponisten."
+    imslp_description: "Auch bekannt als Petrucci-Musikbibliothek. Die größte Sammlung von Noten mit über 800.000 Partituren von mehr als 27.000 Komponisten."
     cpdl_name: "Choral Public Domain Library"
-    cpdl_description: "Auch bekannt als ChoralWiki. Die größte Seite für kostenlose Chornoten, mit starker Abdeckung von Renaissance- und Barockvokalwerken."
+    cpdl_description: "Auch bekannt als ChoralWiki. Die größte Seite für Chornoten, mit starker Abdeckung von Renaissance- und Barockvokalwerken."
     pdmx_name: "Public Domain MusicXML"
-    pdmx_description: "Ein Datensatz mit über 250.000 freien MusicXML-Dateien von MuseScore. Nützlich für Notationssoftware wie MuseScore, Sibelius oder Finale."
+    pdmx_description: "Ein Datensatz mit über 250.000 MusicXML-Dateien von MuseScore. Nützlich für Notationssoftware wie MuseScore, Sibelius oder Finale."
     openscore_name: "OpenScore"
     openscore_description: "Hochwertige Kodierungen von Kunstliedern und Streichquartetten des 19. Jahrhunderts. Mit Werken von Schubert, Schumann, Brahms, Beethoven und mehr."
     transparency_title: "Warum Pro?"
@@ -245,31 +246,31 @@ de:
   # Hub/Landing Pages (SEO)
   hub:
     # Index pages
-    composers_title: "Komponisten — Freie Noten"
-    composers_description: "Durchsuche %{count} Komponisten mit kostenlosen Noten zum Download."
-    genres_title: "Musikgenres — Freie Noten"
-    genres_description: "Durchsuche %{count} Genres mit kostenlosen Noten zum Download."
-    instruments_title: "Instrumente — Freie Noten"
-    instruments_description: "Durchsuche %{count} Instrumente mit kostenlosen Noten zum Download."
-    periods_title: "Epochen — Freie Noten"
-    periods_description: "Durchsuche %{count} Epochen mit kostenlosen Noten zum Download."
+    composers_title: "Komponisten — Noten"
+    composers_description: "Durchsuche %{count} Komponisten mit Noten zum Download."
+    genres_title: "Musikgenres — Noten"
+    genres_description: "Durchsuche %{count} Genres mit Noten zum Download."
+    instruments_title: "Instrumente — Noten"
+    instruments_description: "Durchsuche %{count} Instrumente mit Noten zum Download."
+    periods_title: "Epochen — Noten"
+    periods_description: "Durchsuche %{count} Epochen mit Noten zum Download."
     periods: "Epochen"
 
     # Single dimension pages
-    composer_page_title: "%{name} — Freie Noten"
-    composer_page_description: "Lade %{count} kostenlose Noten von %{name} herunter. PDF, MusicXML und MIDI."
-    genre_page_title: "%{name} Noten — Kostenloser Download"
-    genre_page_description: "Lade %{count} kostenlose %{name}-Noten herunter. PDF, MusicXML und MIDI."
-    instrument_page_title: "%{name} Noten — Kostenloser Download"
-    instrument_page_description: "Lade %{count} kostenlose Noten für %{name} herunter. PDF, MusicXML und MIDI."
-    period_page_title: "%{name} — Freie Noten"
-    period_page_description: "Lade %{count} kostenlose Noten aus der %{name} herunter. PDF, MusicXML und MIDI."
+    composer_page_title: "%{name} — Noten"
+    composer_page_description: "Lade %{count} Noten von %{name} herunter. PDF, MusicXML und MIDI."
+    genre_page_title: "%{name} Noten — Download"
+    genre_page_description: "Lade %{count} %{name}-Noten herunter. PDF, MusicXML und MIDI."
+    instrument_page_title: "%{name} Noten — Download"
+    instrument_page_description: "Lade %{count} Noten für %{name} herunter. PDF, MusicXML und MIDI."
+    period_page_title: "%{name} — Noten"
+    period_page_description: "Lade %{count} Noten aus der %{name} herunter. PDF, MusicXML und MIDI."
 
     # Combined pages
-    composer_instrument_title: "%{composer} %{instrument} Noten — Kostenloser Download"
-    composer_instrument_description: "Lade %{count} kostenlose %{instrument}-Noten von %{composer} herunter. PDF, MusicXML und MIDI."
-    genre_instrument_title: "%{genre} %{instrument} Noten — Kostenloser Download"
-    genre_instrument_description: "Lade %{count} kostenlose %{genre}-Noten für %{instrument} herunter. PDF, MusicXML und MIDI."
+    composer_instrument_title: "%{composer} %{instrument} Noten — Download"
+    composer_instrument_description: "Lade %{count} %{instrument}-Noten von %{composer} herunter. PDF, MusicXML und MIDI."
+    genre_instrument_title: "%{genre} %{instrument} Noten — Download"
+    genre_instrument_description: "Lade %{count} %{genre}-Noten für %{instrument} herunter. PDF, MusicXML und MIDI."
 
     # UI elements
     scores_count: "%{count} Noten"
@@ -300,8 +301,8 @@ de:
   # Pro Landing Page
   pro:
     meta_title: "KI-Notensuche — Noten per Beschreibung finden | ScoreBase"
-    meta_description: "Kostenlose KI-gestützte Notensuche. Beschreibe was du suchst: 'leichtes Klavierstück für Anfänger' oder 'SATB-Chorstück für Ostern'. Durchsuche %{count} gemeinfreie Noten nach Schwierigkeit, Stimmumfang und Stimmung."
-    og_description: "Finde das passende Stück für deine Schüler, deinen Chor oder dein nächstes Konzert. %{count} freie Noten, durchsuchbar nach dem, was du wirklich brauchst."
+    meta_description: "KI-gestützte Notensuche. Beschreibe was du suchst: 'leichtes Klavierstück für Anfänger' oder 'SATB-Chorstück für Ostern'. Durchsuche %{count} Noten nach Schwierigkeit, Stimmumfang und Stimmung."
+    og_description: "Finde das passende Stück für deine Schüler, deinen Chor oder dein nächstes Konzert. %{count} Noten, durchsuchbar nach dem, was du wirklich brauchst."
 
     # Status badge
     status_coming_soon: "Demnächst"
@@ -357,7 +358,7 @@ de:
     faq_1_q: "Wann geht's los?"
     faq_1_a: "Bald. Ich baue gerade das KI-Modell und die Such-Infrastruktur. Wenn du der Warteliste beitrittst, erfährst du es, sobald es startet."
     faq_2_q: "Was ist mit der kostenlosen Version?"
-    faq_2_a: "Der kostenlose Katalog bleibt kostenlos. %{count} gemeinfreie Noten, durchsuchbar mit einfacher Stichwortsuche. Pro fügt Smart Search und Organisationsfunktionen hinzu."
+    faq_2_a: "Der kostenlose Katalog bleibt kostenlos. %{count} Noten, durchsuchbar mit einfacher Stichwortsuche. Pro fügt Smart Search und Organisationsfunktionen hinzu."
     faq_3_q: "Was ist der Unterschied zu IMSLP?"
     faq_3_a: "IMSLP ist ein Noten-Archiv mit Stichwortsuche. ScoreBase vereint mehrere Quellen (IMSLP, CPDL, OpenScore und mehr) und fügt Smart Search hinzu, die musikalischen Kontext versteht: Schwierigkeit, Stimmumfänge, Dauer, Stil."
     faq_4_q: "Kann ich jederzeit kündigen?"

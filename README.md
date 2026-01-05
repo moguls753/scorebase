@@ -1,12 +1,12 @@
 # ScoreBase
 
-Open source sheet music search engine. Aggregates 100k+ public domain scores, normalizes metadata across sources, and provides AI-powered semantic search.
+Open source sheet music search engine. Aggregates 100k+ scores from multiple archives, normalizes metadata across sources, and provides AI-powered semantic search.
 
 **Live:** [scorebase.org](https://scorebase.org)
 
 ## Free vs Pro
 
-**Free:** Browse, search, download 100k+ public domain scores. Filter by key, time signature, voicing, difficulty, genre, period.
+**Free:** Browse, search, discover 100k+ scores. Filter by key, time signature, voicing, difficulty, genre, period.
 
 **Pro (€2.99/mo):** AI-powered Smart Search that understands musical context—"easy piano pieces in C major for beginners" or "romantic art songs for soprano with wide range."
 

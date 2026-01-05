@@ -1,12 +1,12 @@
 # ScoreBase
 
-Open source sheet music catalog. Deploys to scorebase.org.
+Open source sheet music search engine. Deploys to scorebase.org.
 
 ## What Is This?
 
-Sheet music catalog (100k+ public domain scores) with AI-powered smart search.
+Sheet music search engine (100k+ scores) with AI-powered smart search.
 
-- **Free:** Browse, basic search, download
+- **Free:** Browse, search, discover
 - **Pro (€2.99/mo):** Natural language RAG search, favorites, collections
 
 ## Tech Stack

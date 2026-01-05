@@ -1,6 +1,6 @@
 <%# SEO Meta Tags %>
 <% content_for :title do %><%= @score.title %><%= " - #{@score.composer}" if @score.composer.present? %> | ScoreBase<% end %>
-<% content_for :meta_description do %><%= t('hub.composer_page_description', name: @score.composer || 'Unknown', count: 1).gsub(/\d+ free/, 'Free') %> <%= @score.title %>.<% end %>
+<% content_for :meta_description do %><%= t('hub.composer_page_description', name: @score.composer || 'Unknown', count: 1).gsub(/\d+ /, '') %> <%= @score.title %>.<% end %>
 <% content_for :og_type, 'music.song' %>
 <% content_for :og_image, @score.thumbnail if @score.has_thumbnail? %>
 
