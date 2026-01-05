@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 # Validates has_vocal field using LLM analysis of all available signals.
-# Should run AFTER extraction completes.
+# Requires: composer and period processed (any status except pending)
 #
 # Usage:
 #   NormalizeHasVocalJob.perform_later
@@ -42,7 +42,8 @@ class NormalizeHasVocalJob < ApplicationJob
   def eligible_scores(limit)
     Score.has_vocal_pending
          .where(extraction_status: "extracted")
-         .where.not(title: [nil, ""])
+         .where.not(composer_status: "pending")
+         .where.not(period_status: "pending")
          .limit(limit)
   end
 
