@@ -1,12 +1,13 @@
 # frozen_string_literal: true
 
 namespace :normalize do
-  desc "Infer genres using LLM. LIMIT=100, BACKEND=groq|gemini|lmstudio. Requires: composer processed, instruments processed"
+  desc "Infer genres using LLM. LIMIT=100, BACKEND=openai|groq|gemini|lmstudio. Requires: composer processed, instruments processed"
   task genres: :environment do
     limit = ENV.fetch("LIMIT", 100).to_i
-    backend = ENV.fetch("BACKEND", "groq").to_sym
+    backend = ENV.fetch("BACKEND", "openai").to_sym
+    batch_size = ENV.fetch("BATCH_SIZE", 10).to_i
 
-    NormalizeGenresJob.perform_now(limit: limit, backend: backend)
+    NormalizeGenresJob.perform_now(limit: limit, backend: backend, batch_size: batch_size)
     print_genre_stats
   end
 

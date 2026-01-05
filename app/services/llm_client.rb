@@ -200,17 +200,25 @@ class LlmClient
   # ═══════════════════════════════════════════════════════════════════════════
 
   OPENAI_ENDPOINT = "https://api.openai.com/v1/chat/completions"
-  OPENAI_DEFAULT_MODEL = "gpt-4o-mini"
+  OPENAI_DEFAULT_MODEL = "gpt-4.1-mini"
+
+  # Models that don't support custom temperature (only default 1.0)
+  OPENAI_NO_TEMPERATURE_MODELS = %w[
+    gpt-5-nano gpt-5-nano-2025-08-07
+    gpt-5-mini gpt-5-mini-2025-08-07
+  ].freeze
 
   def send_openai_request(prompt, json_mode:, temperature:)
     uri = URI(OPENAI_ENDPOINT)
     api_key = Rails.application.credentials.dig(:openai, :api_key)
+    model = @model || ENV.fetch("OPENAI_MODEL", OPENAI_DEFAULT_MODEL)
 
     payload = {
-      model: @model || ENV.fetch("OPENAI_MODEL", OPENAI_DEFAULT_MODEL),
-      temperature: temperature,
+      model: model,
       messages: [{ role: "user", content: prompt }]
     }
+    # Some models (gpt-5-nano) don't support custom temperature
+    payload[:temperature] = temperature unless OPENAI_NO_TEMPERATURE_MODELS.include?(model)
     payload[:response_format] = { type: "json_object" } if json_mode
 
     http_post(uri, payload, { "Authorization" => "Bearer #{api_key}" })

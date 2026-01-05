@@ -31,7 +31,7 @@ class NormalizeHasVocalJob < ApplicationJob
         apply_result(score, result, stats, index)
       end
 
-      sleep 0.5 # Rate limiting
+      sleep 0.1 # Rate limiting (500 RPM allows ~8 req/s)
     end
 
     log_complete(stats)
