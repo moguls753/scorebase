@@ -108,6 +108,7 @@
 #  voice_independence          :float
 #  voice_ranges                :json
 #  voicing                     :string
+#  voicing_status              :string           default("pending"), not null
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
 #  external_id                 :string
@@ -150,6 +151,7 @@
 #  index_scores_on_time_signature        (time_signature)
 #  index_scores_on_views                 (views)
 #  index_scores_on_voicing               (voicing)
+#  index_scores_on_voicing_status        (voicing_status)
 #
 FactoryBot.define do
   factory :score do

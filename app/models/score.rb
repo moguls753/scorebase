@@ -108,6 +108,7 @@
 #  voice_independence          :float
 #  voice_ranges                :json
 #  voicing                     :string
+#  voicing_status              :string           default("pending"), not null
 #  created_at                  :datetime         not null
 #  updated_at                  :datetime         not null
 #  external_id                 :string
@@ -150,6 +151,7 @@
 #  index_scores_on_time_signature        (time_signature)
 #  index_scores_on_views                 (views)
 #  index_scores_on_voicing               (voicing)
+#  index_scores_on_voicing_status        (voicing_status)
 #
 class Score < ApplicationRecord
   include Thumbnailable
@@ -211,6 +213,13 @@ class Score < ApplicationRecord
     normalized: "normalized",
     failed: "failed"
   }, default: :pending, prefix: :has_vocal
+
+  enum :voicing_status, {
+    pending: "pending",
+    normalized: "normalized",
+    not_applicable: "not_applicable",
+    failed: "failed"
+  }, default: :pending, prefix: :voicing
 
   enum :extraction_status, {
     pending: "pending",
