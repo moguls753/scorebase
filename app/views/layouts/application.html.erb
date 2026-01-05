@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="<%= I18n.locale %>" data-theme="dark">
+<html lang="<%= I18n.locale %>">
   <head>
     <title><%= content_for(:title) || t('meta.title') %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -13,7 +13,7 @@
     <!-- Preconnect to CDN for faster thumbnail loading -->
     <link rel="preconnect" href="https://cdn.scorebase.org">
 
-    <%# Neon theme is always dark - no flash prevention needed %>
+    <%# Editorial Warmth theme - light mode by default %>
 
     <%= yield :head %>
 
@@ -62,8 +62,8 @@
          data-action="click->mobile-menu#close"
          class="mobile-overlay"></div>
 
-    <!-- Header - Glassmorphism Nav -->
-    <header class="sticky top-0 z-30 backdrop-blur-xl bg-[rgba(10,10,18,0.8)] border-b border-[var(--color-border)]">
+    <!-- Header -->
+    <header class="sticky top-0 z-30 bg-[var(--color-bg-elevated)] border-b border-[var(--color-border)]">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-5">
         <div class="flex items-center justify-between">
           <!-- Logo -->
@@ -154,7 +154,7 @@
         <% end %>
       </div>
       <div class="mobile-menu-footer">
-        <%= link_to t('nav.impressum'), impressum_path, class: "text-xs text-[var(--color-text-muted)] hover:text-[var(--neon-cyan)] transition-colors", data: { action: "click->mobile-menu#close" } %>
+        <%= link_to t('nav.impressum'), impressum_path, class: "text-xs text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors", data: { action: "click->mobile-menu#close" } %>
       </div>
     </nav>
 
@@ -163,15 +163,15 @@
       <%= yield %>
     </main>
 
-    <!-- Footer - Neon Style -->
-    <footer class="relative z-10 bg-[var(--color-bg-elevated)] border-t border-[var(--color-border)] mt-12 sm:mt-20">
+    <!-- Footer -->
+    <footer class="relative z-10 bg-[var(--color-bg-surface)] border-t border-[var(--color-border)] mt-12 sm:mt-20">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 sm:gap-0 text-xs">
           <p class="text-[var(--color-text-muted)] font-medium text-center sm:text-left">
-            <span class="font-bold text-[var(--neon-cyan)]"><%= number_with_delimiter(Score.count) %></span> <%= t('footer.scores') %> · <%= t('footer.tagline') %>
+            <span class="font-bold text-[var(--color-accent)]"><%= number_with_delimiter(Score.count) %></span> <%= t('footer.scores') %> · <%= t('footer.tagline') %>
           </p>
           <p class="text-[var(--color-text-muted)] font-medium flex items-center gap-3">
-            <%= link_to t('nav.impressum'), impressum_path, class: "hover:text-[var(--neon-cyan)] transition-colors" %>
+            <%= link_to t('nav.impressum'), impressum_path, class: "hover:text-[var(--color-accent)] transition-colors" %>
             <span class="text-[var(--color-border)]">·</span>
             <%= link_to t('footer.open_source'), "https://github.com/moguls753/scorebase", target: "_blank", rel: "noopener", class: "hover:text-[var(--neon-cyan)] transition-colors" %>
           </p>

@@ -1,53 +1,81 @@
 /* ========================================
-   BASE - Dark Neon Theme Variables & Core Components
-   Futuristic dark mode with vibrant neon accents
+   BASE - Editorial Warmth Theme
+   Refined, content-focused design inspired by
+   print editorial layouts and music publications
    ======================================== */
 
-/* Dark Neon Theme - Always On */
+/* Light Mode (Default) */
 :root {
-  /* Deep dark palette */
-  --color-bg-deep: #05050a;
-  --color-bg: #0a0a12;
-  --color-bg-elevated: #10101c;
-  --color-bg-card: #16162a;
-  --color-bg-surface: #1c1c38;
-  --color-bg-hover: #22224a;
+  /* Warm paper-like backgrounds */
+  --color-bg-deep: #F8F6F3;
+  --color-bg: #FAF8F5;
+  --color-bg-elevated: #FFFFFF;
+  --color-bg-card: #FFFFFF;
+  --color-bg-surface: #F3F1EE;
+  --color-bg-hover: #EDEAE6;
 
-  /* Neon accents */
-  --neon-cyan: #00f0ff;
-  --neon-magenta: #ff0080;
-  --neon-purple: #a855f7;
-  --neon-blue: #3b82f6;
-  --neon-pink: #ec4899;
+  /* Single refined accent - warm amber */
+  --color-accent: #B45309;
+  --color-accent-rgb: 180, 83, 9;
+  --color-accent-hover: #92400E;
+  --color-accent-muted: #D97706;
 
-  /* Primary colors using neon */
-  --color-primary: #f0f0f8;
-  --color-primary-dark: #d8d8e8;
-  --color-accent: #00f0ff;
-  --color-accent-rgb: 0, 240, 255;
-  --color-accent-hover: #00d4e0;
-  --color-accent-dark: #00b8c4;
+  /* Text hierarchy - warm charcoals */
+  --color-primary: #1C1917;
+  --color-text: #292524;
+  --color-text-muted: #78716C;
+  --color-text-subtle: #A8A29E;
 
-  /* Text hierarchy - WCAG AA compliant contrast */
-  --color-text: #f0f0f8;
-  --color-text-muted: #9999bb;  /* 5.2:1 contrast ratio */
-  --color-text-subtle: #777799;  /* 4.5:1 minimum for small text */
+  /* Borders - subtle, warm */
+  --color-border: #E7E5E4;
+  --color-border-subtle: #F3F1EE;
 
-  /* Borders - subtle with slight visibility */
-  --color-border: rgba(255, 255, 255, 0.1);
-  --color-border-subtle: rgba(255, 255, 255, 0.06);
-  --color-border-glow: rgba(0, 240, 255, 0.3);
+  /* Shadows - subtle paper elevation */
+  --shadow-sm: 0 1px 2px rgba(28, 25, 23, 0.04);
+  --shadow-md: 0 2px 8px rgba(28, 25, 23, 0.06), 0 1px 2px rgba(28, 25, 23, 0.04);
+  --shadow-lg: 0 4px 16px rgba(28, 25, 23, 0.08), 0 2px 4px rgba(28, 25, 23, 0.04);
+  --shadow-card: 0 1px 3px rgba(28, 25, 23, 0.05);
 
-  /* Shadows and glows */
-  --shadow-offset: 4px;
-  --shadow-color: rgba(0, 0, 0, 0.5);
-  --glow-cyan: 0 0 30px rgba(0, 240, 255, 0.4);
-  --glow-magenta: 0 0 30px rgba(255, 0, 128, 0.4);
-  --glow-purple: 0 0 30px rgba(168, 85, 247, 0.4);
-  --glow-soft: 0 0 20px rgba(0, 240, 255, 0.15);
+  /* Legacy compatibility - map old neon vars to new palette */
+  --neon-cyan: var(--color-accent);
+  --neon-magenta: var(--color-accent);
+  --neon-purple: var(--color-accent);
+  --neon-blue: var(--color-accent);
+  --neon-pink: var(--color-accent);
+  --glow-cyan: none;
+  --glow-magenta: none;
+  --glow-purple: none;
+  --glow-soft: none;
 }
 
-/* Smooth scrolling for better UX */
+/* Dark Mode */
+[data-theme="dark"] {
+  /* Deep warm dark backgrounds */
+  --color-bg-deep: #1C1917;
+  --color-bg: #1C1917;
+  --color-bg-elevated: #292524;
+  --color-bg-card: #292524;
+  --color-bg-surface: #3D3936;
+  --color-bg-hover: #44403C;
+
+  /* Accent - slightly brighter amber for dark mode */
+  --color-accent: #F59E0B;
+  --color-accent-rgb: 245, 158, 11;
+  --color-accent-hover: #FBBF24;
+  --color-accent-muted: #D97706;
+
+  /* Text - warm off-whites */
+  --color-primary: #FAF8F5;
+  --color-text: #E7E5E4;
+  --color-text-muted: #A8A29E;
+  --color-text-subtle: #78716C;
+
+  /* Borders - warm dark */
+  --color-border: #44403C;
+  --color-border-subtle: #3D3936;
+}
+
+/* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
@@ -64,132 +92,74 @@ html {
   }
 }
 
-/* Base Styles */
+/* Base body styles */
 body {
   font-family: var(--font-family-body);
-  background-color: var(--color-bg-deep);
+  background-color: var(--color-bg);
   color: var(--color-text);
   font-size: 15px;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
 }
 
-/* Animated Grid Background */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image:
-    linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-  background-size: 60px 60px;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Animated Gradient Orbs - softer blur effect */
-body::after {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(ellipse 700px 700px at 90% 5%, rgba(0, 240, 255, 0.15), transparent 70%),
-    radial-gradient(ellipse 600px 600px at 10% 90%, rgba(255, 0, 128, 0.12), transparent 70%),
-    radial-gradient(ellipse 500px 500px at 50% 40%, rgba(168, 85, 247, 0.1), transparent 70%);
-  pointer-events: none;
-  z-index: 0;
-  animation: orbFloat 25s ease-in-out infinite;
-  filter: blur(40px);
-}
-
-@keyframes orbFloat {
-  0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
-  25% { transform: translate(30px, -30px) scale(1.05); opacity: 1; }
-  50% { transform: translate(-20px, 20px) scale(0.95); opacity: 0.7; }
-  75% { transform: translate(-30px, -20px) scale(1.02); opacity: 0.9; }
-}
-
-/* Ensure content is above background effects */
+/* Clean content stacking - no animated backgrounds */
 header, main, footer, nav {
   position: relative;
   z-index: 1;
 }
 
-/* Neobrutalist Components - Neon Style */
+/* ========================================
+   CORE COMPONENTS - Refined Editorial Style
+   ======================================== */
+
+/* Cards - Clean, content-focused */
 .mm-card {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
-  transition: all 0.3s ease;
+  border-radius: 8px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
   position: relative;
   overflow: hidden;
 }
 
-/* Gradient border effect on hover */
-.mm-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  border-radius: 12px;
-  padding: 1px;
-  background: linear-gradient(135deg, transparent 50%, var(--neon-cyan) 100%);
-  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-/* Only add hover effect to linked cards */
+/* Only linked cards get hover effects */
 a.mm-card:hover {
-  transform: translateY(-4px);
-  border-color: transparent;
-  box-shadow: var(--glow-soft);
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-md);
 }
 
-a.mm-card:hover::before {
-  opacity: 1;
+a.mm-card:active {
+  box-shadow: var(--shadow-sm);
 }
 
+/* Buttons - Refined, purposeful */
 .mm-button {
   padding: 12px 24px;
-  border-radius: 8px;
+  border-radius: 6px;
   font-weight: 600;
   font-size: 14px;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   border: 1px solid var(--color-border);
   cursor: pointer;
   font-family: var(--font-family-body);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.01em;
   position: relative;
 }
 
 .mm-button-primary {
-  background: linear-gradient(135deg, var(--neon-magenta), var(--neon-purple));
-  color: #ffffff;
-  border: none;
-  box-shadow: 0 4px 20px rgba(255, 0, 128, 0.3);
+  background: var(--color-accent);
+  color: #FFFFFF;
+  border: 1px solid var(--color-accent);
 }
 
 .mm-button-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 30px rgba(255, 0, 128, 0.5);
+  background: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
 }
 
 .mm-button-primary:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 10px rgba(255, 0, 128, 0.3);
+  transform: translateY(1px);
 }
 
 .mm-button-secondary {
@@ -199,38 +169,37 @@ a.mm-card:hover::before {
 }
 
 .mm-button-secondary:hover {
-  border-color: var(--neon-cyan);
-  color: var(--neon-cyan);
-  box-shadow: inset 0 0 20px rgba(0, 240, 255, 0.1), var(--glow-soft);
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-subtle);
 }
 
 .mm-button-secondary:active {
   background: var(--color-bg-surface);
 }
 
+/* Inputs - Clean, functional */
 .mm-input {
   padding: 12px 16px;
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 6px;
   font-family: var(--font-family-body);
   font-size: 14px;
   background: var(--color-bg-elevated);
-  transition: all 0.3s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   color: var(--color-text);
 }
 
 .mm-input:focus {
   outline: none;
-  border-color: var(--neon-cyan);
-  box-shadow: var(--glow-cyan), inset 0 0 30px rgba(0, 240, 255, 0.05);
-  background: var(--color-bg-card);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(var(--color-accent-rgb), 0.1);
 }
 
 .mm-input::placeholder {
   color: var(--color-text-subtle);
 }
 
-/* Custom scrollbar - neon style */
+/* Scrollbar - Subtle */
 ::-webkit-scrollbar {
   width: 8px;
 }
@@ -245,99 +214,122 @@ a.mm-card:hover::before {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--neon-cyan);
-  box-shadow: var(--glow-cyan);
+  background: var(--color-text-subtle);
 }
 
-/* Selection - neon magenta */
+/* Selection - Warm accent */
 ::selection {
-  background: var(--neon-magenta);
-  color: #ffffff;
+  background: rgba(var(--color-accent-rgb), 0.2);
+  color: var(--color-text);
 }
 
-/* Focus styles - neon glow */
+/* Focus styles - Clean ring */
 *:focus-visible {
-  outline: 2px solid var(--neon-cyan);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
-  box-shadow: var(--glow-cyan);
 }
 
 /* Link reset for buttons */
 a.mm-button {
   text-decoration: none;
-  /* Don't set display here - let Tailwind utilities control it */
 }
 
-/* Default display for mm-button links when no utility is specified */
 a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
   display: inline-block;
 }
 
-/* Badge/Tag styles - neon variant */
+/* ========================================
+   BADGES - Refined, Functional
+   ======================================== */
+
 .mm-badge {
   display: inline-flex;
   align-items: center;
   padding: 4px 10px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
-  border-radius: 6px;
+  border-radius: 4px;
   background: var(--color-bg-surface);
   color: var(--color-text-muted);
-  border: 1px solid var(--color-border);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  border: 1px solid var(--color-border-subtle);
+  letter-spacing: 0.02em;
 }
 
-/* MOBILE FIX: Larger badges for readability */
 @media (max-width: 640px) {
   .mm-badge {
-    font-size: 12px;
-    padding: 6px 12px;
+    font-size: 11px;
+    padding: 5px 10px;
   }
 }
 
-/* Source badges - neon styled */
+/* Source badges - Differentiated by subtle color coding */
 .mm-badge-source {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   padding: 4px 8px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
   font-family: var(--font-family-display);
   border-radius: 4px;
-  transition: all 0.2s ease;
+  text-transform: uppercase;
 }
 
 .mm-badge-cpdl {
-  background: rgba(0, 240, 255, 0.15);
-  color: var(--neon-cyan);
-  border: 1px solid rgba(0, 240, 255, 0.3);
+  background: #EFF6FF;
+  color: #1E40AF;
+  border: 1px solid #BFDBFE;
+}
+
+[data-theme="dark"] .mm-badge-cpdl {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60A5FA;
+  border-color: rgba(59, 130, 246, 0.3);
 }
 
 .mm-badge-imslp {
-  background: rgba(168, 85, 247, 0.15);
-  color: var(--neon-purple);
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+}
+
+[data-theme="dark"] .mm-badge-imslp {
+  background: rgba(245, 158, 11, 0.15);
+  color: #FBBF24;
+  border-color: rgba(245, 158, 11, 0.3);
 }
 
 .mm-badge-pdmx {
-  background: rgba(0, 255, 136, 0.15);
-  color: #00ff88;
-  border: 1px solid rgba(0, 255, 136, 0.3);
+  background: #ECFDF5;
+  color: #065F46;
+  border: 1px solid #A7F3D0;
+}
+
+[data-theme="dark"] .mm-badge-pdmx {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+  border-color: rgba(16, 185, 129, 0.3);
 }
 
 .mm-badge-openscore {
-  background: rgba(255, 160, 0, 0.15);
-  color: #ffa000;
-  border: 1px solid rgba(255, 160, 0, 0.3);
+  background: #FFF7ED;
+  color: #9A3412;
+  border: 1px solid #FED7AA;
 }
 
-/* Tag badge variant */
+[data-theme="dark"] .mm-badge-openscore {
+  background: rgba(249, 115, 22, 0.15);
+  color: #FB923C;
+  border-color: rgba(249, 115, 22, 0.3);
+}
+
 .mm-badge-tag {
-  background: var(--color-bg-elevated);
-  border: 1px dashed var(--color-border);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
 }
 
-/* Lyrics accordion */
+/* ========================================
+   LYRICS ACCORDION - Clean, Functional
+   ======================================== */
+
 .lyrics-accordion summary::-webkit-details-marker {
   display: none;
 }
@@ -363,12 +355,12 @@ a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
 
 .score-lyrics-summary:active,
 .score-lyrics-summary:focus {
-  background: var(--color-bg-elevated);
+  background: var(--color-bg-surface);
 }
 
 @media (hover: hover) {
   .score-lyrics-summary:hover {
-    background: var(--color-bg-elevated);
+    background: var(--color-bg-surface);
   }
 }
 
@@ -386,7 +378,7 @@ a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
 
 .score-lyrics-content {
   padding: 0 1rem 1rem;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 .lyrics-content {
@@ -398,19 +390,19 @@ a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
   white-space: pre-wrap;
 }
 
-/* Score description quote styling - neon accent */
+/* Score description - refined quote styling */
 .score-description {
   position: relative;
   padding-left: 16px;
-  border-left: 3px solid var(--neon-magenta);
+  border-left: 3px solid var(--color-accent);
 }
 
 /* Link styles */
 a {
-  transition: all 0.15s ease;
+  transition: color 0.15s ease;
 }
 
-/* Theme transition - targeted elements */
+/* Component transitions */
 .mm-button,
 .mm-input,
 .mm-badge,
@@ -418,24 +410,23 @@ a {
 header,
 footer,
 .hero-section {
-  transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }
 
-/* Smooth transitions for interactive elements */
 button, input, select {
   transition: all 0.15s ease;
 }
 
-/* Gradient text utility */
+/* ========================================
+   UTILITY CLASSES - Editorial Style
+   ======================================== */
+
+/* Accent text - replaces gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-magenta) 50%, var(--neon-purple) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-accent);
 }
 
-/* Neon text glow on hover */
+/* Accent hover - replaces neon hover */
 .neon-hover:hover {
-  color: var(--neon-cyan);
-  text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+  color: var(--color-accent);
 }

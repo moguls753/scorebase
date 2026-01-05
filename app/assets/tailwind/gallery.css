@@ -1,6 +1,6 @@
 /* ========================================
    GALLERY - Sheet Music Page Viewer
-   Dark Neon Theme with smooth transitions
+   Editorial Warmth Theme
    ======================================== */
 
 .gallery-container {
@@ -9,7 +9,7 @@
   flex-direction: column;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 8px;
   overflow: hidden;
 }
 
@@ -28,12 +28,12 @@
   width: 40px;
   height: 40px;
   padding: 0;
-  background: var(--color-bg-card);
+  background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  color: var(--color-text);
+  border-radius: 6px;
+  color: var(--color-text-muted);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   opacity: 0.9;
 }
 
@@ -44,10 +44,9 @@
 
 .gallery-fullscreen-float:hover {
   opacity: 1;
-  background: var(--neon-cyan);
-  color: var(--color-bg-deep);
-  border-color: var(--neon-cyan);
-  box-shadow: var(--glow-cyan);
+  background: var(--color-accent);
+  color: #FFFFFF;
+  border-color: var(--color-accent);
 }
 
 .gallery-fullscreen-float:active {
@@ -63,7 +62,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 8px 10px;
-  background: var(--color-bg-elevated);
+  background: var(--color-bg-surface);
   border-top: 1px solid var(--color-border);
   gap: 8px;
 }
@@ -75,12 +74,12 @@
   width: 44px;
   height: 44px;
   padding: 0;
-  background: var(--color-bg-card);
+  background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 6px;
   color: var(--color-text);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   flex-shrink: 0;
 }
 
@@ -90,16 +89,14 @@
 }
 
 .gallery-nav-btn:hover:not(:disabled) {
-  background: var(--color-bg-elevated);
-  border-color: var(--neon-cyan);
-  color: var(--neon-cyan);
-  box-shadow: var(--glow-soft);
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-subtle);
 }
 
 .gallery-nav-btn:active:not(:disabled) {
-  transform: scale(0.9);
-  background: var(--neon-cyan);
-  color: var(--color-bg-deep);
+  transform: scale(0.95);
+  background: var(--color-accent);
+  color: #FFFFFF;
 }
 
 .gallery-nav-btn:disabled {
@@ -144,17 +141,16 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--color-border-subtle);
+  background: var(--color-border);
   border: none;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
   pointer-events: none;
 }
 
 .gallery-dot.is-active {
   width: 10px;
   height: 10px;
-  background: var(--neon-cyan);
-  box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+  background: var(--color-accent);
 }
 
 .gallery-dot-wrap:hover .gallery-dot,
@@ -165,17 +161,17 @@
 
 .gallery-dot-wrap:hover .gallery-dot.is-active,
 .gallery-dot-wrap:focus-visible .gallery-dot.is-active {
-  background: var(--neon-cyan);
+  background: var(--color-accent);
   transform: scale(1.1);
 }
 
 .gallery-dot-wrap:active .gallery-dot {
   transform: scale(0.9);
-  background: var(--neon-cyan);
+  background: var(--color-accent);
 }
 
 .gallery-dot-wrap:focus-visible {
-  outline: 2px solid var(--neon-cyan);
+  outline: 2px solid var(--color-accent);
   outline-offset: -4px;
   border-radius: 50%;
 }
@@ -204,7 +200,7 @@
   font-family: var(--font-family-mono);
   font-size: 18px;
   font-weight: 900;
-  color: var(--neon-cyan);
+  color: var(--color-accent);
   min-width: 24px;
   text-align: right;
   letter-spacing: -0.5px;
@@ -249,8 +245,8 @@
   left: var(--padding);
   height: 6px;
   width: calc(var(--progress) * (100% - var(--padding) * 2));
-  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
-  border: 1px solid var(--color-border);
+  background: var(--color-accent);
+  border: 1px solid var(--color-accent);
   border-right: none;
   border-radius: 3px 0 0 3px;
   transition: width 0.15s ease-out;
@@ -259,20 +255,18 @@
 .gallery-progress-thumb {
   position: absolute;
   left: calc(var(--padding) + var(--progress) * (100% - var(--padding) * 2));
-  width: 20px;
-  height: 20px;
-  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
-  border: 2px solid var(--color-bg-deep);
+  width: 18px;
+  height: 18px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-bg-elevated);
   border-radius: 50%;
   transform: translateX(-50%);
   transition: left 0.15s ease-out, transform 0.1s ease;
-  box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
   z-index: 1;
 }
 
 .gallery-progress:hover .gallery-progress-thumb {
   transform: translateX(-50%) scale(1.1);
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.6);
 }
 
 .gallery-progress:active .gallery-progress-thumb {
@@ -281,7 +275,6 @@
 
 .gallery-progress.is-dragging .gallery-progress-thumb {
   transform: translateX(-50%) scale(1.15);
-  box-shadow: 0 0 25px rgba(0, 240, 255, 0.8);
   transition: none;
 }
 
@@ -290,13 +283,13 @@
 }
 
 .gallery-progress:focus-visible {
-  outline: 2px solid var(--neon-cyan);
+  outline: 2px solid var(--color-accent);
   outline-offset: 4px;
 }
 
 /* Fullscreen mode adjustments */
 .gallery-container:fullscreen .gallery-progress-counter {
-  color: var(--neon-cyan);
+  color: var(--color-accent);
 }
 
 .gallery-container:fullscreen .gallery-progress-total {
@@ -309,12 +302,12 @@
 }
 
 .gallery-container:fullscreen .gallery-progress-fill {
-  background: linear-gradient(90deg, var(--neon-cyan), var(--neon-purple));
-  border-color: rgba(255, 255, 255, 0.25);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
 }
 
 .gallery-container:fullscreen .gallery-progress-thumb {
-  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
+  background: var(--color-accent);
   border-color: rgba(255, 255, 255, 0.4);
 }
 
@@ -322,7 +315,7 @@
 .gallery-hints-desktop {
   display: none;
   padding: 6px 12px;
-  background: var(--color-bg-deep);
+  background: var(--color-bg-surface);
   border-top: 1px solid var(--color-border-subtle);
   font-size: 11px;
   color: var(--color-text-muted);
@@ -354,7 +347,7 @@
   align-items: center;
   justify-content: center;
   min-height: 300px;
-  background: var(--color-bg-deep);
+  background: var(--color-bg-surface);
   overflow: hidden;
   cursor: pointer;
 }
@@ -377,14 +370,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-bg-deep);
+  background: var(--color-bg-surface);
 }
 
 .gallery-loading-spinner {
   width: 32px;
   height: 32px;
-  border: 3px solid var(--color-border-subtle);
-  border-top-color: var(--neon-cyan);
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-accent);
   border-radius: 50%;
   animation: gallery-spin 0.8s linear infinite;
 }
@@ -404,13 +397,13 @@
   z-index: 9999;
   border: none;
   border-radius: 0;
-  background: var(--color-bg-deep);
+  background: #1C1917;
   height: 100vh !important;
   max-height: none !important;
 }
 
 .gallery-container:fullscreen .gallery-image-wrap {
-  background: var(--color-bg-deep);
+  background: #1C1917;
   min-height: auto;
   flex: 1;
 }
@@ -419,17 +412,16 @@
   background: rgba(255, 255, 255, 0.1);
   border-color: rgba(255, 255, 255, 0.2);
   color: #ffffff;
-  box-shadow: none;
 }
 
 .gallery-container:fullscreen .gallery-fullscreen-float:hover {
-  background: var(--neon-cyan);
-  border-color: var(--neon-cyan);
-  color: var(--color-bg-deep);
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #FFFFFF;
 }
 
 .gallery-container:fullscreen .gallery-footer-nav {
-  background: rgba(10, 10, 18, 0.95);
+  background: rgba(28, 25, 23, 0.95);
   border-color: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(8px);
 }
@@ -442,8 +434,8 @@
 
 .gallery-container:fullscreen .gallery-nav-btn:hover:not(:disabled) {
   background: rgba(255, 255, 255, 0.2);
-  border-color: var(--neon-cyan);
-  color: var(--neon-cyan);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 .gallery-container:fullscreen .gallery-nav-btn:disabled {
@@ -455,7 +447,7 @@
 }
 
 .gallery-container:fullscreen .gallery-dot.is-active {
-  background: var(--neon-cyan);
+  background: var(--color-accent);
 }
 
 .gallery-container:fullscreen .gallery-dot-wrap:hover .gallery-dot {
@@ -463,7 +455,7 @@
 }
 
 .gallery-container:fullscreen .gallery-dot-wrap:hover .gallery-dot.is-active {
-  background: var(--neon-cyan);
+  background: var(--color-accent);
 }
 
 .gallery-container:fullscreen .gallery-hints-desktop {

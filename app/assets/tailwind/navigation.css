@@ -1,22 +1,17 @@
 /* ========================================
    NAVIGATION - Hero, Nav, Mobile Menu
-   Dark Neon Theme with Glassmorphism
+   Editorial Warmth Theme
    ======================================== */
 
-/* Logo "Base" - Neon glow transition */
+/* Logo "Base" - Refined accent color */
 .logo-base {
   display: inline-block;
-  color: var(--neon-cyan);
-  text-shadow: 0 0 18px rgba(0, 240, 255, 0.4);
-  transition: all 0.5s ease;
+  color: var(--color-accent);
+  transition: color 0.2s ease;
 }
 
 .group:hover .logo-base {
-  color: var(--neon-magenta);
-  text-shadow:
-    0 0 32px rgba(255, 0, 128, 0.5),
-    0 0 16px rgba(255, 0, 128, 0.35),
-    0 0 8px rgba(255, 0, 128, 0.2);
+  color: var(--color-accent-hover);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -25,7 +20,7 @@
   }
 }
 
-/* Hero Section - Dark with Gradient Orbs */
+/* Hero Section - Clean, content-focused */
 .hero-section {
   background: transparent;
   position: relative;
@@ -40,41 +35,36 @@
 }
 
 .hero-accent {
-  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--color-accent);
+  font-weight: 700;
 }
 
-/* Visual interest: accent underlines for text links */
+/* Visual interest: refined link hover */
 main a:not(.mm-button):not(.mm-card) {
   text-decoration: none;
 }
 
 main a:not(.mm-button):not(.mm-card):hover {
-  color: var(--neon-cyan);
-  text-shadow: 0 0 10px rgba(0, 240, 255, 0.3);
+  color: var(--color-accent);
 }
 
-/* Sort Control - Neon Style */
+/* Sort Control - Clean, functional */
 .sort-control {
   display: inline-flex;
   align-items: stretch;
   background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 6px;
   overflow: hidden;
-  transition: all 0.3s ease;
+  transition: border-color 0.15s ease;
 }
 
 .sort-control:hover {
-  border-color: var(--neon-cyan);
-  box-shadow: var(--glow-soft);
+  border-color: var(--color-text-subtle);
 }
 
 .sort-control:focus-within {
-  border-color: var(--neon-cyan);
-  box-shadow: var(--glow-cyan);
+  border-color: var(--color-accent);
 }
 
 .sort-label {
@@ -82,12 +72,12 @@ main a:not(.mm-button):not(.mm-card):hover {
   align-items: center;
   gap: 4px;
   padding: 6px 10px;
-  background: linear-gradient(135deg, var(--neon-cyan), var(--neon-blue));
-  color: var(--color-bg-deep);
+  background: var(--color-accent);
+  color: #FFFFFF;
   font-size: 10px;
   font-weight: 700;
   font-family: var(--font-family-display);
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
   text-transform: uppercase;
   border-right: 1px solid var(--color-border);
   user-select: none;
@@ -103,7 +93,7 @@ main a:not(.mm-button):not(.mm-card):hover {
 .sort-select {
   padding: 6px 8px;
   border: none;
-  background-color: var(--color-bg-card);
+  background-color: var(--color-bg-elevated);
   color: var(--color-text);
   font-family: var(--font-family-body);
   font-size: 11px;
@@ -111,7 +101,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   cursor: pointer;
   min-width: 90px;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2300f0ff' stroke-width='1.5' stroke-linecap='square'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%2378716C' stroke-width='1.5' stroke-linecap='square'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 8px center;
   padding-right: 26px;
@@ -119,66 +109,64 @@ main a:not(.mm-button):not(.mm-card):hover {
 }
 
 .sort-select:hover {
-  background-color: var(--color-bg-elevated);
+  background-color: var(--color-bg-hover);
 }
 
 .sort-select:focus {
   outline: none;
-  background-color: var(--color-bg-elevated);
+  background-color: var(--color-bg-hover);
 }
 
-/* Pro Badge Button - Neon Gradient */
+/* Pro Badge Button - Refined accent */
 .nav-pro-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  height: 44px;
-  padding: 0 16px;
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(255, 0, 128, 0.15));
-  border: 1px solid rgba(0, 240, 255, 0.3);
-  border-radius: 8px;
-  color: var(--neon-cyan);
+  height: 40px;
+  padding: 0 14px;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-accent);
+  border-radius: 6px;
+  color: var(--color-accent);
   font-family: var(--font-family-display);
   font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.03em;
   text-decoration: none;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   cursor: pointer;
 }
 
 .nav-pro-btn:hover {
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-  transform: translateY(-1px);
-  border-color: var(--neon-cyan);
+  background: var(--color-accent);
+  color: #FFFFFF;
 }
 
 .nav-pro-btn:active {
-  transform: translateY(0);
+  transform: translateY(1px);
 }
 
-/* Navigation Icon Buttons - Neon Style */
+/* Navigation Icon Buttons - Clean */
 .nav-icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
-  background: var(--color-bg-card);
+  width: 40px;
+  height: 40px;
+  background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
-  color: var(--color-text);
+  border-radius: 6px;
+  color: var(--color-text-muted);
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
   text-decoration: none;
 }
 
 .nav-icon-btn:hover {
-  background: var(--color-bg-elevated);
-  border-color: var(--neon-cyan);
-  color: var(--neon-cyan);
-  box-shadow: var(--glow-soft);
+  background: var(--color-bg-hover);
+  border-color: var(--color-text-subtle);
+  color: var(--color-text);
 }
 
 .nav-icon-btn:active {
@@ -190,7 +178,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   font-family: var(--font-family-display);
   font-weight: 800;
   font-size: 12px;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.02em;
 }
 
 .nav-lang-text {
@@ -201,25 +189,24 @@ main a:not(.mm-button):not(.mm-card):hover {
    MOBILE RESPONSIVE COMPONENTS
    ======================================== */
 
-/* Hamburger Menu Button - Neon */
+/* Hamburger Menu Button */
 .hamburger {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  width: 44px;
-  height: 44px;
-  background: var(--color-bg-card);
+  width: 40px;
+  height: 40px;
+  background: var(--color-bg-elevated);
   border: 1px solid var(--color-border);
-  border-radius: 8px;
+  border-radius: 6px;
   cursor: pointer;
   gap: 5px;
   padding: 10px;
-  transition: all 0.3s ease;
+  transition: all 0.15s ease;
 }
 
 .hamburger:hover {
-  border-color: var(--neon-cyan);
-  box-shadow: var(--glow-soft);
+  border-color: var(--color-text-subtle);
 }
 
 .hamburger:active {
@@ -232,7 +219,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   height: 2px;
   background: var(--color-text);
   border-radius: 1px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   transform-origin: center;
 }
 
@@ -250,16 +237,16 @@ main a:not(.mm-button):not(.mm-card):hover {
   transform: translateY(-7px) rotate(-45deg);
 }
 
-/* Mobile Menu Overlay - Dark with blur */
+/* Mobile Menu Overlay */
 .mobile-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(5, 5, 10, 0.85);
-  backdrop-filter: blur(8px);
+  background: rgba(28, 25, 23, 0.5);
+  backdrop-filter: blur(4px);
   z-index: 40;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
 }
 
 .mobile-overlay--visible {
@@ -267,7 +254,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   pointer-events: auto;
 }
 
-/* Mobile Slide-out Menu - Neon */
+/* Mobile Slide-out Menu */
 .mobile-menu {
   position: fixed;
   top: 0;
@@ -281,8 +268,8 @@ main a:not(.mm-button):not(.mm-card):hover {
   display: flex;
   flex-direction: column;
   transform: translateX(100%);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: -8px 0 40px rgba(0, 0, 0, 0.5);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-lg);
 }
 
 .mobile-menu--open {
@@ -309,21 +296,20 @@ main a:not(.mm-button):not(.mm-card):hover {
   gap: 12px;
   padding: 14px 16px;
   margin-bottom: 8px;
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border);
-  border-radius: 8px;
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 6px;
   color: var(--color-text);
   font-family: var(--font-family-body);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
-  transition: all 0.2s ease;
+  transition: all 0.15s ease;
 }
 
 .mobile-menu-link:hover {
-  border-color: var(--neon-cyan);
-  color: var(--neon-cyan);
-  box-shadow: var(--glow-soft);
+  border-color: var(--color-border);
+  background: var(--color-bg-hover);
 }
 
 .mobile-menu-link:active {
@@ -332,13 +318,13 @@ main a:not(.mm-button):not(.mm-card):hover {
 
 /* Pro link variant for mobile menu */
 .mobile-menu-link--pro {
-  background: linear-gradient(135deg, rgba(0, 240, 255, 0.1), rgba(255, 0, 128, 0.1));
-  border: 1px solid rgba(0, 240, 255, 0.2);
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-accent);
   margin-bottom: 12px;
 }
 
 .mobile-menu-link--pro span {
-  color: var(--neon-cyan);
+  color: var(--color-accent);
   font-weight: 700;
 }
 
@@ -377,7 +363,7 @@ main a:not(.mm-button):not(.mm-card):hover {
 }
 
 .filter-summary:hover {
-  background: var(--color-bg-elevated);
+  background: var(--color-bg-hover);
 }
 
 .filter-chevron {
@@ -407,7 +393,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   }
 }
 
-/* Active filter count badge - Neon */
+/* Active filter count badge */
 .filter-count {
   display: inline-flex;
   align-items: center;
@@ -415,8 +401,8 @@ main a:not(.mm-button):not(.mm-card):hover {
   min-width: 20px;
   height: 20px;
   padding: 0 6px;
-  background: linear-gradient(135deg, var(--neon-magenta), var(--neon-purple));
-  color: #ffffff;
+  background: var(--color-accent);
+  color: #FFFFFF;
   font-size: 11px;
   font-weight: 700;
   font-family: var(--font-family-display);
@@ -425,12 +411,12 @@ main a:not(.mm-button):not(.mm-card):hover {
 
 /* Filter Modal - Mobile Bottom Sheet */
 .filter-modal-backdrop {
-  background: rgba(5, 5, 10, 0.9);
+  background: rgba(28, 25, 23, 0.6);
 }
 
 .filter-modal-sheet {
   max-height: 75vh;
-  border-radius: 16px 16px 0 0;
+  border-radius: 12px 12px 0 0;
   background: var(--color-bg-elevated);
   border-top: 1px solid var(--color-border);
 }
