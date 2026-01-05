@@ -12,7 +12,8 @@ RSpec.describe GenreInferrer do
     it "returns genre from LLM response" do
       allow(client).to receive(:chat_json).and_return({ "genre" => "Requiem", "confidence" => "high" })
 
-      result = inferrer.infer(score)
+      results = inferrer.infer(score)
+      result = results.first
 
       expect(result.genre).to eq("Requiem")
       expect(result.confidence).to eq("high")
@@ -22,7 +23,8 @@ RSpec.describe GenreInferrer do
     it "returns nil for unknown genres not in vocabulary" do
       allow(client).to receive(:chat_json).and_return({ "genre" => "InventedGenre", "confidence" => "low" })
 
-      result = inferrer.infer(score)
+      results = inferrer.infer(score)
+      result = results.first
 
       expect(result.genre).to be_nil
     end
@@ -30,7 +32,8 @@ RSpec.describe GenreInferrer do
     it "handles null response from LLM" do
       allow(client).to receive(:chat_json).and_return({ "genre" => nil, "confidence" => nil })
 
-      result = inferrer.infer(score)
+      results = inferrer.infer(score)
+      result = results.first
 
       expect(result.genre).to be_nil
       expect(result).to be_success      # API call succeeded
@@ -40,7 +43,8 @@ RSpec.describe GenreInferrer do
     it "handles LLM errors gracefully" do
       allow(client).to receive(:chat_json).and_raise(LlmClient::Error, "API down")
 
-      result = inferrer.infer(score)
+      results = inferrer.infer(score)
+      result = results.first
 
       expect(result).not_to be_success
       expect(result.error).to eq("API down")
