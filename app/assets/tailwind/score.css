@@ -340,19 +340,19 @@
   background: var(--color-accent);
   color: #FFFFFF;
   border: var(--border-width) solid var(--color-accent);
-  box-shadow: 3px 3px 0 #1a1612;
+  box-shadow: 3px 3px 0 var(--color-bg-deep);
 }
 
 .dl-btn--primary:hover {
   background: var(--color-accent-hover);
   border-color: var(--color-accent-hover);
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 #1a1612;
+  box-shadow: 4px 4px 0 var(--color-bg-deep);
 }
 
 .dl-btn--primary:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 #1a1612;
+  box-shadow: 1px 1px 0 var(--color-bg-deep);
 }
 
 /* Secondary (MIDI, MXL) */
@@ -737,7 +737,7 @@
 
 .difficulty-block.is-filled {
   background: var(--color-accent);
-  border-color: #1a1612;
+  border-color: var(--color-bg-deep);
 }
 
 .difficulty-label {

@@ -168,7 +168,16 @@
 
 /* Hero Section */
 .hub-hero {
-  background: transparent;
+  background: linear-gradient(135deg, #2a2520 0%, #1f1b17 50%, #2d2823 100%);
+}
+
+/* Shadow Utilities for Hub Pages */
+.shadow-brutal {
+  box-shadow: 3px 3px 0 var(--color-bg-deep);
+}
+
+.shadow-sm {
+  box-shadow: 3px 3px 0 var(--color-bg-deep);
 }
 
 /* Card Animations - Subtle */
@@ -200,10 +209,16 @@ html[data-turbo-preview] .hub-card {
   transform: none;
 }
 
-/* Fuzzy Finder */
+/* Fuzzy Finder - Full width with sensible max for readability */
 .hub-finder {
-  max-width: 600px;
-  text-align: center;
+  max-width: 100%;
+  text-align: left;
+}
+
+@media (min-width: 768px) {
+  .hub-finder {
+    max-width: 480px;
+  }
 }
 
 .hub-finder__input-wrap {
@@ -338,7 +353,7 @@ html[data-turbo-preview] .hub-card {
   color: #FFFFFF;
   background: var(--color-accent);
   border-color: var(--color-accent);
-  box-shadow: 2px 2px 0 #1a1612;
+  box-shadow: 2px 2px 0 var(--color-bg-deep);
 }
 
 .hub-alphabet__link.disabled {
@@ -389,9 +404,9 @@ html[data-turbo-preview] .hub-card {
   font-weight: 900;
   color: #FFFFFF;
   background: var(--color-accent);
-  border: var(--border-width) solid #1a1612;
+  border: var(--border-width) solid var(--color-bg-deep);
   border-radius: var(--radius-sm);
-  box-shadow: 3px 3px 0 #1a1612;
+  box-shadow: 3px 3px 0 var(--color-bg-deep);
 }
 
 .hub-letter-group__count {

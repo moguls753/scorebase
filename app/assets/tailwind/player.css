@@ -162,7 +162,7 @@
   width: 16px;
   height: 16px;
   background: var(--color-accent);
-  border: var(--border-width) solid #1a1612;
+  border: var(--border-width) solid var(--color-bg-deep);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.1s ease;
@@ -176,7 +176,7 @@
   width: 16px;
   height: 16px;
   background: var(--color-accent);
-  border: var(--border-width) solid #1a1612;
+  border: var(--border-width) solid var(--color-bg-deep);
   border-radius: var(--radius-sm);
   cursor: pointer;
 }

@@ -50,12 +50,12 @@
   color: #FFFFFF;
   border-color: var(--color-accent);
   transform: translate(-1px, -1px);
-  box-shadow: 3px 3px 0 #1a1612;
+  box-shadow: 3px 3px 0 var(--color-bg-deep);
 }
 
 .gallery-fullscreen-float:active {
   transform: translate(1px, 1px);
-  box-shadow: 1px 1px 0 #1a1612;
+  box-shadow: 1px 1px 0 var(--color-bg-deep);
 }
 
 /* ─────────────────────────────────────────
@@ -266,7 +266,7 @@
   width: 20px;
   height: 20px;
   background: var(--color-accent);
-  border: var(--border-width) solid #1a1612;
+  border: var(--border-width) solid var(--color-bg-deep);
   border-radius: var(--radius-sm);
   transform: translateX(-50%);
   transition: left 0.15s ease-out, transform 0.1s ease;
@@ -407,13 +407,13 @@
   z-index: 9999;
   border: none;
   border-radius: 0;
-  background: #1a1612;
+  background: var(--color-bg-deep);
   height: 100vh !important;
   max-height: none !important;
 }
 
 .gallery-container:fullscreen .gallery-image-wrap {
-  background: #1a1612;
+  background: var(--color-bg-deep);
   min-height: auto;
   flex: 1;
 }
