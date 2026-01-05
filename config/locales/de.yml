@@ -19,7 +19,7 @@ de:
   footer:
     tagline: "Notensuche"
     scores: "Noten"
-    open_source: "Open Source"
+    open_source: "Github"
 
   # Pagination
   pagination:

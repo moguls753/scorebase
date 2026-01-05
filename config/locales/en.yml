@@ -19,7 +19,7 @@ en:
   footer:
     tagline: "Sheet Music Search"
     scores: "scores"
-    open_source: "Open Source"
+    open_source: "Github"
 
   # Pagination
   pagination:
