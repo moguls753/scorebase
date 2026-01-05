@@ -274,9 +274,9 @@ a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
 }
 
 .mm-badge-imslp {
-  background: #f59e0b;
-  color: var(--color-bg-deep);
-  border: var(--border-width) solid #d97706;
+  background: #b45309;
+  color: #FFFFFF;
+  border: var(--border-width) solid #92400e;
 }
 
 .mm-badge-pdmx {
@@ -286,9 +286,9 @@ a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
 }
 
 .mm-badge-openscore {
-  background: #f97316;
+  background: #c2410c;
   color: #FFFFFF;
-  border: var(--border-width) solid #ea580c;
+  border: var(--border-width) solid #9a3412;
 }
 
 .mm-badge-tag {
