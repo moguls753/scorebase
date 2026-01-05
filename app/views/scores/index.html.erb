@@ -149,7 +149,7 @@
 
     <!-- Desktop Filters Sidebar -->
     <aside class="hidden lg:block w-64 flex-shrink-0">
-      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "sticky top-6" } do |f| %>
+      <%= form_with url: scores_path, method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "sticky top-6 p-5 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-xl" } do |f| %>
         <h3 class="text-lg font-[var(--font-family-display)] text-[var(--color-primary)] mb-5 font-black uppercase tracking-tight">
           <%= t('search.filters') %>
         </h3>
