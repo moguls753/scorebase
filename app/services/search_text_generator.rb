@@ -17,10 +17,14 @@ class SearchTextGenerator
     virtuoso demanding expert
   ].freeze
 
+  # Academic metric-compounds that no one searches for.
+  # Individual terms like "chromatic", "polyphonic", "syncopation" are fine.
   JARGON_TERMS = [
     "chromatic complexity",
     "polyphonic density",
-    "pitch palette"
+    "melodic complexity",
+    "pitch palette",
+    "rhythmic variety"
   ].freeze
 
   Result = Data.define(:description, :issues, :error) do
@@ -40,8 +44,8 @@ class SearchTextGenerator
       (3) BEST FOR (specific uses: sight-reading practice, student recitals, church services, exam repertoire, technique building, competitions, teaching specific skills)
       (4) MUSICAL FEATURES (texture, harmonic language, notable patterns like arpeggios, scales, counterpoint)
       (5) KEY DETAILS (duration, instrumentation, key, period/style)
-    - Use words musicians actually search: "sight-reading", "recital piece", "exam repertoire", "church anthem", "teaching piece", "competition", "Baroque counterpoint", "lyrical melody".
-    - Write natural prose. Translate technical metadata into musical descriptions (e.g., "high chromaticism" → "rich harmonic language with expressive accidentals").
+    - Use words musicians actually search: "sight-reading", "recital piece", "exam repertoire", "church anthem", "teaching piece", "competition", "Baroque counterpoint", "lyrical melody", "chromatic passages", "syncopated rhythms".
+    - NEVER use academic metric-compounds like "chromatic complexity", "polyphonic density", "melodic complexity", "rhythmic variety". The data uses searchable terms already - use them naturally in prose.
     - Only use what is in the <data/> section. Do not invent facts.
     - Do not produce a bullet point list.
     </rules>
@@ -66,7 +70,7 @@ class SearchTextGenerator
     </data>
 
     <output_format>
-    {"description": "..."}
+    Return valid JSON with this structure: {"description": "your description here"}
     </output_format>
   PROMPT
 
@@ -123,11 +127,11 @@ class SearchTextGenerator
       page_count: bucket(score.page_count, [1, 3, 7, 15], %w[very_short short medium long very_long]),
       ambitus: bucket(score.ambitus_semitones, [12, 24, 36], %w[narrow moderate wide very_wide]),
       length_in_measures: bucket(score.measure_count, [32, 80, 160], %w[short medium long very_long]),
-      chromaticism: bucket_01(score.chromatic_complexity),
-      syncopation: bucket_01(score.syncopation_level),
-      rhythmic_variety: bucket_01(score.rhythmic_variety),
-      melodic_complexity: bucket_01(score.melodic_complexity),
-      polyphonic_density: bucket(score.polyphonic_density, [1.1, 1.4, 1.8], %w[low medium high very_high]),
+      chromatic_passages: bucket_01(score.chromatic_complexity),
+      syncopated_rhythms: bucket_01(score.syncopation_level),
+      rhythmic_interest: bucket_01(score.rhythmic_variety),
+      technical_demand: bucket_01(score.melodic_complexity),
+      contrapuntal_texture: bucket(score.polyphonic_density, [1.1, 1.4, 1.8], %w[thin moderate rich very_rich]),
       melodic_motion: stepwise_motion(score.stepwise_motion_ratio),
       has_dynamics: score.has_dynamics,
       has_articulations: score.has_articulations,

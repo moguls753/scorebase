@@ -486,32 +486,13 @@ class Score < ApplicationRecord
     views.to_i.positive? || favorites.to_i.positive?
   end
 
-  # ─────────────────────────────────────────────────────────────────
-  # RAG Pipeline Readiness
-  # ─────────────────────────────────────────────────────────────────
-  # Check if score is ready for RAG search_text generation.
-  #
-  # Quality gate based on Pro search patterns:
-  # - "SATB piece for Easter" → needs voicing + genre
-  # - "Piano sonata, romantic" → needs instruments + genre/period
-  # - "Bach fugue for organ" → needs instruments + composer
-  #
-  # Requirements:
-  # 1. Title (always needed)
-  # 2. Instrumentation (voicing OR instruments) - how musicians search
-  # 3. Identity (composer OR genre) - what makes it findable
-  #
+  # RAG needs normalized data: instrumentation + identity
   def ready_for_rag?
-    return false if title.blank?
+    has_voicing = voicing_normalized? && voicing.present?
+    has_instruments = instruments_normalized? && instruments.present?
+    has_composer = composer_normalized? && composer.present? && composer != "NA"
+    has_genre = genre_normalized? && genre.present?
 
-    # MUST have instrumentation - every search query needs this
-    has_instrumentation = voicing.present? || instruments.present?
-    return false unless has_instrumentation
-
-    # MUST have identity: known composer OR known genre
-    has_known_composer = composer.present? && composer != "NA" && composer_normalized?
-    has_genre = genre_normalized?
-
-    has_known_composer || has_genre
+    (has_voicing || has_instruments) && (has_composer || has_genre)
   end
 end

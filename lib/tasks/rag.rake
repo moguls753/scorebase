@@ -31,13 +31,20 @@ namespace :rag do
 
   desc "Mark ready_for_rag? scores as ready"
   task mark_ready: :environment do
-    count = 0
-    Score.rag_pending.find_each do |score|
-      if score.ready_for_rag?
-        score.update!(rag_status: :ready)
-        count += 1
-      end
-    end
+    # Single SQL update matching ready_for_rag? logic:
+    # (voicing_normalized + voicing) OR (instruments_normalized + instruments)
+    # AND (composer_normalized + valid composer) OR (genre_normalized + genre)
+    count = Score.rag_pending
+      .where(
+        "(voicing_status = 'normalized' AND voicing IS NOT NULL AND voicing != '') OR " \
+        "(instruments_status = 'normalized' AND instruments IS NOT NULL AND instruments != '')"
+      )
+      .where(
+        "(composer_status = 'normalized' AND composer IS NOT NULL AND composer != '' AND composer != 'NA') OR " \
+        "(genre_status = 'normalized' AND genre IS NOT NULL AND genre != '')"
+      )
+      .update_all(rag_status: "ready")
+
     puts "Marked #{count} scores as ready for RAG"
     print_rag_stats
   end
@@ -110,18 +117,8 @@ namespace :rag do
     puts "RAG PIPELINE"
     puts "-" * 40
 
-    # Count scores passing ready_for_rag? criteria via SQL
-    # Requirements: title + (voicing OR instruments) + (known composer OR genre)
-    has_instrumentation = Score.where.not(voicing: [nil, ""]).or(Score.where.not(instruments: [nil, ""]))
-    has_known_composer = Score.where(composer_status: "normalized").where.not(composer: ["NA", nil, ""])
-    has_genre = Score.where(genre_status: "normalized")
-
-    rag_ready_count = Score.rag_pending
-      .where.not(title: [nil, ""])
-      .merge(has_instrumentation)
-      .merge(has_known_composer.or(has_genre))
-      .count
-
+    # Use Ruby for accurate count matching ready_for_rag? exactly
+    rag_ready_count = Score.rag_pending.count(&:ready_for_rag?)
     rag_statuses = Score.group(:rag_status).count
 
     ready = rag_statuses["ready"] || 0
