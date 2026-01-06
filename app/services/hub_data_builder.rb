@@ -64,13 +64,7 @@ class HubDataBuilder
     "percussion", "drums",
 
     # Voice
-    "voice", "vocal", "soprano", "alto", "tenor", "baritone", "countertenor",
-
-    # Choral / Ensemble
-    "choir", "chorus", "a cappella",
-
-    # Ensembles
-    "orchestra", "strings", "woodwinds", "brass", "continuo"
+    "voice"
   ].freeze
 
   # ===========================================
