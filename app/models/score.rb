@@ -241,33 +241,24 @@ class Score < ApplicationRecord
   scope :by_complexity, ->(complexity) { where(complexity: complexity) if complexity.present? }
   scope :by_num_parts, ->(parts) { where(num_parts: parts) if parts.present? }
 
-  # Genre filter
-  # Special handling for "Sacred" to match both "Sacred" and "religiousmusic"
+  # Genre filter - exact match on normalized genre field.
+  # After normalization, genre is a single clean value (e.g., "Mass", "Hymn").
+  # Allowlist in HubDataBuilder gates which genres are accessible on hub pages.
+  # Uses LOWER() for case-insensitive matching.
   scope :by_genre, ->(genre_name) {
     return all if genre_name.blank?
-
-    if genre_name.downcase == "sacred"
-      where("genre LIKE ? OR genre LIKE ?", "%Sacred%", "%religiousmusic%")
-    else
-      where("genre LIKE ?", "%#{sanitize_sql_like(genre_name)}%")
-    end
+    where(genre_status: "normalized")
+      .where("LOWER(genre) = ?", genre_name.downcase)
   }
 
-  # Period filter - uses normalized period column
+  # Period filter - maps canonical period names to LLM output variants.
+  # e.g., "Modern" matches ["Modern", "Contemporary", "20th Century", ...]
   scope :by_period, ->(period_name) {
     return all if period_name.blank?
-    where(period: period_name.capitalize)
-  }
-
-  # Period filter with case-sensitive matching (GLOB) for hub pages.
-  # Distinguishes "Classical" period from "classical" PDMX pop tag.
-  scope :by_period_strict, ->(period_name) {
     variants = HubDataBuilder::PERIODS[period_name]
     return none unless variants
 
-    conditions = variants.map { "genre GLOB ?" }.join(" OR ")
-    values = variants.map { |v| "*#{v}*" }
-    where(conditions, *values)
+    where(period: variants)
   }
 
   # Instrument filter for hub pages

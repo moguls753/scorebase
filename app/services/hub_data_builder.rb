@@ -12,19 +12,73 @@ class HubDataBuilder
   CACHE_FALLBACK_TTL = 1.day
   THRESHOLD = 10
 
-  # Historical periods mapped to genre tags in the database.
-  # Note: lowercase "classical" in PDMX is a pop music tag, not the Classical period.
-  # Uses GLOB for case-sensitive matching to distinguish them.
+  # Historical periods mapped to values the LLM normalizer might output.
+  # by_period scope queries the normalized `period` column directly.
   PERIODS = {
     "Medieval" => ["Medieval", "Medieval music"],
-    "Renaissance" => ["Renaissance", "Renaissance music"],
+    "Renaissance" => ["Renaissance", "Renaissance music", "Late Renaissance"],
     "Baroque" => ["Baroque", "Baroque music"],
     "Classical" => ["Classical", "Classical music"],
-    "Romantic" => ["Romantic", "Romantic music"],
-    "Modern" => ["Modern", "Modern music", "Early 20th century", "Early 20th century music", "Contemporary"]
+    "Romantic" => ["Romantic", "Romantic music", "Late Romantic", "Early Romantic", "19th Century"],
+    "Impressionist" => ["Impressionist", "Impressionism", "Impressionistic"],
+    "Modern" => [
+      "Modern", "Modern music", "Contemporary",
+      "20th Century", "21st Century",
+      "Early 20th Century", "Early 20th century", "Early 20th century music"
+    ]
   }.freeze
 
-  PERIOD_ORDER = %w[Medieval Renaissance Baroque Classical Romantic Modern].freeze
+  PERIOD_ORDER = %w[Medieval Renaissance Baroque Classical Romantic Impressionist Modern].freeze
+
+  # ===========================================
+  # VALID INSTRUMENTS (allowlist for hub pages)
+  # ===========================================
+  # Uses LIKE matching, so "guitar" matches "electric guitar", "bass guitar", etc.
+  # Keep entries minimal - only add specific variants if they need a separate hub page.
+  VALID_INSTRUMENTS = [
+    # Keyboard
+    "piano", "organ", "harpsichord", "clavichord", "celesta", "harmonium",
+    "accordion", "keyboard", "synthesizer",
+
+    # Strings - Bowed
+    "violin", "viola", "cello", "double bass", "fiddle",
+
+    # Strings - Plucked
+    "guitar", "harp", "lute", "theorbo", "mandolin", "banjo", "ukulele",
+
+    # Woodwinds
+    "flute", "piccolo", "recorder",
+    "oboe", "english horn",
+    "clarinet", "basset horn",
+    "bassoon", "contrabassoon",
+    "saxophone",
+
+    # Brass
+    "trumpet", "cornet", "flugelhorn",
+    "horn",
+    "trombone",
+    "tuba", "euphonium",
+
+    # Percussion
+    "timpani", "xylophone", "marimba", "vibraphone", "glockenspiel",
+    "percussion", "drums",
+
+    # Voice
+    "voice", "vocal", "soprano", "alto", "tenor", "baritone", "countertenor",
+
+    # Choral / Ensemble
+    "choir", "chorus", "a cappella",
+
+    # Ensembles
+    "orchestra", "strings", "woodwinds", "brass", "continuo"
+  ].freeze
+
+  # ===========================================
+  # VALID GENRES (loaded from config/genre_vocabulary.yml)
+  # ===========================================
+  # Single source of truth for both LLM classification and hub pages.
+  GENRE_VOCABULARY_PATH = Rails.root.join("config/genre_vocabulary.yml").freeze
+  VALID_GENRES = YAML.load_file(GENRE_VOCABULARY_PATH).fetch("genres").freeze
 
   class << self
     # Public accessors - read from cache with fallback to building
@@ -79,7 +133,7 @@ class HubDataBuilder
       when :composers then Score.where(composer: name).count
       when :genres then Score.by_genre(name).count
       when :instruments then Score.by_instrument(name).count
-      when :periods then Score.by_period_strict(name).count
+      when :periods then Score.by_period(name).count
       else 0
       end
     end
@@ -96,41 +150,32 @@ class HubDataBuilder
     end
 
     def build_genres
-      genre_counts = count_delimited_field(:genre, "-")
-      build_hub_items(genre_counts)
+      # Count using by_genre scope (exact match + normalized) so counts match actual results
+      VALID_GENRES.filter_map do |genre|
+        count = Score.by_genre(genre).count
+        next if count < THRESHOLD
+
+        { name: genre, slug: genre.parameterize, count: count }
+      end.sort_by { |item| -item[:count] }
     end
 
     def build_instruments
-      instrument_counts = count_delimited_field(:instruments, /[;,]/) do |value|
-        value.gsub(/\s*\(.*\)/, "").strip.downcase
-      end
+      # Count using LIKE matching (same as by_instrument scope) so counts match actual results
+      VALID_INSTRUMENTS.filter_map do |instrument|
+        count = Score.by_instrument(instrument).count
+        next if count < THRESHOLD
 
-      build_hub_items(instrument_counts) do |name, count|
-        { name: name.titleize, slug: name.parameterize, count: count }
-      end
+        { name: instrument.titleize, slug: instrument.parameterize, count: count }
+      end.sort_by { |item| -item[:count] }
     end
 
     def build_periods
       PERIOD_ORDER.filter_map do |period_name|
-        count = Score.by_period_strict(period_name).count
+        count = Score.by_period(period_name).count
         next if count < THRESHOLD
 
         { name: period_name, slug: period_name.parameterize, count: count }
       end
-    end
-
-    # Generic builder for delimited string fields (genres, instruments)
-    def count_delimited_field(field, delimiter)
-      counts = Hash.new(0)
-
-      Score.where.not(field => [nil, ""]).pluck(field).each do |str|
-        str.split(delimiter).map(&:strip).reject(&:blank?).each do |value|
-          normalized = block_given? ? yield(value) : value
-          counts[normalized] += 1
-        end
-      end
-
-      counts
     end
 
     # Convert counts hash to sorted hub items array

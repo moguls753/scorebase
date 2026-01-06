@@ -1,11 +1,16 @@
-# Controlled vocabulary for normalized_genre field.
-# Keep it small: ~20 genres that users actually search for.
+# Controlled vocabulary for genre classification and hub pages.
+# Single source of truth - used by GenreInferrer (LLM) and HubDataBuilder (hub pages).
 #
-# Format: genre_name with common search terms/aliases as comments
-# The LLM will be given this list to choose from.
+# Guidelines:
+# - Use canonical display form (proper case)
+# - Only add genres with real search volume
+# - Keep distinct enough for LLM to classify accurately
+# - Each genre should have potential for 10+ scores
 
 genres:
-  # Sacred/Liturgical (what church musicians search for)
+  # ─────────────────────────────────────────
+  # SACRED VOCAL (church musician searches)
+  # ─────────────────────────────────────────
   - Mass
   - Requiem
   - Motet
@@ -16,29 +21,111 @@ genres:
   - Chorale
   - Cantata
   - Oratorio
+  - Carol
   - Spiritual
   - Gospel
-  - Carol
+  - Te Deum
+  - Stabat Mater
 
-  # Secular Vocal
+  # ─────────────────────────────────────────
+  # SECULAR VOCAL
+  # ─────────────────────────────────────────
+  - Opera
+  - Operetta
+  - Art Song          # includes Lied, mélodie, romance
   - Madrigal
   - Chanson
-  - Art Song      # includes Lied, mélodie
-  - Opera
   - Folk Song
+  - Ballad
 
-  # Instrumental Forms
-  - Sonata
-  - Fugue
-  - Prelude
-  - Suite
-  - Concerto
+  # ─────────────────────────────────────────
+  # ORCHESTRAL
+  # ─────────────────────────────────────────
   - Symphony
-  - Chamber       # quartet, trio, ensemble
-  - Dance         # waltz, minuet, polonaise, march
-  - Etude         # study, exercise
+  - Concerto
+  - Overture
+  - Tone Poem
+  - Orchestral
 
-  # Other
+  # ─────────────────────────────────────────
+  # CHAMBER MUSIC
+  # ─────────────────────────────────────────
+  - String Quartet
+  - Piano Trio
+  - Sonata
+  - Duo
+  - Trio
+  - Quartet
+  - Quintet
+  - Chamber Music
+
+  # ─────────────────────────────────────────
+  # KEYBOARD FORMS
+  # ─────────────────────────────────────────
+  - Prelude
+  - Fugue
+  - Toccata
+  - Fantasia
+  - Invention
+  - Etude
+  - Nocturne
+  - Impromptu
+  - Ballade
+  - Scherzo
+  - Intermezzo
+  - Rhapsody
+  - Variation
+
+  # ─────────────────────────────────────────
+  # DANCE FORMS
+  # ─────────────────────────────────────────
+  - Waltz
+  - Minuet
+  - Polonaise
+  - Mazurka
+  - March
+  - Ballet
+  - Suite
+  - Gavotte
+  - Sarabande
+
+  # ─────────────────────────────────────────
+  # BAROQUE FORMS
+  # ─────────────────────────────────────────
+  - Partita
+  - Passacaglia
+  - Chaconne
+  - Chorale Prelude
+
+  # ─────────────────────────────────────────
+  # CHARACTER PIECES
+  # ─────────────────────────────────────────
+  - Romance
+  - Berceuse
+  - Elegy
+  - Barcarolle
+  - Arabesque
+
+  # ─────────────────────────────────────────
+  # FOLK & TRADITIONAL
+  # ─────────────────────────────────────────
+  - Folk
   - Traditional
-  - Popular       # pop, rock, jazz arrangements
-  - Educational   # method books, exercises
+  - National
+
+  # ─────────────────────────────────────────
+  # POPULAR & MODERN
+  # ─────────────────────────────────────────
+  - Jazz
+  - Blues
+  - Ragtime
+  - Pop
+  - Rock
+  - Musical Theater
+  - Film Music
+
+  # ─────────────────────────────────────────
+  # PEDAGOGICAL
+  # ─────────────────────────────────────────
+  - Educational
+  - Exercise

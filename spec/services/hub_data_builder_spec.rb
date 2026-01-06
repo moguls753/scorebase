@@ -22,28 +22,33 @@ RSpec.describe HubDataBuilder do
 
   describe ".genres" do
     it "returns items with correct structure" do
-      12.times { create(:score, genre: "Sacred") }
+      # Genres require normalized status and must be in VALID_GENRES allowlist
+      12.times { create(:score, genre: "Mass", genre_status: "normalized") }
 
       genres = described_class.genres
 
       expect(genres.first).to include(:name, :slug, :count)
     end
 
-    it "only includes items meeting threshold" do
-      5.times { create(:score, genre: "Rare") }
-      12.times { create(:score, genre: "Common") }
+    it "only includes items meeting threshold from allowlist" do
+      # "Mass" and "Hymn" are in VALID_GENRES, "Rarestuff" is not
+      5.times { create(:score, genre: "Mass", genre_status: "normalized") }
+      12.times { create(:score, genre: "Hymn", genre_status: "normalized") }
+      12.times { create(:score, genre: "Rarestuff", genre_status: "normalized") }
 
       genres = described_class.genres
 
-      expect(genres.map { |g| g[:name] }).to include("Common")
-      expect(genres.map { |g| g[:name] }).not_to include("Rare")
+      expect(genres.map { |g| g[:name] }).to include("Hymn")
+      expect(genres.map { |g| g[:name] }).not_to include("Mass") # below threshold
+      expect(genres.map { |g| g[:name] }).not_to include("Rarestuff") # not in allowlist
     end
   end
 
   describe ".periods" do
     it "only includes items meeting threshold" do
-      5.times { create(:score, genre: "Baroque") }
-      12.times { create(:score, genre: "Romantic") }
+      # Periods now use the period field, not genre
+      5.times { create(:score, period: "Baroque") }
+      12.times { create(:score, period: "Romantic") }
 
       periods = described_class.periods
 
@@ -51,24 +56,22 @@ RSpec.describe HubDataBuilder do
       expect(periods.map { |p| p[:name] }).not_to include("Baroque")
     end
 
-    it "uses case-sensitive matching" do
-      # lowercase "classical" is PDMX pop tag, not Classical period
-      12.times { create(:score, genre: "classical") }
-      12.times { create(:score, genre: "Classical") }
+    it "maps period variants to canonical names" do
+      # "Contemporary" should be counted under "Modern"
+      12.times { create(:score, period: "Contemporary") }
 
       periods = described_class.periods
-      classical = periods.find { |p| p[:name] == "Classical" }
+      modern = periods.find { |p| p[:name] == "Modern" }
 
-      # Should only count capitalized "Classical", not lowercase
-      expect(classical[:count]).to eq(12)
+      expect(modern[:count]).to eq(12)
     end
   end
 
   describe ".find_by_slug" do
     it "returns the name for a valid slug" do
-      12.times { create(:score, genre: "Sacred") }
+      12.times { create(:score, genre: "Mass", genre_status: "normalized") }
 
-      expect(described_class.find_by_slug(:genres, "sacred")).to eq("Sacred")
+      expect(described_class.find_by_slug(:genres, "mass")).to eq("Mass")
     end
 
     it "returns nil for invalid slug" do
@@ -76,19 +79,19 @@ RSpec.describe HubDataBuilder do
     end
 
     it "returns nil when cached item no longer meets threshold (stale cache)" do
-      # Create scores to meet threshold
-      scores = 12.times.map { create(:score, genre: "StaleGenre") }
+      # Create scores to meet threshold - use valid genre from allowlist
+      scores = 12.times.map { create(:score, genre: "Hymn", genre_status: "normalized") }
 
-      # Warm cache - will include StaleGenre with count 12
+      # Warm cache - will include Hymn with count 12
       Rails.cache.delete("hub/genres")
       genres = described_class.genres
-      expect(genres.find { |g| g[:slug] == "stalegenre" }).to be_present
+      expect(genres.find { |g| g[:slug] == "hymn" }).to be_present
 
       # Delete scores - cache is now stale
       scores.each(&:destroy)
 
       # Should return nil despite being in cache
-      expect(described_class.find_by_slug(:genres, "stalegenre")).to be_nil
+      expect(described_class.find_by_slug(:genres, "hymn")).to be_nil
     end
   end
 end

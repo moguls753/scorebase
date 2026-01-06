@@ -5,6 +5,9 @@
 #
 # For production, run as cron job (e.g., weekly):
 # 0 2 * * 0 cd /path/to/app && bin/rails sitemap:refresh RAILS_ENV=production
+#
+# Uses HubDataBuilder as single source of truth for hub page data.
+# Genres/instruments only include normalized scores (excludes junk data).
 
 SitemapGenerator::Sitemap.default_host = ENV.fetch("SITE_URL", "https://scorebase.org")
 
@@ -12,9 +15,6 @@ SitemapGenerator::Sitemap.default_host = ENV.fetch("SITE_URL", "https://scorebas
 SitemapGenerator::Sitemap.public_path = "public/"
 SitemapGenerator::Sitemap.sitemaps_path = ""
 SitemapGenerator::Sitemap.compress = true
-
-# Unified threshold for all hub pages (must match controller)
-THRESHOLD = 10
 
 SitemapGenerator::Sitemap.create do
   # ===========================================
@@ -54,110 +54,66 @@ SitemapGenerator::Sitemap.create do
   add instruments_path(locale: :de), changefreq: "weekly", priority: 0.9
 
   # ===========================================
-  # INDIVIDUAL HUB PAGES (high priority)
+  # INDIVIDUAL HUB PAGES (from HubDataBuilder)
   # ===========================================
 
-  # Composer pages - group by slug to avoid duplicates and aggregate counts
-  composer_counts = Score.where.not(composer: [nil, ""])
-                         .group(:composer)
-                         .count
-
-  # Group composers by slug (e.g., "Bach", "BACH" → both slug to "bach")
-  by_slug = Hash.new { |h, k| h[k] = { names: [], total: 0 } }
-  composer_counts.each do |name, count|
-    slug = name.parameterize
-    by_slug[slug][:names] << name
-    by_slug[slug][:total] += count
+  # Composer pages (uses ComposerMapping for clean data)
+  composers = HubDataBuilder.composers
+  composers.each do |item|
+    add composer_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
+    add composer_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
   end
 
-  # Only include slugs with enough total scores
-  by_slug.select { |_, data| data[:total] >= THRESHOLD }.each do |slug, _|
-    add composer_path(slug: slug), changefreq: "weekly", priority: 0.8
-    add composer_path(slug: slug, locale: :de), changefreq: "weekly", priority: 0.8
+  # Genre pages (only normalized scores, via by_genre scope)
+  genres = HubDataBuilder.genres
+  genres.each do |item|
+    add genre_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
+    add genre_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
   end
 
-  # Genre pages
-  genre_counts = Hash.new(0)
-  Score.where.not(genre: [nil, ""]).pluck(:genre).each do |genres_str|
-    genres_str.split("-").map(&:strip).reject(&:blank?).each do |genre|
-      genre_counts[genre] += 1
-    end
-  end
-
-  genre_counts.select { |_, count| count >= THRESHOLD }.each do |name, _count|
-    slug = name.parameterize
-    add genre_path(slug: slug), changefreq: "weekly", priority: 0.8
-    add genre_path(slug: slug, locale: :de), changefreq: "weekly", priority: 0.8
-  end
-
-  # Instrument pages
-  instrument_counts = Hash.new(0)
-  Score.where.not(instruments: [nil, ""]).pluck(:instruments).each do |instruments_str|
-    instruments_str.split(/[;,]/).map(&:strip).reject(&:blank?).each do |instrument|
-      normalized = instrument.gsub(/\s*\(.*\)/, "").strip.downcase
-      instrument_counts[normalized] += 1
-    end
-  end
-
-  instrument_counts.select { |_, count| count >= THRESHOLD }.each do |name, _count|
-    slug = name.parameterize
-    add instrument_path(slug: slug), changefreq: "weekly", priority: 0.8
-    add instrument_path(slug: slug, locale: :de), changefreq: "weekly", priority: 0.8
+  # Instrument pages (allowlist ensures clean names, LIKE matches all scores)
+  instruments = HubDataBuilder.instruments
+  instruments.each do |item|
+    add instrument_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
+    add instrument_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
   end
 
   # ===========================================
   # COMBINED HUB PAGES (Tier 1 - important for SEO)
   # ===========================================
+  # Only include combinations where both sides are from HubDataBuilder
+  # (i.e., normalized/curated data only)
+
+  threshold = HubDataBuilder::THRESHOLD
 
   # Composer + Instrument combinations
   # e.g., "Bach Piano", "Mozart Violin"
-  by_slug.select { |_, data| data[:total] >= THRESHOLD }.each do |composer_slug, data|
-    # Use exact match on all composer name variants (matches controller logic)
-    composer_names = data[:names]
+  # Uses same scopes as controller for consistent counts
+  composers.each do |composer_item|
+    instruments.each do |instrument_item|
+      count = Score.where(composer: composer_item[:name])
+                   .by_instrument(instrument_item[:name]).count
+      next if count < threshold
 
-    # Find instruments that have enough scores with this composer
-    instrument_for_composer = Hash.new(0)
-    Score.where(composer: composer_names)  # Exact match, not LIKE
-         .where.not(instruments: [nil, ""])
-         .pluck(:instruments).each do |instruments_str|
-      instruments_str.split(/[;,]/).map(&:strip).reject(&:blank?).each do |instrument|
-        normalized = instrument.gsub(/\s*\(.*\)/, "").strip.downcase
-        instrument_for_composer[normalized] += 1
-      end
-    end
-
-    # Add combined pages with threshold
-    instrument_for_composer.select { |_, count| count >= THRESHOLD }.each do |instrument_name, _|
-      instrument_slug = instrument_name.parameterize
-      add composer_instrument_path(composer_slug: composer_slug, instrument_slug: instrument_slug),
+      add composer_instrument_path(composer_slug: composer_item[:slug], instrument_slug: instrument_item[:slug]),
           changefreq: "weekly", priority: 0.7
-      add composer_instrument_path(composer_slug: composer_slug, instrument_slug: instrument_slug, locale: :de),
+      add composer_instrument_path(composer_slug: composer_item[:slug], instrument_slug: instrument_item[:slug], locale: :de),
           changefreq: "weekly", priority: 0.7
     end
   end
 
   # Genre + Instrument combinations
-  # e.g., "Classical Piano", "Jazz Saxophone"
-  genre_counts.select { |_, count| count >= THRESHOLD }.each do |genre_name, _|
-    genre_slug = genre_name.parameterize
+  # e.g., "Sacred Choir", "Jazz Saxophone"
+  # Uses same scopes as controller for consistent counts
+  genres.each do |genre_item|
+    instruments.each do |instrument_item|
+      count = Score.by_genre(genre_item[:name])
+                   .by_instrument(instrument_item[:name]).count
+      next if count < threshold
 
-    # Find instruments that have enough scores with this genre
-    instrument_for_genre = Hash.new(0)
-    Score.where("genre LIKE ?", "%#{Score.sanitize_sql_like(genre_name)}%")
-         .where.not(instruments: [nil, ""])
-         .pluck(:instruments).each do |instruments_str|
-      instruments_str.split(/[;,]/).map(&:strip).reject(&:blank?).each do |instrument|
-        normalized = instrument.gsub(/\s*\(.*\)/, "").strip.downcase
-        instrument_for_genre[normalized] += 1
-      end
-    end
-
-    # Add combined pages with threshold
-    instrument_for_genre.select { |_, count| count >= THRESHOLD }.each do |instrument_name, _|
-      instrument_slug = instrument_name.parameterize
-      add genre_instrument_path(genre_slug: genre_slug, instrument_slug: instrument_slug),
+      add genre_instrument_path(genre_slug: genre_item[:slug], instrument_slug: instrument_item[:slug]),
           changefreq: "weekly", priority: 0.7
-      add genre_instrument_path(genre_slug: genre_slug, instrument_slug: instrument_slug, locale: :de),
+      add genre_instrument_path(genre_slug: genre_item[:slug], instrument_slug: instrument_item[:slug], locale: :de),
           changefreq: "weekly", priority: 0.7
     end
   end

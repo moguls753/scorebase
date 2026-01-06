@@ -48,7 +48,7 @@ class HubPagesController < ApplicationController
 
   def period
     @period_name = find_or_404(:periods, params[:slug])
-    @scores = paginate(Score.by_period_strict(@period_name))
+    @scores = paginate(Score.by_period(@period_name))
     set_detail_meta(:period, @period_name)
   end
 

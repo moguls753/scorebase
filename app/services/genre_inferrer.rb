@@ -31,29 +31,29 @@ class GenreInferrer
     - title: original title (usually reliable)
     - tags: original metadata (often unreliable or missing)
 
-    GENRES (pick ONE or null): %{genres}
+    GENRES (pick ONE exactly as shown, or null): %{genres}
 
     INFERENCE STRATEGY:
     1. Title keywords are strongest: "Requiem", "Magnificat", "Sonata" in title → high confidence
     2. Combine period + has_vocal + instruments:
        - Baroque + vocal + SATB → Motet, Cantata, Mass
-       - Romantic + Piano → Sonata, Prelude, Etude
+       - Romantic + Piano → Sonata, Prelude, Etude, Nocturne
        - Orchestra → Symphony, Concerto, Suite
     3. Composer hints (validate against period):
-       - Bach → Chorale, Fugue, Cantata
+       - Bach → Chorale, Fugue, Cantata, Prelude
        - Palestrina/Victoria → Motet, Mass
        - Mozart/Beethoven → Sonata, Symphony, Concerto
        - Schubert/Schumann → Art Song (vocal) or Sonata (piano)
-       - Chopin/Liszt → Etude, Prelude, Sonata
+       - Chopin/Liszt → Etude, Nocturne, Waltz, Polonaise, Ballade
 
     VOCAL vs INSTRUMENTAL:
     - Vocal only: Mass, Requiem, Motet, Magnificat, Anthem, Hymn, Cantata, Oratorio, Madrigal, Chanson, Art Song, Opera, Folk Song, Carol, Spiritual, Gospel
-    - Instrumental only: Sonata, Fugue, Prelude, Suite, Concerto, Symphony, Chamber, Dance, Etude
-    - Either: Chorale, Psalm, Traditional, Popular, Educational
+    - Instrumental only: Sonata, Fugue, Prelude, Suite, Concerto, Symphony, Etude, Nocturne, Waltz, Minuet, March
+    - Either: Chorale, Psalm, Traditional, Folk, Educational
 
     CONFIDENCE: high (title match), medium (multiple signals), low (single signal)
 
-    Return null if no genre fits.
+    IMPORTANT: Return genre exactly as shown in the list. Return null if no genre fits.
   RULES
 
   SINGLE_PROMPT = <<~PROMPT

@@ -73,7 +73,7 @@ RSpec.describe GenreInferrer do
   end
 
   describe "GENRES" do
-    it "loads vocabulary from YAML" do
+    it "loads vocabulary from YAML (canonical form)" do
       expect(described_class::GENRES).to include("Mass", "Requiem", "Motet", "Sonata", "Fugue")
     end
   end
