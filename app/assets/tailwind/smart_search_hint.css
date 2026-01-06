@@ -42,7 +42,7 @@
   font-weight: 700;
   letter-spacing: -0.3px;
   color: var(--color-accent);
-  transition: color 0.2s ease;
+  transition: all 0.5s ease;
   position: relative;
   top: 1px;
 }
@@ -64,14 +64,10 @@
   transition: color 0.2s ease;
 }
 
-/* Hover - subtle color change */
+/* Hover - only Smart Search text changes */
 .smart-search-teaser-link:hover .teaser-name {
   color: var(--color-accent-hover);
-}
-
-.smart-search-teaser-link:hover .teaser-arrow {
-  transform: translateX(2px);
-  color: var(--color-accent);
+  transform: scale(1.03);
 }
 
 /* Responsive */
@@ -107,8 +103,7 @@
     transition: none !important;
   }
 
-  .smart-search-teaser-link:hover .teaser-name,
-  .smart-search-teaser-link:hover .teaser-arrow {
+  .smart-search-teaser-link:hover .teaser-name {
     transform: none !important;
   }
 }
