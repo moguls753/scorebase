@@ -10,16 +10,16 @@ RSpec.describe "HubPages" do
     end
 
     it "lists genres from the genre field" do
-      12.times { create(:score, genre: "Sacred") }
+      12.times { create(:score, genre: "Motet", genre_status: "normalized") }
 
       get genres_path
-      expect(response.body).to include("Sacred")
+      expect(response.body).to include("Motet")
     end
   end
 
   describe "GET /genres/:slug" do
     it "returns success for genre with enough scores" do
-      12.times { create(:score, genre: "Motet") }
+      12.times { create(:score, genre: "Motet", genre_status: "normalized") }
 
       get genre_path(slug: "motet")
       expect(response).to have_http_status(:success)

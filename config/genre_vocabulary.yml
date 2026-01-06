@@ -88,6 +88,11 @@ genres:
   - Suite
   - Gavotte
   - Sarabande
+  - Reel
+  - Jig
+  - Hornpipe
+  - Strathspey
+  - Polka
 
   # ─────────────────────────────────────────
   # BAROQUE FORMS
@@ -123,6 +128,7 @@ genres:
   - Rock
   - Musical Theater
   - Film Music
+  - Video Game
 
   # ─────────────────────────────────────────
   # PEDAGOGICAL

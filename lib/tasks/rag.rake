@@ -50,54 +50,80 @@ namespace :rag do
     puts "=" * 80
 
     # 1. Composer (no prerequisites)
+    # Job query: Score.composer_pending
     puts
     puts "1. Composer Normalization"
     puts "   Scope: all scores"
-    print_step_stats(:composer_status, total)
+    composer_eligible = Score.composer_pending.count
+    print_step_stats(:composer_status, composer_eligible)
 
-    # 2. Period (requires composer_normalized)
+    # 2. Period (requires composer_normalized + non-empty composer)
+    # Job query: Score.period_pending.composer_normalized.where.not(composer: [nil, ""])
     puts
     puts "2. Period Normalization"
-    period_scope = Score.composer_normalized.count
-    puts "   Scope: composer_normalized (#{period_scope})"
-    print_step_stats(:period_status, period_scope)
+    puts "   Scope: composer_normalized"
+    period_eligible = Score.period_pending
+      .composer_normalized
+      .where.not(composer: [nil, ""])
+      .count
+    print_step_stats(:period_status, period_eligible)
 
-    # 3. Vocal Detection (requires composer processed)
+    # 3. Vocal Detection (requires extraction_status=extracted, composer/period not pending)
+    # Job query: Score.has_vocal_pending.where(extraction_status: "extracted")
+    #                 .where.not(composer_status: "pending").where.not(period_status: "pending")
     puts
     puts "3. Vocal Detection"
-    vocal_scope = Score.where.not(composer_status: "pending").count
-    puts "   Scope: composer processed (#{vocal_scope})"
-    print_step_stats(:has_vocal_status, vocal_scope)
+    puts "   Scope: extracted + composer/period processed"
+    vocal_eligible = Score.has_vocal_pending
+      .where(extraction_status: "extracted")
+      .where.not(composer_status: "pending")
+      .where.not(period_status: "pending")
+      .count
+    print_step_stats(:has_vocal_status, vocal_eligible)
 
-    # 4. Voicing (requires has_vocal=true, has_vocal_status=normalized)
+    # 4. Voicing (requires has_vocal=true, has_vocal_normalized, non-empty part_names)
+    # Job query: Score.voicing_pending.has_vocal_normalized.where(has_vocal: true)
+    #                 .where.not(part_names: [nil, ""])
     puts
     puts "4. Voicing Normalization (vocal scores only)"
-    voicing_scope = Score.has_vocal_normalized.where(has_vocal: true).count
-    puts "   Scope: has_vocal=true & normalized (#{voicing_scope})"
-    print_step_stats(:voicing_status, voicing_scope)
+    puts "   Scope: has_vocal=true + part_names present"
+    voicing_eligible = Score.voicing_pending
+      .has_vocal_normalized
+      .where(has_vocal: true)
+      .where.not(part_names: [nil, ""])
+      .count
+    print_step_stats(:voicing_status, voicing_eligible)
 
-    # 5. Instruments (requires has_vocal=false OR voicing done for vocal)
+    # 5. Instruments (requires has_vocal=false, has_vocal_normalized, composer/period not pending, non-empty title)
+    # Job query: Score.instruments_pending.has_vocal_normalized.where(has_vocal: false)
+    #                 .where.not(composer_status: "pending").where.not(period_status: "pending")
+    #                 .where.not(title: [nil, ""])
     puts
     puts "5. Instruments Normalization"
-    instr_scope = Score.has_vocal_normalized.where(has_vocal: false).count
-    puts "   Scope: has_vocal=false & normalized (#{instr_scope})"
-    print_step_stats(:instruments_status, instr_scope)
+    puts "   Scope: has_vocal=false + title present"
+    instruments_eligible = Score.instruments_pending
+      .has_vocal_normalized
+      .where(has_vocal: false)
+      .where.not(composer_status: "pending")
+      .where.not(period_status: "pending")
+      .where.not(title: [nil, ""])
+      .count
+    print_step_stats(:instruments_status, instruments_eligible)
 
-    # 6. Genre (requires all prior steps processed)
+    # 6. Genre (requires all prior steps not pending, non-empty title)
+    # Job query: Score.genre_pending.where.not(composer_status: "pending")
+    #                 .where.not(period_status: "pending").where.not(has_vocal_status: "pending")
+    #                 .where.not(instruments_status: "pending").where.not(title: [nil, ""])
     puts
     puts "6. Genre Normalization"
-    genre_scope = Score.genre_pending
+    genre_eligible = Score.genre_pending
       .where.not(composer_status: "pending")
       .where.not(period_status: "pending")
       .where.not(has_vocal_status: "pending")
       .where.not(instruments_status: "pending")
       .where.not(title: [nil, ""])
       .count
-    genre_done = Score.genre_normalized.count + Score.genre_not_applicable.count
-    genre_failed = Score.genre_failed.count
-    puts "   Eligible to process: #{genre_scope}"
-    puts "   Done:    #{genre_done}"
-    puts "   Failed:  #{genre_failed}"
+    print_step_stats(:genre_status, genre_eligible)
 
     # 7. RAG Ready
     puts
@@ -137,21 +163,17 @@ namespace :rag do
     puts "  Blocked by instr:  #{total - with_instr_total}"
   end
 
-  def print_step_stats(status_field, scope_count)
+  def print_step_stats(status_field, eligible_count)
     counts = Score.group(status_field).count
     normalized = counts["normalized"] || 0
     not_applicable = counts["not_applicable"] || 0
     pending = counts["pending"] || 0
     failed = counts["failed"] || 0
-    done = normalized + not_applicable
-
-    # Eligible = scope minus what's already done/failed (can't exceed pending)
-    eligible = [scope_count - done - failed, 0].max.clamp(0, pending)
 
     puts "   Normalized:  #{normalized}"
     puts "   N/A:         #{not_applicable}" if not_applicable > 0
     puts "   Failed:      #{failed}" if failed > 0
-    puts "   Pending:     #{pending} (#{eligible} eligible)"
+    puts "   Pending:     #{pending} (#{eligible_count} eligible)"
   end
 
   def print_rag_stats
