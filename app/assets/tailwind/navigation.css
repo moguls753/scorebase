@@ -160,13 +160,14 @@ main a:not(.mm-button):not(.mm-card):hover {
 .nav-pro-btn:hover {
   background: var(--color-accent);
   color: #FFFFFF;
+  border-color: var(--color-border);
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--color-bg-deep);
+  box-shadow: 4px 4px 0 var(--color-border);
 }
 
 .nav-pro-btn:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--color-bg-deep);
+  box-shadow: 1px 1px 0 var(--color-border);
 }
 
 /* Navigation Icon Buttons - Neubrutalist */
