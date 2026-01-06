@@ -5,7 +5,7 @@
 #
 # Usage:
 #   NormalizeGenresJob.perform_later
-#   NormalizeGenresJob.perform_later(limit: 1000, batch_size: 10)
+#   NormalizeGenresJob.perform_later(limit: 1000, batch_size: 5)
 #
 class NormalizeGenresJob < ApplicationJob
   queue_as :default
