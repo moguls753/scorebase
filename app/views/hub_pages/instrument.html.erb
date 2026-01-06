@@ -8,13 +8,13 @@
       <span class="text-[var(--color-border-subtle)]">/</span>
       <%= link_to instruments_path, class: "hover:text-[var(--color-accent)] transition-colors" do %><%= t('score.instruments') %><% end %>
       <span class="text-[var(--color-border-subtle)]">/</span>
-      <span class="text-[var(--color-accent)]"><%= t("hub.instruments.#{params[:slug].underscore}", default: @instrument_name) %></span>
+      <span class="text-[var(--color-accent)]"><%= t("hub.instrument_names.#{params[:slug].underscore}", default: @instrument_name) %></span>
     </nav>
 
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
       <div>
         <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] mb-2 leading-tight font-black uppercase tracking-tight hero-title">
-          <%= t("hub.instruments.#{params[:slug].underscore}", default: @instrument_name) %>
+          <%= t("hub.instrument_names.#{params[:slug].underscore}", default: @instrument_name) %>
         </h1>
         <p class="text-sm sm:text-base font-medium hero-subtitle">
           <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@total_count) %></span>

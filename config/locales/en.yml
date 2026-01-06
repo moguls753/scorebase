@@ -298,8 +298,8 @@ en:
     no_genres_matching: "No genres matching"
     try_different_spelling: "Try a different spelling or browse alphabetically"
 
-    # Genre translations (from genre_vocabulary.yml)
-    genres:
+    # Genre name translations (from genre_vocabulary.yml)
+    genre_names:
       mass: "Mass"
       requiem: "Requiem"
       motet: "Motet"
@@ -385,8 +385,8 @@ en:
       educational: "Educational"
       exercise: "Exercise"
 
-    # Instrument translations
-    instruments:
+    # Instrument name translations
+    instrument_names:
       piano: "Piano"
       organ: "Organ"
       harpsichord: "Harpsichord"
@@ -434,8 +434,8 @@ en:
       drums: "Drums"
       voice: "Voice"
 
-    # Period translations
-    periods:
+    # Period name translations
+    period_names:
       medieval: "Medieval"
       renaissance: "Renaissance"
       baroque: "Baroque"

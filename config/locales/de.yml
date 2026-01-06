@@ -299,7 +299,7 @@ de:
     try_different_spelling: "Versuche eine andere Schreibweise oder durchsuche alphabetisch"
 
     # Genre-Übersetzungen (aus genre_vocabulary.yml)
-    genres:
+    genre_names:
       mass: "Messe"
       requiem: "Requiem"
       motet: "Motette"
@@ -386,7 +386,7 @@ de:
       exercise: "Übung"
 
     # Instrument-Übersetzungen
-    instruments:
+    instrument_names:
       piano: "Klavier"
       organ: "Orgel"
       harpsichord: "Cembalo"
@@ -435,7 +435,7 @@ de:
       voice: "Gesang"
 
     # Epochen-Übersetzungen
-    periods:
+    period_names:
       medieval: "Mittelalter"
       renaissance: "Renaissance"
       baroque: "Barock"

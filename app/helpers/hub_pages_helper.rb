@@ -9,7 +9,9 @@ module HubPagesHelper
   # @return [String] Translated name
   def translate_hub_name(type, item)
     key = item[:slug].to_s.underscore
-    I18n.t("hub.#{type}.#{key}", default: item[:name])
+    # Use singular_name keys to avoid conflict with hub.periods string etc.
+    translation_key = "hub.#{type.to_s.singularize}_names.#{key}"
+    I18n.t(translation_key, default: item[:name])
   end
 
   # Icon mappings for hub index pages
