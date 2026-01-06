@@ -152,7 +152,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   text-decoration: none;
-  box-shadow: 3px 3px 0 var(--color-accent);
+  box-shadow: 2px 2px 0 var(--color-accent);
   transition: transform 0.1s ease, box-shadow 0.1s ease;
   cursor: pointer;
 }
@@ -162,7 +162,7 @@ main a:not(.mm-button):not(.mm-card):hover {
   color: #FFFFFF;
   border-color: var(--color-border);
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--color-border);
+  box-shadow: 3px 3px 0 var(--color-border);
 }
 
 .nav-pro-btn:active {
