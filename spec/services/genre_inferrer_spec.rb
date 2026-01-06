@@ -49,6 +49,27 @@ RSpec.describe GenreInferrer do
       expect(result).not_to be_success
       expect(result.error).to eq("API down")
     end
+
+    it "handles invalid response format" do
+      allow(client).to receive(:chat_json).and_return("not a hash")
+
+      results = inferrer.infer(score)
+
+      expect(results.first.error).to eq("Invalid response format")
+    end
+
+    it "includes period and has_vocal in prompt" do
+      score = create(:score, period: "Baroque", has_vocal: true, voicing: "SATB", instruments: "Organ")
+      prompt = nil
+      allow(client).to receive(:chat_json) { |p| prompt = p; { "genre" => "Motet" } }
+
+      inferrer.infer(score)
+
+      expect(prompt).to include("Period: Baroque")
+      expect(prompt).to include("Vocal: yes")
+      expect(prompt).to include("Voicing: SATB")
+      expect(prompt).to include("Instruments: Organ")
+    end
   end
 
   describe "GENRES" do

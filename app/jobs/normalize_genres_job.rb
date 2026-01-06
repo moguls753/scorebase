@@ -42,6 +42,8 @@ class NormalizeGenresJob < ApplicationJob
   def eligible_scores(limit)
     Score.genre_pending
          .where.not(composer_status: "pending")
+         .where.not(period_status: "pending")
+         .where.not(has_vocal_status: "pending")
          .where.not(instruments_status: "pending")
          .where.not(title: [nil, ""])
          .limit(limit)

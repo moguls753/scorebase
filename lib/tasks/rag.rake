@@ -83,11 +83,13 @@ namespace :rag do
     puts "   Scope: has_vocal=false & normalized (#{instr_scope})"
     print_step_stats(:instruments_status, instr_scope)
 
-    # 6. Genre (requires composer & instruments processed)
+    # 6. Genre (requires all prior steps processed)
     puts
     puts "6. Genre Normalization"
     genre_scope = Score.genre_pending
       .where.not(composer_status: "pending")
+      .where.not(period_status: "pending")
+      .where.not(has_vocal_status: "pending")
       .where.not(instruments_status: "pending")
       .where.not(title: [nil, ""])
       .count
