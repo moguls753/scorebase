@@ -167,17 +167,37 @@ namespace :gallery do
       ActiveStorage::Attachment.where(id: orphaned_attachments.map { |r| r["id"] }).delete_all
     end
 
-    # Purge ALL unattached blobs
+    # Batch purge unattached blobs from R2 (1000 at a time)
     unattached_blobs = ActiveStorage::Blob.where.not(id: ActiveStorage::Attachment.select(:blob_id))
     total = unattached_blobs.count
 
-    puts "Purging #{total} blobs from R2..."
-    unattached_blobs.find_each.with_index do |blob, i|
-      blob.purge
-      print "\r  #{i + 1}/#{total}" if (i + 1) % 100 == 0
+    puts "Purging #{total} blobs from R2 (batch mode)..."
+
+    service = ActiveStorage::Blob.service
+    deleted = 0
+
+    unattached_blobs.in_batches(of: 1000) do |batch|
+      keys = batch.pluck(:key)
+
+      # Batch delete from R2/S3
+      if service.respond_to?(:bucket)
+        # S3-compatible: use bucket.delete_objects
+        service.bucket.delete_objects(
+          delete: { objects: keys.map { |k| { key: k } } }
+        )
+      else
+        # Fallback (Disk): delete individually
+        keys.each { |key| service.delete(key) rescue nil }
+      end
+
+      # Delete blob records from database
+      batch.delete_all
+
+      deleted += keys.size
+      puts "  #{deleted}/#{total} purged"
     end
 
-    puts "\n\nDone!"
+    puts "\nDone!"
     puts "  Blobs remaining: #{ActiveStorage::Blob.count}"
   end
 end
