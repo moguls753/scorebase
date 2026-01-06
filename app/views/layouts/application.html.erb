@@ -77,17 +77,13 @@
 
           <!-- Desktop Navigation -->
           <nav class="hidden sm:flex items-center gap-2">
-            <% if pro_user? %>
+            <% if authenticated? %>
               <%= link_to smart_search_path, class: "nav-smart-search-btn" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="11" cy="11" r="8"></circle>
                   <path d="m21 21-4.3-4.3"></path>
                 </svg>
                 <%= t('nav.smart_search') %>
-              <% end %>
-            <% elsif authenticated? %>
-              <%= link_to pro_landing_path, class: "nav-sign-in-btn" do %>
-                Pro
               <% end %>
             <% else %>
               <%= link_to new_session_path, class: "nav-sign-in-btn" do %>
@@ -137,20 +133,13 @@
         </button>
       </div>
       <div class="mobile-menu-content">
-        <% if pro_user? %>
+        <% if authenticated? %>
           <%= link_to smart_search_path, class: "mobile-menu-link mobile-menu-link--pro", data: { action: "click->mobile-menu#close" } do %>
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"></circle>
               <path d="m21 21-4.3-4.3"></path>
             </svg>
             <span><%= t('nav.smart_search') %></span>
-          <% end %>
-        <% elsif authenticated? %>
-          <%= link_to pro_landing_path, class: "mobile-menu-link mobile-menu-link--pro", data: { action: "click->mobile-menu#close" } do %>
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-            <span>Pro</span>
           <% end %>
         <% else %>
           <%= link_to new_session_path, class: "mobile-menu-link mobile-menu-link--pro", data: { action: "click->mobile-menu#close" } do %>
