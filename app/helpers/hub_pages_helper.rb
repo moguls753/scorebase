@@ -1,6 +1,17 @@
 # frozen_string_literal: true
 
 module HubPagesHelper
+  # Translates a hub item name using I18n
+  # Falls back to the English name if no translation exists
+  #
+  # @param type [Symbol, String] :genres, :instruments, or :periods
+  # @param item [Hash] Hub item with :name and :slug keys
+  # @return [String] Translated name
+  def translate_hub_name(type, item)
+    key = item[:slug].to_s.underscore
+    I18n.t("hub.#{type}.#{key}", default: item[:name])
+  end
+
   # Icon mappings for hub index pages
   INSTRUMENT_ICONS = {
     /piano/ => "🎹",

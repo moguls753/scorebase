@@ -46,7 +46,8 @@
                   path: instrument_path(slug: instrument[:slug]),
                   icon: instrument_icon(instrument[:name]),
                   search_attribute: "instrumentName",
-                  index: global_index %>
+                  index: global_index,
+                  hub_type: :instruments %>
               <% global_index += 1 %>
             <% end %>
           </div>

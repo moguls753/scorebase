@@ -49,58 +49,41 @@ namespace :rag do
     puts "RAG Pipeline Status"
     puts "=" * 80
 
-    # 1. Composer (no prerequisites)
-    # Job query: Score.composer_pending
+    # ─────────────────────────────────────────────────────────────────
+    # NORMALIZATION STEPS (run these to grow the RAG-ready pool)
+    # ─────────────────────────────────────────────────────────────────
     puts
-    puts "1. Composer Normalization"
-    puts "   Scope: all scores"
-    composer_eligible = Score.composer_pending.count
-    print_step_stats(:composer_status, composer_eligible)
+    puts "NORMALIZATION (run to grow RAG pool)"
+    puts "-" * 40
 
-    # 2. Period (requires composer_normalized + non-empty composer)
-    # Job query: Score.period_pending.composer_normalized.where.not(composer: [nil, ""])
-    puts
-    puts "2. Period Normalization"
-    puts "   Scope: composer_normalized"
+    # 1. Composer
+    composer_eligible = Score.composer_pending.count
+    puts "1. Composer:    #{format_step(:composer_status, composer_eligible)}"
+
+    # 2. Period
     period_eligible = Score.period_pending
       .composer_normalized
       .where.not(composer: [nil, ""])
       .count
-    print_step_stats(:period_status, period_eligible)
+    puts "2. Period:      #{format_step(:period_status, period_eligible)}"
 
-    # 3. Vocal Detection (requires extraction_status=extracted, composer/period not pending)
-    # Job query: Score.has_vocal_pending.where(extraction_status: "extracted")
-    #                 .where.not(composer_status: "pending").where.not(period_status: "pending")
-    puts
-    puts "3. Vocal Detection"
-    puts "   Scope: extracted + composer/period processed"
+    # 3. Vocal Detection
     vocal_eligible = Score.has_vocal_pending
       .where(extraction_status: "extracted")
       .where.not(composer_status: "pending")
       .where.not(period_status: "pending")
       .count
-    print_step_stats(:has_vocal_status, vocal_eligible)
+    puts "3. Vocal:       #{format_step(:has_vocal_status, vocal_eligible)}"
 
-    # 4. Voicing (requires has_vocal=true, has_vocal_normalized, non-empty part_names)
-    # Job query: Score.voicing_pending.has_vocal_normalized.where(has_vocal: true)
-    #                 .where.not(part_names: [nil, ""])
-    puts
-    puts "4. Voicing Normalization (vocal scores only)"
-    puts "   Scope: has_vocal=true + part_names present"
+    # 4. Voicing (vocal scores)
     voicing_eligible = Score.voicing_pending
       .has_vocal_normalized
       .where(has_vocal: true)
       .where.not(part_names: [nil, ""])
       .count
-    print_step_stats(:voicing_status, voicing_eligible)
+    puts "4. Voicing:     #{format_step(:voicing_status, voicing_eligible)}"
 
-    # 5. Instruments (requires has_vocal=false, has_vocal_normalized, composer/period not pending, non-empty title)
-    # Job query: Score.instruments_pending.has_vocal_normalized.where(has_vocal: false)
-    #                 .where.not(composer_status: "pending").where.not(period_status: "pending")
-    #                 .where.not(title: [nil, ""])
-    puts
-    puts "5. Instruments Normalization"
-    puts "   Scope: has_vocal=false + title present"
+    # 5. Instruments (instrumental scores)
     instruments_eligible = Score.instruments_pending
       .has_vocal_normalized
       .where(has_vocal: false)
@@ -108,14 +91,9 @@ namespace :rag do
       .where.not(period_status: "pending")
       .where.not(title: [nil, ""])
       .count
-    print_step_stats(:instruments_status, instruments_eligible)
+    puts "5. Instruments: #{format_step(:instruments_status, instruments_eligible)}"
 
-    # 6. Genre (requires all prior steps not pending, non-empty title)
-    # Job query: Score.genre_pending.where.not(composer_status: "pending")
-    #                 .where.not(period_status: "pending").where.not(has_vocal_status: "pending")
-    #                 .where.not(instruments_status: "pending").where.not(title: [nil, ""])
-    puts
-    puts "6. Genre Normalization"
+    # 6. Genre
     genre_eligible = Score.genre_pending
       .where.not(composer_status: "pending")
       .where.not(period_status: "pending")
@@ -123,57 +101,94 @@ namespace :rag do
       .where.not(instruments_status: "pending")
       .where.not(title: [nil, ""])
       .count
-    print_step_stats(:genre_status, genre_eligible)
+    puts "6. Genre:       #{format_step(:genre_status, genre_eligible)}"
 
-    # 7. RAG Ready
+    # ─────────────────────────────────────────────────────────────────
+    # RAG PIPELINE (scores that pass ready_for_rag?)
+    # ─────────────────────────────────────────────────────────────────
     puts
-    puts "7. RAG Pipeline"
-    with_voicing = Score.where.not(voicing: [nil, ""]).count
-    with_instruments = Score.where.not(instruments: [nil, ""]).count
-    with_instr_total = Score.where.not(voicing: [nil, ""]).or(Score.where.not(instruments: [nil, ""])).count
+    puts "RAG PIPELINE"
+    puts "-" * 40
 
-    # RAG ready = instrumentation + (composer OR genre)
-    with_instr_and_composer = Score
+    # Count scores passing ready_for_rag? criteria via SQL
+    # Requirements: title + (voicing OR instruments) + (known composer OR genre)
+    has_instrumentation = Score.where.not(voicing: [nil, ""]).or(Score.where.not(instruments: [nil, ""]))
+    has_known_composer = Score.where(composer_status: "normalized").where.not(composer: ["NA", nil, ""])
+    has_genre = Score.where(genre_status: "normalized")
+
+    rag_ready_count = Score.rag_pending
+      .where.not(title: [nil, ""])
+      .merge(has_instrumentation)
+      .merge(has_known_composer.or(has_genre))
+      .count
+
+    rag_statuses = Score.group(:rag_status).count
+
+    ready = rag_statuses["ready"] || 0
+    templated = rag_statuses["templated"] || 0
+    indexed = rag_statuses["indexed"] || 0
+    failed = rag_statuses["failed"] || 0
+
+    puts "Eligible (pass ready_for_rag?):  #{rag_ready_count} ← run rag:mark_ready"
+    puts "Ready (awaiting templating):     #{ready} ← run rag:generate"
+    puts "Templated (awaiting indexing):   #{templated} ← run python indexer"
+    puts "Indexed (in ChromaDB):           #{indexed}"
+    puts "Failed:                          #{failed}" if failed > 0
+
+    # ─────────────────────────────────────────────────────────────────
+    # BLOCKERS (why scores can't reach RAG)
+    # ─────────────────────────────────────────────────────────────────
+    puts
+    puts "BLOCKERS (why scores aren't RAG-ready)"
+    puts "-" * 40
+
+    missing_instrumentation = Score
+      .where(voicing: [nil, ""])
+      .where(instruments: [nil, ""])
+      .count
+    missing_identity = Score
       .where.not(voicing: [nil, ""])
       .or(Score.where.not(instruments: [nil, ""]))
-      .where(composer_status: "normalized")
-      .where.not(composer: ["NA", nil, ""])
+      .where.not(composer_status: "normalized")
+      .or(Score.where(composer: ["NA", nil, ""]))
+      .where.not(genre_status: "normalized")
       .count
-    with_instr_and_genre = Score
-      .where.not(voicing: [nil, ""])
-      .or(Score.where.not(instruments: [nil, ""]))
-      .where(genre_status: "normalized")
-      .count
-    # Rough estimate (some overlap)
-    rag_ready_estimate = with_instr_and_composer
 
-    puts "   With voicing:         #{with_voicing}"
-    puts "   With instruments:     #{with_instruments}"
-    puts "   With either:          #{with_instr_total}"
-    puts "   + known composer:     #{with_instr_and_composer} (RAG ready now)"
-    puts "   + genre normalized:   #{with_instr_and_genre}"
-    puts
-    Score.group(:rag_status).count.sort.each { |k, v| puts "   #{k.ljust(15)} #{v}" }
+    puts "Missing voicing/instruments: #{missing_instrumentation}"
+    puts "  → Run normalize:voicing (vocal) or normalize:instruments (instrumental)"
 
+    # ─────────────────────────────────────────────────────────────────
+    # SUMMARY
+    # ─────────────────────────────────────────────────────────────────
     puts
     puts "=" * 80
-    puts "Summary:"
-    puts "  Total scores:      #{total}"
-    puts "  RAG ready (est):   #{rag_ready_estimate}"
-    puts "  Blocked by instr:  #{total - with_instr_total}"
+    puts "NEXT STEPS:"
+    if rag_ready_count > 0
+      puts "  1. bin/rails rag:mark_ready           # Move #{rag_ready_count} → ready"
+    end
+    if ready > 0 || rag_ready_count > 0
+      puts "  2. bin/rails rag:generate LIMIT=1000  # Generate search_text"
+    end
+    if templated > 0
+      puts "  3. cd rag && python -m rag.src.pipeline.indexer -1  # Index to ChromaDB"
+    end
+    if rag_ready_count == 0 && ready == 0 && templated == 0
+      puts "  Run normalization tasks to grow the RAG-ready pool"
+    end
+    puts
+    puts "Total: #{total} | RAG-ready: #{rag_ready_count + ready + templated + indexed} | Indexed: #{indexed}"
   end
 
-  def print_step_stats(status_field, eligible_count)
+  def format_step(status_field, eligible_count)
     counts = Score.group(status_field).count
     normalized = counts["normalized"] || 0
-    not_applicable = counts["not_applicable"] || 0
-    pending = counts["pending"] || 0
     failed = counts["failed"] || 0
+    pending = counts["pending"] || 0
 
-    puts "   Normalized:  #{normalized}"
-    puts "   N/A:         #{not_applicable}" if not_applicable > 0
-    puts "   Failed:      #{failed}" if failed > 0
-    puts "   Pending:     #{pending} (#{eligible_count} eligible)"
+    parts = ["#{normalized} done"]
+    parts << "#{failed} failed" if failed > 0
+    parts << "#{eligible_count} eligible" if eligible_count > 0
+    parts.join(" | ")
   end
 
   def print_rag_stats

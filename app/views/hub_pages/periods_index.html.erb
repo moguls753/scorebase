@@ -49,7 +49,7 @@
 
           <div class="flex-1 min-w-0">
             <h3 class="text-lg sm:text-xl font-[var(--font-family-display)] text-[var(--color-primary)] font-bold mb-1 group-hover:text-[var(--color-accent)] transition-colors">
-              <%= period[:name] %>
+              <%= translate_hub_name(:periods, period) %>
             </h3>
             <p class="text-sm text-[var(--color-text-muted)] font-semibold">
               <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(period[:count]) %></span>

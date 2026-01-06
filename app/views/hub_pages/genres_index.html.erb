@@ -47,7 +47,8 @@
                   icon: genre_icon(genre[:name]),
                   search_attribute: "genreName",
                   index: global_index,
-                  count_label: t('search.results_count').downcase %>
+                  count_label: t('search.results_count').downcase,
+                  hub_type: :genres %>
               <% global_index += 1 %>
             <% end %>
           </div>
