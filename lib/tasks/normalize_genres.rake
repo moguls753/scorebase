@@ -5,7 +5,7 @@ namespace :normalize do
   task genres: :environment do
     limit = ENV.fetch("LIMIT", 100).to_i
     backend = ENV.fetch("BACKEND", "openai").to_sym
-    batch_size = ENV.fetch("BATCH_SIZE", 10).to_i
+    batch_size = ENV.fetch("BATCH_SIZE", 5).to_i
 
     NormalizeGenresJob.perform_now(limit: limit, backend: backend, batch_size: batch_size)
     print_genre_stats

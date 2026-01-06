@@ -20,22 +20,55 @@ class GenreInferrer
   end
 
   RULES = <<~RULES
-    Rules:
-    - Pick ONE genre from this list: %{genres}
-    - If none fit well, respond with null
-    - Use "high" when title explicitly contains the genre (e.g., "Requiem in D minor" → Requiem)
-    - Use "medium" when inferring from composer style or context
-    - Use "low" when guessing
+    TRUSTED DATA (already normalized, reliable):
+    - composer: normalized composer name (may be "NA" if unknown)
+    - period: Baroque, Classical, Romantic, Modern, Contemporary (may be "unknown")
+    - has_vocal: yes/no/unknown
+    - voicing: SATB, SSA, etc. (only for vocal works, otherwise "none")
+    - instruments: Piano, Orchestra, etc. (may be "unknown")
+
+    RAW DATA (may contain garbage):
+    - title: original title (usually reliable)
+    - tags: original metadata (often unreliable or missing)
+
+    GENRES (pick ONE or null): %{genres}
+
+    INFERENCE STRATEGY:
+    1. Title keywords are strongest: "Requiem", "Magnificat", "Sonata" in title → high confidence
+    2. Combine period + has_vocal + instruments:
+       - Baroque + vocal + SATB → Motet, Cantata, Mass
+       - Romantic + Piano → Sonata, Prelude, Etude
+       - Orchestra → Symphony, Concerto, Suite
+    3. Composer hints (validate against period):
+       - Bach → Chorale, Fugue, Cantata
+       - Palestrina/Victoria → Motet, Mass
+       - Mozart/Beethoven → Sonata, Symphony, Concerto
+       - Schubert/Schumann → Art Song (vocal) or Sonata (piano)
+       - Chopin/Liszt → Etude, Prelude, Sonata
+
+    VOCAL vs INSTRUMENTAL:
+    - Vocal only: Mass, Requiem, Motet, Magnificat, Anthem, Hymn, Cantata, Oratorio, Madrigal, Chanson, Art Song, Opera, Folk Song, Carol, Spiritual, Gospel
+    - Instrumental only: Sonata, Fugue, Prelude, Suite, Concerto, Symphony, Chamber, Dance, Etude
+    - Either: Chorale, Psalm, Traditional, Popular, Educational
+
+    CONFIDENCE: high (title match), medium (multiple signals), low (single signal)
+
+    Return null if no genre fits.
   RULES
 
   SINGLE_PROMPT = <<~PROMPT
     Classify this sheet music into a genre.
 
-    Title: %{title}
-    Composer: %{composer}
-    Existing tags: %{tags}
-    Voicing: %{voicing}
-    Instruments: %{instruments}
+    TRUSTED:
+    - Composer: %{composer}
+    - Period: %{period}
+    - Vocal: %{has_vocal}
+    - Voicing: %{voicing}
+    - Instruments: %{instruments}
+
+    RAW:
+    - Title: %{title}
+    - Tags: %{tags}
 
     JSON: {"genre": "Genre Name", "confidence": "high|medium|low"}
 
@@ -53,7 +86,7 @@ class GenreInferrer
   PROMPT
 
   def initialize(client: nil)
-    @client = client || LlmClient.new
+    @client = client || LlmClient.new(backend: :openai)
   end
 
   # Process one or many scores - always returns Array<Result>
@@ -84,10 +117,12 @@ class GenreInferrer
   def build_single_prompt(score)
     format(SINGLE_PROMPT,
       title: score.title.to_s,
-      composer: score.composer.to_s,
+      composer: score.composer.presence || "unknown",
+      period: score.period.presence || "unknown",
+      has_vocal: format_has_vocal(score),
+      voicing: score.voicing.presence || "none",
+      instruments: score.instruments.presence || "unknown",
       tags: extract_tags(score),
-      voicing: score.voicing.to_s.presence || "unknown",
-      instruments: score.instruments.to_s.presence || "unknown",
       rules: format(RULES, genres: GENRES.join(", "))
     )
   end
@@ -104,12 +139,18 @@ class GenreInferrer
   end
 
   def build_score_entry(score, index)
-    parts = ["#{index}. Title: #{score.title}"]
-    parts << "   Composer: #{score.composer}" if score.composer.present?
-    parts << "   Tags: #{extract_tags(score)}"
-    parts << "   Voicing: #{score.voicing}" if score.voicing.present?
-    parts << "   Instruments: #{score.instruments}" if score.instruments.present?
-    parts.join("\n")
+    <<~ENTRY.strip
+      #{index}. TRUSTED: Composer=#{score.composer.presence || 'unknown'} | Period=#{score.period.presence || 'unknown'} | Vocal=#{format_has_vocal(score)} | Voicing=#{score.voicing.presence || 'none'} | Instruments=#{score.instruments.presence || 'unknown'}
+         RAW: Title=#{score.title} | Tags=#{extract_tags(score)}
+    ENTRY
+  end
+
+  def format_has_vocal(score)
+    case score.has_vocal
+    when true then "yes"
+    when false then "no"
+    else "unknown"
+    end
   end
 
   def extract_tags(score)
@@ -120,6 +161,8 @@ class GenreInferrer
   end
 
   def build_result(response)
+    return Result.new(genre: nil, confidence: nil, error: "Invalid response format") unless response.is_a?(Hash)
+
     genre = response["genre"]
 
     # Validate against vocabulary

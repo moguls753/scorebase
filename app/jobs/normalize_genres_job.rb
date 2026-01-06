@@ -10,7 +10,7 @@
 class NormalizeGenresJob < ApplicationJob
   queue_as :default
 
-  BATCH_SIZE = 10  # scores per API call
+  BATCH_SIZE = 5  # scores per API call (smaller = more accurate)
 
   def perform(limit: 100, backend: :openai, model: nil, batch_size: BATCH_SIZE)
     scores = eligible_scores(limit).to_a
