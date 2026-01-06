@@ -52,16 +52,17 @@ class NormalizeVoicingJob < ApplicationJob
       score.update!(
         voicing: result.voicing,
         instruments: result.instruments,
-        voicing_status: :normalized
+        voicing_status: :normalized,
+        instruments_status: :normalized
       )
       stats[:normalized] += 1
       logger.info "[NormalizeVoicing] #{index}. #{score.title&.truncate(40)} -> #{result.voicing} / #{result.instruments} (#{result.confidence})"
     elsif result.success?
-      score.update!(voicing_status: :not_applicable)
+      score.update!(voicing_status: :not_applicable, instruments_status: :not_applicable)
       stats[:not_applicable] += 1
       logger.info "[NormalizeVoicing] #{index}. #{score.title&.truncate(40)} -> N/A"
     else
-      score.update!(voicing_status: :failed)
+      score.update!(voicing_status: :failed, instruments_status: :failed)
       stats[:failed] += 1
       logger.warn "[NormalizeVoicing] #{index}. #{score.title&.truncate(40)} -> FAILED: #{result.error}"
     end

@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
-# Infers instruments using LLM in batches.
-# Requires: composer and period processed (any status except pending)
+# Extracts instruments from INSTRUMENTAL scores using LLM.
+# Only runs on has_vocal=false scores (vocal scores use VoicingNormalizer).
+# Requires: composer, period, and has_vocal all normalized.
 #
 # Usage:
 #   NormalizeInstrumentsJob.perform_later
@@ -41,6 +42,8 @@ class NormalizeInstrumentsJob < ApplicationJob
 
   def eligible_scores(limit)
     Score.instruments_pending
+         .has_vocal_normalized
+         .where(has_vocal: false)
          .where.not(composer_status: "pending")
          .where.not(period_status: "pending")
          .where.not(title: [nil, ""])
@@ -49,15 +52,19 @@ class NormalizeInstrumentsJob < ApplicationJob
 
   def apply_result(score, result, stats, index)
     if result.found?
-      score.update!(instruments: result.instruments, instruments_status: :normalized)
+      score.update!(
+        instruments: result.instruments,
+        instruments_status: :normalized,
+        voicing_status: :not_applicable
+      )
       stats[:normalized] += 1
       logger.info "[NormalizeInstruments] #{index}. #{score.title&.truncate(40)} -> #{result.instruments}"
     elsif result.success?
-      score.update!(instruments_status: :not_applicable)
+      score.update!(instruments_status: :not_applicable, voicing_status: :not_applicable)
       stats[:not_applicable] += 1
       logger.info "[NormalizeInstruments] #{index}. #{score.title&.truncate(40)} -> N/A"
     else
-      score.update!(instruments_status: :failed)
+      score.update!(instruments_status: :failed, voicing_status: :not_applicable)
       stats[:failed] += 1
       logger.warn "[NormalizeInstruments] #{index}. #{score.title&.truncate(40)} -> FAILED: #{result.error}"
     end

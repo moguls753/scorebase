@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
-# Infers instruments from score metadata using LLM.
+# Extracts instruments from INSTRUMENTAL scores using LLM.
+# Only runs on has_vocal=false scores (vocal scores use VoicingNormalizer).
+# Uses part_names/detected_instruments when available, falls back to metadata inference.
 #
 # Usage:
 #   inferrer = InstrumentInferrer.new(client: client)
@@ -13,29 +15,47 @@ class InstrumentInferrer
   end
 
   RULES = <<~RULES
-    Rules:
-    - ONLY infer instruments explicitly indicated in metadata. DO NOT GUESS.
-    - If voicing is empty/unknown and no instrument is mentioned in title: return null
-    - Standard English names: Piano, Violin, Flute, Organ, Guitar, etc.
-    - Comma-separated: "Violin, Viola, Cello" (not "String Trio")
-    - Orchestra (15+ instruments): "Orchestra"
-    - Vocal with accompaniment: "Vocal, Piano" or "Vocal, Orchestra"
-    - A cappella or SATB/SSA/TTBB voicing without accompaniment: "Vocal"
-    - Some composers mainly wrote for one instrument:
-      Sor, Giuliani, Carulli, Tárrega, Barrios → Guitar
-      Chopin, Liszt, Czerny → Piano
-      Paganini → Violin
-    - Return null if truly unknown (prefer null over guessing)
+    Extract instruments from this INSTRUMENTAL score (confirmed no vocals).
+
+    TRUSTED DATA (already normalized):
+    - composer: normalized composer name
+    - period: normalized period (Baroque, Classical, Romantic, Modern, etc.)
+
+    RAW DATA (may contain garbage - use judgment):
+    - part_names: raw MusicXML part names (may be garbage like "MusicXML Part", "Unnamed")
+    - detected_instruments: extracted instruments (may have MIDI names like "Grand Piano")
+    - title: raw title
+
+    NORMALIZE:
+    - Standard English names: Piano, Violin, Flute, Organ, Guitar, Cello, etc.
+    - "Grand Piano" → Piano
+    - "Violons" → Violin, "Altos" → Viola, "Violoncelle" → Cello, "Contrebasse" → Double Bass
+    - "Acordeón" → Accordion
+    - Filter garbage: "MusicXML Part", "Unnamed", "Staff", "SmartMusic SoftSynth", "Midi_XX"
+    - Deduplicate: "Piano, Piano, Piano" → Piano
+
+    FORMAT:
+    - Comma-separated list: "Violin, Viola, Cello"
+    - Large ensembles (15+ parts): "Orchestra"
+    - Standard groups acceptable: "String Quartet", "Piano Trio"
+
+    USE ALL SIGNALS:
+    - If part_names has real instruments → use them
+    - If part_names is garbage → use detected_instruments
+    - If both garbage → infer from title ("Piano Sonata" → Piano)
+    - Composer hints: Chopin/Liszt → Piano, Sor/Tárrega → Guitar, Paganini → Violin
+    - Return null only if truly unknown from all signals
   RULES
 
   SINGLE_PROMPT = <<~PROMPT
-    Identify instruments from sheet music metadata.
+    Extract instruments from this instrumental score.
 
     Title: %{title}
     Composer: %{composer}
     Period: %{period}
-    Voicing: %{voicing}
-    Parts: %{num_parts}
+    Part Names: %{part_names}
+    Detected Instruments: %{detected_instruments}
+    Number of Parts: %{num_parts}
 
     JSON: {"instruments": "Piano", "confidence": "high/medium/low"}
 
@@ -43,7 +63,7 @@ class InstrumentInferrer
   PROMPT
 
   BATCH_PROMPT = <<~PROMPT
-    Identify instruments for each score below.
+    Extract instruments from each instrumental score below.
 
     %{scores_data}
 
@@ -53,7 +73,7 @@ class InstrumentInferrer
   PROMPT
 
   def initialize(client: nil)
-    @client = client || LlmClient.new
+    @client = client || LlmClient.new(backend: :openai)
   end
 
   # Process one or many scores - always returns Array<Result>
@@ -91,7 +111,8 @@ class InstrumentInferrer
       title: score.title.to_s,
       composer: score.composer.to_s,
       period: score.period.presence || "unknown",
-      voicing: score.voicing.presence || "unknown",
+      part_names: score.part_names.presence || "unknown",
+      detected_instruments: score.detected_instruments.presence || "unknown",
       num_parts: score.num_parts.to_i
     )
   end
@@ -108,8 +129,9 @@ class InstrumentInferrer
     parts = ["#{index}. Title: #{score.title}"]
     parts << "   Composer: #{score.composer}" if score.composer.present?
     parts << "   Period: #{score.period}" if score.period.present?
-    parts << "   Voicing: #{score.voicing}" if score.voicing.present?
-    parts << "   Parts: #{score.num_parts}" if score.num_parts.to_i > 0
+    parts << "   Part Names: #{score.part_names}" if score.part_names.present?
+    parts << "   Detected Instruments: #{score.detected_instruments}" if score.detected_instruments.present?
+    parts << "   Number of Parts: #{score.num_parts}" if score.num_parts.to_i > 0
     parts.join("\n")
   end
 
