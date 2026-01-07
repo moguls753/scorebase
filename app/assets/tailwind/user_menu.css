@@ -112,18 +112,8 @@
   border-top: var(--border-width) solid var(--color-border);
 }
 
-/* Logout - button_to creates a form wrapper */
-.user-menu-link--logout {
-  /* Reset form styles from button_to */
-  display: block;
-  width: 100%;
-  padding: 0;
-  margin: 0;
-  background: none;
-  border: none;
-}
-
-.user-menu-link--logout button {
+/* Logout button - button_to with block puts class directly on button */
+button.user-menu-link--logout {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -140,24 +130,24 @@
   transition: background 0.1s ease, color 0.1s ease;
 }
 
-.user-menu-link--logout button:hover,
-.user-menu-link--logout button:focus-visible {
+button.user-menu-link--logout:hover,
+button.user-menu-link--logout:focus-visible {
   background: var(--color-bg-surface);
   color: var(--color-error);
   outline: none;
 }
 
-.user-menu-link--logout button:focus-visible {
+button.user-menu-link--logout:focus-visible {
   box-shadow: inset 0 0 0 2px var(--color-error);
 }
 
-.user-menu-link--logout button svg {
+button.user-menu-link--logout svg {
   flex-shrink: 0;
   color: var(--color-text-muted);
 }
 
-.user-menu-link--logout button:hover svg,
-.user-menu-link--logout button:focus-visible svg {
+button.user-menu-link--logout:hover svg,
+button.user-menu-link--logout:focus-visible svg {
   color: var(--color-error);
 }
 
