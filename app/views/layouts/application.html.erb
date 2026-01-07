@@ -57,6 +57,8 @@
   </head>
 
   <body class="min-h-screen flex flex-col" data-controller="mobile-menu">
+    <%= render "shared/flash" %>
+
     <!-- Mobile Menu Overlay -->
     <div data-mobile-menu-target="overlay"
          data-action="click->mobile-menu#close"

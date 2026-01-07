@@ -626,36 +626,3 @@
   }
 }
 
-/* Waitlist message */
-.waitlist-message {
-  margin-top: 1.25rem;
-  padding: 1rem 1.5rem;
-  border-radius: var(--radius-md);
-  font-size: 0.95rem;
-  font-weight: 500;
-  text-align: center;
-  animation: slideIn 0.2s ease-out;
-}
-
-.waitlist-message-success {
-  background-color: rgba(16, 185, 129, 0.15);
-  color: #34D399;
-  border: var(--border-width) solid rgba(16, 185, 129, 0.4);
-}
-
-.waitlist-message-error {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #F87171;
-  border: var(--border-width) solid rgba(239, 68, 68, 0.4);
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}

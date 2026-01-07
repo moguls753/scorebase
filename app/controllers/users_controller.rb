@@ -12,7 +12,7 @@ class UsersController < ApplicationController
 
     if @user.save
       start_new_session_for @user
-      redirect_to after_authentication_url, notice: "Welcome to ScoreBase Pro!"
+      redirect_to after_authentication_url, notice: t("flash.signup_success")
     else
       render :new, status: :unprocessable_entity
     end

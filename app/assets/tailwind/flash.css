@@ -1,0 +1,200 @@
+/* ========================================
+   FLASH TOASTS - Neubrutalist Style
+   Mobile-first, bold tactile design
+   ======================================== */
+
+/* Container - Mobile: below header, Desktop: top-right */
+.flash-container {
+  position: fixed;
+  z-index: 50;
+  top: 70px; /* Below sticky header */
+  top: calc(70px + env(safe-area-inset-top, 0px));
+  left: 0;
+  right: 0;
+  padding: 0 12px;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+@media (min-width: 640px) {
+  .flash-container {
+    top: 20px;
+    right: 20px;
+    left: auto;
+    width: 380px;
+    padding: 0;
+  }
+}
+
+/* Toast Base - Mobile first */
+.flash-toast {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--color-bg-elevated);
+  border: var(--border-width) solid var(--color-border);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  box-shadow: 4px 4px 0 var(--color-border);
+  pointer-events: auto;
+  transform: translateY(-100%);
+  opacity: 0;
+  animation: flash-slide-in 0.2s cubic-bezier(0.2, 0, 0, 1) forwards;
+}
+
+.flash-toast.is-dismissing {
+  animation: flash-slide-out 0.15s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+@media (min-width: 640px) {
+  .flash-toast {
+    transform: translateX(100%);
+    animation-name: flash-slide-in-desktop;
+  }
+
+  .flash-toast.is-dismissing {
+    animation-name: flash-slide-out-desktop;
+  }
+}
+
+/* Toast Content */
+.flash-toast-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.flash-toast-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  color: var(--color-accent);
+}
+
+.flash-toast-message {
+  font-family: var(--font-family-body);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--color-text);
+  padding-top: 2px;
+}
+
+/* Close Button */
+.flash-toast-close {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin: -4px -4px -4px 0;
+  background: transparent;
+  border: var(--border-width) solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+}
+
+.flash-toast-close:hover {
+  background: var(--color-bg-surface);
+  border-color: var(--color-border);
+  color: var(--color-text);
+}
+
+.flash-toast-close:active {
+  background: var(--color-bg-hover);
+}
+
+/* Notice (Success) Variant */
+.flash-toast--notice {
+  border-left-color: var(--color-success);
+}
+
+.flash-toast--notice .flash-toast-icon {
+  color: var(--color-success);
+}
+
+/* Alert (Error) Variant */
+.flash-toast--alert {
+  border-left-color: var(--color-error);
+}
+
+.flash-toast--alert .flash-toast-icon {
+  color: var(--color-error);
+}
+
+/* Animations - Mobile (slide from top) */
+@keyframes flash-slide-in {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes flash-slide-out {
+  from {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+}
+
+/* Animations - Desktop (slide from right) */
+@keyframes flash-slide-in-desktop {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes flash-slide-out-desktop {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Fade out for reduced motion */
+@keyframes flash-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .flash-toast {
+    animation: none;
+    transform: none;
+    opacity: 1;
+  }
+
+  .flash-toast.is-dismissing {
+    animation: flash-fade-out 0.1s ease forwards;
+  }
+}

@@ -30,6 +30,10 @@
   --color-border: #4a4035;
   --color-border-subtle: #3a332c;
 
+  /* Feedback colors - for flash messages and form states */
+  --color-success: #22c55e;
+  --color-error: #ef4444;
+
   /* Neubrutalist shadows - hard offset, no blur */
   --shadow-sm: 2px 2px 0 var(--color-border);
   --shadow-md: 4px 4px 0 var(--color-border);

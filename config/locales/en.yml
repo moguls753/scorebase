@@ -502,15 +502,6 @@ en:
     pricing_period: "per month"
     pricing_desc: "Smart Search, saved searches, favorites, collections, and difficulty filtering. Cancel anytime. The free catalog (%{count} scores) stays free."
 
-    # Waitlist section
-    waitlist_title: "I'm working on this"
-    waitlist_subtitle: "Join the waitlist. I'll email you when it launches."
-    waitlist_email_placeholder: "your@email.com"
-    waitlist_button: "Notify Me"
-    waitlist_sending: "Sending..."
-    waitlist_cta: "Join Waitlist"
-    waitlist_disclaimer: "I'll email you once when it's ready. No spam."
-
     # FAQ section
     faq_title: "Questions"
     faq_1_q: "How does Smart Search work?"
@@ -639,6 +630,13 @@ en:
     # Access control
     subscription_required: "Smart Search requires a Pro subscription."
 
+  # Flash messages
+  flash:
+    dismiss: "Dismiss"
+    login_success: "Welcome back!"
+    logout_success: "You've been signed out."
+    signup_success: "Welcome to ScoreBase!"
+
   # Authentication
   auth:
     # Sign in page
@@ -675,19 +673,6 @@ en:
     choose_strong_password: "Choose a strong password"
     new_password: "New password"
     update_password: "Update password"
-
-  # Mailers
-  waitlist_mailer:
-    confirmation:
-      subject: "You're on the ScoreBase Pro waitlist"
-
-  # Waitlist form messages
-  waitlist:
-    success: "Thanks! Check your email for confirmation."
-    success_with_preview: "Thanks! Check your email for confirmation or <a href=\"%{preview_url}\" target=\"_blank\" rel=\"noopener noreferrer\">preview it here</a>."
-    already_subscribed: "You're already on the list! We'll email you when we launch."
-    error: "Something went wrong. Please try again."
-    rate_limit: "Too many requests. Please try again in an hour."
 
   # Search limits
   search_limit:

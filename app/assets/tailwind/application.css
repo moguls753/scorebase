@@ -32,6 +32,7 @@
 @import "./pro.css";              /* Pro landing page */
 @import "./auth.css";             /* Authentication pages */
 @import "./smart_search_hint.css"; /* Smart search hint teaser */
+@import "./flash.css";             /* Flash toast notifications */
 
 /* ========================================
    SUBTLE ANIMATIONS - Refined, purposeful
