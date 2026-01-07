@@ -1,13 +1,20 @@
 # frozen_string_literal: true
 
 namespace :rag do
-  desc "Generate search_text for RAG. LIMIT=100, BACKEND=groq|lmstudio, FORCE=false"
+  desc "Generate search_text for RAG. LIMIT=100, BACKEND=groq, MODEL=llama-4-scout, SCOPE=priority, FORCE=false"
   task generate: :environment do
-    limit = ENV.fetch("LIMIT", 100).to_i
+    limit = ENV.fetch("LIMIT", "100").to_i
     backend = ENV.fetch("BACKEND", "groq").to_sym
-    force = ENV.fetch("FORCE", "false") == "true"
+    model = ENV.fetch("MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")
+    scope = ENV["SCOPE"]
+    force = ENV["FORCE"] == "true"
 
-    GenerateSearchTextJob.perform_now(limit: limit, backend: backend, force: force)
+    if scope == "priority"
+      puts "Scope: priority (balanced: SATB + Guitar + Solo vocal + Bach/Mozart/Handel)"
+      puts
+    end
+
+    GenerateSearchTextJob.perform_now(limit: limit, backend: backend, model: model, scope: scope, force: force)
     print_rag_stats
   end
 

@@ -6,18 +6,33 @@
 # Usage:
 #   GenerateSearchTextJob.perform_later
 #   GenerateSearchTextJob.perform_later(limit: 100, backend: :groq)
-#   GenerateSearchTextJob.perform_later(force: true)  # regenerate already-templated
+#   GenerateSearchTextJob.perform_later(model: "llama-3.1-8b-instant")
+#   GenerateSearchTextJob.perform_later(scope: "priority")  # balanced instrument sampling
+#   GenerateSearchTextJob.perform_later(force: true)        # regenerate already-templated
 #
 class GenerateSearchTextJob < ApplicationJob
   queue_as :rag
 
-  def perform(limit: 100, backend: :groq, force: false)
-    scores = eligible_scores(limit, force: force).to_a
+  # Default model: llama-4-scout produces better variety than llama-3.1-8b
+  # (less template repetition, better embedding differentiation for RAG)
+  DEFAULT_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
-    log_start(scores.size, backend, force)
+  # Priority scope for testing - covers main user types with instrument diversity
+  # Balanced sampling: LIMIT/4 from each category
+  PRIORITY_CATEGORIES = [
+    "voicing = 'SATB'",
+    "instruments LIKE '%Guitar%'",
+    "voicing LIKE 'Solo%'",
+    "(composer LIKE '%Bach%' OR composer LIKE '%Mozart%' OR composer LIKE '%Handel%')"
+  ].freeze
+
+  def perform(limit: 100, backend: :groq, model: DEFAULT_MODEL, scope: nil, force: false)
+    scores = eligible_scores(limit, scope: scope, force: force).to_a
+
+    log_start(scores.size, backend, model, scope, force)
     return if scores.empty?
 
-    client = LlmClient.new(backend: backend)
+    client = LlmClient.new(backend: backend, model: model)
     generator = SearchTextGenerator.new(client: client)
     stats = { templated: 0, failed: 0 }
 
@@ -47,18 +62,31 @@ class GenerateSearchTextJob < ApplicationJob
 
   private
 
-  def eligible_scores(limit, force:)
-    scope = if force
-              Score.where(rag_status: %w[ready templated])
+  def eligible_scores(limit, scope:, force:)
+    base = if force
+             Score.where(rag_status: %w[ready templated])
+           else
+             Score.rag_ready
+           end
+
+    if scope.to_s == "priority"
+      # Balanced sampling: distribute limit evenly across categories
+      per_category = (limit.to_f / PRIORITY_CATEGORIES.size).ceil
+      ids = PRIORITY_CATEGORIES.flat_map do |cat_sql|
+        base.where(cat_sql).limit(per_category).pluck(:id)
+      end.uniq.first(limit)
+
+      Score.where(id: ids)
     else
-              Score.rag_ready
+      base.limit(limit)
     end
-    scope.limit(limit)
   end
 
-  def log_start(count, backend, force)
+  def log_start(count, backend, model, scope, force)
     mode = force ? "(force regenerate)" : "(new only)"
-    logger.info "[GenerateSearchText] Processing #{count} scores with #{backend} #{mode}"
+    model_name = model.split("/").last  # "meta-llama/llama-4-scout..." → "llama-4-scout..."
+    scope_info = scope.present? ? "[#{scope}] " : ""
+    logger.info "[GenerateSearchText] #{scope_info}Processing #{count} scores with #{backend}/#{model_name} #{mode}"
   end
 
   def log_complete(stats)
