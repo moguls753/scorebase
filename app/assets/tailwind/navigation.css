@@ -406,6 +406,101 @@ main a:not(.mm-button):not(.mm-card):hover {
   border-top: var(--border-width) solid var(--color-border);
 }
 
+/* Mobile Menu User Section */
+.mobile-menu-user {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  background: var(--color-bg-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 2px 2px 0 var(--color-border);
+}
+
+.mobile-menu-user-email {
+  width: 100%;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  margin-bottom: 4px;
+}
+
+.mobile-menu-user-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 8px;
+  background: var(--color-bg-deep);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--font-family-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+.mobile-menu-user-badge--pro {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #FFFFFF;
+}
+
+.mobile-menu-user-searches {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* Mobile Menu Logout Button - button_to creates a form wrapper */
+.mobile-menu-logout {
+  display: block;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+}
+
+.mobile-menu-logout button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--color-bg-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-muted);
+  font-family: var(--font-family-body);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--color-border);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+}
+
+.mobile-menu-logout button:hover {
+  border-color: var(--color-error);
+  color: var(--color-error);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--color-error);
+}
+
+.mobile-menu-logout button:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--color-border);
+}
+
+.mobile-menu-logout button svg {
+  flex-shrink: 0;
+}
+
 /* Mobile Filter Details/Summary */
 .filter-details {
   padding: 0;

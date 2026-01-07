@@ -5,10 +5,15 @@ en:
     impressum: "Impressum"
     toggle_language: "Toggle language"
     sign_in: "Sign in"
+    sign_out: "Sign out"
     smart_search: "Smart Search"
     menu: "Menu"
     toggle_menu: "Toggle menu"
     close_menu: "Close menu"
+    account: "Account"
+    pro_badge: "Pro"
+    free_badge: "Free"
+    searches_remaining: "%{count} searches left"
 
   # Footer
   footer:

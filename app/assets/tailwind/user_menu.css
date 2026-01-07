@@ -1,0 +1,199 @@
+/* ========================================
+   USER MENU - Neubrutalist Dropdown
+   ======================================== */
+
+.user-menu {
+  position: relative;
+}
+
+.user-menu-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: var(--color-bg-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-family: var(--font-family-body);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.1s ease, transform 0.1s ease, box-shadow 0.1s ease;
+  box-shadow: 2px 2px 0 var(--color-border);
+}
+
+.user-menu-trigger:hover {
+  background: var(--color-bg-hover);
+}
+
+.user-menu-trigger:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--color-border);
+}
+
+.user-menu-trigger svg {
+  flex-shrink: 0;
+}
+
+.user-menu-chevron {
+  transition: transform 0.15s ease;
+}
+
+.user-menu.is-open .user-menu-chevron {
+  transform: rotate(180deg);
+}
+
+/* Dropdown Panel */
+.user-menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 220px;
+  background: var(--color-bg-elevated);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 4px 4px 0 var(--color-border);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  z-index: 100;
+}
+
+.user-menu-dropdown.is-open {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+/* User Info Section */
+.user-menu-header {
+  padding: 12px 14px;
+  border-bottom: var(--border-width) solid var(--color-border);
+}
+
+.user-menu-email {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-menu-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.user-menu-status--pro {
+  color: var(--color-accent);
+}
+
+.user-menu-status--free {
+  color: var(--color-text-muted);
+}
+
+.user-menu-searches {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+}
+
+/* Menu Items */
+.user-menu-items {
+  padding: 6px 0;
+}
+
+.user-menu-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text);
+  text-decoration: none;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.user-menu-link:hover {
+  background: var(--color-bg-surface);
+  color: var(--color-accent);
+}
+
+.user-menu-link svg {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.user-menu-link:hover svg {
+  color: var(--color-accent);
+}
+
+/* Divider */
+.user-menu-divider {
+  height: 0;
+  margin: 6px 0;
+  border-top: var(--border-width) solid var(--color-border);
+}
+
+/* Logout - button_to creates a form wrapper */
+.user-menu-link--logout {
+  /* Reset form styles from button_to */
+  display: block;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+}
+
+.user-menu-link--logout button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 14px;
+  background: none;
+  border: none;
+  font-family: var(--font-family-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s ease, color 0.1s ease;
+}
+
+.user-menu-link--logout button:hover {
+  background: var(--color-bg-surface);
+  color: var(--color-error);
+}
+
+.user-menu-link--logout button svg {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+}
+
+.user-menu-link--logout button:hover svg {
+  color: var(--color-error);
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .user-menu-dropdown {
+    transition: none;
+  }
+
+  .user-menu-chevron {
+    transition: none;
+  }
+}

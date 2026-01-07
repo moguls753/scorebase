@@ -80,7 +80,51 @@
           <!-- Desktop Navigation -->
           <nav class="hidden sm:flex items-center gap-2">
             <% if authenticated? %>
-              <%= link_to t('nav.smart_search'), smart_search_path, class: "nav-smart-search-btn" %>
+              <!-- User Menu Dropdown -->
+              <div class="user-menu" data-controller="user-menu">
+                <button type="button" class="user-menu-trigger" data-user-menu-target="trigger" data-action="click->user-menu#toggle" aria-haspopup="true" aria-expanded="false">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                  </svg>
+                  <span class="user-menu-chevron">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="6 9 12 15 18 9"></polyline>
+                    </svg>
+                  </span>
+                </button>
+                <div class="user-menu-dropdown" data-user-menu-target="menu">
+                  <div class="user-menu-header">
+                    <div class="user-menu-email"><%= Current.user.email_address %></div>
+                    <% if pro_user? %>
+                      <div class="user-menu-status user-menu-status--pro"><%= t('nav.pro_badge') %></div>
+                    <% else %>
+                      <div class="user-menu-status user-menu-status--free"><%= t('nav.free_badge') %></div>
+                      <div class="user-menu-searches"><%= t('nav.searches_remaining', count: Current.user.searches_remaining) %></div>
+                    <% end %>
+                  </div>
+                  <div class="user-menu-items">
+                    <%= link_to smart_search_path, class: "user-menu-link" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <path d="m21 21-4.3-4.3"></path>
+                        <path d="M11 8v6"></path>
+                        <path d="M8 11h6"></path>
+                      </svg>
+                      <%= t('nav.smart_search') %>
+                    <% end %>
+                    <div class="user-menu-divider"></div>
+                    <%= button_to t('nav.sign_out'), session_path, method: :delete, class: "user-menu-link user-menu-link--logout" do %>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                      </svg>
+                      <%= t('nav.sign_out') %>
+                    <% end %>
+                  </div>
+                </div>
+              </div>
             <% else %>
               <%= link_to new_session_path, class: "nav-sign-in-btn" do %>
                 <%= t('nav.sign_in') %>
@@ -130,7 +174,25 @@
       </div>
       <div class="mobile-menu-content">
         <% if authenticated? %>
-          <%= link_to t('nav.smart_search'), smart_search_path, class: "mobile-menu-link mobile-menu-link--pro", data: { action: "click->mobile-menu#close" } %>
+          <!-- User Info -->
+          <div class="mobile-menu-user">
+            <div class="mobile-menu-user-email"><%= Current.user.email_address %></div>
+            <% if pro_user? %>
+              <span class="mobile-menu-user-badge mobile-menu-user-badge--pro"><%= t('nav.pro_badge') %></span>
+            <% else %>
+              <span class="mobile-menu-user-badge"><%= t('nav.free_badge') %></span>
+              <span class="mobile-menu-user-searches"><%= t('nav.searches_remaining', count: Current.user.searches_remaining) %></span>
+            <% end %>
+          </div>
+          <%= link_to smart_search_path, class: "mobile-menu-link mobile-menu-link--pro", data: { action: "click->mobile-menu#close" } do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+              <path d="M11 8v6"></path>
+              <path d="M8 11h6"></path>
+            </svg>
+            <span><%= t('nav.smart_search') %></span>
+          <% end %>
         <% else %>
           <%= link_to new_session_path, class: "mobile-menu-link mobile-menu-link--pro", data: { action: "click->mobile-menu#close" } do %>
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -161,6 +223,16 @@
         <% end %>
       </div>
       <div class="mobile-menu-footer">
+        <% if authenticated? %>
+          <%= button_to session_path, method: :delete, class: "mobile-menu-logout", data: { action: "click->mobile-menu#close" } do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            <%= t('nav.sign_out') %>
+          <% end %>
+        <% end %>
         <%= link_to t('nav.impressum'), impressum_path, class: "text-xs text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors", data: { action: "click->mobile-menu#close" } %>
       </div>
     </nav>

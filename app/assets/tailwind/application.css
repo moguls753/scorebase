@@ -33,6 +33,7 @@
 @import "./auth.css";             /* Authentication pages */
 @import "./smart_search_hint.css"; /* Smart search hint teaser */
 @import "./flash.css";             /* Flash toast notifications */
+@import "./user_menu.css";         /* User dropdown menu */
 
 /* ========================================
    SUBTLE ANIMATIONS - Refined, purposeful
