@@ -38,12 +38,14 @@ class SearchTextGenerator
 
     <rules>
     - Write 5–7 sentences (150-250 words) in a paragraph that gives a complete picture of the piece.
+    - START with title and composer (e.g., "Étude Op.6 by Fernando Sor is a virtuoso guitar piece...")
     - Include ALL of these elements:
-      (1) DIFFICULTY (exactly one: easy/beginner, intermediate, advanced, virtuoso)
-      (2) CHARACTER (2-3 mood/style words: gentle, dramatic, contemplative, energetic, majestic, lyrical, playful, solemn, etc.)
-      (3) BEST FOR (specific uses: sight-reading practice, student recitals, church services, exam repertoire, technique building, competitions, teaching specific skills)
-      (4) MUSICAL FEATURES (texture, harmonic language, notable patterns like arpeggios, scales, counterpoint)
-      (5) KEY DETAILS (duration, instrumentation, key, period/style)
+      (1) TITLE and COMPOSER in the first sentence
+      (2) DIFFICULTY (exactly one: easy/beginner, intermediate, advanced, virtuoso)
+      (3) CHARACTER (2-3 mood/style words: gentle, dramatic, contemplative, energetic, majestic, lyrical, playful, solemn, etc.)
+      (4) BEST FOR (specific uses: sight-reading practice, student recitals, church services, exam repertoire, technique building, competitions, teaching specific skills)
+      (5) MUSICAL FEATURES (texture, harmonic language, notable patterns like arpeggios, scales, counterpoint)
+      (6) KEY DETAILS (duration, instrumentation, key, period/style)
     - Use words musicians actually search: "sight-reading", "recital piece", "exam repertoire", "church anthem", "teaching piece", "competition", "Baroque counterpoint", "lyrical melody", "chromatic passages", "syncopated rhythms".
     - NEVER use academic metric-compounds like "chromatic complexity", "polyphonic density", "melodic complexity", "rhythmic variety". The data uses searchable terms already - use them naturally in prose.
     - Only use what is in the <data/> section. Do not invent facts.
@@ -60,9 +62,9 @@ class SearchTextGenerator
     </steps>
 
     <examples>
-    - "Easy beginner piano piece in C major with a gentle, flowing character. The simple melodic lines and steady rhythms make it ideal for first-year students developing hand coordination. Perfect for sight-reading practice or as an early recital piece. The piece stays in a comfortable range and uses basic chord patterns. About 2 minutes long, it works well for building confidence in young pianists."
-    - "Advanced SATB anthem with a joyful, majestic character, well-suited for Easter services or festive choir concerts. The four-part writing features independent voice lines and some chromatic passages that require confident singers. Soprano part reaches B5, so ensure your section can handle the tessitura. The energetic rhythms and triumphant harmonies make this a rewarding showpiece. Approximately 4 minutes."
-    - "Intermediate violin sonata in the Romantic style, lyrical and deeply expressive. Features singing melodic lines with moderate technical demands including some position work and dynamic contrasts. Excellent choice for student recitals, conservatory auditions, or as exam repertoire. The piano accompaniment provides rich harmonic support. A substantial work that develops musicality and interpretation skills."
+    - "Sonatina in C major by Muzio Clementi is an easy beginner piano piece with a gentle, flowing character. The simple melodic lines and steady rhythms make it ideal for first-year students developing hand coordination. Perfect for sight-reading practice or as an early recital piece. The piece stays in a comfortable range and uses basic chord patterns. About 2 minutes long, it works well for building confidence in young pianists."
+    - "Ascendit Deus by Peter Philips is an advanced SATB anthem with a joyful, majestic character, well-suited for Easter services or festive choir concerts. The four-part writing features independent voice lines and some chromatic passages that require confident singers. Soprano part reaches B5, so ensure your section can handle the tessitura. The energetic rhythms and triumphant harmonies make this a rewarding showpiece. Approximately 4 minutes."
+    - "Violin Sonata No. 1 by Johannes Brahms is an intermediate violin sonata in the Romantic style, lyrical and deeply expressive. Features singing melodic lines with moderate technical demands including some position work and dynamic contrasts. Excellent choice for student recitals, conservatory auditions, or as exam repertoire. The piano accompaniment provides rich harmonic support. A substantial work that develops musicality and interpretation skills."
     </examples>
 
     <data>
