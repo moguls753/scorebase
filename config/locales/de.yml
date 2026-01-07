@@ -45,6 +45,12 @@ de:
     results_count: "Noten"
     sort_by: "SORTIEREN"
     unknown_composer: "Unbekannt"
+    untitled: "Ohne Titel"
+
+  # Smart Search
+  smart_search:
+    placeholder: "Beschreibe, was du suchst..."
+    search_button: "Suchen"
 
   # Filters
   filters:

@@ -1,7 +1,11 @@
 /* ========================================
-   SMART SEARCH TEASER
-   Dark Warm Neubrutalism - clear, confident, readable
+   SMART SEARCH - Dark Warm Neubrutalism
+   Bold, tactile design with hard shadows
    ======================================== */
+
+/* ----------------------------------------
+   SMART SEARCH TEASER (Homepage)
+   ---------------------------------------- */
 
 .smart-search-teaser {
   text-align: center;
@@ -21,7 +25,6 @@
   word-spacing: 0.15em;
 }
 
-/* "Try" prefix - subtle lead-in */
 .teaser-prefix {
   display: inline-block;
   font-family: var(--font-family-display);
@@ -34,7 +37,6 @@
   top: 1px;
 }
 
-/* "Smart Search" - accent color */
 .teaser-name {
   display: inline-block;
   font-family: var(--font-family-display);
@@ -47,7 +49,6 @@
   top: 1px;
 }
 
-/* Arrow */
 .teaser-arrow {
   display: inline-block;
   font-size: 16px;
@@ -56,7 +57,6 @@
   margin: 0 0.3em;
 }
 
-/* "Learn more" */
 .teaser-cta {
   font-size: 15px;
   font-weight: 600;
@@ -64,53 +64,33 @@
   transition: color 0.2s ease;
 }
 
-/* Hover - only Smart Search text changes */
 .smart-search-teaser-link:hover .teaser-name {
   color: var(--color-accent-hover);
   transform: scale(1.03);
 }
 
-/* Responsive */
 @media (max-width: 640px) {
   .smart-search-teaser {
     display: none;
   }
 }
 
-/* Tablet - slightly smaller to prevent wrapping */
 @media (min-width: 641px) and (max-width: 768px) {
   .smart-search-teaser-link {
     font-size: 14px;
   }
-
   .teaser-prefix,
   .teaser-name {
     font-size: 17px;
   }
-
   .teaser-cta {
     font-size: 14px;
   }
 }
 
-/* Accessibility */
-@media (prefers-reduced-motion: reduce) {
-  .smart-search-teaser-link,
-  .teaser-prefix,
-  .teaser-name,
-  .teaser-arrow,
-  .teaser-cta {
-    transition: none !important;
-  }
-
-  .smart-search-teaser-link:hover .teaser-name {
-    transform: none !important;
-  }
-}
-
-/* ========================================
+/* ----------------------------------------
    SMART SEARCH SPINNER
-   ======================================== */
+   ---------------------------------------- */
 
 @keyframes smart-search-spin {
   0% { transform: rotate(0deg); }
@@ -121,8 +101,432 @@
   animation: smart-search-spin 0.8s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
 }
 
+/* ----------------------------------------
+   SMART SEARCH PAGE
+   ---------------------------------------- */
+
+/* Search Input Wrapper */
+.smart-search-input-wrapper {
+  position: relative;
+  background: var(--color-bg-elevated);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 4px 4px 0 var(--color-border);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+}
+
+.smart-search-input-wrapper:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: 4px 4px 0 var(--color-accent);
+}
+
+.smart-search-input {
+  width: 100%;
+  padding: 16px 60px 16px 20px;
+  font-size: 15px;
+  font-family: var(--font-family-body);
+  background: transparent;
+  border: none;
+  color: var(--color-text);
+  outline: none;
+}
+
+.smart-search-input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.smart-search-submit {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+  border: var(--border-width) solid var(--color-bg-deep);
+  border-radius: var(--radius-sm);
+  color: white;
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--color-bg-deep);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+
+.smart-search-submit:hover {
+  background: var(--color-accent-hover);
+  transform: translateY(-50%) translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--color-bg-deep);
+}
+
+.smart-search-submit:active {
+  transform: translateY(-50%) translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--color-bg-deep);
+}
+
+/* ----------------------------------------
+   PRO BADGE
+   ---------------------------------------- */
+
+.smart-search-pro-badge {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 8px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 800;
+  font-family: var(--font-family-display);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: white;
+  background: var(--color-accent);
+  border: var(--border-width) solid var(--color-bg-deep);
+  border-radius: var(--radius-sm);
+  box-shadow: 2px 2px 0 var(--color-bg-deep);
+}
+
+/* ----------------------------------------
+   AI SUMMARY BOX
+   ---------------------------------------- */
+
+.smart-search-summary {
+  padding: 20px 24px;
+  margin-bottom: 32px;
+  background: var(--color-bg-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-left: 4px solid var(--color-accent);
+  border-radius: var(--radius-sm);
+  box-shadow: 4px 4px 0 var(--color-border);
+}
+
+.smart-search-summary-text {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+/* ----------------------------------------
+   RESULT CARDS - Horizontal with Thumbnail
+   ---------------------------------------- */
+
+.smart-search-results {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.smart-search-card {
+  display: flex;
+  gap: 0;
+  background: var(--color-bg-card);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: 4px 4px 0 var(--color-border);
+  text-decoration: none;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+}
+
+.smart-search-card:hover {
+  border-color: var(--color-accent);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--color-border);
+}
+
+.smart-search-card:active {
+  transform: translate(1px, 1px);
+  box-shadow: 3px 3px 0 var(--color-border);
+}
+
+/* Thumbnail area */
+.smart-search-card-thumbnail {
+  position: relative;
+  flex-shrink: 0;
+  width: 120px;
+  background: var(--color-bg);
+}
+
+.smart-search-card-thumbnail > div {
+  aspect-ratio: 1;
+}
+
+/* Rank badge - positioned on thumbnail */
+.smart-search-rank {
+  position: absolute;
+  left: -1px;
+  top: -1px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-accent);
+  border: var(--border-width) solid var(--color-bg-deep);
+  border-radius: 0 0 var(--radius-sm) 0;
+  color: white;
+  font-size: 13px;
+  font-weight: 800;
+  font-family: var(--font-family-display);
+}
+
+/* Content area */
+.smart-search-card-content {
+  flex: 1;
+  min-width: 0;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.smart-search-card-title {
+  font-size: 16px;
+  font-family: var(--font-family-display);
+  font-weight: 800;
+  color: var(--color-text);
+  line-height: 1.3;
+  margin-bottom: 2px;
+  transition: color 0.1s ease;
+}
+
+.smart-search-card:hover .smart-search-card-title {
+  color: var(--color-accent);
+}
+
+.smart-search-card-composer {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.smart-search-card-explanation {
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.smart-search-card-tag {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  background: var(--color-bg-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  align-self: flex-start;
+}
+
+/* ----------------------------------------
+   EMPTY STATE
+   ---------------------------------------- */
+
+.smart-search-empty {
+  text-align: center;
+  padding: 48px 24px;
+  background: var(--color-bg-card);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 4px 4px 0 var(--color-border);
+}
+
+.smart-search-empty-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 16px;
+  background: var(--color-bg-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: 3px 3px 0 var(--color-border);
+}
+
+.smart-search-browse-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-family-display);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--color-text);
+  background: var(--color-bg-elevated);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  box-shadow: 3px 3px 0 var(--color-border);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+}
+
+.smart-search-browse-btn:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--color-accent);
+}
+
+.smart-search-browse-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--color-border);
+}
+
+/* ----------------------------------------
+   SUGGESTION CHIPS
+   ---------------------------------------- */
+
+.smart-search-suggestion {
+  display: inline-block;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-bg-elevated);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  box-shadow: 3px 3px 0 var(--color-border);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease, color 0.1s ease;
+}
+
+.smart-search-suggestion:hover {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--color-accent);
+}
+
+.smart-search-suggestion:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--color-border);
+}
+
+/* ----------------------------------------
+   ACCESSIBILITY
+   ---------------------------------------- */
+
 @media (prefers-reduced-motion: reduce) {
+  .smart-search-teaser-link,
+  .teaser-prefix,
+  .teaser-name,
+  .teaser-arrow,
+  .teaser-cta,
+  .smart-search-spinner,
+  .smart-search-input-wrapper,
+  .smart-search-submit,
+  .smart-search-card,
+  .smart-search-browse-btn,
+  .smart-search-suggestion {
+    transition: none !important;
+  }
+
+  .smart-search-teaser-link:hover .teaser-name {
+    transform: none !important;
+  }
+
   .smart-search-spinner {
     animation: none;
+  }
+}
+
+/* ----------------------------------------
+   MOBILE RESPONSIVE
+   ---------------------------------------- */
+
+@media (max-width: 640px) {
+  .smart-search-input {
+    padding: 14px 56px 14px 16px;
+    font-size: 16px;
+  }
+
+  .smart-search-submit {
+    width: 40px;
+    height: 40px;
+    right: 4px;
+  }
+
+  .smart-search-summary {
+    padding: 16px 18px;
+  }
+
+  .smart-search-summary-text {
+    font-size: 14px;
+  }
+
+  .smart-search-pro-badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+
+  /* Card stays horizontal but smaller thumbnail */
+  .smart-search-card-thumbnail {
+    width: 90px;
+  }
+
+  .smart-search-card-content {
+    padding: 12px 14px;
+  }
+
+  .smart-search-card-title {
+    font-size: 14px;
+  }
+
+  .smart-search-card-composer {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+
+  .smart-search-card-explanation {
+    font-size: 12px;
+    -webkit-line-clamp: 2;
+    margin-bottom: 8px;
+  }
+
+  .smart-search-card-tag {
+    font-size: 9px;
+    padding: 3px 8px;
+  }
+
+  .smart-search-rank {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .smart-search-suggestion {
+    padding: 10px 14px;
+    font-size: 12px;
+  }
+}
+
+/* Larger screens - bigger thumbnails */
+@media (min-width: 768px) {
+  .smart-search-card-thumbnail {
+    width: 140px;
+  }
+
+  .smart-search-card-title {
+    font-size: 18px;
+  }
+
+  .smart-search-card-content {
+    padding: 20px 24px;
+  }
+
+  .smart-search-card-explanation {
+    -webkit-line-clamp: 3;
   }
 }

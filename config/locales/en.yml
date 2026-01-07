@@ -45,6 +45,12 @@ en:
     results_count: "scores"
     sort_by: "SORT BY"
     unknown_composer: "Unknown"
+    untitled: "Untitled"
+
+  # Smart Search
+  smart_search:
+    placeholder: "Describe what you're looking for..."
+    search_button: "Search"
 
   # Filters
   filters:
