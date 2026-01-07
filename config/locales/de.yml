@@ -11,6 +11,7 @@ de:
     toggle_menu: "Menü öffnen"
     close_menu: "Menü schließen"
     account: "Konto"
+    account_settings: "Kontoeinstellungen"
     pro_badge: "Pro"
     free_badge: "Kostenlos"
     searches_remaining: "%{count} Suchen übrig"

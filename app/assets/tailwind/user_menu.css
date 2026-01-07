@@ -1,50 +1,21 @@
 /* ========================================
-   USER MENU - Neubrutalist Dropdown
+   USER MENU - Dropdown Panel
    ======================================== */
 
 .user-menu {
   position: relative;
 }
 
-.user-menu-trigger {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: var(--color-bg-surface);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-sm);
-  color: var(--color-text);
-  font-family: var(--font-family-body);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.1s ease, transform 0.1s ease, box-shadow 0.1s ease;
-  box-shadow: 2px 2px 0 var(--color-border);
-}
-
-.user-menu-trigger:hover {
+/* Trigger active state */
+.user-menu.is-open .nav-icon-btn {
   background: var(--color-bg-hover);
-}
-
-.user-menu-trigger:active {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
   transform: translate(1px, 1px);
   box-shadow: 1px 1px 0 var(--color-border);
 }
 
-.user-menu-trigger svg {
-  flex-shrink: 0;
-}
-
-.user-menu-chevron {
-  transition: transform 0.15s ease;
-}
-
-.user-menu.is-open .user-menu-chevron {
-  transform: rotate(180deg);
-}
-
-/* Dropdown Panel */
+/* Dropdown Panel - no animation, instant feedback */
 .user-menu-dropdown {
   position: absolute;
   top: calc(100% + 8px);
@@ -54,17 +25,12 @@
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-sm);
   box-shadow: 4px 4px 0 var(--color-border);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(-8px);
-  transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s;
+  display: none;
   z-index: 100;
 }
 
 .user-menu-dropdown.is-open {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+  display: block;
 }
 
 /* User Info Section */
@@ -101,12 +67,6 @@
   color: var(--color-text-muted);
 }
 
-.user-menu-searches {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  margin-top: 4px;
-}
-
 /* Menu Items */
 .user-menu-items {
   padding: 6px 0;
@@ -124,9 +84,15 @@
   transition: background 0.1s ease, color 0.1s ease;
 }
 
-.user-menu-link:hover {
+.user-menu-link:hover,
+.user-menu-link:focus-visible {
   background: var(--color-bg-surface);
   color: var(--color-accent);
+  outline: none;
+}
+
+.user-menu-link:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--color-accent);
 }
 
 .user-menu-link svg {
@@ -134,7 +100,8 @@
   color: var(--color-text-muted);
 }
 
-.user-menu-link:hover svg {
+.user-menu-link:hover svg,
+.user-menu-link:focus-visible svg {
   color: var(--color-accent);
 }
 
@@ -167,15 +134,21 @@
   font-family: var(--font-family-body);
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-text-muted);
+  color: var(--color-text);
   text-align: left;
   cursor: pointer;
   transition: background 0.1s ease, color 0.1s ease;
 }
 
-.user-menu-link--logout button:hover {
+.user-menu-link--logout button:hover,
+.user-menu-link--logout button:focus-visible {
   background: var(--color-bg-surface);
   color: var(--color-error);
+  outline: none;
+}
+
+.user-menu-link--logout button:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--color-error);
 }
 
 .user-menu-link--logout button svg {
@@ -183,17 +156,8 @@
   color: var(--color-text-muted);
 }
 
-.user-menu-link--logout button:hover svg {
+.user-menu-link--logout button:hover svg,
+.user-menu-link--logout button:focus-visible svg {
   color: var(--color-error);
 }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .user-menu-dropdown {
-    transition: none;
-  }
-
-  .user-menu-chevron {
-    transition: none;
-  }
-}
