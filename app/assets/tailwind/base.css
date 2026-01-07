@@ -86,12 +86,6 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Clean content stacking - no animated backgrounds */
-header, main, footer, nav {
-  position: relative;
-  z-index: 1;
-}
-
 /* ========================================
    CORE COMPONENTS - Bold Neubrutalist Style
    ======================================== */
