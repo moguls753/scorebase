@@ -1014,46 +1014,73 @@ def extract(file_path: str) -> dict:
 
 
 # ─────────────────────────────────────────────────────────────────
-# CLI
+# BATCH PROCESSING
 # ─────────────────────────────────────────────────────────────────
 
-def extract_batch(paths: list[str], output_file=sys.stdout) -> dict:
+def _extract_one(path: str) -> dict:
+    """
+    Extract single file. Top-level function required for multiprocessing.
+
+    Returns dict with file_path and all extraction results.
+    Never raises - errors captured in result dict.
+    """
+    result = {"file_path": path}
+    if not Path(path).exists():
+        result["extraction_status"] = "failed"
+        result["extraction_error"] = f"File not found: {path}"
+    else:
+        try:
+            result.update(extract(path))
+        except Exception as e:
+            result["extraction_status"] = "failed"
+            result["extraction_error"] = str(e)[:500]
+    return result
+
+
+def extract_batch(
+    paths: list[str],
+    output_file=sys.stdout,
+    workers: int = 1
+) -> dict:
     """
     Extract features from multiple files in batch mode.
 
-    Outputs JSONL (one JSON object per line) with file_path included.
-    Returns stats dict with counts.
+    Args:
+        paths: List of MusicXML file paths
+        output_file: File object for JSONL output (default: stdout)
+        workers: Parallel workers. 1=sequential, 0=auto (cpu_count)
+
+    Returns:
+        Stats dict with total, extracted, failed counts
     """
-    stats = {"total": len(paths), "extracted": 0, "failed": 0}
+    from multiprocessing import Pool, cpu_count
 
-    for i, path in enumerate(paths):
-        result = {"file_path": path}
+    total = len(paths)
+    stats = {"total": total, "extracted": 0, "failed": 0}
 
-        if not Path(path).exists():
-            result["extraction_status"] = "failed"
-            result["extraction_error"] = f"File not found: {path}"
-            stats["failed"] += 1
-        else:
-            try:
-                extracted = extract(path)
-                result.update(extracted)
-                if extracted.get("extraction_status") == "extracted":
-                    stats["extracted"] += 1
-                else:
-                    stats["failed"] += 1
-            except Exception as e:
-                result["extraction_status"] = "failed"
-                result["extraction_error"] = str(e)[:500]
-                stats["failed"] += 1
+    if workers == 0:
+        workers = cpu_count()
 
-        # Output JSONL (one object per line)
+    def process_result(i: int, result: dict):
+        """Handle single result: update stats, write output, log progress."""
+        ok = result.get("extraction_status") == "extracted"
+        stats["extracted" if ok else "failed"] += 1
+
         output_file.write(json.dumps(result, ensure_ascii=False) + "\n")
         output_file.flush()
 
-        # Progress to stderr (every file for visibility)
-        status = "OK" if result.get("extraction_status") == "extracted" else "FAIL"
-        print(f"[{i + 1}/{len(paths)}] {status}: {Path(path).name}", file=sys.stderr)
+        status = "OK" if ok else "FAIL"
+        print(f"[{i+1}/{total}] {status}: {Path(result['file_path']).name}", file=sys.stderr)
         sys.stderr.flush()
+
+    if workers > 1:
+        print(f"Parallel extraction with {workers} workers", file=sys.stderr)
+        with Pool(workers) as pool:
+            for i, result in enumerate(pool.imap(_extract_one, paths)):
+                process_result(i, result)
+    else:
+        for i, path in enumerate(paths):
+            process_result(i, _extract_one(path))
 
     return stats
 
@@ -1069,11 +1096,14 @@ Examples:
   Single file:
     python3 extract.py score.mxl
 
-  Batch mode (paths from file):
-    python3 extract.py --batch paths.txt > results.jsonl
+  Batch mode (sequential):
+    python3 extract.py --batch paths.txt -o results.jsonl
 
-  Batch mode (paths from stdin):
-    find ~/data/pdmx -name "*.mxl" | python3 extract.py --batch - > results.jsonl
+  Batch mode (4 parallel workers):
+    python3 extract.py --batch paths.txt -o results.jsonl --workers 4
+
+  Batch mode (auto-detect CPU cores):
+    find ~/data -name "*.mxl" | python3 extract.py --batch - -o results.jsonl -w 0
 """
     )
     parser.add_argument("path", nargs="?", help="Path to MusicXML file")
@@ -1081,6 +1111,8 @@ Examples:
                         help="Batch mode: read paths from FILE (use '-' for stdin)")
     parser.add_argument("--output", "-o", metavar="FILE",
                         help="Output file for batch mode (default: stdout)")
+    parser.add_argument("--workers", "-w", type=int, default=1, metavar="N",
+                        help="Parallel workers: 1=sequential (default), 0=auto, N=specific count")
 
     args = parser.parse_args()
 
@@ -1100,9 +1132,9 @@ Examples:
         # Open output file or use stdout
         if args.output:
             with open(args.output, "w") as out:
-                stats = extract_batch(paths, out)
+                stats = extract_batch(paths, out, workers=args.workers)
         else:
-            stats = extract_batch(paths)
+            stats = extract_batch(paths, workers=args.workers)
 
         print(f"\nDone: {stats['extracted']} extracted, {stats['failed']} failed",
               file=sys.stderr)
