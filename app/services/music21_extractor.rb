@@ -106,43 +106,60 @@ class Music21Extractor
       return
     end
 
+    # Save raw extraction data (Python is dumb, Ruby interprets)
     @score.update!(
+      # Pitch data
       highest_pitch: result["highest_pitch"],
       lowest_pitch: result["lowest_pitch"],
       ambitus_semitones: result["ambitus_semitones"],
       pitch_range_per_part: result["pitch_range_per_part"],
       voice_ranges: result["voice_ranges"],
+      unique_pitches: result["unique_pitches"],
+      tessitura: result["tessitura"],
+
+      # Tempo/duration
       tempo_bpm: result["tempo_bpm"],
       tempo_marking: result["tempo_marking"],
       duration_seconds: result["duration_seconds"],
       measure_count: result["measure_count"],
+
+      # Raw counts
       note_count: result["note_count"],
-      note_density: result["note_density"],
-      unique_pitches: result["unique_pitches"],
       accidental_count: result["accidental_count"],
-      chromatic_complexity: result["chromatic_complexity"],
+      leap_count: result["leap_count"],
+      max_chord_span: result["max_chord_span"],
+
+      # Rhythm (raw)
       rhythm_distribution: result["rhythm_distribution"],
-      syncopation_level: result["syncopation_level"],
-      rhythmic_variety: result["rhythmic_variety"],
       predominant_rhythm: result["predominant_rhythm"],
+      unique_duration_count: result["unique_duration_count"],
+      off_beat_count: result["off_beat_count"],
+
+      # Harmony (raw)
       key_signature: result["key_signature"] || @score.key_signature,
       key_confidence: result["key_confidence"],
       key_correlations: result["key_correlations"],
       modulations: result["modulations"],
       modulation_count: result["modulation_count"],
+      modulation_targets: result["modulation_targets"],
       chord_symbols: result["chord_symbols"],
-      harmonic_rhythm: result["harmonic_rhythm"],
+      chord_count: result["chord_count"],
+
+      # Melody (raw)
       interval_distribution: result["interval_distribution"],
       largest_interval: result["largest_interval"],
-      stepwise_motion_ratio: result["stepwise_motion_ratio"],
-      melodic_contour: result["melodic_contour"],
-      melodic_complexity: result["melodic_complexity"],
+      interval_count: result["interval_count"],
+      stepwise_count: result["stepwise_count"],
+
+      # Structure
       time_signature: result["time_signature"] || @score.time_signature,
       form_analysis: result["form_analysis"],
       sections_count: result["sections_count"],
       repeats_count: result["repeats_count"],
       cadence_types: result["cadence_types"],
       final_cadence: result["final_cadence"],
+
+      # Notation
       clefs_used: result["clefs_used"],
       has_dynamics: result["has_dynamics"],
       dynamic_range: result["dynamic_range"],
@@ -151,30 +168,66 @@ class Music21Extractor
       has_tempo_changes: result["has_tempo_changes"],
       has_fermatas: result["has_fermatas"],
       expression_markings: result["expression_markings"],
+
+      # Lyrics
       has_extracted_lyrics: result["has_extracted_lyrics"],
       extracted_lyrics: result["extracted_lyrics"],
       syllable_count: result["syllable_count"],
       lyrics_language: result["lyrics_language"],
+
+      # Instrumentation (raw data only - has_vocal etc. set by LLM normalizers)
       num_parts: result["num_parts"] || @score.num_parts,
       part_names: result["part_names"],
       detected_instruments: result["detected_instruments"],
       instrument_families: result["instrument_families"],
-      has_vocal: result["has_vocal"],
-      is_instrumental: result["is_instrumental"],
-      has_accompaniment: result["has_accompaniment"],
-      texture_type: result["texture_type"],
-      vertical_density: result["vertical_density"],
-      voice_independence: result["voice_independence"],
+
+      # Texture (raw)
+      simultaneous_note_avg: result["simultaneous_note_avg"],
+      texture_chord_count: result["texture_chord_count"],
+      parallel_motion_count: result["parallel_motion_count"],
+
+      # Phase 0: New raw extractions
+      chromatic_note_count: result["chromatic_note_count"],
+      meter_classification: result["meter_classification"],
+      beat_count: result["beat_count"],
+      voice_count: result["voice_count"],
+      has_pedal_marks: result["has_pedal_marks"],
+      slur_count: result["slur_count"],
+      has_ottava: result["has_ottava"],
+      trill_count: result["trill_count"],
+      mordent_count: result["mordent_count"],
+      turn_count: result["turn_count"],
+      tremolo_count: result["tremolo_count"],
+      grace_note_count: result["grace_note_count"],
+      arpeggio_mark_count: result["arpeggio_mark_count"],
+      detected_mode: result["detected_mode"],
+
+      # Metadata
       music21_version: result["music21_version"],
       musicxml_source: result["musicxml_source"],
-      # New fields (2024-12)
-      computed_difficulty: result["computed_difficulty"],
-      max_chord_span: result["max_chord_span"],
-      tessitura: result["tessitura"],
-      leap_count: result["leap_count"],
-      leaps_per_measure: result["leaps_per_measure"],
       extraction_status: :extracted,
       extracted_at: Time.current
+    )
+
+    # Compute derived metrics in Ruby (not from Python anymore)
+    compute_derived_fields
+  end
+
+  def compute_derived_fields
+    metrics = ScoreMetricsCalculator.new(@score)
+
+    @score.update_columns(
+      note_density: metrics.note_density,
+      chromatic_complexity: metrics.chromatic_ratio,
+      syncopation_level: metrics.syncopation_level,
+      rhythmic_variety: metrics.rhythmic_variety,
+      harmonic_rhythm: metrics.harmonic_rhythm,
+      stepwise_motion_ratio: metrics.stepwise_ratio,
+      voice_independence: metrics.voice_independence,
+      vertical_density: metrics.vertical_density,
+      leaps_per_measure: @score.measure_count&.positive? ? @score.leap_count.to_f / @score.measure_count : nil,
+      computed_difficulty: DifficultyCalculator.new(@score).compute,
+      texture_type: ScoreLabeler.new(@score).texture_type
     )
   end
 end

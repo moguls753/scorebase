@@ -413,6 +413,16 @@ class Score < ApplicationRecord
     source&.start_with?("openscore")
   end
 
+  # Derived from has_vocal (set by LLM normalizer)
+  def is_instrumental?
+    has_vocal == false
+  end
+
+  # Vocal score with non-vocal parts (piano, orchestra, etc.)
+  def has_accompaniment?
+    has_vocal && instruments.present?
+  end
+
   # For CPDL scores, return the file URL
   # Note: CPDL pdf_path already contains full URLs
   def cpdl_file_url(filename)
