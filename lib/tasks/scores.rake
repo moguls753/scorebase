@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 namespace :scores do
-  desc "Batch extract musical features using music21. LIMIT=100, FORCE=false, DEBUG=false"
+  desc "Batch extract musical features using music21. LIMIT=100, FORCE=false, DEBUG=false, WORKERS=0"
   task batch_extract: :environment do
     require "tempfile"
     require "open3"
@@ -9,6 +9,7 @@ namespace :scores do
     limit = ENV.fetch("LIMIT", "100").to_i
     force = ENV.fetch("FORCE", "false") == "true"
     debug = ENV.fetch("DEBUG", "false") == "true"
+    workers = ENV.fetch("WORKERS", "0").to_i  # 0 = auto-detect CPU cores
 
     # Find scores that need extraction (local sources only - PDMX, OpenScore)
     local_sources = %w[pdmx openscore-lieder openscore-quartets]
@@ -62,9 +63,9 @@ namespace :scores do
     output_file = Tempfile.new(["extract_results", ".jsonl"])
     output_file.close
 
-    puts "\nRunning Python extraction on #{paths_with_ids.size} files..."
+    puts "\nRunning Python extraction on #{paths_with_ids.size} files (workers: #{workers == 0 ? 'auto' : workers})..."
     status = nil
-    Open3.popen3(python, script, "--batch", paths_file.path, "--output", output_file.path) do |_stdin, _stdout, stderr, wait_thr|
+    Open3.popen3(python, script, "--batch", paths_file.path, "--output", output_file.path, "--workers", workers.to_s) do |_stdin, _stdout, stderr, wait_thr|
       # Stream stderr (progress) to console in real-time
       stderr.each_line { |line| puts "  #{line}" }
       status = wait_thr.value
