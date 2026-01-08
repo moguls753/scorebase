@@ -21,10 +21,17 @@ class SearchTextGenerator
   # Individual terms like "chromatic", "polyphonic", "syncopation" are fine.
   JARGON_TERMS = [
     "chromatic complexity",
-    "polyphonic density",
+    "vertical density",
     "melodic complexity",
     "pitch palette",
     "rhythmic variety"
+  ].freeze
+
+  # Composer values that should be omitted from search text.
+  # These scores still have valuable metadata, just no known composer.
+  COMPOSER_PLACEHOLDERS = %w[
+    NA N/A Unknown Anon Anon. Anonymous
+    Traditional Trad Trad. Tradicional
   ].freeze
 
   Result = Data.define(:description, :issues, :error) do
@@ -38,23 +45,23 @@ class SearchTextGenerator
 
     <rules>
     - Write 5–7 sentences (150-250 words) in a paragraph that gives a complete picture of the piece.
-    - START with title and composer (e.g., "Étude Op.6 by Fernando Sor is a virtuoso guitar piece...")
+    - START with the title. If composer is provided, include it (e.g., "Étude Op.6 by Fernando Sor is..."). If no composer, start with just the title (e.g., "O Come All Ye Faithful is a beloved Christmas hymn...").
     - Include ALL of these elements:
-      (1) TITLE and COMPOSER in the first sentence
-      (2) DIFFICULTY (exactly one: easy/beginner, intermediate, advanced, virtuoso)
+      (1) TITLE (and COMPOSER if provided) in the first sentence
+      (2) DIFFICULTY: Use the difficulty_level field. Only use "virtuoso" if is_virtuoso is true; otherwise use easy/beginner, intermediate, or advanced.
       (3) CHARACTER (2-3 mood/style words: gentle, dramatic, contemplative, energetic, majestic, lyrical, playful, solemn, etc.)
       (4) BEST FOR (specific uses: sight-reading practice, student recitals, church services, exam repertoire, technique building, competitions, teaching specific skills)
       (5) MUSICAL FEATURES (texture, harmonic language, notable patterns like arpeggios, scales, counterpoint)
       (6) KEY DETAILS (duration, instrumentation, key, period/style)
     - Use words musicians actually search: "sight-reading", "recital piece", "exam repertoire", "church anthem", "teaching piece", "competition", "Baroque counterpoint", "lyrical melody", "chromatic passages", "syncopated rhythms".
-    - NEVER use academic metric-compounds like "chromatic complexity", "polyphonic density", "melodic complexity", "rhythmic variety". The data uses searchable terms already - use them naturally in prose.
-    - Only use what is in the <data/> section. Do not invent facts.
+    - NEVER use academic metric-compounds like "chromatic complexity", "vertical density", "melodic complexity", "rhythmic variety". The data uses searchable terms already - use them naturally in prose.
+    - STRICT: Only mention instruments, voicing, genre, and other details that appear in <data/>. Do not invent or assume facts not present in the data.
     - Do not produce a bullet point list.
     </rules>
 
     <steps>
     1) Read the metadata: identify instrument, genre, key, time signature, texture, range, duration.
-    2) Choose exactly one DIFFICULTY from: easy/beginner, intermediate, advanced, virtuoso (from difficulty_level field).
+    2) Choose exactly one DIFFICULTY from difficulty_level. Only say "virtuoso" if is_virtuoso is true.
     3) Pick 2–3 CHARACTER words based on metadata cues (key, tempo, texture suggest mood).
     4) List 2–3 specific BEST FOR uses (teaching, performance, liturgical, exam, etc.).
     5) Note interesting MUSICAL FEATURES worth mentioning (counterpoint, ornamentation, range demands).
@@ -62,9 +69,10 @@ class SearchTextGenerator
     </steps>
 
     <examples>
-    - "Sonatina in C major by Muzio Clementi is an easy beginner piano piece with a gentle, flowing character. The simple melodic lines and steady rhythms make it ideal for first-year students developing hand coordination. Perfect for sight-reading practice or as an early recital piece. The piece stays in a comfortable range and uses basic chord patterns. About 2 minutes long, it works well for building confidence in young pianists."
-    - "Ascendit Deus by Peter Philips is an advanced SATB anthem with a joyful, majestic character, well-suited for Easter services or festive choir concerts. The four-part writing features independent voice lines and some chromatic passages that require confident singers. Soprano part reaches B5, so ensure your section can handle the tessitura. The energetic rhythms and triumphant harmonies make this a rewarding showpiece. Approximately 4 minutes."
-    - "Violin Sonata No. 1 by Johannes Brahms is an intermediate violin sonata in the Romantic style, lyrical and deeply expressive. Features singing melodic lines with moderate technical demands including some position work and dynamic contrasts. Excellent choice for student recitals, conservatory auditions, or as exam repertoire. The piano accompaniment provides rich harmonic support. A substantial work that develops musicality and interpretation skills."
+    - "Sonatina in C major by Muzio Clementi is an easy piano piece with a gentle, flowing character. The simple melodic lines and steady rhythms make it ideal for first-year students developing hand coordination. Perfect for sight-reading practice or as an early recital piece. The piece stays in a comfortable range and uses basic chord patterns. About 2 minutes long, it works well for building confidence in young pianists."
+    - "Ascendit Deus by Peter Philips is an advanced SATB anthem with a joyful, majestic character, well-suited for Easter services or festive choir concerts. The four-part writing features independent voice lines and some chromatic passages that require confident singers. Soprano part reaches B5, so ensure your section can handle the tessitura. The energetic rhythms and triumphant harmonies make this a rewarding showpiece. About 4 minutes long."
+    - "Violin Sonata No. 1 by Johannes Brahms is an intermediate violin sonata in the Romantic style, lyrical and deeply expressive. Features singing melodic lines with moderate technical demands including some position work and dynamic contrasts. Excellent choice for student recitals, conservatory auditions, or as exam repertoire. The piano accompaniment provides rich harmonic support. A substantial work around 25 minutes that develops musicality and interpretation skills."
+    - "O Come All Ye Faithful is a beloved intermediate Christmas hymn for SATB choir with organ accompaniment. The stately, joyful character makes it a staple of holiday church services and carol concerts. Features straightforward four-part harmony with some moving inner voices. The familiar melody is accessible for congregational singing while offering enough interest for trained choirs. About 3 minutes long, ideal for processionals or as a service closer."
     </examples>
 
     <data>
@@ -114,9 +122,13 @@ class SearchTextGenerator
   end
 
   def build_metadata(score)
+    # Omit placeholder composers - score still has valuable metadata
+    composer = score.composer
+    composer = nil if composer.present? && COMPOSER_PLACEHOLDERS.any? { |p| composer.casecmp?(p) }
+
     {
       title: score.title,
-      composer: score.composer,
+      composer: composer,
       period: score.period,
       genre: score.genre,
       voicing: score.voicing,
@@ -124,16 +136,14 @@ class SearchTextGenerator
       key_signature: score.key_signature,
       time_signature: map_time_sig(score.time_signature),
       clefs_used: map_clefs(score.clefs_used),
-      difficulty_level: difficulty_words(score.melodic_complexity),
+      difficulty_level: difficulty_label(score),
+      is_virtuoso: virtuoso?(score),
+      duration_minutes: format_duration_minutes(score.duration_seconds),
       num_parts: bucket(score.num_parts, [1, 2, 4, 8], %w[solo duo small_ensemble ensemble large_ensemble]),
-      page_count: bucket(score.page_count, [1, 3, 7, 15], %w[very_short short medium long very_long]),
       ambitus: bucket(score.ambitus_semitones, [12, 24, 36], %w[narrow moderate wide very_wide]),
-      length_in_measures: bucket(score.measure_count, [32, 80, 160], %w[short medium long very_long]),
       chromatic_passages: bucket_01(score.chromatic_complexity),
       syncopated_rhythms: bucket_01(score.syncopation_level),
-      rhythmic_interest: bucket_01(score.rhythmic_variety),
-      technical_demand: bucket_01(score.melodic_complexity),
-      contrapuntal_texture: bucket(score.polyphonic_density, [1.1, 1.4, 1.8], %w[thin moderate rich very_rich]),
+      contrapuntal_texture: bucket(score.vertical_density, [1.1, 1.4, 1.8], %w[thin moderate rich very_rich]),
       melodic_motion: stepwise_motion(score.stepwise_motion_ratio),
       has_dynamics: score.has_dynamics,
       has_articulations: score.has_articulations,
@@ -143,14 +153,73 @@ class SearchTextGenerator
     }.compact
   end
 
-  def difficulty_words(melodic_complexity)
-    return %w[intermediate moderate] if melodic_complexity.nil?
-    case melodic_complexity
-    when 0...0.3 then %w[easy beginner simple]
-    when 0.3...0.5 then %w[intermediate moderate]
-    when 0.5...0.7 then %w[advanced challenging]
-    else %w[virtuoso demanding expert]
+  # Use computed_difficulty (1-5) from music21 extraction
+  def difficulty_label(score)
+    level = score.computed_difficulty || 3
+    case level
+    when 1 then "beginner"
+    when 2 then "easy"
+    when 3 then "intermediate"
+    when 4 then "advanced"
+    when 5 then "expert"
+    else "intermediate"
     end
+  end
+
+  # Virtuoso = showpiece requiring exceptional technique
+  # Uses same point-based instrument-aware algorithm as scores.rake
+  # Returns true if piece would trigger the virtuoso bonus
+  def virtuoso?(score)
+    # Must be at least advanced difficulty to be virtuoso
+    return false unless score.computed_difficulty && score.computed_difficulty >= 4
+
+    instrument = detect_instrument_family(score)
+    chromatic = score.chromatic_complexity.to_f
+    largest = score.largest_interval.to_i
+    polyphony = score.vertical_density.to_f
+    leaps = score.leaps_per_measure.to_f
+
+    # Same virtuoso bonus conditions from scores.rake
+    case instrument
+    when :guitar
+      # Guitar virtuoso: high polyphony + chromatic
+      polyphony > 1.8 && chromatic >= 0.6
+    when :violin, :cello, :strings
+      # String virtuoso: many leaps + large intervals
+      leaps > 3 && largest >= 20
+    when :vocal
+      # Vocal virtuoso: chromatic + large intervals
+      chromatic >= 0.6 && largest >= 12
+    when :keyboard
+      # Piano virtuoso: high chromatic + complex polyphony
+      chromatic >= 0.8 && polyphony > 1.5
+    else
+      # Default virtuoso: chromatic + intervals
+      chromatic >= 0.8 && largest >= 24
+    end
+  end
+
+  def detect_instrument_family(score)
+    instruments = score.instruments.to_s.downcase
+
+    # Prioritize specific instruments over has_vocal
+    return :guitar if instruments.match?(/\bguitar\b/i)
+    return :violin if instruments.match?(/\bviolin\b/i)
+    return :cello if instruments.match?(/\bcello\b/i)
+    return :strings if instruments.match?(/\b(viola|double bass|string quartet|strings)\b/i)
+    return :keyboard if instruments.match?(/\b(piano|organ|harpsichord|keyboard|clavichord)\b/i)
+
+    return :vocal if score.has_vocal
+    return :vocal if instruments.match?(/\b(voice|choir|chorus|satb|soprano|alto|tenor|bass|choral)\b/i)
+
+    :other
+  end
+
+  def format_duration_minutes(seconds)
+    return nil if seconds.blank? || seconds <= 0
+    minutes = (seconds / 60.0).round
+    return "about 1 minute" if minutes <= 1
+    "about #{minutes} minutes"
   end
 
   def bucket(value, cuts, labels)

@@ -163,7 +163,7 @@ class Music21Extractor
       is_instrumental: result["is_instrumental"],
       has_accompaniment: result["has_accompaniment"],
       texture_type: result["texture_type"],
-      polyphonic_density: result["polyphonic_density"],
+      vertical_density: result["vertical_density"],
       voice_independence: result["voice_independence"],
       music21_version: result["music21_version"],
       musicxml_source: result["musicxml_source"],
@@ -171,8 +171,8 @@ class Music21Extractor
       computed_difficulty: result["computed_difficulty"],
       max_chord_span: result["max_chord_span"],
       tessitura: result["tessitura"],
-      position_shift_count: result["position_shift_count"],
-      position_shifts_per_measure: result["position_shifts_per_measure"],
+      leap_count: result["leap_count"],
+      leaps_per_measure: result["leaps_per_measure"],
       extraction_status: :extracted,
       extracted_at: Time.current
     )

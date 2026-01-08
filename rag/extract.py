@@ -576,7 +576,7 @@ def extract_texture(score, result, get_chordified=None):
 
         if num_parts == 1:
             result["texture_type"] = "monophonic"
-            result["polyphonic_density"] = 0.0
+            result["vertical_density"] = 0.0
             result["voice_independence"] = 0.0
             return
 
@@ -587,7 +587,7 @@ def extract_texture(score, result, get_chordified=None):
             return
 
         avg_notes = sum(len(c.pitches) for c in chords) / len(chords)
-        result["polyphonic_density"] = safe_round(avg_notes / num_parts)
+        result["vertical_density"] = safe_round(avg_notes / num_parts)
 
         # Voice independence
         parallel_motion = 0
@@ -606,7 +606,7 @@ def extract_texture(score, result, get_chordified=None):
         # Classify texture
         if num_parts == 1:
             result["texture_type"] = "monophonic"
-        elif result["polyphonic_density"] < 0.3:
+        elif result["vertical_density"] < 0.3:
             result["texture_type"] = "monophonic"
         elif result["voice_independence"] < 0.3:
             result["texture_type"] = "homophonic"
@@ -682,36 +682,38 @@ def extract_tessitura(score, result):
         result["_warnings"].append(f"tessitura: {e}")
 
 
-def extract_register_shifts(score, result):
+def extract_melodic_leaps(score, result):
     """
-    Count large melodic jumps (>5 semitones) that indicate position changes.
-    Relevant for strings, winds, brass - indicates technical difficulty.
+    Count melodic leaps (intervals >5 semitones, i.e. larger than a perfect 4th).
 
-    Use cases:
-        - "No position changes" (beginner pieces)
-        - "Stays in one position" (shift_count low)
+    Useful for:
+        - Voice difficulty (leaps require pitch accuracy)
+        - General melodic angularity
+
+    Note: Does NOT reliably indicate string position shifts (fingering-dependent)
+    or piano difficulty (hand jumps are a different skill).
     """
     try:
-        shift_count = 0
+        leap_count = 0
 
         for part in score.parts:
             notes_list = [n for n in part.flatten().notes if isinstance(n, note.Note)]
 
             for i in range(1, len(notes_list)):
                 interval_size = abs(notes_list[i].pitch.ps - notes_list[i-1].pitch.ps)
-                if interval_size > 5:  # Larger than fourth
-                    shift_count += 1
+                if interval_size > 5:  # Larger than perfect 4th
+                    leap_count += 1
 
-        if shift_count > 0:
-            result["position_shift_count"] = shift_count
+        if leap_count > 0:
+            result["leap_count"] = leap_count
 
             if result.get("measure_count") and result["measure_count"] > 0:
-                result["position_shifts_per_measure"] = round(
-                    shift_count / result["measure_count"], 2
+                result["leaps_per_measure"] = round(
+                    leap_count / result["measure_count"], 2
                 )
 
     except Exception as e:
-        result["_warnings"].append(f"register_shifts: {e}")
+        result["_warnings"].append(f"melodic_leaps: {e}")
 
 
 def compute_difficulty_score(result) -> int:
@@ -775,8 +777,8 @@ def compute_difficulty_score(result) -> int:
     if get("max_chord_span") > 12:
         points += 1
 
-    # Position Shifts (0-1)
-    if get("position_shifts_per_measure") > 0.5:
+    # Melodic Leaps (0-1)
+    if get("leaps_per_measure") > 0.5:
         points += 1
 
     # Map to 1-5
@@ -847,7 +849,7 @@ def extract(file_path: str) -> dict:
         # New extractions
         extract_hand_span(score, result)
         extract_tessitura(score, result)
-        extract_register_shifts(score, result)
+        extract_melodic_leaps(score, result)
 
         # Compute final difficulty from all metrics
         result["computed_difficulty"] = compute_difficulty_score(result)

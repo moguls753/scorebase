@@ -17,6 +17,12 @@ class InstrumentInferrer
   RULES = <<~RULES
     Extract instruments from this INSTRUMENTAL score (confirmed no vocals).
 
+    CRITICAL: NEVER output "Vocal", "Voice", or any singing part.
+    This score has been verified to contain NO vocal parts.
+    If the title suggests vocals (e.g., "Casta Diva", "Danny Boy"),
+    this is a piano arrangement or accompaniment-only version.
+    Only output the instruments actually present in the score.
+
     TRUSTED DATA (already normalized):
     - composer: normalized composer name
     - period: normalized period (Baroque, Classical, Romantic, Modern, etc.)

@@ -327,7 +327,7 @@ module ScoresHelper
     has_extracted_lyrics syllable_count lyrics_language
     part_names detected_instruments instrument_families
     has_vocal is_instrumental has_accompaniment
-    texture_type polyphonic_density voice_independence
+    texture_type vertical_density voice_independence
   ].freeze
 
   def extraction_debug_data(score)

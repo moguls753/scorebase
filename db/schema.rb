@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_05_142840) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_07_223103) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -120,6 +120,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_142840) do
     t.string "key_signature"
     t.string "language"
     t.integer "largest_interval"
+    t.integer "leap_count"
+    t.float "leaps_per_measure"
     t.string "license"
     t.string "lowest_pitch"
     t.text "lyrics"
@@ -144,9 +146,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_142840) do
     t.string "period"
     t.string "period_status", default: "pending", null: false
     t.json "pitch_range_per_part"
-    t.float "polyphonic_density"
-    t.integer "position_shift_count"
-    t.float "position_shifts_per_measure"
     t.date "posted_date"
     t.string "predominant_rhythm"
     t.string "rag_status", default: "pending", null: false
@@ -171,6 +170,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_05_142840) do
     t.string "title"
     t.integer "unique_pitches"
     t.datetime "updated_at", null: false
+    t.float "vertical_density"
     t.integer "views", default: 0
     t.float "voice_independence"
     t.json "voice_ranges"
