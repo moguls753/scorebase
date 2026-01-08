@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-# Queue sitemap refresh job (returns immediately, worker handles it async)
-kamal app exec -r job --reuse "bin/rails runner 'SitemapRefreshJob.perform_later'"
+# Run sitemap refresh on web container (must be web, not job, so sitemap is in the served public/ dir)
+kamal app exec -r web --reuse "bin/rails sitemap:refresh:no_ping"
 
-echo "Sitemap refresh job queued"
+echo "Sitemap refresh completed"
