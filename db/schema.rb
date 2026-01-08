@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_13_085527) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_15_172125) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -90,7 +90,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_13_085527) do
     t.text "clefs_used"
     t.integer "complexity"
     t.string "composer"
-    t.string "composer_normalized"
     t.string "composer_status", default: "pending", null: false
     t.integer "computed_difficulty"
     t.float "contrary_motion_ratio"
@@ -209,7 +208,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_13_085527) do
     t.string "thumbnail_url"
     t.string "time_signature"
     t.string "title"
-    t.string "title_normalized"
     t.float "total_quarter_length"
     t.integer "tremolo_count"
     t.integer "trill_count"
@@ -229,7 +227,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_13_085527) do
     t.index ["chromatic_ratio"], name: "index_scores_on_chromatic_ratio"
     t.index ["complexity"], name: "index_scores_on_complexity"
     t.index ["composer"], name: "index_scores_on_composer"
-    t.index ["composer_normalized"], name: "index_scores_on_composer_normalized"
     t.index ["composer_status"], name: "index_scores_on_composer_status"
     t.index ["computed_difficulty"], name: "index_scores_on_computed_difficulty"
     t.index ["duration_seconds"], name: "index_scores_on_duration_seconds"
@@ -262,7 +259,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_13_085527) do
     t.index ["tempo_bpm"], name: "index_scores_on_tempo_bpm"
     t.index ["texture_type"], name: "index_scores_on_texture_type"
     t.index ["time_signature"], name: "index_scores_on_time_signature"
-    t.index ["title_normalized"], name: "index_scores_on_title_normalized"
     t.index ["views"], name: "index_scores_on_views"
     t.index ["voicing"], name: "index_scores_on_voicing"
     t.index ["voicing_status"], name: "index_scores_on_voicing_status"
