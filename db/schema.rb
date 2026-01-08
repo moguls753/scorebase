@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_08_144459) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -69,9 +69,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
   create_table "scores", force: :cascade do |t|
     t.integer "accidental_count"
     t.integer "ambitus_semitones"
+    t.integer "arpeggio_mark_count"
+    t.integer "beat_count"
     t.text "cadence_types"
+    t.integer "chord_count"
     t.json "chord_symbols"
     t.float "chromatic_complexity"
+    t.integer "chromatic_note_count"
     t.text "clefs_used"
     t.integer "complexity"
     t.string "composer"
@@ -82,6 +86,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
     t.string "data_path"
     t.text "description"
     t.text "detected_instruments"
+    t.string "detected_mode"
     t.float "duration_seconds"
     t.string "dynamic_range"
     t.string "editor"
@@ -97,6 +102,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
     t.string "form_analysis"
     t.text "genre"
     t.string "genre_status", default: "pending", null: false
+    t.integer "grace_note_count"
     t.float "harmonic_rhythm"
     t.boolean "has_accompaniment"
     t.boolean "has_articulations"
@@ -104,6 +110,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
     t.boolean "has_extracted_lyrics"
     t.boolean "has_fermatas"
     t.boolean "has_ornaments"
+    t.boolean "has_ottava"
+    t.boolean "has_pedal_marks"
     t.boolean "has_tempo_changes"
     t.boolean "has_vocal"
     t.string "has_vocal_status", default: "pending", null: false
@@ -113,6 +121,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
     t.text "instrument_families"
     t.string "instruments"
     t.string "instruments_status", default: "pending", null: false
+    t.integer "interval_count"
     t.json "interval_distribution"
     t.boolean "is_instrumental"
     t.float "key_confidence"
@@ -131,16 +140,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
     t.float "melodic_complexity"
     t.string "melodic_contour"
     t.string "metadata_path"
+    t.string "meter_classification"
     t.string "mid_path"
     t.integer "modulation_count"
+    t.json "modulation_targets"
     t.text "modulations"
+    t.integer "mordent_count"
     t.string "music21_version"
     t.string "musicxml_source"
     t.string "mxl_path"
     t.integer "note_count"
     t.float "note_density"
     t.integer "num_parts"
+    t.integer "off_beat_count"
     t.integer "page_count"
+    t.integer "parallel_motion_count"
     t.text "part_names"
     t.string "pdf_path"
     t.string "period"
@@ -156,7 +170,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
     t.text "search_text"
     t.datetime "search_text_generated_at"
     t.integer "sections_count"
+    t.float "simultaneous_note_avg"
+    t.integer "slur_count"
     t.string "source", default: "pdmx"
+    t.integer "stepwise_count"
     t.float "stepwise_motion_ratio"
     t.integer "syllable_count"
     t.float "syncopation_level"
@@ -164,14 +181,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
     t.integer "tempo_bpm"
     t.string "tempo_marking"
     t.json "tessitura"
+    t.integer "texture_chord_count"
     t.string "texture_type"
     t.string "thumbnail_url"
     t.string "time_signature"
     t.string "title"
+    t.integer "tremolo_count"
+    t.integer "trill_count"
+    t.integer "turn_count"
+    t.integer "unique_duration_count"
     t.integer "unique_pitches"
     t.datetime "updated_at", null: false
     t.float "vertical_density"
     t.integer "views", default: 0
+    t.integer "voice_count"
     t.float "voice_independence"
     t.json "voice_ranges"
     t.string "voicing"

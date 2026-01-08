@@ -1,37 +1,52 @@
 # frozen_string_literal: true
 
 namespace :scores do
-  desc "Batch extract musical features using music21. LIMIT=100, FORCE=false"
+  desc "Batch extract musical features using music21. LIMIT=100, FORCE=false, DEBUG=false"
   task batch_extract: :environment do
     require "tempfile"
     require "open3"
 
     limit = ENV.fetch("LIMIT", "100").to_i
     force = ENV.fetch("FORCE", "false") == "true"
-    pdmx_path = Rails.application.config.x.pdmx_path
+    debug = ENV.fetch("DEBUG", "false") == "true"
 
-    # Find scores that need extraction
-    scope = force ? Score.where.not(mxl_path: [nil, "", "N/A"]) : Score.extraction_pending
+    # Find scores that need extraction (local sources only - PDMX, OpenScore)
+    local_sources = %w[pdmx openscore-lieder openscore-quartets]
+    scope = force ? Score.where(source: local_sources) : Score.extraction_pending.where(source: local_sources)
     scope = scope.where.not(mxl_path: [nil, "", "N/A"])
     scope = scope.limit(limit)
 
     scores = scope.to_a
-    puts "Found #{scores.size} scores to extract"
+    puts "Found #{scores.size} scores to extract (sources: #{scores.map(&:source).tally})"
 
     next if scores.empty?
 
-    # Build paths list with score IDs
+    # Build paths list with score IDs (use model's mxl_url for correct path resolution)
+    missing_files = []
     paths_with_ids = scores.filter_map do |score|
-      mxl_path = score.mxl_path
-      next if mxl_path.blank? || mxl_path == "N/A"
+      next unless score.has_mxl?
 
-      full_path = mxl_path.start_with?("/") ? mxl_path : pdmx_path.join(mxl_path).to_s
-      next unless File.exist?(full_path)
+      full_path = score.mxl_url
+      unless full_path && File.exist?(full_path)
+        missing_files << { id: score.id, source: score.source, mxl_path: score.mxl_path, resolved: full_path }
+        next
+      end
 
+      puts "  [#{score.source}] #{score.id}: #{full_path}" if debug
       [score.id, full_path]
     end
 
     puts "#{paths_with_ids.size} scores have valid MXL files"
+
+    if missing_files.any?
+      puts "\nSkipped #{missing_files.size} scores (files not found):"
+      missing_files.first(5).each do |m|
+        puts "  [#{m[:source]}] #{m[:id]}: #{m[:mxl_path]}"
+        puts "    resolved to: #{m[:resolved] || '(nil)'}"
+      end
+      puts "  ... and #{missing_files.size - 5} more" if missing_files.size > 5
+    end
+
     next if paths_with_ids.empty?
 
     # Write paths to temp file
@@ -47,7 +62,7 @@ namespace :scores do
     output_file = Tempfile.new(["extract_results", ".jsonl"])
     output_file.close
 
-    puts "Running batch extraction..."
+    puts "\nRunning Python extraction on #{paths_with_ids.size} files..."
     _stdout, stderr, status = Open3.capture3(
       python, script, "--batch", paths_file.path, "--output", output_file.path
     )
@@ -58,18 +73,33 @@ namespace :scores do
     end
 
     # Import results using Music21Extractor for consistency
-    puts "\nImporting results..."
+    puts "\nImporting results to database..."
     imported = 0
     failed = 0
+    parse_errors = 0
 
     File.foreach(output_file.path) do |line|
-      result = JSON.parse(line) rescue next
+      result = begin
+        JSON.parse(line)
+      rescue JSON::ParserError => e
+        parse_errors += 1
+        puts "\n  JSON parse error: #{e.message}" if debug
+        next
+      end
+
       file_path = result.delete("file_path")
       score_id = id_by_path[file_path]
-      next unless score_id
+
+      unless score_id
+        puts "\n  Unknown file_path in result: #{file_path}" if debug
+        next
+      end
 
       score = Score.find_by(id: score_id)
-      next unless score
+      unless score
+        puts "\n  Score not found: #{score_id}" if debug
+        next
+      end
 
       # Delegate to Music21Extractor for consistent result application
       extractor = Music21Extractor.new(score)
@@ -77,17 +107,20 @@ namespace :scores do
 
       if score.reload.extraction_extracted?
         imported += 1
+        puts "  #{imported}. #{score.title&.truncate(50)} (#{score.source})" if debug
       else
         failed += 1
+        puts "\n  Failed: #{score.id} - #{score.extraction_error}" if debug
       end
 
-      print "\r  Imported: #{imported}, Failed: #{failed}"
+      print "\r  Progress: #{imported} imported, #{failed} failed" unless debug
     rescue => e
-      puts "\n  Error processing #{file_path}: #{e.message}"
+      puts "\n  Error on score #{score_id}: #{e.message}"
       failed += 1
     end
 
     puts "\n\nDone: #{imported} imported, #{failed} failed"
+    puts "  (#{parse_errors} JSON parse errors)" if parse_errors > 0
   ensure
     paths_file&.unlink
     output_file&.unlink
