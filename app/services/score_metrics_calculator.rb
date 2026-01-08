@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
-# Computes derived metrics from raw extraction data.
-# These ratios have real meaning to performers and teachers.
+# Computes interpretation metrics from raw extraction data.
+# These are application-specific judgments, not musical facts.
 #
-# All methods return nil if required data is missing.
+# Facts (from Python): event_count, pitch_count, chromatic_ratio, etc.
+# Interpretation (here): note_density, throughput, leap_frequency, etc.
 #
 # Usage:
 #   metrics = ScoreMetricsCalculator.new(score)
-#   metrics.throughput        # notes per second
-#   metrics.chromatic_ratio   # proportion of chromatic notes
+#   metrics.throughput        # events per second
 #   metrics.leap_frequency    # proportion of leaps vs steps
 #
 class ScoreMetricsCalculator
@@ -16,32 +16,25 @@ class ScoreMetricsCalculator
     @score = score
   end
 
-  # Notes per second - actual speed demand
+  # Events per second - actual speed demand
   # High throughput = fast passages
   def throughput
-    return nil unless @score.note_count && @score.duration_seconds&.positive?
-    (@score.note_count.to_f / @score.duration_seconds).round(2)
+    return nil unless @score.event_count && @score.duration_seconds&.positive?
+    (@score.event_count.to_f / @score.duration_seconds).round(2)
   end
 
-  # Note density - notes per measure
+  # Event density - events per measure
   # Useful for sight-reading difficulty
   def note_density
-    return nil unless @score.note_count && @score.measure_count&.positive?
-    (@score.note_count.to_f / @score.measure_count).round(2)
-  end
-
-  # Chromatic ratio - proportion of notes outside the key
-  # Higher = harder intonation (especially for voice/strings)
-  def chromatic_ratio
-    return nil unless @score.chromatic_note_count && @score.note_count&.positive?
-    (@score.chromatic_note_count.to_f / @score.note_count).round(3)
+    return nil unless @score.event_count && @score.measure_count&.positive?
+    (@score.event_count.to_f / @score.measure_count).round(2)
   end
 
   # Leap frequency - proportion of intervals > perfect 4th
   # Higher = more angular melody, harder for voice
   def leap_frequency
-    return nil unless @score.leap_count && @score.note_count&.positive?
-    (@score.leap_count.to_f / @score.note_count).round(3)
+    return nil unless @score.leap_count && @score.event_count&.positive?
+    (@score.leap_count.to_f / @score.event_count).round(3)
   end
 
   # Stepwise motion ratio - proportion of steps vs leaps
@@ -65,10 +58,10 @@ class ScoreMetricsCalculator
     (total.to_f / @score.measure_count).round(2)
   end
 
-  # Syncopation level - proportion of off-beat notes
+  # Syncopation level - proportion of off-beat events
   def syncopation_level
-    return nil unless @score.off_beat_count && @score.note_count&.positive?
-    (@score.off_beat_count.to_f / @score.note_count).round(3)
+    return nil unless @score.off_beat_count && @score.event_count&.positive?
+    (@score.off_beat_count.to_f / @score.event_count).round(3)
   end
 
   # Rhythmic variety - normalized count of unique durations
@@ -103,11 +96,12 @@ class ScoreMetricsCalculator
   end
 
   # Compute all metrics as a hash
+  # Note: chromatic_ratio comes from Python (fact), not calculated here
   def all
     {
       throughput: throughput,
       note_density: note_density,
-      chromatic_ratio: chromatic_ratio,
+      chromatic_ratio: @score.chromatic_ratio,
       leap_frequency: leap_frequency,
       stepwise_ratio: stepwise_ratio,
       ornament_density: ornament_density,

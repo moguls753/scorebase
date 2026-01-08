@@ -202,7 +202,7 @@ class DifficultyCalculator
   # ─────────────────────────────────────────────────────────────────
 
   def weight_chromatic
-    ratio = @metrics.chromatic_ratio || 0
+    ratio = @score.chromatic_ratio || 0
     case ratio
     when 0.2.. then 1.0
     when 0.1.. then 0.7
