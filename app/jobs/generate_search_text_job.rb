@@ -64,10 +64,10 @@ class GenerateSearchTextJob < ApplicationJob
 
   def eligible_scores(limit, scope:, force:)
     base = if force
-             Score.where(rag_status: %w[ready templated])
-           else
-             Score.rag_ready
-           end
+      Score.where(rag_status: %w[ready templated])
+    else
+      Score.rag_ready
+    end
 
     if scope.to_s == "priority"
       # Balanced sampling: distribute limit evenly across categories
