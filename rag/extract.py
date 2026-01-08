@@ -33,6 +33,7 @@ from music21 import (
     note,
     pitch,
     roman,
+    spanner,
     stream,
     tempo,
 )
@@ -42,12 +43,7 @@ from music21 import (
 # CONSTANTS
 # ─────────────────────────────────────────────────────────────────
 
-VOCAL_KEYWORDS = {
-    "soprano", "alto", "tenor", "bass", "baritone", "mezzo",
-    "voice", "vocal", "choir", "chorus", "satb", "ssaa", "ttbb",
-    "cantus", "discant", "s.", "a.", "t.", "b."
-}
-
+# Used by extract_hand_span to identify keyboard parts
 KEYBOARD_KEYWORDS = {"piano", "organ", "harpsichord", "keyboard", "clavichord"}
 
 DURATION_NAMES = {
@@ -60,6 +56,62 @@ DURATION_NAMES = {
     3.0: "dotted_half",
     4.0: "whole",
 }
+
+
+# ─────────────────────────────────────────────────────────────────
+# CACHING
+# ─────────────────────────────────────────────────────────────────
+
+class ScoreCache:
+    """
+    Cache expensive operations for a single score.
+    Dramatically reduces redundant computation.
+
+    Usage:
+        cache = ScoreCache(score)
+        flat = cache.flat          # Cached after first access
+        notes = cache.notes        # Cached after first access
+        chordified = cache.chordified
+        key = cache.analyzed_key
+    """
+
+    def __init__(self, score):
+        self.score = score
+        self._flat = None
+        self._flat_notes = None
+        self._chordified = None
+        self._analyzed_key = None
+
+    @property
+    def flat(self):
+        """Cached flattened score."""
+        if self._flat is None:
+            self._flat = self.score.flatten()
+        return self._flat
+
+    @property
+    def notes(self):
+        """Cached notes from flattened score."""
+        if self._flat_notes is None:
+            self._flat_notes = list(self.flat.notes)
+        return self._flat_notes
+
+    @property
+    def chordified(self):
+        """Cached chordified score."""
+        if self._chordified is None:
+            self._chordified = self.score.chordify()
+        return self._chordified
+
+    @property
+    def analyzed_key(self):
+        """Cached key analysis."""
+        if self._analyzed_key is None:
+            try:
+                self._analyzed_key = self.score.analyze("key")
+            except Exception:
+                self._analyzed_key = False  # Distinguish from "not cached yet"
+        return self._analyzed_key if self._analyzed_key is not False else None
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -98,7 +150,9 @@ def safe_round(value, decimals=2):
 def extract_pitch_range(score, result):
     """Analyze pitch ranges across the score and per part."""
     try:
-        all_pitches = list(score.flatten().pitches)
+        cache = result.get("_cache")
+        flat = cache.flat if cache else score.flatten()
+        all_pitches = list(flat.pitches)
         if not all_pitches:
             return
 
@@ -135,8 +189,11 @@ def extract_pitch_range(score, result):
 def extract_tempo_duration(score, result):
     """Analyze tempo markings and estimate duration."""
     try:
+        cache = result.get("_cache")
+        flat = cache.flat if cache else score.flatten()
+
         # Find tempo markings
-        tempos = list(score.flatten().getElementsByClass(tempo.MetronomeMark))
+        tempos = list(flat.getElementsByClass(tempo.MetronomeMark))
         if tempos:
             first_tempo = tempos[0]
             result["tempo_bpm"] = int(first_tempo.number) if first_tempo.number else None
@@ -145,7 +202,7 @@ def extract_tempo_duration(score, result):
 
         # Fallback: look for tempo text
         if not result.get("tempo_marking"):
-            tempo_texts = list(score.flatten().getElementsByClass(tempo.TempoText))
+            tempo_texts = list(flat.getElementsByClass(tempo.TempoText))
             if tempo_texts:
                 result["tempo_marking"] = tempo_texts[0].text
 
@@ -156,7 +213,7 @@ def extract_tempo_duration(score, result):
 
         # Estimate duration
         if result.get("tempo_bpm") and result.get("measure_count"):
-            ts = list(score.flatten().getElementsByClass(meter.TimeSignature))
+            ts = list(flat.getElementsByClass(meter.TimeSignature))
             beats_per_measure = ts[0].numerator if ts else 4
             total_beats = result["measure_count"] * beats_per_measure
             result["duration_seconds"] = safe_round((total_beats / result["tempo_bpm"]) * 60)
@@ -166,16 +223,13 @@ def extract_tempo_duration(score, result):
 
 
 def extract_complexity(score, result):
-    """Analyze complexity metrics."""
+    """Analyze complexity metrics (raw counts only)."""
     try:
-        notes_list = list(score.flatten().notes)
+        cache = result.get("_cache")
+        notes_list = cache.notes if cache else list(score.flatten().notes)
         result["note_count"] = len(notes_list)
 
-        # Note density
-        if result.get("measure_count") and result["measure_count"] > 0:
-            result["note_density"] = safe_round(result["note_count"] / result["measure_count"])
-
-        # Count accidentals
+        # Count accidentals (notes with sharps/flats in notation)
         accidental_count = 0
         for n in notes_list:
             if isinstance(n, note.Note) and n.pitch.accidental:
@@ -188,20 +242,15 @@ def extract_complexity(score, result):
 
         result["accidental_count"] = accidental_count
 
-        # Chromatic complexity
-        if result["note_count"] and result["note_count"] > 0:
-            result["chromatic_complexity"] = safe_round(
-                min(1.0, accidental_count / result["note_count"] * 3)
-            )
-
     except Exception as e:
         result["_warnings"].append(f"complexity: {e}")
 
 
 def extract_rhythm(score, result):
-    """Analyze rhythmic features."""
+    """Analyze rhythmic features (raw counts only)."""
     try:
-        notes_list = list(score.flatten().notes)
+        cache = result.get("_cache")
+        notes_list = cache.notes if cache else list(score.flatten().notes)
 
         # Duration distribution
         duration_counts = Counter()
@@ -213,18 +262,17 @@ def extract_rhythm(score, result):
         if duration_counts:
             result["rhythm_distribution"] = dict(duration_counts.most_common())
             result["predominant_rhythm"] = duration_counts.most_common(1)[0][0]
-            result["rhythmic_variety"] = safe_round(min(1.0, len(duration_counts) / 8))
+            result["unique_duration_count"] = len(duration_counts)
 
-        # Syncopation estimation
-        syncopated = 0
+        # Off-beat note count (for syncopation calculation in Ruby)
+        off_beat_count = 0
         for n in notes_list:
             if hasattr(n, "beat") and n.beat:
                 beat_frac = n.beat % 1
                 if beat_frac > 0.1:
-                    syncopated += 1
+                    off_beat_count += 1
 
-        if notes_list:
-            result["syncopation_level"] = safe_round(syncopated / len(notes_list))
+        result["off_beat_count"] = off_beat_count
 
     except Exception as e:
         result["_warnings"].append(f"rhythm: {e}")
@@ -233,8 +281,8 @@ def extract_rhythm(score, result):
 def extract_harmony(score, result, get_chordified=None):
     """Analyze key, harmony, and chord progressions."""
     try:
-        # Key analysis
-        analyzed_key = score.analyze("key")
+        # Key analysis (use cached if available)
+        analyzed_key = result.get("_analyzed_key") or score.analyze("key")
         if analyzed_key:
             result["key_signature"] = f"{analyzed_key.tonic.name} {analyzed_key.mode}"
             result["key_confidence"] = safe_round(analyzed_key.correlationCoefficient, 3)
@@ -281,6 +329,7 @@ def extract_harmony(score, result, get_chordified=None):
         if modulations:
             result["modulations"] = " -> ".join([result.get("key_signature", "")] + modulations)
             result["modulation_count"] = len(modulations)
+            result["modulation_targets"] = modulations  # Raw list for Ruby
 
         # Chord analysis
         try:
@@ -298,8 +347,8 @@ def extract_harmony(score, result, get_chordified=None):
             if chord_names:
                 result["chord_symbols"] = chord_names
 
-            if result.get("measure_count") and result["measure_count"] > 0:
-                result["harmonic_rhythm"] = safe_round(len(chords) / result["measure_count"])
+            # Raw chord count for Ruby to calculate harmonic_rhythm
+            result["chord_count"] = len(chords)
 
         except Exception:
             pass
@@ -309,7 +358,7 @@ def extract_harmony(score, result, get_chordified=None):
 
 
 def extract_melody(score, result):
-    """Analyze melodic features."""
+    """Analyze melodic features (raw data only)."""
     try:
         if not score.parts:
             return
@@ -323,7 +372,7 @@ def extract_melody(score, result):
         # Interval analysis
         intervals = Counter()
         interval_semitones = []
-        stepwise = 0
+        stepwise_count = 0
 
         for i in range(1, len(melody_notes)):
             try:
@@ -332,46 +381,17 @@ def extract_melody(score, result):
                 semitones = abs(intv.semitones)
                 interval_semitones.append(semitones)
                 if semitones <= 2:
-                    stepwise += 1
+                    stepwise_count += 1
             except Exception:
                 pass
 
         if intervals:
             result["interval_distribution"] = dict(intervals.most_common())
+            result["interval_count"] = len(interval_semitones)
 
         if interval_semitones:
             result["largest_interval"] = max(interval_semitones)
-            result["stepwise_motion_ratio"] = safe_round(stepwise / len(interval_semitones))
-
-        # Melodic contour
-        if melody_notes:
-            first_pitch = melody_notes[0].pitch.ps
-            last_pitch = melody_notes[-1].pitch.ps
-            middle_idx = len(melody_notes) // 2
-            middle_pitch = melody_notes[middle_idx].pitch.ps
-
-            if middle_pitch > first_pitch and middle_pitch > last_pitch:
-                result["melodic_contour"] = "arch"
-            elif middle_pitch < first_pitch and middle_pitch < last_pitch:
-                result["melodic_contour"] = "wave"
-            elif last_pitch > first_pitch + 3:
-                result["melodic_contour"] = "ascending"
-            elif last_pitch < first_pitch - 3:
-                result["melodic_contour"] = "descending"
-            else:
-                result["melodic_contour"] = "static"
-
-        # Melodic complexity score
-        complexity_factors = []
-        if result.get("largest_interval"):
-            complexity_factors.append(min(1.0, result["largest_interval"] / 12))
-        if result.get("stepwise_motion_ratio") is not None:
-            complexity_factors.append(1.0 - result["stepwise_motion_ratio"])
-        if result.get("unique_pitches"):
-            complexity_factors.append(min(1.0, result["unique_pitches"] / 20))
-
-        if complexity_factors:
-            result["melodic_complexity"] = safe_round(sum(complexity_factors) / len(complexity_factors))
+            result["stepwise_count"] = stepwise_count
 
     except Exception as e:
         result["_warnings"].append(f"melody: {e}")
@@ -380,17 +400,20 @@ def extract_melody(score, result):
 def extract_structure(score, result, get_chordified=None):
     """Analyze structural elements."""
     try:
+        cache = result.get("_cache")
+        flat = cache.flat if cache else score.flatten()
+
         # Time signature
-        time_sigs = list(score.flatten().getElementsByClass(meter.TimeSignature))
+        time_sigs = list(flat.getElementsByClass(meter.TimeSignature))
         if time_sigs:
             result["time_signature"] = time_sigs[0].ratioString
 
         # Count repeats
-        repeats = list(score.flatten().getElementsByClass(bar.Repeat))
+        repeats = list(flat.getElementsByClass(bar.Repeat))
         result["repeats_count"] = len(repeats)
 
         # Section detection
-        double_bars = list(score.flatten().getElementsByClass(bar.Barline))
+        double_bars = list(flat.getElementsByClass(bar.Barline))
         section_markers = [b for b in double_bars if hasattr(b, "type") and "double" in str(b.type).lower()]
         if section_markers:
             result["sections_count"] = len(section_markers) + 1
@@ -401,7 +424,7 @@ def extract_structure(score, result, get_chordified=None):
             final_chords = list(chordified.flatten().getElementsByClass(chord.Chord))[-4:]
 
             if len(final_chords) >= 2:
-                analyzed_key = score.analyze("key")
+                analyzed_key = result.get("_analyzed_key") or score.analyze("key")
                 if analyzed_key:
                     last_rn = roman.romanNumeralFromChord(final_chords[-1], analyzed_key)
                     second_last_rn = roman.romanNumeralFromChord(final_chords[-2], analyzed_key)
@@ -426,7 +449,8 @@ def extract_structure(score, result, get_chordified=None):
 def extract_notation(score, result):
     """Analyze notation features and expressions."""
     try:
-        flat = score.flatten()
+        cache = result.get("_cache")
+        flat = cache.flat if cache else score.flatten()
 
         # Clefs
         clefs_list = list(flat.getElementsByClass(clef.Clef))
@@ -520,17 +544,13 @@ def extract_lyrics(score, result):
 
 
 def extract_instrumentation(score, result):
-    """Analyze instrumentation and part classification."""
+    """Extract raw instrumentation data. No heuristics - Ruby/LLM interprets."""
     try:
         result["num_parts"] = len(score.parts)
 
         part_names = []
         instruments = []
         families = set()
-
-        vocal_parts = 0
-        instrumental_parts = 0
-        keyboard_parts = 0
 
         for part in score.parts:
             name = get_part_name(part)
@@ -543,41 +563,29 @@ def extract_instrumentation(score, result):
                 if hasattr(inst, "instrumentFamily") and inst.instrumentFamily:
                     families.add(inst.instrumentFamily)
 
-            name_lower = name.lower()
-            if any(v in name_lower for v in VOCAL_KEYWORDS):
-                vocal_parts += 1
-            elif any(k in name_lower for k in KEYBOARD_KEYWORDS):
-                keyboard_parts += 1
-            else:
-                instrumental_parts += 1
-
         result["part_names"] = ", ".join(part_names)
         if instruments:
             result["detected_instruments"] = ", ".join(set(instruments))
         if families:
             result["instrument_families"] = ", ".join(families)
 
-        total = len(score.parts)
-        result["has_vocal"] = vocal_parts > 0  # Any vocal parts = has_vocal
-        result["is_instrumental"] = instrumental_parts > 0 and vocal_parts == 0
-        result["has_accompaniment"] = vocal_parts > 0 and (keyboard_parts > 0 or instrumental_parts > 0)
+        # NOTE: has_vocal, is_instrumental, has_accompaniment are determined
+        # by LLM normalizers (NormalizeHasVocalJob), not here.
 
     except Exception as e:
         result["_warnings"].append(f"instrumentation: {e}")
 
 
 def extract_texture(score, result, get_chordified=None):
-    """Analyze musical texture."""
+    """Analyze texture raw data (let Ruby interpret)."""
     try:
         if not score.parts:
             return
 
         num_parts = len(score.parts)
-
         if num_parts == 1:
-            result["texture_type"] = "monophonic"
-            result["vertical_density"] = 0.0
-            result["voice_independence"] = 0.0
+            result["simultaneous_note_avg"] = 1.0
+            result["parallel_motion_count"] = 0
             return
 
         chordified = get_chordified() if get_chordified else score.chordify()
@@ -586,10 +594,12 @@ def extract_texture(score, result, get_chordified=None):
         if not chords:
             return
 
-        avg_notes = sum(len(c.pitches) for c in chords) / len(chords)
-        result["vertical_density"] = safe_round(avg_notes / num_parts)
+        # Raw: average simultaneous notes
+        total_notes = sum(len(c.pitches) for c in chords)
+        result["simultaneous_note_avg"] = safe_round(total_notes / len(chords))
+        result["texture_chord_count"] = len(chords)
 
-        # Voice independence
+        # Raw: parallel motion count (Ruby decides what this means)
         parallel_motion = 0
         for i in range(1, min(len(chords), 50)):
             prev_pitches = sorted(chords[i-1].pitches, key=lambda p: p.ps)
@@ -600,20 +610,7 @@ def extract_texture(score, result, get_chordified=None):
                 if movements and (all(m > 0 for m in movements) or all(m < 0 for m in movements)):
                     parallel_motion += 1
 
-        independence = 1.0 - (parallel_motion / max(1, min(len(chords) - 1, 49)))
-        result["voice_independence"] = safe_round(independence)
-
-        # Classify texture
-        if num_parts == 1:
-            result["texture_type"] = "monophonic"
-        elif result["vertical_density"] < 0.3:
-            result["texture_type"] = "monophonic"
-        elif result["voice_independence"] < 0.3:
-            result["texture_type"] = "homophonic"
-        elif result["voice_independence"] > 0.7:
-            result["texture_type"] = "polyphonic"
-        else:
-            result["texture_type"] = "mixed"
+        result["parallel_motion_count"] = parallel_motion
 
     except Exception as e:
         result["_warnings"].append(f"texture: {e}")
@@ -686,12 +683,7 @@ def extract_melodic_leaps(score, result):
     """
     Count melodic leaps (intervals >5 semitones, i.e. larger than a perfect 4th).
 
-    Useful for:
-        - Voice difficulty (leaps require pitch accuracy)
-        - General melodic angularity
-
-    Note: Does NOT reliably indicate string position shifts (fingering-dependent)
-    or piano difficulty (hand jumps are a different skill).
+    Raw count - Ruby calculates ratios and interprets difficulty.
     """
     try:
         leap_count = 0
@@ -704,94 +696,240 @@ def extract_melodic_leaps(score, result):
                 if interval_size > 5:  # Larger than perfect 4th
                     leap_count += 1
 
-        if leap_count > 0:
-            result["leap_count"] = leap_count
-
-            if result.get("measure_count") and result["measure_count"] > 0:
-                result["leaps_per_measure"] = round(
-                    leap_count / result["measure_count"], 2
-                )
+        result["leap_count"] = leap_count
 
     except Exception as e:
         result["_warnings"].append(f"melodic_leaps: {e}")
 
 
-def compute_difficulty_score(result) -> int:
+def extract_chromatic_notes(score, result):
     """
-    Compute difficulty score (1-5) based on ALL extracted metrics.
+    Count notes that are chromatic (outside the key signature).
 
-    Returns:
-        1 = Beginner, 2 = Easy, 3 = Intermediate, 4 = Advanced, 5 = Expert
+    Different from accidental_count which counts all accidentals including
+    diatonic notes in sharp/flat keys (e.g., F# in G major).
 
-    Scoring (0-13 points):
-        - Note density: 0-2, Chromatic: 0-2, Rhythm: 0-2, Melodic: 0-2
-        - Tempo: 0-1, Modulations: 0-1, Polyphony: 0-1, Hand span: 0-1, Shifts: 0-1
+    This counts actual chromaticism - notes that don't belong to the key.
     """
-    def get(key, default=0):
-        """Get value from result, treating None as default."""
-        val = result.get(key)
-        return default if val is None else val
+    try:
+        analyzed_key = result.get("_analyzed_key") or score.analyze("key")
+        if not analyzed_key:
+            return
 
-    points = 0
+        key_scale = analyzed_key.getScale()
+        chromatic_count = 0
 
-    # Note Density (0-2)
-    density = get("note_density")
-    if density > 20:
-        points += 2
-    elif density > 10:
-        points += 1
+        cache = result.get("_cache")
+        notes_list = cache.notes if cache else list(score.flatten().notes)
+        for n in notes_list:
+            pitches_to_check = []
+            if isinstance(n, note.Note):
+                pitches_to_check = [n.pitch]
+            elif isinstance(n, chord.Chord):
+                pitches_to_check = n.pitches
 
-    # Chromatic Complexity (0-2)
-    chromatic = get("chromatic_complexity")
-    if chromatic > 0.3:
-        points += 2
-    elif chromatic > 0.15:
-        points += 1
+            for p in pitches_to_check:
+                # Check if pitch is in the key's scale
+                try:
+                    degree = key_scale.getScaleDegreeAndAccidentalFromPitch(p)
+                    # If accidental is not None and not natural, it's chromatic
+                    if degree[1] is not None and degree[1].name != "natural":
+                        chromatic_count += 1
+                except Exception:
+                    # If we can't determine, skip it (don't assume chromatic)
+                    pass
 
-    # Rhythm Complexity (0-2)
-    if get("syncopation_level") > 0.3:
-        points += 1
-    if get("rhythmic_variety") > 0.7:
-        points += 1
+        result["chromatic_note_count"] = chromatic_count
 
-    # Melodic Intervals (0-2)
-    largest = get("largest_interval")
-    if largest > 12:
-        points += 2
-    elif largest > 7:
-        points += 1
+    except Exception as e:
+        result["_warnings"].append(f"chromatic_notes: {e}")
 
-    # Tempo (0-1)
-    if get("tempo_bpm", 120) > 150:
-        points += 1
 
-    # Modulations (0-1)
-    if get("modulation_count") > 2:
-        points += 1
+def extract_meter_info(score, result):
+    """
+    Extract meter classification and beat count from time signature.
 
-    # Polyphony (0-1)
-    if get("voice_independence") > 0.7:
-        points += 1
+    meter_classification: 'simple', 'compound', or 'complex'
+    beat_count: Number of conducted beats (e.g., 6/8 = 2 beats)
+    """
+    try:
+        cache = result.get("_cache")
+        flat = cache.flat if cache else score.flatten()
+        time_sigs = list(flat.getElementsByClass(meter.TimeSignature))
+        if not time_sigs:
+            return
 
-    # Hand Span - Piano (0-1)
-    if get("max_chord_span") > 12:
-        points += 1
+        ts = time_sigs[0]
 
-    # Melodic Leaps (0-1)
-    if get("leaps_per_measure") > 0.5:
-        points += 1
+        # Beat count (conducted beats)
+        result["beat_count"] = ts.beatCount
 
-    # Map to 1-5
-    if points <= 2:
-        return 1
-    elif points <= 5:
-        return 2
-    elif points <= 8:
-        return 3
-    elif points <= 11:
-        return 4
-    else:
-        return 5
+        # Meter classification
+        if hasattr(ts, "classification"):
+            result["meter_classification"] = ts.classification
+        else:
+            # Fallback: determine from beatDivisionCount
+            if ts.beatCount in (2, 3, 4) and ts.beatDivisionCount == 2:
+                result["meter_classification"] = "simple"
+            elif ts.beatCount in (2, 3, 4) and ts.beatDivisionCount == 3:
+                result["meter_classification"] = "compound"
+            else:
+                result["meter_classification"] = "complex"
+
+    except Exception as e:
+        result["_warnings"].append(f"meter_info: {e}")
+
+
+def extract_voice_count(score, result):
+    """
+    Count the number of independent voices across all parts.
+
+    A part can contain multiple voices (e.g., SA on one staff).
+    This counts actual polyphonic voices, not just staves.
+    """
+    try:
+        total_voices = 0
+
+        for part in score.parts:
+            # Check if part has explicit voices
+            part_voices = part.voices
+            if part_voices:
+                total_voices += len(part_voices)
+            else:
+                # Single voice in this part
+                total_voices += 1
+
+        result["voice_count"] = total_voices
+
+    except Exception as e:
+        result["_warnings"].append(f"voice_count: {e}")
+
+
+def extract_spanners(score, result):
+    """
+    Extract spanner-based notation: slurs, ottava marks.
+    """
+    try:
+        cache = result.get("_cache")
+        flat = cache.flat if cache else score.flatten()
+
+        # Slurs
+        slurs = list(flat.getElementsByClass(spanner.Slur))
+        result["slur_count"] = len(slurs)
+
+        # Ottava (8va, 8vb, 15ma, etc.)
+        ottavas = list(flat.getElementsByClass(spanner.Ottava))
+        result["has_ottava"] = len(ottavas) > 0
+
+    except Exception as e:
+        result["_warnings"].append(f"spanners: {e}")
+
+
+def extract_ornament_counts(score, result):
+    """
+    Count specific ornament types for ornament density calculation.
+
+    These are raw counts - Ruby will compute density ratios.
+    """
+    try:
+        cache = result.get("_cache")
+        flat = cache.flat if cache else score.flatten()
+
+        # Trills
+        trills = list(flat.getElementsByClass(expressions.Trill))
+        result["trill_count"] = len(trills)
+
+        # Mordents
+        mordents = list(flat.getElementsByClass(expressions.Mordent))
+        result["mordent_count"] = len(mordents)
+
+        # Turns
+        turns = list(flat.getElementsByClass(expressions.Turn))
+        result["turn_count"] = len(turns)
+
+        # Tremolos
+        tremolos = list(flat.getElementsByClass(expressions.Tremolo))
+        result["tremolo_count"] = len(tremolos)
+
+        # Arpeggio marks
+        arpeggios = list(flat.getElementsByClass(expressions.ArpeggioMark))
+        result["arpeggio_mark_count"] = len(arpeggios)
+
+    except Exception as e:
+        result["_warnings"].append(f"ornament_counts: {e}")
+
+
+def extract_grace_notes(score, result):
+    """
+    Count grace notes (appoggiaturas, acciaccaturas).
+    """
+    try:
+        grace_count = 0
+
+        cache = result.get("_cache")
+        notes_list = cache.notes if cache else list(score.flatten().notes)
+        for n in notes_list:
+            if isinstance(n, note.Note):
+                if n.duration.isGrace:
+                    grace_count += 1
+            elif isinstance(n, chord.Chord):
+                if n.duration.isGrace:
+                    grace_count += 1
+
+        result["grace_note_count"] = grace_count
+
+    except Exception as e:
+        result["_warnings"].append(f"grace_notes: {e}")
+
+
+def extract_pedal_marks(score, result):
+    """
+    Check for piano pedal markings.
+    """
+    try:
+        cache = result.get("_cache")
+        flat = cache.flat if cache else score.flatten()
+        pedals = list(flat.getElementsByClass(expressions.PedalMark))
+        result["has_pedal_marks"] = len(pedals) > 0
+
+    except Exception as e:
+        result["_warnings"].append(f"pedal_marks: {e}")
+
+
+def extract_mode_detection(score, result):
+    """
+    Detect if the piece uses a church mode (Dorian, Phrygian, etc.)
+    rather than major/minor.
+
+    Only reports mode if confidence is reasonable.
+    """
+    try:
+        analyzed_key = result.get("_analyzed_key") or score.analyze("key")
+        if not analyzed_key:
+            return
+
+        # music21's key analysis includes mode detection
+        mode = analyzed_key.mode
+
+        # Map to standardized names
+        mode_names = {
+            "major": "major",
+            "minor": "minor",
+            "dorian": "dorian",
+            "phrygian": "phrygian",
+            "lydian": "lydian",
+            "mixolydian": "mixolydian",
+            "aeolian": "aeolian",  # same as natural minor
+            "locrian": "locrian",
+            "ionian": "major",  # same as major
+        }
+
+        detected = mode_names.get(mode.lower() if mode else None)
+        if detected and detected not in ("major", "minor"):
+            result["detected_mode"] = detected
+
+    except Exception as e:
+        result["_warnings"].append(f"mode_detection: {e}")
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -824,35 +962,40 @@ def extract(file_path: str) -> dict:
             wrapper.append(score)
             score = wrapper
 
-        # Cache chordify - expensive operation used by 3 functions
-        _chordified_cache = None
+        # Create cache for expensive operations
+        cache = ScoreCache(score)
 
-        def get_chordified():
-            nonlocal _chordified_cache
-            if _chordified_cache is None:
-                _chordified_cache = score.chordify()
-            return _chordified_cache
+        # Store cached key for extraction functions
+        result["_analyzed_key"] = cache.analyzed_key
+        result["_cache"] = cache
 
-        # Run all extractions
+        # Run all extractions (pass cache where needed)
         extract_pitch_range(score, result)
         extract_tempo_duration(score, result)
         extract_complexity(score, result)
         extract_rhythm(score, result)
-        extract_harmony(score, result, get_chordified)
+        extract_harmony(score, result, lambda: cache.chordified)
         extract_melody(score, result)
-        extract_structure(score, result, get_chordified)
+        extract_structure(score, result, lambda: cache.chordified)
         extract_notation(score, result)
         extract_lyrics(score, result)
         extract_instrumentation(score, result)
-        extract_texture(score, result, get_chordified)
+        extract_texture(score, result, lambda: cache.chordified)
 
-        # New extractions
+        # Existing extractions
         extract_hand_span(score, result)
         extract_tessitura(score, result)
         extract_melodic_leaps(score, result)
 
-        # Compute final difficulty from all metrics
-        result["computed_difficulty"] = compute_difficulty_score(result)
+        # Phase 0: New raw extractions
+        extract_chromatic_notes(score, result)
+        extract_meter_info(score, result)
+        extract_voice_count(score, result)
+        extract_spanners(score, result)
+        extract_ornament_counts(score, result)
+        extract_grace_notes(score, result)
+        extract_pedal_marks(score, result)
+        extract_mode_detection(score, result)
 
         result["extraction_status"] = "extracted"
 
@@ -861,6 +1004,8 @@ def extract(file_path: str) -> dict:
         result["extraction_error"] = str(e)[:1000]
 
     # Clean up internal fields
+    result.pop("_analyzed_key", None)
+    result.pop("_cache", None)
     warnings = result.pop("_warnings", [])
     if warnings:
         result["_extraction_warnings"] = warnings
@@ -872,22 +1017,107 @@ def extract(file_path: str) -> dict:
 # CLI
 # ─────────────────────────────────────────────────────────────────
 
+def extract_batch(paths: list[str], output_file=sys.stdout) -> dict:
+    """
+    Extract features from multiple files in batch mode.
+
+    Outputs JSONL (one JSON object per line) with file_path included.
+    Returns stats dict with counts.
+    """
+    stats = {"total": len(paths), "extracted": 0, "failed": 0}
+
+    for i, path in enumerate(paths):
+        result = {"file_path": path}
+
+        if not Path(path).exists():
+            result["extraction_status"] = "failed"
+            result["extraction_error"] = f"File not found: {path}"
+            stats["failed"] += 1
+        else:
+            try:
+                extracted = extract(path)
+                result.update(extracted)
+                if extracted.get("extraction_status") == "extracted":
+                    stats["extracted"] += 1
+                else:
+                    stats["failed"] += 1
+            except Exception as e:
+                result["extraction_status"] = "failed"
+                result["extraction_error"] = str(e)[:500]
+                stats["failed"] += 1
+
+        # Output JSONL (one object per line)
+        output_file.write(json.dumps(result, ensure_ascii=False) + "\n")
+        output_file.flush()
+
+        # Progress to stderr
+        if (i + 1) % 10 == 0 or i + 1 == len(paths):
+            print(f"Progress: {i + 1}/{len(paths)}", file=sys.stderr)
+
+    return stats
+
+
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Extract musical features from MusicXML files",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  Single file:
+    python3 extract.py score.mxl
+
+  Batch mode (paths from file):
+    python3 extract.py --batch paths.txt > results.jsonl
+
+  Batch mode (paths from stdin):
+    find ~/data/pdmx -name "*.mxl" | python3 extract.py --batch - > results.jsonl
+"""
+    )
+    parser.add_argument("path", nargs="?", help="Path to MusicXML file")
+    parser.add_argument("--batch", "-b", metavar="FILE",
+                        help="Batch mode: read paths from FILE (use '-' for stdin)")
+    parser.add_argument("--output", "-o", metavar="FILE",
+                        help="Output file for batch mode (default: stdout)")
+
+    args = parser.parse_args()
+
+    # Batch mode
+    if args.batch:
+        # Read paths from file or stdin
+        if args.batch == "-":
+            paths = [line.strip() for line in sys.stdin if line.strip()]
+        else:
+            with open(args.batch) as f:
+                paths = [line.strip() for line in f if line.strip()]
+
+        if not paths:
+            print("No paths provided", file=sys.stderr)
+            sys.exit(1)
+
+        # Open output file or use stdout
+        if args.output:
+            with open(args.output, "w") as out:
+                stats = extract_batch(paths, out)
+        else:
+            stats = extract_batch(paths)
+
+        print(f"\nDone: {stats['extracted']} extracted, {stats['failed']} failed",
+              file=sys.stderr)
+        sys.exit(0)
+
+    # Single file mode
+    if not args.path:
+        parser.print_help()
+        sys.exit(1)
+
+    if not Path(args.path).exists():
         print(json.dumps({
             "extraction_status": "failed",
-            "extraction_error": "Usage: python3 extract.py <path_to_musicxml>"
+            "extraction_error": f"File not found: {args.path}"
         }))
         sys.exit(1)
 
-    file_path = sys.argv[1]
-
-    if not Path(file_path).exists():
-        print(json.dumps({
-            "extraction_status": "failed",
-            "extraction_error": f"File not found: {file_path}"
-        }))
-        sys.exit(1)
-
-    result = extract(file_path)
+    result = extract(args.path)
     print(json.dumps(result, ensure_ascii=False))

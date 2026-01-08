@@ -149,7 +149,7 @@ class SearchTextGenerator
       has_articulations: score.has_articulations,
       has_ornaments: score.has_ornaments,
       has_vocal: score.has_vocal,
-      is_instrumental: score.is_instrumental
+      is_instrumental: score.is_instrumental?
     }.compact
   end
 
