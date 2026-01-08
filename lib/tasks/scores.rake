@@ -63,12 +63,15 @@ namespace :scores do
     output_file.close
 
     puts "\nRunning Python extraction on #{paths_with_ids.size} files..."
-    _stdout, stderr, status = Open3.capture3(
-      python, script, "--batch", paths_file.path, "--output", output_file.path
-    )
+    status = nil
+    Open3.popen3(python, script, "--batch", paths_file.path, "--output", output_file.path) do |_stdin, _stdout, stderr, wait_thr|
+      # Stream stderr (progress) to console in real-time
+      stderr.each_line { |line| puts "  #{line}" }
+      status = wait_thr.value
+    end
 
-    unless status.success?
-      puts "Extraction failed: #{stderr}"
+    unless status&.success?
+      puts "Extraction failed (exit code: #{status&.exitstatus})"
       next
     end
 
