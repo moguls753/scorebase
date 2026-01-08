@@ -316,7 +316,7 @@ module ScoresHelper
     extraction_status extracted_at music21_version
     highest_pitch lowest_pitch ambitus_semitones pitch_range_per_part voice_ranges
     tempo_bpm tempo_marking duration_seconds measure_count
-    note_count note_density unique_pitches accidental_count chromatic_complexity
+    event_count pitch_count note_density unique_pitches accidental_count chromatic_ratio
     rhythm_distribution syncopation_level rhythmic_variety predominant_rhythm
     key_signature key_confidence key_correlations modulations modulation_count
     chord_symbols harmonic_rhythm interval_distribution largest_interval
