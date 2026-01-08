@@ -1050,9 +1050,10 @@ def extract_batch(paths: list[str], output_file=sys.stdout) -> dict:
         output_file.write(json.dumps(result, ensure_ascii=False) + "\n")
         output_file.flush()
 
-        # Progress to stderr
-        if (i + 1) % 10 == 0 or i + 1 == len(paths):
-            print(f"Progress: {i + 1}/{len(paths)}", file=sys.stderr)
+        # Progress to stderr (every file for visibility)
+        status = "OK" if result.get("extraction_status") == "extracted" else "FAIL"
+        print(f"[{i + 1}/{len(paths)}] {status}: {Path(path).name}", file=sys.stderr)
+        sys.stderr.flush()
 
     return stats
 
