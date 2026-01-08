@@ -15,7 +15,6 @@
 #  clefs_used                 :text
 #  complexity                 :integer
 #  composer                   :string
-#  composer_normalized        :string
 #  composer_status            :string           default("pending"), not null
 #  computed_difficulty        :integer
 #  contrary_motion_ratio      :float
@@ -132,7 +131,6 @@
 #  thumbnail_url              :string
 #  time_signature             :string
 #  title                      :string
-#  title_normalized           :string
 #  total_quarter_length       :float
 #  tremolo_count              :integer
 #  trill_count                :integer
@@ -156,7 +154,6 @@
 #  index_scores_on_chromatic_ratio               (chromatic_ratio)
 #  index_scores_on_complexity                    (complexity)
 #  index_scores_on_composer                      (composer)
-#  index_scores_on_composer_normalized           (composer_normalized)
 #  index_scores_on_composer_status               (composer_status)
 #  index_scores_on_computed_difficulty           (computed_difficulty)
 #  index_scores_on_duration_seconds              (duration_seconds)
@@ -190,7 +187,6 @@
 #  index_scores_on_tempo_bpm                     (tempo_bpm)
 #  index_scores_on_texture_type                  (texture_type)
 #  index_scores_on_time_signature                (time_signature)
-#  index_scores_on_title_normalized              (title_normalized)
 #  index_scores_on_views                         (views)
 #  index_scores_on_voicing                       (voicing)
 #  index_scores_on_voicing_status                (voicing_status)

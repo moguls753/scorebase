@@ -96,7 +96,6 @@ class HubPagesController < ApplicationController
   def apply_sorting(scope)
     case @sort
     when "popularity" then scope.order_by_popularity
-    when "rating"     then scope.order_by_rating
     when "newest"     then scope.order_by_newest
     when "title"      then scope.order_by_title
     when "composer"   then scope.order_by_composer
