@@ -52,9 +52,9 @@ class ScoreLabeler
   # ─────────────────────────────────────────────────────────────────
 
   def articulation_style
-    return nil unless @score.slur_count && @score.note_count&.positive?
+    return nil unless @score.slur_count && @score.event_count&.positive?
 
-    slur_ratio = @score.slur_count.to_f / @score.note_count
+    slur_ratio = @score.slur_count.to_f / @score.event_count
 
     case slur_ratio
     when 0.5.. then "legato"

@@ -141,7 +141,7 @@ class SearchTextGenerator
       duration_minutes: format_duration_minutes(score.duration_seconds),
       num_parts: bucket(score.num_parts, [1, 2, 4, 8], %w[solo duo small_ensemble ensemble large_ensemble]),
       ambitus: bucket(score.ambitus_semitones, [12, 24, 36], %w[narrow moderate wide very_wide]),
-      chromatic_passages: bucket_01(score.chromatic_complexity),
+      chromatic_passages: bucket_01(score.chromatic_ratio),
       syncopated_rhythms: bucket_01(score.syncopation_level),
       contrapuntal_texture: bucket(score.vertical_density, [1.1, 1.4, 1.8], %w[thin moderate rich very_rich]),
       melodic_motion: stepwise_motion(score.stepwise_motion_ratio),
@@ -174,7 +174,7 @@ class SearchTextGenerator
     return false unless score.computed_difficulty && score.computed_difficulty >= 4
 
     instrument = detect_instrument_family(score)
-    chromatic = score.chromatic_complexity.to_f
+    chromatic = score.chromatic_ratio.to_f
     largest = score.largest_interval.to_i
     polyphony = score.vertical_density.to_f
     leaps = score.leaps_per_measure.to_f

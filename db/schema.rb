@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_08_144459) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_08_204206) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -74,8 +74,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_144459) do
     t.text "cadence_types"
     t.integer "chord_count"
     t.json "chord_symbols"
-    t.float "chromatic_complexity"
     t.integer "chromatic_note_count"
+    t.float "chromatic_ratio"
     t.text "clefs_used"
     t.integer "complexity"
     t.string "composer"
@@ -90,6 +90,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_144459) do
     t.float "duration_seconds"
     t.string "dynamic_range"
     t.string "editor"
+    t.integer "event_count"
     t.text "expression_markings"
     t.string "external_id"
     t.string "external_url"
@@ -149,7 +150,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_144459) do
     t.string "music21_version"
     t.string "musicxml_source"
     t.string "mxl_path"
-    t.integer "note_count"
     t.float "note_density"
     t.integer "num_parts"
     t.integer "off_beat_count"
@@ -159,6 +159,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_144459) do
     t.string "pdf_path"
     t.string "period"
     t.string "period_status", default: "pending", null: false
+    t.json "pitch_class_distribution"
+    t.integer "pitch_count"
     t.json "pitch_range_per_part"
     t.date "posted_date"
     t.string "predominant_rhythm"
@@ -201,12 +203,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_144459) do
     t.string "voicing_status", default: "pending", null: false
     t.index "genre_status, LOWER(genre)", name: "index_scores_on_genre_status_and_lower_genre"
     t.index ["ambitus_semitones"], name: "index_scores_on_ambitus_semitones"
-    t.index ["chromatic_complexity"], name: "index_scores_on_chromatic_complexity"
+    t.index ["chromatic_ratio"], name: "index_scores_on_chromatic_ratio"
     t.index ["complexity"], name: "index_scores_on_complexity"
     t.index ["composer"], name: "index_scores_on_composer"
     t.index ["composer_status"], name: "index_scores_on_composer_status"
     t.index ["computed_difficulty"], name: "index_scores_on_computed_difficulty"
     t.index ["duration_seconds"], name: "index_scores_on_duration_seconds"
+    t.index ["event_count"], name: "index_scores_on_event_count"
     t.index ["external_id"], name: "index_scores_on_external_id"
     t.index ["extraction_status"], name: "index_scores_on_extraction_status"
     t.index ["genre"], name: "index_scores_on_genre"
@@ -224,7 +227,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_144459) do
     t.index ["measure_count"], name: "index_scores_on_measure_count"
     t.index ["melodic_complexity"], name: "index_scores_on_melodic_complexity"
     t.index ["modulation_count"], name: "index_scores_on_modulation_count"
-    t.index ["note_count"], name: "index_scores_on_note_count"
     t.index ["num_parts"], name: "index_scores_on_num_parts"
     t.index ["period"], name: "index_scores_on_period"
     t.index ["period_status"], name: "index_scores_on_period_status"

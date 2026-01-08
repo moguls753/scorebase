@@ -106,7 +106,7 @@ class Music21Extractor
       return
     end
 
-    # Save raw extraction data (Python is dumb, Ruby interprets)
+    # Save extraction data (Python extracts facts, Ruby interprets)
     @score.update!(
       # Pitch data
       highest_pitch: result["highest_pitch"],
@@ -124,10 +124,13 @@ class Music21Extractor
       measure_count: result["measure_count"],
 
       # Raw counts
-      note_count: result["note_count"],
+      event_count: result["event_count"],
+      pitch_count: result["pitch_count"],
       accidental_count: result["accidental_count"],
       leap_count: result["leap_count"],
       max_chord_span: result["max_chord_span"],
+      pitch_class_distribution: result["pitch_class_distribution"],
+      chromatic_ratio: result["chromatic_ratio"],
 
       # Rhythm (raw)
       rhythm_distribution: result["rhythm_distribution"],
@@ -217,8 +220,8 @@ class Music21Extractor
     metrics = ScoreMetricsCalculator.new(@score)
 
     @score.update_columns(
+      # Note: chromatic_ratio now comes from Python (derived fact)
       note_density: metrics.note_density,
-      chromatic_complexity: metrics.chromatic_ratio,
       syncopation_level: metrics.syncopation_level,
       rhythmic_variety: metrics.rhythmic_variety,
       harmonic_rhythm: metrics.harmonic_rhythm,

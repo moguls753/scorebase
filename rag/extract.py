@@ -227,19 +227,25 @@ def extract_complexity(score, result):
     try:
         cache = result.get("_cache")
         notes_list = cache.notes if cache else list(score.flatten().notes)
-        result["note_count"] = len(notes_list)
 
-        # Count accidentals (notes with sharps/flats in notation)
+        # event_count = rhythmic events (note or chord objects)
+        # pitch_count = individual pitched sounds (chord with 4 notes = 4 pitches)
+        result["event_count"] = len(notes_list)
+
+        pitch_count = 0
         accidental_count = 0
         for n in notes_list:
-            if isinstance(n, note.Note) and n.pitch.accidental:
-                if n.pitch.accidental.name != "natural":
+            if isinstance(n, note.Note):
+                pitch_count += 1
+                if n.pitch.accidental and n.pitch.accidental.name != "natural":
                     accidental_count += 1
             elif isinstance(n, chord.Chord):
+                pitch_count += len(n.pitches)
                 for p in n.pitches:
                     if p.accidental and p.accidental.name != "natural":
                         accidental_count += 1
 
+        result["pitch_count"] = pitch_count
         result["accidental_count"] = accidental_count
 
     except Exception as e:
@@ -741,8 +747,44 @@ def extract_chromatic_notes(score, result):
 
         result["chromatic_note_count"] = chromatic_count
 
+        # Compute chromatic_ratio (derived fact)
+        pitch_count = result.get("pitch_count")
+        if pitch_count and pitch_count > 0:
+            result["chromatic_ratio"] = round(chromatic_count / pitch_count, 3)
+
     except Exception as e:
         result["_warnings"].append(f"chromatic_notes: {e}")
+
+
+def extract_pitch_class_distribution(score, result):
+    """
+    Count occurrences of each pitch class (C, C#, D, etc.).
+
+    Raw data for:
+    - Ruby chromatic ratio calculation (alternative to chromatic_note_count)
+    - Mode detection (check for raised/lowered scale degrees)
+    - Tonal center analysis
+
+    Uses note names (C#, Db) not integers, preserving enharmonic spelling.
+    """
+    try:
+        cache = result.get("_cache")
+        notes_list = cache.notes if cache else list(score.flatten().notes)
+
+        pitch_classes = Counter()
+        for n in notes_list:
+            if isinstance(n, note.Note):
+                # Use pitch name without octave: "C#4" -> "C#"
+                pitch_classes[n.pitch.name] += 1
+            elif isinstance(n, chord.Chord):
+                for p in n.pitches:
+                    pitch_classes[p.name] += 1
+
+        if pitch_classes:
+            result["pitch_class_distribution"] = dict(pitch_classes)
+
+    except Exception as e:
+        result["_warnings"].append(f"pitch_class_distribution: {e}")
 
 
 def extract_meter_info(score, result):
@@ -989,6 +1031,7 @@ def extract(file_path: str) -> dict:
 
         # Phase 0: New raw extractions
         extract_chromatic_notes(score, result)
+        extract_pitch_class_distribution(score, result)
         extract_meter_info(score, result)
         extract_voice_count(score, result)
         extract_spanners(score, result)

@@ -10,8 +10,8 @@
 #  cadence_types            :text
 #  chord_count              :integer
 #  chord_symbols            :json
-#  chromatic_complexity     :float
 #  chromatic_note_count     :integer
+#  chromatic_ratio          :float
 #  clefs_used               :text
 #  complexity               :integer
 #  composer                 :string
@@ -25,6 +25,7 @@
 #  duration_seconds         :float
 #  dynamic_range            :string
 #  editor                   :string
+#  event_count              :integer
 #  expression_markings      :text
 #  external_url             :string
 #  extracted_at             :datetime
@@ -83,7 +84,6 @@
 #  music21_version          :string
 #  musicxml_source          :string
 #  mxl_path                 :string
-#  note_count               :integer
 #  note_density             :float
 #  num_parts                :integer
 #  off_beat_count           :integer
@@ -93,6 +93,8 @@
 #  pdf_path                 :string
 #  period                   :string
 #  period_status            :string           default("pending"), not null
+#  pitch_class_distribution :json
+#  pitch_count              :integer
 #  pitch_range_per_part     :json
 #  posted_date              :date
 #  predominant_rhythm       :string
@@ -139,12 +141,13 @@
 # Indexes
 #
 #  index_scores_on_ambitus_semitones             (ambitus_semitones)
-#  index_scores_on_chromatic_complexity          (chromatic_complexity)
+#  index_scores_on_chromatic_ratio               (chromatic_ratio)
 #  index_scores_on_complexity                    (complexity)
 #  index_scores_on_composer                      (composer)
 #  index_scores_on_composer_status               (composer_status)
 #  index_scores_on_computed_difficulty           (computed_difficulty)
 #  index_scores_on_duration_seconds              (duration_seconds)
+#  index_scores_on_event_count                   (event_count)
 #  index_scores_on_external_id                   (external_id)
 #  index_scores_on_extraction_status             (extraction_status)
 #  index_scores_on_genre                         (genre)
@@ -163,7 +166,6 @@
 #  index_scores_on_measure_count                 (measure_count)
 #  index_scores_on_melodic_complexity            (melodic_complexity)
 #  index_scores_on_modulation_count              (modulation_count)
-#  index_scores_on_note_count                    (note_count)
 #  index_scores_on_num_parts                     (num_parts)
 #  index_scores_on_period                        (period)
 #  index_scores_on_period_status                 (period_status)
