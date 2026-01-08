@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_07_223103) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -176,6 +176,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_07_223103) do
     t.json "voice_ranges"
     t.string "voicing"
     t.string "voicing_status", default: "pending", null: false
+    t.index "genre_status, LOWER(genre)", name: "index_scores_on_genre_status_and_lower_genre"
     t.index ["ambitus_semitones"], name: "index_scores_on_ambitus_semitones"
     t.index ["chromatic_complexity"], name: "index_scores_on_chromatic_complexity"
     t.index ["complexity"], name: "index_scores_on_complexity"
