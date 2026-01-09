@@ -145,7 +145,6 @@ class Music21Extractor
       modulations: result["modulations"],
       modulation_count: result["modulation_count"],
       modulation_targets: result["modulation_targets"],
-      chord_symbols: result["chord_symbols"],
       chord_count: result["chord_count"],
 
       # Melody (raw)
@@ -186,8 +185,12 @@ class Music21Extractor
 
       # Texture (raw)
       simultaneous_note_avg: result["simultaneous_note_avg"],
-      texture_chord_count: result["texture_chord_count"],
-      parallel_motion_count: result["parallel_motion_count"],
+      texture_variation: result["texture_variation"],
+      avg_chord_span: result["avg_chord_span"],
+      contrary_motion_ratio: result["contrary_motion_ratio"],
+      parallel_motion_ratio: result["parallel_motion_ratio"],
+      oblique_motion_ratio: result["oblique_motion_ratio"],
+      unique_chord_count: result["unique_chord_count"],
 
       # Phase 0: New raw extractions
       chromatic_note_count: result["chromatic_note_count"],

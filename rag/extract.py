@@ -337,25 +337,10 @@ def extract_harmony(score, result, get_chordified=None):
             result["modulation_count"] = len(modulations)
             result["modulation_targets"] = modulations  # Raw list for Ruby
 
-        # Chord analysis
+        # Chord count for harmonic rhythm calculation (all chords in piece)
         try:
             chordified = get_chordified() if get_chordified else score.chordify()
-            chords = list(chordified.flatten().getElementsByClass(chord.Chord))[:50]
-            chord_names = []
-            for c in chords:
-                try:
-                    if analyzed_key:
-                        rn = roman.romanNumeralFromChord(c, analyzed_key)
-                        chord_names.append(rn.figure)
-                except Exception:
-                    pass
-
-            if chord_names:
-                result["chord_symbols"] = chord_names
-
-            # Raw chord count for Ruby to calculate harmonic_rhythm
-            result["chord_count"] = len(chords)
-
+            result["chord_count"] = sum(1 for _ in chordified.flatten().getElementsByClass(chord.Chord))
         except Exception:
             pass
 
@@ -583,40 +568,107 @@ def extract_instrumentation(score, result):
 
 
 def extract_texture(score, result, get_chordified=None):
-    """Analyze texture raw data (let Ruby interpret)."""
+    """
+    Analyze texture from chordified score.
+
+    Extracts raw facts for RAG search:
+    - simultaneous_note_avg: texture density (thick vs sparse)
+    - texture_variation: how much density changes (builds vs steady)
+    - avg_chord_span: voicing width in semitones (open vs close harmony)
+    - contrary_motion_ratio: outer voices moving opposite (polyphonic indicator)
+    - parallel_motion_ratio: outer voices moving same direction (homophonic indicator)
+    - oblique_motion_ratio: one voice holds, other moves
+    - unique_chord_count: distinct triads/7ths (harmonic variety)
+    """
     try:
         if not score.parts:
             return
 
-        num_parts = len(score.parts)
-        if num_parts == 1:
-            result["simultaneous_note_avg"] = 1.0
-            result["parallel_motion_count"] = 0
-            return
-
         chordified = get_chordified() if get_chordified else score.chordify()
-        chords = list(chordified.flatten().getElementsByClass(chord.Chord))[:100]
+        chord_stream = chordified.flatten().getElementsByClass(chord.Chord)
 
-        if not chords:
-            return
+        # Collect data in single pass
+        note_counts = []      # For avg and std dev
+        chord_spans = []      # For voicing width
+        unique_chords = set() # For harmonic variety (pitch class sets of triads/7ths)
+        prev_bass = None
+        prev_soprano = None
+        contrary_count = 0
+        parallel_count = 0
+        oblique_count = 0
+        total_transitions = 0
 
-        # Raw: average simultaneous notes
-        total_notes = sum(len(c.pitches) for c in chords)
-        result["simultaneous_note_avg"] = safe_round(total_notes / len(chords))
-        result["texture_chord_count"] = len(chords)
+        for c in chord_stream:
+            pitches = sorted(c.pitches, key=lambda p: p.ps)
+            if not pitches:
+                continue
 
-        # Raw: parallel motion count (Ruby decides what this means)
-        parallel_motion = 0
-        for i in range(1, min(len(chords), 50)):
-            prev_pitches = sorted(chords[i-1].pitches, key=lambda p: p.ps)
-            curr_pitches = sorted(chords[i].pitches, key=lambda p: p.ps)
+            # Texture density (count all, including single notes)
+            note_counts.append(len(pitches))
 
-            if len(prev_pitches) == len(curr_pitches) and len(prev_pitches) > 1:
-                movements = [curr_pitches[j].ps - prev_pitches[j].ps for j in range(len(prev_pitches))]
-                if movements and (all(m > 0 for m in movements) or all(m < 0 for m in movements)):
-                    parallel_motion += 1
+            # Unique chord detection: triads (3) and 7th chords (4) only
+            # Uses pitch class (0-11), so inversions = same chord
+            pc_set = frozenset(p.pitchClass for p in pitches)
+            if 3 <= len(pc_set) <= 4:
+                unique_chords.add(pc_set)
 
-        result["parallel_motion_count"] = parallel_motion
+            # Chord span and motion analysis - only meaningful for 2+ notes
+            if len(pitches) >= 2:
+                span = pitches[-1].ps - pitches[0].ps  # soprano - bass in semitones
+                chord_spans.append(span)
+
+                # Outer voice motion analysis
+                bass = pitches[0].ps
+                soprano = pitches[-1].ps
+
+                if prev_bass is not None and prev_soprano is not None:
+                    bass_motion = bass - prev_bass      # + = up, - = down, 0 = static
+                    soprano_motion = soprano - prev_soprano
+
+                    # Count all transitions where at least one voice moves
+                    if bass_motion != 0 or soprano_motion != 0:
+                        total_transitions += 1
+
+                        # Contrary: opposite directions (both must move)
+                        if bass_motion != 0 and soprano_motion != 0:
+                            if (bass_motion > 0) != (soprano_motion > 0):
+                                contrary_count += 1
+                            else:
+                                parallel_count += 1
+                        else:
+                            # Oblique: one moves, one holds
+                            oblique_count += 1
+
+                prev_bass = bass
+                prev_soprano = soprano
+            else:
+                # Single note interrupts voice-leading chain
+                # Reset to avoid comparing non-consecutive chords
+                prev_bass = None
+                prev_soprano = None
+
+        # Calculate results
+        if note_counts:
+            avg = sum(note_counts) / len(note_counts)
+            result["simultaneous_note_avg"] = safe_round(avg)
+
+            # Standard deviation (texture variation)
+            if len(note_counts) > 1:
+                variance = sum((x - avg) ** 2 for x in note_counts) / len(note_counts)
+                result["texture_variation"] = safe_round(variance ** 0.5)
+
+        if chord_spans:
+            result["avg_chord_span"] = safe_round(sum(chord_spans) / len(chord_spans))
+
+        # Motion ratios - only if we have actual multi-voice transitions
+        if total_transitions > 0:
+            result["contrary_motion_ratio"] = safe_round(contrary_count / total_transitions, 3)
+            result["parallel_motion_ratio"] = safe_round(parallel_count / total_transitions, 3)
+            result["oblique_motion_ratio"] = safe_round(oblique_count / total_transitions, 3)
+
+        # Unique chord count (harmonic variety)
+        if unique_chords:
+            result["unique_chord_count"] = len(unique_chords)
 
     except Exception as e:
         result["_warnings"].append(f"texture: {e}")

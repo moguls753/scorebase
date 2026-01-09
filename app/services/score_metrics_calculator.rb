@@ -77,15 +77,11 @@ class ScoreMetricsCalculator
     (@score.chord_count.to_f / @score.measure_count).round(2)
   end
 
-  # Voice independence - inverse of parallel motion
+  # Voice independence - from contrary motion of outer voices
   # Higher = more independent voice leading (polyphonic)
+  # Based on contrary_motion_ratio extracted from Python
   def voice_independence
-    return nil unless @score.parallel_motion_count && @score.texture_chord_count
-    return 0.0 if @score.texture_chord_count <= 1
-
-    chord_transitions = @score.texture_chord_count - 1
-    independence = 1.0 - (@score.parallel_motion_count.to_f / [chord_transitions, 49].min)
-    independence.clamp(0.0, 1.0).round(3)
+    @score.contrary_motion_ratio
   end
 
   # Vertical density - average simultaneous notes / parts

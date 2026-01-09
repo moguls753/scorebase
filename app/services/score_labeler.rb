@@ -18,17 +18,21 @@ class ScoreLabeler
   # Texture
   # ─────────────────────────────────────────────────────────────────
 
-  # Based on voice independence metric (from parallel_motion analysis)
+  # Based on voice independence metric (from contrary_motion analysis)
+  # Note: num_parts is NOT a reliable indicator of texture
+  # (a piano piece has 1-2 parts but can be polyphonic)
   def texture_type
-    independence = @metrics.voice_independence
-    return "monophonic" if (@score.num_parts || 1) == 1
+    # Check if piece is truly monophonic (single notes, no chords)
+    avg_notes = @score.simultaneous_note_avg
+    return "monophonic" if avg_notes && avg_notes < 1.5
 
+    independence = @metrics.voice_independence
     return nil unless independence
 
     case independence
-    when 0.7.. then "polyphonic"
-    when 0.3...0.7 then "mixed texture"
-    else "homophonic"
+    when 0.5.. then "polyphonic"      # High contrary motion
+    when 0.2...0.5 then "mixed texture"
+    else "homophonic"                  # Low contrary motion (mostly parallel/oblique)
     end
   end
 
