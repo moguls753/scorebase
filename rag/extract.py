@@ -822,31 +822,6 @@ def extract_meter_info(score, result):
         result["_warnings"].append(f"meter_info: {e}")
 
 
-def extract_voice_count(score, result):
-    """
-    Count the number of independent voices across all parts.
-
-    A part can contain multiple voices (e.g., SA on one staff).
-    This counts actual polyphonic voices, not just staves.
-    """
-    try:
-        total_voices = 0
-
-        for part in score.parts:
-            # Check if part has explicit voices
-            part_voices = part.voices
-            if part_voices:
-                total_voices += len(part_voices)
-            else:
-                # Single voice in this part
-                total_voices += 1
-
-        result["voice_count"] = total_voices
-
-    except Exception as e:
-        result["_warnings"].append(f"voice_count: {e}")
-
-
 def extract_spanners(score, result):
     """
     Extract spanner-based notation: slurs, ottava marks.
@@ -1033,7 +1008,6 @@ def extract(file_path: str) -> dict:
         extract_chromatic_notes(score, result)
         extract_pitch_class_distribution(score, result)
         extract_meter_info(score, result)
-        extract_voice_count(score, result)
         extract_spanners(score, result)
         extract_ornament_counts(score, result)
         extract_grace_notes(score, result)
