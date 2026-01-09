@@ -21,7 +21,6 @@
 #  data_path                :string
 #  description              :text
 #  detected_instruments     :text
-#  detected_mode            :string
 #  duration_seconds         :float
 #  dynamic_range            :string
 #  editor                   :string
