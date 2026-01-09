@@ -362,6 +362,18 @@ class Score < ApplicationRecord
     time_signature&.split(",")&.first&.strip
   end
 
+  # Effective tempo: prefer metronome mark, fall back to estimated from text
+  # Use this instead of tempo_bpm directly to include estimated tempos
+  def effective_tempo
+    tempo_bpm || estimated_tempo_bpm
+  end
+
+  # Effective duration: prefer Python-calculated, fall back to Ruby-estimated
+  # Use this instead of duration_seconds directly to include estimated durations
+  def effective_duration
+    duration_seconds || estimated_duration_seconds
+  end
+
   # Helper to parse genre field (filters out NA/N/A values)
   # Before normalization: parses hyphen-delimited tags
   # After normalization: returns single-element array with clean genre

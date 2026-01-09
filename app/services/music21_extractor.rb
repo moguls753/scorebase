@@ -120,6 +120,8 @@ class Music21Extractor
       # Tempo/duration
       tempo_bpm: result["tempo_bpm"],
       tempo_marking: result["tempo_marking"],
+      tempo_referent: result["tempo_referent"],
+      total_quarter_length: result["total_quarter_length"],
       duration_seconds: result["duration_seconds"],
       measure_count: result["measure_count"],
 
@@ -218,6 +220,9 @@ class Music21Extractor
   end
 
   def compute_derived_fields
+    # Estimate tempo from marking if no BPM provided
+    estimate_tempo_from_marking
+
     metrics = ScoreMetricsCalculator.new(@score)
 
     @score.update_columns(
@@ -233,5 +238,33 @@ class Music21Extractor
       computed_difficulty: DifficultyCalculator.new(@score).compute,
       texture_type: ScoreLabeler.new(@score).texture_type
     )
+  end
+
+  # Estimate tempo BPM from tempo_marking text when tempo_bpm is missing.
+  # Also computes estimated_duration_seconds using quarterLength-based formula.
+  #
+  # Formula: duration = total_quarter_length / (bpm * referent) * 60
+  #
+  # For text-based tempo estimation, we assume quarter note referent (1.0)
+  # since we don't know what beat unit "Allegro" refers to.
+  def estimate_tempo_from_marking
+    # Skip if we already have a numeric tempo
+    return if @score.tempo_bpm.present?
+
+    estimated_bpm = TempoEstimator.estimate(@score.tempo_marking)
+    return unless estimated_bpm
+
+    updates = { estimated_tempo_bpm: estimated_bpm }
+
+    # Compute duration using quarterLength-based formula (same as Python)
+    # For estimated tempo, assume quarter note referent (1.0)
+    # Guard: estimated_bpm is already validated as present and positive by TempoEstimator
+    if @score.total_quarter_length&.positive? && estimated_bpm.positive?
+      referent = 1.0  # Assume quarter note for text-based tempo
+      duration = (@score.total_quarter_length / (estimated_bpm * referent)) * 60
+      updates[:estimated_duration_seconds] = duration.round(1)
+    end
+
+    @score.update_columns(updates)
   end
 end

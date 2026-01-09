@@ -152,7 +152,7 @@ class ScoreLabeler
     difficulty = DifficultyCalculator.new(@score).compute
 
     # Sight-reading: short, not too difficult
-    if difficulty <= 2 && @score.duration_seconds.to_i < 180
+    if difficulty <= 2 && @score.effective_duration.to_i < 180
       tags << "sight-reading"
     end
 
