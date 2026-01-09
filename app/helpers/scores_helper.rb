@@ -319,7 +319,7 @@ module ScoresHelper
     event_count pitch_count note_density unique_pitches accidental_count chromatic_ratio
     rhythm_distribution syncopation_level rhythmic_variety predominant_rhythm
     key_signature key_confidence key_correlations modulations modulation_count
-    chord_symbols harmonic_rhythm interval_distribution largest_interval
+    chord_count unique_chord_count harmonic_rhythm interval_distribution largest_interval
     stepwise_motion_ratio melodic_contour melodic_complexity
     form_analysis sections_count repeats_count cadence_types final_cadence
     clefs_used has_dynamics dynamic_range has_articulations has_ornaments
@@ -327,6 +327,8 @@ module ScoresHelper
     has_extracted_lyrics syllable_count lyrics_language
     part_names detected_instruments instrument_families
     has_vocal is_instrumental has_accompaniment
+    simultaneous_note_avg texture_variation avg_chord_span
+    contrary_motion_ratio parallel_motion_ratio oblique_motion_ratio
     texture_type vertical_density voice_independence
   ].freeze
 
