@@ -169,8 +169,8 @@ module ScoresHelper
     tempo = format_tempo(score.tempo_marking, score.tempo_bpm)
     facts << fact_entry("score.tempo", tempo) if tempo
 
-    # Duration
-    duration = format_duration(score.duration_seconds)
+    # Duration (uses effective_duration to include estimated durations)
+    duration = format_duration(score.effective_duration)
     facts << fact_entry("score.duration", duration) if duration
 
     # Language - linkable
@@ -381,7 +381,7 @@ module ScoresHelper
     data["musicalKey"] = score.primary_key_signature if score.key_signature.present?
 
     # Time signature
-    data["timeRequired"] = format_duration_iso8601(score.duration_seconds) if score.duration_seconds.to_f > 0
+    data["timeRequired"] = format_duration_iso8601(score.effective_duration) if score.effective_duration.to_f > 0
 
     # Number of pages
     data["numberOfPages"] = score.page_count if score.page_count.to_i > 0

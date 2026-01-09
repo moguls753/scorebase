@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_09_113305) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_09_201317) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -70,10 +70,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_09_113305) do
     t.integer "accidental_count"
     t.integer "ambitus_semitones"
     t.integer "arpeggio_mark_count"
+    t.float "avg_chord_span"
     t.integer "beat_count"
     t.text "cadence_types"
     t.integer "chord_count"
-    t.json "chord_symbols"
     t.integer "chromatic_note_count"
     t.float "chromatic_ratio"
     t.text "clefs_used"
@@ -81,6 +81,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_09_113305) do
     t.string "composer"
     t.string "composer_status", default: "pending", null: false
     t.integer "computed_difficulty"
+    t.float "contrary_motion_ratio"
     t.string "cpdl_number"
     t.datetime "created_at", null: false
     t.string "data_path"
@@ -89,6 +90,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_09_113305) do
     t.float "duration_seconds"
     t.string "dynamic_range"
     t.string "editor"
+    t.float "estimated_duration_seconds"
+    t.integer "estimated_tempo_bpm"
     t.integer "event_count"
     t.text "expression_markings"
     t.string "external_id"
@@ -151,9 +154,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_09_113305) do
     t.string "mxl_path"
     t.float "note_density"
     t.integer "num_parts"
+    t.float "oblique_motion_ratio"
     t.integer "off_beat_count"
     t.integer "page_count"
-    t.integer "parallel_motion_count"
+    t.float "parallel_motion_ratio"
     t.text "part_names"
     t.string "pdf_path"
     t.string "period"
@@ -181,21 +185,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_09_113305) do
     t.text "tags"
     t.integer "tempo_bpm"
     t.string "tempo_marking"
+    t.float "tempo_referent"
     t.json "tessitura"
-    t.integer "texture_chord_count"
     t.string "texture_type"
+    t.float "texture_variation"
     t.string "thumbnail_url"
     t.string "time_signature"
     t.string "title"
+    t.float "total_quarter_length"
     t.integer "tremolo_count"
     t.integer "trill_count"
     t.integer "turn_count"
+    t.integer "unique_chord_count"
     t.integer "unique_duration_count"
     t.integer "unique_pitches"
     t.datetime "updated_at", null: false
     t.float "vertical_density"
     t.integer "views", default: 0
-    t.integer "voice_count"
     t.float "voice_independence"
     t.json "voice_ranges"
     t.string "voicing"

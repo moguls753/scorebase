@@ -229,7 +229,25 @@ def extract_pitch_range(score, result):
 
 
 def extract_tempo_duration(score, result):
-    """Analyze tempo markings and estimate duration."""
+    """
+    Analyze tempo markings and calculate duration.
+
+    Extracts:
+    - tempo_bpm: the numeric tempo value
+    - tempo_marking: text like "Allegro"
+    - tempo_referent: quarterLength of the beat unit (1.0 = quarter, 1.5 = dotted quarter)
+    - duration_seconds: accurate duration using quarterLength-based calculation
+    - total_quarter_length: raw score length in quarter note units
+    - measure_count: number of measures
+
+    Duration formula:
+        duration = (total_quarter_length / (tempo_bpm * tempo_referent)) * 60
+
+    Example - 6/8, dotted-quarter = 120, 10 measures:
+        total_quarter_length = 30 (10 measures × 3 QL each)
+        tempo_referent = 1.5 (dotted quarter)
+        duration = 30 / (120 × 1.5) × 60 = 10 seconds
+    """
     try:
         cache = result.get("_cache")
         flat = cache.flat if cache else score.flatten()
@@ -239,10 +257,16 @@ def extract_tempo_duration(score, result):
         if tempos:
             first_tempo = tempos[0]
             result["tempo_bpm"] = int(first_tempo.number) if first_tempo.number else None
+
+            # Extract the beat unit (referent) as quarterLength
+            # quarter = 1.0, half = 2.0, dotted quarter = 1.5, eighth = 0.5
+            if hasattr(first_tempo, "referent") and first_tempo.referent:
+                result["tempo_referent"] = safe_round(first_tempo.referent.quarterLength, 3)
+
             if hasattr(first_tempo, "text") and first_tempo.text:
                 result["tempo_marking"] = first_tempo.text
 
-        # Fallback: look for tempo text
+        # Fallback: look for tempo text (no referent available for plain text)
         if not result.get("tempo_marking"):
             tempo_texts = list(flat.getElementsByClass(tempo.TempoText))
             if tempo_texts:
@@ -253,12 +277,23 @@ def extract_tempo_duration(score, result):
             measures = list(score.parts[0].getElementsByClass(stream.Measure))
             result["measure_count"] = len(measures) if measures else None
 
-        # Estimate duration
-        if result.get("tempo_bpm") and result.get("measure_count"):
-            ts = list(flat.getElementsByClass(meter.TimeSignature))
-            beats_per_measure = ts[0].numerator if ts else 4
-            total_beats = result["measure_count"] * beats_per_measure
-            result["duration_seconds"] = safe_round((total_beats / result["tempo_bpm"]) * 60)
+        # Total score length in quarter note units (the ground truth)
+        total_ql = score.duration.quarterLength
+        if total_ql:
+            result["total_quarter_length"] = safe_round(total_ql, 2)
+
+        # Calculate duration using accurate formula
+        # Only calculate if we have both BPM and referent (otherwise Ruby estimates)
+        tempo_bpm = result.get("tempo_bpm")
+        tempo_referent = result.get("tempo_referent")
+        total_quarter_length = result.get("total_quarter_length")
+
+        if tempo_bpm and tempo_bpm > 0 and total_quarter_length and total_quarter_length > 0:
+            # Use referent if available, default to quarter note (1.0)
+            referent = tempo_referent if tempo_referent and tempo_referent > 0 else 1.0
+            # duration = total_ql / (bpm * referent) * 60
+            duration = (total_quarter_length / (tempo_bpm * referent)) * 60
+            result["duration_seconds"] = safe_round(duration, 1)
 
     except Exception as e:
         result["_warnings"].append(f"tempo_duration: {e}")

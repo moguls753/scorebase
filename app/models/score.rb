@@ -2,140 +2,146 @@
 #
 # Table name: scores
 #
-#  id                       :integer          not null, primary key
-#  accidental_count         :integer
-#  ambitus_semitones        :integer
-#  arpeggio_mark_count      :integer
-#  beat_count               :integer
-#  cadence_types            :text
-#  chord_count              :integer
-#  chord_symbols            :json
-#  chromatic_note_count     :integer
-#  chromatic_ratio          :float
-#  clefs_used               :text
-#  complexity               :integer
-#  composer                 :string
-#  composer_status          :string           default("pending"), not null
-#  computed_difficulty      :integer
-#  cpdl_number              :string
-#  data_path                :string
-#  description              :text
-#  detected_instruments     :text
-#  duration_seconds         :float
-#  dynamic_range            :string
-#  editor                   :string
-#  event_count              :integer
-#  expression_markings      :text
-#  external_url             :string
-#  extracted_at             :datetime
-#  extracted_lyrics         :text
-#  extraction_error         :text
-#  extraction_status        :string           default("pending"), not null
-#  favorites                :integer          default(0)
-#  final_cadence            :string
-#  form_analysis            :string
-#  genre                    :text
-#  genre_status             :string           default("pending"), not null
-#  grace_note_count         :integer
-#  harmonic_rhythm          :float
-#  has_accompaniment        :boolean
-#  has_articulations        :boolean
-#  has_dynamics             :boolean
-#  has_extracted_lyrics     :boolean
-#  has_fermatas             :boolean
-#  has_ornaments            :boolean
-#  has_ottava               :boolean
-#  has_pedal_marks          :boolean
-#  has_tempo_changes        :boolean
-#  has_vocal                :boolean
-#  has_vocal_status         :string           default("pending"), not null
-#  highest_pitch            :string
-#  index_version            :integer
-#  indexed_at               :datetime
-#  instrument_families      :text
-#  instruments              :string
-#  instruments_status       :string           default("pending"), not null
-#  interval_count           :integer
-#  interval_distribution    :json
-#  is_instrumental          :boolean
-#  key_confidence           :float
-#  key_correlations         :json
-#  key_signature            :string
-#  language                 :string
-#  largest_interval         :integer
-#  leap_count               :integer
-#  leaps_per_measure        :float
-#  license                  :string
-#  lowest_pitch             :string
-#  lyrics                   :text
-#  lyrics_language          :string
-#  max_chord_span           :integer
-#  measure_count            :integer
-#  melodic_complexity       :float
-#  melodic_contour          :string
-#  metadata_path            :string
-#  meter_classification     :string
-#  mid_path                 :string
-#  modulation_count         :integer
-#  modulation_targets       :json
-#  modulations              :text
-#  mordent_count            :integer
-#  music21_version          :string
-#  musicxml_source          :string
-#  mxl_path                 :string
-#  note_density             :float
-#  num_parts                :integer
-#  off_beat_count           :integer
-#  page_count               :integer
-#  parallel_motion_count    :integer
-#  part_names               :text
-#  pdf_path                 :string
-#  period                   :string
-#  period_status            :string           default("pending"), not null
-#  pitch_class_distribution :json
-#  pitch_count              :integer
-#  pitch_range_per_part     :json
-#  posted_date              :date
-#  predominant_rhythm       :string
-#  rag_status               :string           default("pending"), not null
-#  rating                   :decimal(3, 2)
-#  repeats_count            :integer
-#  rhythm_distribution      :json
-#  rhythmic_variety         :float
-#  search_text              :text
-#  search_text_generated_at :datetime
-#  sections_count           :integer
-#  simultaneous_note_avg    :float
-#  slur_count               :integer
-#  source                   :string           default("pdmx")
-#  stepwise_count           :integer
-#  stepwise_motion_ratio    :float
-#  syllable_count           :integer
-#  syncopation_level        :float
-#  tags                     :text
-#  tempo_bpm                :integer
-#  tempo_marking            :string
-#  tessitura                :json
-#  texture_chord_count      :integer
-#  texture_type             :string
-#  thumbnail_url            :string
-#  time_signature           :string
-#  title                    :string
-#  tremolo_count            :integer
-#  trill_count              :integer
-#  turn_count               :integer
-#  unique_duration_count    :integer
-#  unique_pitches           :integer
-#  vertical_density         :float
-#  views                    :integer          default(0)
-#  voice_count              :integer
-#  voice_independence       :float
-#  voice_ranges             :json
-#  voicing                  :string
-#  voicing_status           :string           default("pending"), not null
-#  created_at               :datetime         not null
-#  updated_at               :datetime         not null
-#  external_id              :string
+#  id                         :integer          not null, primary key
+#  accidental_count           :integer
+#  ambitus_semitones          :integer
+#  arpeggio_mark_count        :integer
+#  avg_chord_span             :float
+#  beat_count                 :integer
+#  cadence_types              :text
+#  chord_count                :integer
+#  chromatic_note_count       :integer
+#  chromatic_ratio            :float
+#  clefs_used                 :text
+#  complexity                 :integer
+#  composer                   :string
+#  composer_status            :string           default("pending"), not null
+#  computed_difficulty        :integer
+#  contrary_motion_ratio      :float
+#  cpdl_number                :string
+#  data_path                  :string
+#  description                :text
+#  detected_instruments       :text
+#  duration_seconds           :float
+#  dynamic_range              :string
+#  editor                     :string
+#  estimated_duration_seconds :float
+#  estimated_tempo_bpm        :integer
+#  event_count                :integer
+#  expression_markings        :text
+#  external_url               :string
+#  extracted_at               :datetime
+#  extracted_lyrics           :text
+#  extraction_error           :text
+#  extraction_status          :string           default("pending"), not null
+#  favorites                  :integer          default(0)
+#  final_cadence              :string
+#  form_analysis              :string
+#  genre                      :text
+#  genre_status               :string           default("pending"), not null
+#  grace_note_count           :integer
+#  harmonic_rhythm            :float
+#  has_accompaniment          :boolean
+#  has_articulations          :boolean
+#  has_dynamics               :boolean
+#  has_extracted_lyrics       :boolean
+#  has_fermatas               :boolean
+#  has_ornaments              :boolean
+#  has_ottava                 :boolean
+#  has_pedal_marks            :boolean
+#  has_tempo_changes          :boolean
+#  has_vocal                  :boolean
+#  has_vocal_status           :string           default("pending"), not null
+#  highest_pitch              :string
+#  index_version              :integer
+#  indexed_at                 :datetime
+#  instrument_families        :text
+#  instruments                :string
+#  instruments_status         :string           default("pending"), not null
+#  interval_count             :integer
+#  interval_distribution      :json
+#  is_instrumental            :boolean
+#  key_confidence             :float
+#  key_correlations           :json
+#  key_signature              :string
+#  language                   :string
+#  largest_interval           :integer
+#  leap_count                 :integer
+#  leaps_per_measure          :float
+#  license                    :string
+#  lowest_pitch               :string
+#  lyrics                     :text
+#  lyrics_language            :string
+#  max_chord_span             :integer
+#  measure_count              :integer
+#  melodic_complexity         :float
+#  melodic_contour            :string
+#  metadata_path              :string
+#  meter_classification       :string
+#  mid_path                   :string
+#  modulation_count           :integer
+#  modulation_targets         :json
+#  modulations                :text
+#  mordent_count              :integer
+#  music21_version            :string
+#  musicxml_source            :string
+#  mxl_path                   :string
+#  note_density               :float
+#  num_parts                  :integer
+#  oblique_motion_ratio       :float
+#  off_beat_count             :integer
+#  page_count                 :integer
+#  parallel_motion_ratio      :float
+#  part_names                 :text
+#  pdf_path                   :string
+#  period                     :string
+#  period_status              :string           default("pending"), not null
+#  pitch_class_distribution   :json
+#  pitch_count                :integer
+#  pitch_range_per_part       :json
+#  posted_date                :date
+#  predominant_rhythm         :string
+#  rag_status                 :string           default("pending"), not null
+#  rating                     :decimal(3, 2)
+#  repeats_count              :integer
+#  rhythm_distribution        :json
+#  rhythmic_variety           :float
+#  search_text                :text
+#  search_text_generated_at   :datetime
+#  sections_count             :integer
+#  simultaneous_note_avg      :float
+#  slur_count                 :integer
+#  source                     :string           default("pdmx")
+#  stepwise_count             :integer
+#  stepwise_motion_ratio      :float
+#  syllable_count             :integer
+#  syncopation_level          :float
+#  tags                       :text
+#  tempo_bpm                  :integer
+#  tempo_marking              :string
+#  tempo_referent             :float
+#  tessitura                  :json
+#  texture_type               :string
+#  texture_variation          :float
+#  thumbnail_url              :string
+#  time_signature             :string
+#  title                      :string
+#  total_quarter_length       :float
+#  tremolo_count              :integer
+#  trill_count                :integer
+#  turn_count                 :integer
+#  unique_chord_count         :integer
+#  unique_duration_count      :integer
+#  unique_pitches             :integer
+#  vertical_density           :float
+#  views                      :integer          default(0)
+#  voice_independence         :float
+#  voice_ranges               :json
+#  voicing                    :string
+#  voicing_status             :string           default("pending"), not null
+#  created_at                 :datetime         not null
+#  updated_at                 :datetime         not null
+#  external_id                :string
 #
 # Indexes
 #
@@ -344,6 +350,18 @@ class Score < ApplicationRecord
   # Helper method to get first time signature
   def primary_time_signature
     time_signature&.split(",")&.first&.strip
+  end
+
+  # Effective tempo: prefer metronome mark, fall back to estimated from text
+  # Use this instead of tempo_bpm directly to include estimated tempos
+  def effective_tempo
+    tempo_bpm || estimated_tempo_bpm
+  end
+
+  # Effective duration: prefer Python-calculated, fall back to Ruby-estimated
+  # Use this instead of duration_seconds directly to include estimated durations
+  def effective_duration
+    duration_seconds || estimated_duration_seconds
   end
 
   # Helper to parse genre field (filters out NA/N/A values)
