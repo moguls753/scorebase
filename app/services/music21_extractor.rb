@@ -193,7 +193,6 @@ class Music21Extractor
       chromatic_note_count: result["chromatic_note_count"],
       meter_classification: result["meter_classification"],
       beat_count: result["beat_count"],
-      voice_count: result["voice_count"],
       has_pedal_marks: result["has_pedal_marks"],
       slur_count: result["slur_count"],
       has_ottava: result["has_ottava"],

@@ -126,9 +126,6 @@ class DifficultyCalculator
     # Hand span requirements
     points += weight_chord_span * 2.5
 
-    # Voice count (counterpoint complexity)
-    points += weight_voice_count * 2.0
-
     # Chromaticism is less relevant (just more black keys)
     points += weight_chromatic * 0.5
 
@@ -150,9 +147,6 @@ class DifficultyCalculator
     # Large intervals often mean position shifts
     points += weight_interval * 2.0
 
-    # Double/triple stops (multi-voice writing)
-    points += weight_voice_count * 2.0 if @score.voice_count.to_i > 1
-
     # Speed matters
     points += weight_throughput * 1.5
 
@@ -167,9 +161,6 @@ class DifficultyCalculator
 
     # Chord span (fret stretches)
     points += weight_chord_span * 2.0
-
-    # Voice count (fingerpicking complexity)
-    points += weight_voice_count * 2.0
 
     # Speed
     points += weight_throughput * 1.5
@@ -192,7 +183,6 @@ class DifficultyCalculator
     points += weight_interval * 1.5
     points += weight_leap * 1.5
     points += weight_ornaments * 1.0
-    points += weight_voice_count * 1.0
 
     points
   end
@@ -257,16 +247,6 @@ class DifficultyCalculator
     when 12.. then 1.0   # 10th or larger (very large hands)
     when 10.. then 0.7   # 9th (moderate stretch)
     when 8.. then 0.3    # Octave
-    else 0.0
-    end
-  end
-
-  def weight_voice_count
-    count = @score.voice_count || @score.num_parts || 1
-    case count
-    when 4.. then 1.0
-    when 3 then 0.6
-    when 2 then 0.3
     else 0.0
     end
   end
