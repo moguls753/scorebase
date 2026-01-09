@@ -26,4 +26,16 @@ class ScorePage < ApplicationRecord
                           uniqueness: { scope: :score_id }
 
   scope :ordered, -> { order(:page_number) }
+
+  # Log destructions with call stack (complements SQLite trigger)
+  before_destroy :log_destruction_with_context
+
+  private
+
+  def log_destruction_with_context
+    ScorePageDeletionLog.log_from_callback(self)
+  rescue => e
+    # Don't block deletion if logging fails
+    Rails.logger.error "[ScorePage] Failed to log deletion: #{e.message}"
+  end
 end

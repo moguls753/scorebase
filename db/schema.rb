@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_09_102058) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -56,6 +56,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_08_101724) do
     t.datetime "updated_at", null: false
     t.integer "visits", default: 0
     t.index ["date"], name: "index_daily_stats_on_date", unique: true
+  end
+
+  create_table "score_page_deletion_logs", force: :cascade do |t|
+    t.text "context"
+    t.datetime "deleted_at", null: false
+    t.integer "page_number", null: false
+    t.integer "score_id", null: false
+    t.integer "score_page_id", null: false
+    t.string "source"
+    t.index ["deleted_at"], name: "index_score_page_deletion_logs_on_deleted_at"
+    t.index ["score_id"], name: "index_score_page_deletion_logs_on_score_id"
   end
 
   create_table "score_pages", force: :cascade do |t|
