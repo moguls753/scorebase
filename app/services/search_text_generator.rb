@@ -138,7 +138,7 @@ class SearchTextGenerator
       clefs_used: map_clefs(score.clefs_used),
       difficulty_level: difficulty_label(score),
       is_virtuoso: virtuoso?(score),
-      duration_minutes: format_duration_minutes(score.duration_seconds),
+      duration_minutes: format_duration_minutes(score.effective_duration),
       num_parts: bucket(score.num_parts, [1, 2, 4, 8], %w[solo duo small_ensemble ensemble large_ensemble]),
       ambitus: bucket(score.ambitus_semitones, [12, 24, 36], %w[narrow moderate wide very_wide]),
       chromatic_passages: bucket_01(score.chromatic_ratio),

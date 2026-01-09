@@ -18,9 +18,41 @@ class ScoreMetricsCalculator
 
   # Events per second - actual speed demand
   # High throughput = fast passages
+  # Uses estimated_duration_seconds as fallback when duration_seconds is nil
   def throughput
-    return nil unless @score.event_count && @score.duration_seconds&.positive?
-    (@score.event_count.to_f / @score.duration_seconds).round(2)
+    duration = effective_duration
+    return nil unless @score.event_count && duration&.positive?
+    (@score.event_count.to_f / duration).round(2)
+  end
+
+  # Effective duration: prefer Python-calculated, fall back to Ruby-estimated
+  #
+  # Duration formula: total_quarter_length / (tempo_bpm * tempo_referent) * 60
+  #
+  # - Python calculates duration_seconds when metronome mark exists (includes referent)
+  # - Ruby calculates estimated_duration_seconds from text tempo (assumes quarter note referent)
+  def effective_duration
+    @score.duration_seconds || @score.estimated_duration_seconds
+  end
+
+  # Effective tempo: prefer metronome mark, fall back to estimated from text
+  #
+  # - tempo_bpm: from MusicXML metronome mark (e.g., quarter = 120)
+  # - estimated_tempo_bpm: from tempo marking text (e.g., "Allegro" → 130)
+  def effective_tempo
+    @score.tempo_bpm || @score.estimated_tempo_bpm
+  end
+
+  # Effective referent: the beat unit the tempo refers to (in quarterLength)
+  #
+  # - 1.0 = quarter note
+  # - 1.5 = dotted quarter
+  # - 0.5 = eighth note
+  # - 2.0 = half note
+  #
+  # Returns nil if using estimated tempo (assumes quarter note)
+  def effective_referent
+    @score.tempo_referent
   end
 
   # Event density - events per measure
