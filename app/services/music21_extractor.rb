@@ -202,7 +202,6 @@ class Music21Extractor
       tremolo_count: result["tremolo_count"],
       grace_note_count: result["grace_note_count"],
       arpeggio_mark_count: result["arpeggio_mark_count"],
-      detected_mode: result["detected_mode"],
 
       # Metadata
       music21_version: result["music21_version"],
