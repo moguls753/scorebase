@@ -43,8 +43,20 @@ from music21 import (
 # CONSTANTS
 # ─────────────────────────────────────────────────────────────────
 
-# Used by extract_hand_span to identify keyboard parts
-KEYBOARD_KEYWORDS = {"piano", "organ", "harpsichord", "keyboard", "clavichord"}
+# Used by is_keyboard_part to identify keyboard parts by name
+# Includes English, German, Italian, French terms
+KEYBOARD_KEYWORDS = {
+    # English
+    "piano", "keyboard", "organ", "harpsichord", "clavichord", "celesta",
+    # German
+    "klavier", "orgel", "cembalo",
+    # Italian
+    "pianoforte", "organo", "clavicembalo",
+    # French
+    "clavecin", "orgue",
+    # Other
+    "harmonium", "spinet", "virginal",
+}
 
 DURATION_NAMES = {
     0.25: "sixteenth",
@@ -131,6 +143,36 @@ def get_part_name(part):
         if inst.instrumentName:
             return inst.instrumentName
     return f"Part {part.id}" if part.id else "Unknown"
+
+
+def is_keyboard_part(part):
+    """
+    Check if a part is a keyboard instrument.
+
+    Uses two signals:
+    1. Part name contains keyboard keywords (multi-language)
+    2. music21's instrumentSound classification (e.g., 'keyboard.piano')
+
+    Note: Detection isn't perfect. Ruby should only use max_chord_span
+    for solo keyboard pieces (confirmed by instrument normalizer).
+    """
+    # Check part name for keyboard keywords (uses comprehensive get_part_name)
+    part_name = get_part_name(part).lower()
+    if any(kw in part_name for kw in KEYBOARD_KEYWORDS):
+        return True
+
+    # Check music21's instrumentSound (more reliable than instrumentFamily)
+    # instrumentSound values: 'keyboard.piano', 'keyboard.organ', 'strings.violin', etc.
+    try:
+        inst = part.getInstrument()
+        if inst:
+            sound = getattr(inst, "instrumentSound", "") or ""
+            if sound.startswith("keyboard"):
+                return True
+    except Exception:
+        pass  # Some malformed parts may fail getInstrument()
+
+    return False
 
 
 def safe_round(value, decimals=2):
@@ -676,19 +718,26 @@ def extract_texture(score, result, get_chordified=None):
 
 def extract_hand_span(score, result):
     """
-    Find the largest simultaneous chord span in semitones.
-    Only relevant for keyboard instruments.
+    Find the largest simultaneous chord span in semitones for keyboard parts.
+
+    Detection uses part name matching + music21's instrumentFamily.
+    Not perfect - Ruby should only use this for solo keyboard pieces
+    (confirmed by instrument normalizer).
 
     Use cases:
         - "Piano pieces for small hands" (span < 9)
         - "No large stretches" (span < 12)
+
+    Reference spans:
+        - Octave = 12 semitones
+        - Ninth = 14 semitones
+        - Tenth = 16 semitones
     """
     try:
         max_span = 0
 
         for part in score.parts:
-            part_name = get_part_name(part).lower()
-            if not any(k in part_name for k in KEYBOARD_KEYWORDS):
+            if not is_keyboard_part(part):
                 continue
 
             for c in part.flatten().getElementsByClass(chord.Chord):
