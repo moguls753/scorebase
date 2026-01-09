@@ -5,7 +5,6 @@
 #
 # Usage:
 #   labeler = ScoreLabeler.new(score)
-#   labeler.texture_label       # "four-part writing"
 #   labeler.articulation_style  # "legato"
 #   labeler.suitable_for        # ["sight-reading", "beginner"]
 #
@@ -19,24 +18,10 @@ class ScoreLabeler
   # Texture
   # ─────────────────────────────────────────────────────────────────
 
-  # Based on actual voice count, not derived "polyphonic_density"
-  def texture_label
-    count = @score.voice_count || @score.num_parts || 1
-
-    case count
-    when 1 then "monophonic melody"
-    when 2 then "two-voice texture"
-    when 3 then "three-part writing"
-    when 4 then "four-part writing"
-    when 5..8 then "multi-voice texture"
-    else "complex polyphony"
-    end
-  end
-
-  # Based on voice independence metric
+  # Based on voice independence metric (from parallel_motion analysis)
   def texture_type
     independence = @metrics.voice_independence
-    return "monophonic" if (@score.voice_count || 1) == 1
+    return "monophonic" if (@score.num_parts || 1) == 1
 
     return nil unless independence
 
@@ -201,7 +186,6 @@ class ScoreLabeler
 
   def all
     {
-      texture_label: texture_label,
       texture_type: texture_type,
       articulation_style: articulation_style,
       ornamentation_level: ornamentation_level,
