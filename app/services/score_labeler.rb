@@ -134,18 +134,9 @@ class ScoreLabeler
   # Mode/Tonality
   # ─────────────────────────────────────────────────────────────────
 
+  # TODO: Implement when mode_tendency is available. See docs/refactor_todo.md Finding 3.
   def mode_label
-    return nil unless @score.detected_mode.present?
-
-    case @score.detected_mode
-    when "dorian" then "Dorian mode"
-    when "phrygian" then "Phrygian mode"
-    when "lydian" then "Lydian mode"
-    when "mixolydian" then "Mixolydian mode"
-    when "aeolian" then "Aeolian mode"
-    when "locrian" then "Locrian mode"
-    else nil
-    end
+    nil
   end
 
   # ─────────────────────────────────────────────────────────────────

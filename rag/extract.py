@@ -913,40 +913,8 @@ def extract_pedal_marks(score, result):
         result["_warnings"].append(f"pedal_marks: {e}")
 
 
-def extract_mode_detection(score, result):
-    """
-    Detect if the piece uses a church mode (Dorian, Phrygian, etc.)
-    rather than major/minor.
-
-    Only reports mode if confidence is reasonable.
-    """
-    try:
-        analyzed_key = result.get("_analyzed_key") or score.analyze("key")
-        if not analyzed_key:
-            return
-
-        # music21's key analysis includes mode detection
-        mode = analyzed_key.mode
-
-        # Map to standardized names
-        mode_names = {
-            "major": "major",
-            "minor": "minor",
-            "dorian": "dorian",
-            "phrygian": "phrygian",
-            "lydian": "lydian",
-            "mixolydian": "mixolydian",
-            "aeolian": "aeolian",  # same as natural minor
-            "locrian": "locrian",
-            "ionian": "major",  # same as major
-        }
-
-        detected = mode_names.get(mode.lower() if mode else None)
-        if detected and detected not in ("major", "minor"):
-            result["detected_mode"] = detected
-
-    except Exception as e:
-        result["_warnings"].append(f"mode_detection: {e}")
+# Note: Mode detection removed - music21 only returns major/minor.
+# See docs/refactor_todo.md Finding 3 for future mode_tendency implementation.
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -1012,7 +980,6 @@ def extract(file_path: str) -> dict:
         extract_ornament_counts(score, result)
         extract_grace_notes(score, result)
         extract_pedal_marks(score, result)
-        extract_mode_detection(score, result)
 
         result["extraction_status"] = "extracted"
 

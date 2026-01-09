@@ -95,6 +95,12 @@ class ScoreMetricsCalculator
     (@score.simultaneous_note_avg.to_f / @score.num_parts).round(3)
   end
 
+  # TODO: Future enhancement - detect modal tendencies (dorian, phrygian, etc.)
+  # Uses pitch_class_distribution + key_signature. See docs/refactor_todo.md Finding 3.
+  def mode_tendency
+    nil
+  end
+
   # Compute all metrics as a hash
   # Note: chromatic_ratio comes from Python (fact), not calculated here
   def all
