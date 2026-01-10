@@ -43,6 +43,18 @@ from music21 import (
 # CONSTANTS
 # ─────────────────────────────────────────────────────────────────
 
+# Movement/section names that indicate multi-movement works.
+# If these appear in expression_markings, tempo/duration are unreliable
+# because they only refer to one movement, not the whole piece.
+MOVEMENT_NAMES = {
+    "allemande", "courante", "sarabande", "gigue", "menuet", "menuetto",
+    "minuet", "gavotte", "bourree", "bourrée", "prelude", "fugue",
+    "praeludium", "fuga", "air", "trio", "rondo", "scherzo", "finale",
+    "toccata", "passepied", "loure", "anglaise", "polonaise", "badinerie",
+    "overture", "ouverture", "intermezzo", "siciliano", "sicilienne",
+    "passacaglia", "chaconne", "fantasia", "ricercar", "invention", "sinfonia",
+}
+
 # Used by is_keyboard_part to identify keyboard parts by name
 # Includes English, German, Italian, French terms
 KEYBOARD_KEYWORDS = {
@@ -228,19 +240,52 @@ def extract_pitch_range(score, result):
         result["_warnings"].append(f"pitch_range: {e}")
 
 
+def is_multi_movement(score, result):
+    """
+    Detect if score is a multi-movement work where tempo/duration are unreliable.
+
+    Returns True if:
+    - Multiple MetronomeMark objects exist (different tempos for different sections)
+    - 2+ movement names found in expressions (Allemande + Courante = suite)
+
+    For multi-movement works, tempo_bpm only refers to one movement's tempo,
+    and duration_seconds calculated from it is meaningless.
+    """
+    cache = result.get("_cache")
+    flat = cache.flat if cache else score.flatten()
+
+    # Multiple tempo markings = multiple movements
+    tempos = list(flat.getElementsByClass(tempo.MetronomeMark))
+    if len(tempos) > 1:
+        return True
+
+    # 2+ movement names in expressions = suite/multi-movement
+    text_exprs = list(flat.getElementsByClass(expressions.TextExpression))
+    all_text = " ".join(e.content.lower() for e in text_exprs if hasattr(e, "content") and e.content)
+
+    movement_count = sum(1 for name in MOVEMENT_NAMES if name in all_text)
+    return movement_count >= 2
+
+
 def extract_tempo_duration(score, result):
     """
     Analyze tempo markings and calculate duration.
 
     Extracts:
-    - tempo_bpm: the numeric tempo value
-    - tempo_marking: text like "Allegro"
-    - tempo_referent: quarterLength of the beat unit (1.0 = quarter, 1.5 = dotted quarter)
-    - duration_seconds: accurate duration using quarterLength-based calculation
-    - total_quarter_length: raw score length in quarter note units
-    - measure_count: number of measures
+    - tempo_bpm: the numeric tempo value (None for multi-movement works)
+    - tempo_marking: text like "Allegro" (None for multi-movement works)
+    - tempo_referent: quarterLength of the beat unit (None for multi-movement works)
+    - duration_seconds: accurate duration (None for multi-movement works)
+    - total_quarter_length: raw score length in quarter note units (always extracted)
+    - measure_count: number of measures (always extracted)
+    - is_multi_movement: True if multiple tempos detected
 
-    Duration formula:
+    For multi-movement works (suites, sonatas with multiple movements):
+    - tempo_bpm only refers to one movement
+    - duration_seconds would be calculated from wrong single tempo
+    - These fields are omitted (None) to avoid misleading RAG results
+
+    Duration formula (single-movement only):
         duration = (total_quarter_length / (tempo_bpm * tempo_referent)) * 60
 
     Example - 6/8, dotted-quarter = 120, 10 measures:
@@ -252,7 +297,25 @@ def extract_tempo_duration(score, result):
         cache = result.get("_cache")
         flat = cache.flat if cache else score.flatten()
 
-        # Find tempo markings
+        # Count measures (always useful)
+        if score.parts:
+            measures = list(score.parts[0].getElementsByClass(stream.Measure))
+            result["measure_count"] = len(measures) if measures else None
+
+        # Total score length in quarter note units (always useful)
+        total_ql = score.duration.quarterLength
+        if total_ql:
+            result["total_quarter_length"] = safe_round(total_ql, 2)
+
+        # Detect multi-movement works - tempo/duration would be misleading
+        multi_movement = is_multi_movement(score, result)
+        if multi_movement:
+            result["is_multi_movement"] = True
+            # Don't extract tempo_bpm, tempo_marking, tempo_referent, duration_seconds
+            # These would be misleading (only refer to one movement)
+            return
+
+        # Single-movement: safe to extract tempo and duration
         tempos = list(flat.getElementsByClass(tempo.MetronomeMark))
         if tempos:
             first_tempo = tempos[0]
@@ -272,18 +335,7 @@ def extract_tempo_duration(score, result):
             if tempo_texts:
                 result["tempo_marking"] = tempo_texts[0].text
 
-        # Count measures
-        if score.parts:
-            measures = list(score.parts[0].getElementsByClass(stream.Measure))
-            result["measure_count"] = len(measures) if measures else None
-
-        # Total score length in quarter note units (the ground truth)
-        total_ql = score.duration.quarterLength
-        if total_ql:
-            result["total_quarter_length"] = safe_round(total_ql, 2)
-
         # Calculate duration using accurate formula
-        # Only calculate if we have both BPM and referent (otherwise Ruby estimates)
         tempo_bpm = result.get("tempo_bpm")
         tempo_referent = result.get("tempo_referent")
         total_quarter_length = result.get("total_quarter_length")
