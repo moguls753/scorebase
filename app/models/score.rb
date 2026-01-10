@@ -61,6 +61,7 @@
 #  interval_count             :integer
 #  interval_distribution      :json
 #  is_instrumental            :boolean
+#  is_multi_movement          :boolean
 #  key_confidence             :float
 #  key_correlations           :json
 #  key_signature              :string
