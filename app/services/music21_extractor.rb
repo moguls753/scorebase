@@ -117,13 +117,14 @@ class Music21Extractor
       unique_pitches: result["unique_pitches"],
       tessitura: result["tessitura"],
 
-      # Tempo/duration
+      # Tempo/duration (nil for multi-movement works)
       tempo_bpm: result["tempo_bpm"],
       tempo_marking: result["tempo_marking"],
       tempo_referent: result["tempo_referent"],
       total_quarter_length: result["total_quarter_length"],
       duration_seconds: result["duration_seconds"],
       measure_count: result["measure_count"],
+      is_multi_movement: result["is_multi_movement"],
 
       # Raw counts
       event_count: result["event_count"],

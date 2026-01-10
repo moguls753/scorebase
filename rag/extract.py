@@ -309,8 +309,9 @@ def extract_tempo_duration(score, result):
 
         # Detect multi-movement works - tempo/duration would be misleading
         multi_movement = is_multi_movement(score, result)
+        result["is_multi_movement"] = multi_movement
+
         if multi_movement:
-            result["is_multi_movement"] = True
             # Don't extract tempo_bpm, tempo_marking, tempo_referent, duration_seconds
             # These would be misleading (only refer to one movement)
             return
