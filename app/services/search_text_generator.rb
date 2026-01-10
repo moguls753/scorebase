@@ -34,6 +34,16 @@ class SearchTextGenerator
     Traditional Trad Trad. Tradicional
   ].freeze
 
+  # Movement/section names that improve search recall.
+  # User searching "sarabande" should find suites containing sarabandes.
+  MOVEMENT_NAMES = %w[
+    allemande courante sarabande gigue menuet menuetto minuet gavotte
+    bourree bourrée prelude fugue praeludium fuga air trio
+    rondo scherzo finale toccata passepied loure anglaise polonaise
+    badinerie overture ouverture intermezzo siciliano sicilienne
+    passacaglia chaconne fantasia ricercar invention sinfonia
+  ].freeze
+
   Result = Data.define(:description, :issues, :error) do
     def success? = error.nil? && issues.empty?
   end
@@ -53,6 +63,7 @@ class SearchTextGenerator
       (4) BEST FOR (specific uses: sight-reading practice, student recitals, church services, exam repertoire, technique building, competitions, teaching specific skills)
       (5) MUSICAL FEATURES (texture, harmonic language, notable patterns like arpeggios, scales, counterpoint)
       (6) KEY DETAILS (duration, instrumentation, key, period/style)
+      (7) SECTIONS: If "sections" field lists movement types (e.g., "allemande, courante, sarabande, gigue"), mention them - users search for these dance forms
     - Use words musicians actually search: "sight-reading", "recital piece", "exam repertoire", "church anthem", "teaching piece", "competition", "Baroque counterpoint", "lyrical melody", "chromatic passages", "syncopated rhythms".
     - NEVER use academic metric-compounds like "chromatic complexity", "vertical density", "melodic complexity", "rhythmic variety". The data uses searchable terms already - use them naturally in prose.
     - STRICT: Only mention instruments, voicing, genre, and other details that appear in <data/>. Do not invent or assume facts not present in the data.
@@ -149,8 +160,22 @@ class SearchTextGenerator
       has_articulations: score.has_articulations,
       has_ornaments: score.has_ornaments,
       has_vocal: score.has_vocal,
-      is_instrumental: score.is_instrumental?
+      is_instrumental: score.is_instrumental?,
+      sections: extract_sections(score.expression_markings),
+      tempo_marking: score.tempo_marking
     }.compact
+  end
+
+  # Extract movement/section names from expression_markings.
+  # Improves search recall: "sarabande" finds suites containing sarabandes.
+  def extract_sections(expr)
+    return nil if expr.blank?
+
+    expr_lower = expr.downcase
+    found = MOVEMENT_NAMES.select { |name| expr_lower.include?(name) }
+    return nil if found.empty?
+
+    found.join(", ")
   end
 
   # Use computed_difficulty (1-5) from music21 extraction
