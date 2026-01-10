@@ -807,9 +807,8 @@ def extract_hand_span(score, result):
     """
     Find the largest simultaneous chord span in semitones for keyboard parts.
 
-    Detection uses part name matching + music21's instrumentFamily.
-    Not perfect - Ruby should only use this for solo keyboard pieces
-    (confirmed by instrument normalizer).
+    Only extracted for solo keyboard pieces (1-2 parts). For ensemble scores,
+    this metric is unreliable - omitted to avoid misleading RAG results.
 
     Use cases:
         - "Piano pieces for small hands" (span < 9)
@@ -821,6 +820,11 @@ def extract_hand_span(score, result):
         - Tenth = 16 semitones
     """
     try:
+        # Only meaningful for solo keyboard (1-2 parts)
+        # For ensemble scores, chord span is unreliable
+        if len(score.parts) > 2:
+            return
+
         max_span = 0
 
         for part in score.parts:
