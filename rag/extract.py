@@ -848,21 +848,22 @@ def extract_chromatic_notes(score, result):
     """
     Count notes that are chromatic (outside the key signature).
 
-    Different from accidental_count which counts all accidentals including
-    diatonic notes in sharp/flat keys (e.g., F# in G major).
-
-    This counts actual chromaticism - notes that don't belong to the key.
+    Uses pitch class comparison (MIDI % 12) to avoid enharmonic issues
+    where Db major notes were incorrectly marked chromatic against C# major scale.
     """
     try:
         analyzed_key = result.get("_analyzed_key") or score.analyze("key")
         if not analyzed_key:
             return
 
+        # Get diatonic pitch classes (0-11) for the key's scale
         key_scale = analyzed_key.getScale()
-        chromatic_count = 0
+        diatonic_pcs = {p.midi % 12 for p in key_scale.pitches[:-1]}  # exclude octave duplicate
 
+        chromatic_count = 0
         cache = result.get("_cache")
         notes_list = cache.notes if cache else list(score.flatten().notes)
+
         for n in notes_list:
             pitches_to_check = []
             if isinstance(n, note.Note):
@@ -871,15 +872,8 @@ def extract_chromatic_notes(score, result):
                 pitches_to_check = n.pitches
 
             for p in pitches_to_check:
-                # Check if pitch is in the key's scale
-                try:
-                    degree = key_scale.getScaleDegreeAndAccidentalFromPitch(p)
-                    # If accidental is not None and not natural, it's chromatic
-                    if degree[1] is not None and degree[1].name != "natural":
-                        chromatic_count += 1
-                except Exception:
-                    # If we can't determine, skip it (don't assume chromatic)
-                    pass
+                if p.midi % 12 not in diatonic_pcs:
+                    chromatic_count += 1
 
         result["chromatic_note_count"] = chromatic_count
 
