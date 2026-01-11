@@ -1,279 +1,179 @@
 # frozen_string_literal: true
 
-# Computes instrument-aware difficulty (1-5 scale).
+# Computes instrument-aware difficulty on 1-5 scale.
 #
-# Same raw data means different things for different instruments:
-# - chromatic_ratio 0.15: HARD for voice (no reference pitch), Easy for piano
-# - leap_frequency 0.3: HARD for voice (breath, accuracy), Moderate for strings
-# - max_chord_span 10: N/A for voice, Moderate for piano (9th stretch)
+# Uses pure omission: only count metrics that exist.
+# Missing tempo? Skip throughput, don't penalize.
 #
 # Usage:
-#   DifficultyCalculator.new(score).compute  # => 1..5
+#   calc = DifficultyCalculator.new(score)
+#   calc.difficulty  # => 1..5
+#   calc.label       # => "intermediate"
+#   calc.breakdown   # => { speed: { source: :throughput, ... }, ... }
 #
 class DifficultyCalculator
-  DIFFICULTY_LABELS = {
-    1 => "beginner",
-    2 => "easy",
-    3 => "intermediate",
-    4 => "advanced",
-    5 => "expert"
+  LABELS = { 1 => "beginner", 2 => "easy", 3 => "intermediate", 4 => "advanced", 5 => "expert" }.freeze
+
+  # Instrument-specific metric weights
+  WEIGHTS = {
+    keyboard: { speed: 2.5, chord_span: 2.5, interval: 1.0, chromatic: 0.5 },
+    guitar:   { speed: 3.0, range: 2.0, chromatic: 1.0 },
+    strings:  { speed: 1.5, interval: 2.5, chromatic: 2.5 },
+    wind:     { speed: 2.0, interval: 1.5, chromatic: 2.0, range: 1.5 },
+    voice:    { speed: 1.0, interval: 2.0, chromatic: 3.0, range: 2.0, leap: 2.5 },
+    harp:     { speed: 2.0, chord_span: 2.0, interval: 1.5, chromatic: 1.5 },
+    generic:  { speed: 1.5, interval: 1.5, chromatic: 1.5, leap: 1.5 }
+  }.freeze
+
+  # Minimum note density to use as speed fallback (when tempo missing)
+  DENSITY_THRESHOLD = {
+    keyboard: 8, guitar: 6, strings: 8, wind: 7, voice: 10, harp: 8, generic: 8
   }.freeze
 
   def initialize(score)
     @score = score
     @metrics = ScoreMetricsCalculator.new(score)
-    @instrument_type = infer_instrument_type
+    @instrument = detect_instrument
   end
 
-  # Returns difficulty 1-5
-  def compute
-    points = case @instrument_type
-    when :voice then vocal_points
-    when :keyboard then keyboard_points
-    when :strings then string_points
-    when :guitar then guitar_points
-    when :wind then wind_points
-    else generic_points
-    end
+  attr_reader :instrument
 
-    points_to_difficulty(points)
+  def difficulty
+    @difficulty ||= compute_difficulty
   end
 
-  # Returns label like "intermediate"
+  # Backward compat alias
+  alias compute difficulty
+
   def label
-    DIFFICULTY_LABELS[compute]
+    LABELS[difficulty]
+  end
+
+  def breakdown
+    difficulty # ensure computed
+    @breakdown
   end
 
   private
 
-  # Infer instrument type from score data
-  def infer_instrument_type
-    # Vocal scores
-    return :voice if @score.has_vocal? || @score.voicing.present?
+  def compute_difficulty
+    @breakdown = {}
+    achieved = 0.0
+    max_possible = 0.0
 
-    instruments = @score.instruments.to_s.downcase
+    weights = WEIGHTS[@instrument]
 
-    # Keyboard
-    return :keyboard if instruments.match?(/piano|organ|harpsichord|keyboard|clavichord/)
+    weights.each do |metric, weight|
+      result = send("score_#{metric}")
+      next unless result
 
-    # Strings
-    return :strings if instruments.match?(/violin|viola|cello|bass|string quartet/)
+      achieved += result[:score] * weight
+      max_possible += weight
+      @breakdown[metric] = result
+    end
 
-    # Guitar
-    return :guitar if instruments.match?(/guitar|lute|vihuela/)
+    @breakdown[:summary] = { achieved: achieved.round(2), max: max_possible.round(2) }
+    ratio_to_difficulty(achieved, max_possible)
+  end
 
-    # Woodwinds/brass have similar considerations to strings (intonation matters)
-    return :wind if instruments.match?(/flute|oboe|clarinet|bassoon|trumpet|horn|trombone|tuba/)
+  def detect_instrument
+    name = @score.instruments.to_s.downcase
+
+    return :keyboard if name.match?(/piano|organ|harpsichord|keyboard|clavichord/)
+    return :strings  if name.match?(/violin|viola|cello|fiddle|double bass|string quartet|strings/)
+    return :guitar   if name.match?(/guitar|lute|vihuela|ukulele/)
+    return :wind     if name.match?(/flute|oboe|clarinet|bassoon|saxophone|trumpet|horn|trombone|tuba|recorder/)
+    return :harp     if name.match?(/harp/)
+    return :voice    if @score.has_vocal? || name.match?(/voice|vocal|solo s|satb|choir|soprano|alto|tenor|(?<![a-z])bass(?!oon)/)
 
     :generic
   end
 
-  def wind_points
-    points = 0.0
+  # Metric scoring methods - return { score:, value:, ... } or nil to omit
 
-    # Chromaticism = intonation difficulty (like strings)
-    points += weight_chromatic * 2.0
+  def score_speed
+    throughput = @metrics.throughput
+    density = @metrics.note_density
+    threshold = DENSITY_THRESHOLD[@instrument]
 
-    # Large intervals require embouchure/breath adjustments
-    points += weight_interval * 1.5
-
-    # Speed (tonguing/fingering)
-    points += weight_throughput * 2.0
-
-    # Ornaments (trills are fingering-dependent)
-    points += weight_ornaments * 1.5
-
-    # Range strain (high notes are harder)
-    points += weight_range * 1.5
-
-    points
+    if throughput
+      score = score_value(throughput, [[8, 1.0], [5, 0.7], [2.9, 0.4]])
+      { source: :throughput, value: throughput.round(1), score: score }
+    elsif density && density >= threshold
+      score = score_value(density, [[20, 0.7], [15, 0.6], [12, 0.5], [10, 0.4], [8, 0.3], [6, 0.2]])
+      { source: :density, value: density.round(1), score: score }
+    end
   end
 
-  # ─────────────────────────────────────────────────────────────────
-  # Instrument-specific scoring
-  # ─────────────────────────────────────────────────────────────────
+  def score_chord_span
+    span = @score.max_chord_span
+    return nil unless span
 
-  def vocal_points
-    points = 0.0
+    thresholds = case @instrument
+                 when :keyboard then [[16, 1.0], [14, 0.7], [12, 0.3]]
+                 else [[14, 1.0], [12, 0.5]]
+                 end
 
-    # Chromaticism is VERY hard for voice (no physical reference pitch)
-    points += weight_chromatic * 3.0
-
-    # Leaps require breath control and pitch memory
-    points += weight_leap * 2.5
-
-    # Range pushing tessitura limits
-    points += weight_range * 2.0
-
-    # Large intervals are hard to pitch accurately
-    points += weight_interval * 2.0
-
-    # Speed matters less for voice
-    points += weight_throughput * 1.0
-
-    # Ornamentation (melismatic passages)
-    points += weight_ornaments * 1.5
-
-    points
+    { value: span, score: score_value(span, thresholds) }
   end
 
-  def keyboard_points
-    points = 0.0
+  def score_interval
+    interval = @score.largest_interval
+    return nil unless interval
 
-    # Speed (throughput) is primary difficulty for keyboard
-    points += weight_throughput * 2.5
+    thresholds = case @instrument
+                 when :keyboard then [[24, 1.0], [19, 0.6], [15, 0.3]]
+                 when :strings  then [[15, 1.0], [12, 0.7], [7, 0.4]]
+                 else [[15, 1.0], [12, 0.5], [7, 0.2]]
+                 end
 
-    # Hand span requirements
-    points += weight_chord_span * 2.5
-
-    # Chromaticism is less relevant (just more black keys)
-    points += weight_chromatic * 0.5
-
-    # Ornaments (trills, mordents)
-    points += weight_ornaments * 1.5
-
-    # Large intervals = hand jumps
-    points += weight_interval * 1.0
-
-    points
+    { value: interval, score: score_value(interval, thresholds) }
   end
 
-  def string_points
-    points = 0.0
+  def score_chromatic
+    ratio = @score.chromatic_ratio
+    return nil unless ratio
 
-    # Chromaticism = intonation difficulty
-    points += weight_chromatic * 2.5
-
-    # Large intervals often mean position shifts
-    points += weight_interval * 2.0
-
-    # Speed matters
-    points += weight_throughput * 1.5
-
-    # Ornaments (especially trills on strings)
-    points += weight_ornaments * 1.5
-
-    points
+    { value: ratio, score: score_value(ratio, [[0.2, 1.0], [0.1, 0.7], [0.05, 0.4]]) }
   end
 
-  def guitar_points
-    points = 0.0
+  def score_range
+    semitones = @score.ambitus_semitones
+    return nil unless semitones
 
-    # Chord span (fret stretches)
-    points += weight_chord_span * 2.0
+    thresholds = case @instrument
+                 when :guitar then [[40, 1.0], [36, 0.5], [30, 0.3], [27, 0.15]]
+                 else [[24, 1.0], [18, 0.6], [12, 0.3]]
+                 end
 
-    # Speed
-    points += weight_throughput * 1.5
-
-    # Large intervals (position shifts)
-    points += weight_interval * 1.5
-
-    # Chromaticism (fret navigation)
-    points += weight_chromatic * 1.0
-
-    points
+    { value: semitones, score: score_value(semitones, thresholds) }
   end
 
-  def generic_points
-    points = 0.0
+  def score_leap
+    freq = @metrics.leap_frequency
+    return nil unless freq
 
-    # Balanced weighting for unknown instruments
-    points += weight_throughput * 1.5
-    points += weight_chromatic * 1.5
-    points += weight_interval * 1.5
-    points += weight_leap * 1.5
-    points += weight_ornaments * 1.0
-
-    points
+    { value: freq, score: score_value(freq, [[0.3, 1.0], [0.2, 0.7], [0.1, 0.4]]) }
   end
 
-  # ─────────────────────────────────────────────────────────────────
-  # Weight calculations (0.0-1.0 normalized)
-  # ─────────────────────────────────────────────────────────────────
+  # Helper: find score from threshold table [[threshold, score], ...]
+  def score_value(value, thresholds)
+    thresholds.each do |threshold, score|
+      return score if value >= threshold
+    end
+    0.0
+  end
 
-  def weight_chromatic
-    ratio = @score.chromatic_ratio || 0
+  def ratio_to_difficulty(achieved, max_possible)
+    return 1 if max_possible <= 0
+
+    ratio = achieved / max_possible
     case ratio
-    when 0.2.. then 1.0
-    when 0.1.. then 0.7
-    when 0.05.. then 0.4
-    else 0.0
-    end
-  end
-
-  def weight_leap
-    freq = @metrics.leap_frequency || 0
-    case freq
-    when 0.3.. then 1.0
-    when 0.2.. then 0.7
-    when 0.1.. then 0.4
-    else 0.0
-    end
-  end
-
-  def weight_throughput
-    rate = @metrics.throughput || 0
-    case rate
-    when 8.. then 1.0    # 8+ notes/sec = virtuosic
-    when 5.. then 0.7
-    when 3.. then 0.4
-    else 0.0
-    end
-  end
-
-  def weight_interval
-    interval = @score.largest_interval || 0
-    case interval
-    when 12.. then 1.0   # Octave or larger
-    when 7.. then 0.6    # 5th or larger
-    when 5.. then 0.3
-    else 0.0
-    end
-  end
-
-  def weight_range
-    semitones = @score.ambitus_semitones || 0
-    case semitones
-    when 24.. then 1.0   # 2+ octaves
-    when 18.. then 0.6   # 1.5 octaves
-    when 12.. then 0.3   # 1 octave
-    else 0.0
-    end
-  end
-
-  def weight_chord_span
-    span = @score.max_chord_span || 0
-    case span
-    when 12.. then 1.0   # 10th or larger (very large hands)
-    when 10.. then 0.7   # 9th (moderate stretch)
-    when 8.. then 0.3    # Octave
-    else 0.0
-    end
-  end
-
-  def weight_ornaments
-    density = @metrics.ornament_density || 0
-    case density
-    when 1.5.. then 1.0
-    when 0.5.. then 0.6
-    when 0.1.. then 0.3
-    else 0.0
-    end
-  end
-
-  # ─────────────────────────────────────────────────────────────────
-  # Score to difficulty mapping
-  # ─────────────────────────────────────────────────────────────────
-
-  def points_to_difficulty(points)
-    # Max possible points varies by instrument, but roughly 10-12
-    # Map to 1-5 scale
-    case points
-    when 0..2 then 1
-    when 2..4 then 2
-    when 4..6 then 3
-    when 6..8 then 4
-    else 5
+    when 0.8.. then 5
+    when 0.6.. then 4
+    when 0.4.. then 3
+    when 0.2.. then 2
+    else 1
     end
   end
 end
