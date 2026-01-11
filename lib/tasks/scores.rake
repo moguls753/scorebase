@@ -229,6 +229,164 @@ namespace :scores do
     print_difficulty_distribution
   end
 
+  desc "Extract chord_span for solo keyboard/harp scores missing it. LIMIT=1000"
+  task extract_missing_chord_span: :environment do
+    require "tempfile"
+    require "open3"
+
+    limit = ENV.fetch("LIMIT", "1000").to_i
+
+    # Find solo keyboard/harp scores missing chord_span
+    scope = Score.where(max_chord_span: nil)
+                 .where(has_vocal: false)
+                 .where.not(instruments: [nil, ""])
+                 .where.not("instruments LIKE ?", "%,%")
+                 .where.not(mxl_path: [nil, "", "N/A"])
+                 .limit(limit)
+
+    # Filter for applicable instruments in Ruby (SQLite lacks regex)
+    scores = scope.to_a.select { |s| s.chord_span_applicable? }
+
+    puts "Found #{scores.size} scores needing chord_span extraction"
+    next if scores.empty?
+
+    # Build paths list
+    paths_with_ids = scores.filter_map do |score|
+      full_path = score.mxl_url
+      next unless full_path && File.exist?(full_path)
+      [score.id, full_path]
+    end
+
+    puts "#{paths_with_ids.size} have valid MXL files"
+    next if paths_with_ids.empty?
+
+    # Write paths to temp file
+    paths_file = Tempfile.new(["chord_span_paths", ".txt"])
+    paths_file.write(paths_with_ids.map(&:last).join("\n"))
+    paths_file.close
+
+    id_by_path = paths_with_ids.to_h { |id, path| [path, id] }
+
+    # Run Python extraction
+    script = Rails.root.join("rag/extract_chord_span.py").to_s
+    python = ENV.fetch("PYTHON_CMD", "python3")
+    output_file = Tempfile.new(["chord_span_results", ".jsonl"])
+    output_file.close
+
+    puts "\nExtracting chord_span..."
+    Open3.popen3(python, script, "--batch", paths_file.path, "--output", output_file.path) do |_stdin, _stdout, stderr, wait_thr|
+      stderr.each_line { |line| print line }
+      wait_thr.value
+    end
+
+    # Import results
+    puts "Importing results..."
+    updated = 0
+    File.foreach(output_file.path) do |line|
+      result = JSON.parse(line) rescue next
+      score_id = id_by_path[result["file_path"]]
+      next unless score_id && result["max_chord_span"]
+
+      Score.where(id: score_id).update_all(max_chord_span: result["max_chord_span"])
+      updated += 1
+    end
+
+    puts "Done. Updated #{updated} scores with chord_span."
+  ensure
+    paths_file&.unlink
+    output_file&.unlink
+  end
+
+  desc "Re-extract keyboard/harp scores missing chord_span. LIMIT=all, WORKERS=0"
+  task reextract_keyboard: :environment do
+    require "tempfile"
+    require "open3"
+
+    limit = ENV.fetch("LIMIT", "all")
+    workers = ENV.fetch("WORKERS", "0").to_i
+
+    # Find keyboard/harp scores MISSING chord_span (Python skipped them with old instrument guessing)
+    local_sources = %w[pdmx openscore-lieder openscore-quartets]
+    scope = Score.where(source: local_sources)
+                 .where(max_chord_span: nil)  # Missing chord_span
+                 .where(has_vocal: false)
+                 .where.not(instruments: [nil, ""])
+                 .where.not("instruments LIKE ?", "%,%")
+                 .where.not(mxl_path: [nil, "", "N/A"])
+
+    scope = scope.limit(limit.to_i) unless limit == "all"
+    scores = scope.to_a.select { |s| s.chord_span_applicable? }
+
+    puts "Found #{scores.size} keyboard/harp scores to re-extract"
+    next if scores.empty?
+
+    # Build paths list
+    paths_with_ids = scores.filter_map do |score|
+      full_path = score.mxl_url
+      next unless full_path && File.exist?(full_path)
+      [score.id, full_path]
+    end
+
+    puts "#{paths_with_ids.size} have valid MXL files"
+    next if paths_with_ids.empty?
+
+    # Write paths to temp file
+    paths_file = Tempfile.new(["keyboard_paths", ".txt"])
+    paths_file.write(paths_with_ids.map(&:last).join("\n"))
+    paths_file.close
+
+    id_by_path = paths_with_ids.to_h { |id, path| [path, id] }
+
+    # Run Python extraction
+    script = Rails.root.join("rag/extract.py").to_s
+    python = ENV.fetch("PYTHON_CMD", "python3")
+    output_file = Tempfile.new(["keyboard_results", ".jsonl"])
+    output_file.close
+
+    puts "\nExtracting #{paths_with_ids.size} files (workers: #{workers == 0 ? 'auto' : workers})..."
+    status = nil
+    Open3.popen3(python, script, "--batch", paths_file.path, "--output", output_file.path, "--workers", workers.to_s) do |_stdin, _stdout, stderr, wait_thr|
+      stderr.each_line { |line| puts "  #{line}" }
+      status = wait_thr.value
+    end
+
+    unless status&.success?
+      puts "Extraction failed (exit code: #{status&.exitstatus})"
+      next
+    end
+
+    # Import results
+    puts "\nImporting results..."
+    imported = 0
+    failed = 0
+
+    File.foreach(output_file.path) do |line|
+      result = JSON.parse(line) rescue next
+      file_path = result.delete("file_path")
+      score_id = id_by_path[file_path]
+      next unless score_id
+
+      score = Score.find_by(id: score_id)
+      next unless score
+
+      Music21Extractor.new(score).send(:apply_result, result)
+      if score.reload.extraction_extracted?
+        imported += 1
+      else
+        failed += 1
+      end
+      print "\r  Imported: #{imported}, failed: #{failed}"
+    rescue => e
+      puts "\n  Error on score #{score_id}: #{e.message}"
+      failed += 1
+    end
+
+    puts "\nDone. Re-extracted #{imported} scores (#{failed} failed)."
+  ensure
+    paths_file&.unlink
+    output_file&.unlink
+  end
+
   desc "Backfill extraction context (nil chord_span for non-applicable instruments)"
   task backfill_extraction_context: :environment do
     # Find scores with chord_span (skip pending - callback will handle when normalized)
