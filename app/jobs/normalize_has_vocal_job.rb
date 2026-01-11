@@ -49,7 +49,10 @@ class NormalizeHasVocalJob < ApplicationJob
 
   def apply_result(score, result, stats, index)
     if result.success?
-      score.update!(has_vocal: result.has_vocal, has_vocal_status: :normalized)
+      score.assign_attributes(has_vocal: result.has_vocal, has_vocal_status: :normalized)
+      # Nullify chord_span for vocal scores (not applicable)
+      score.max_chord_span = nil if result.has_vocal
+      score.save!
       stats[:normalized] += 1
       logger.info "[NormalizeHasVocal] #{index}. #{score.title&.truncate(40)} -> #{result.has_vocal} (#{result.confidence})"
     else

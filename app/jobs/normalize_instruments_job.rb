@@ -52,15 +52,23 @@ class NormalizeInstrumentsJob < ApplicationJob
 
   def apply_result(score, result, stats, index)
     if result.found?
-      score.update!(
+      score.assign_attributes(
         instruments: result.instruments,
         instruments_status: :normalized,
         voicing_status: :not_applicable
       )
+      # Nullify chord_span if instrument isn't keyboard/harp (uses new instruments value)
+      score.max_chord_span = nil unless score.chord_span_applicable?
+      score.save!
       stats[:normalized] += 1
       logger.info "[NormalizeInstruments] #{index}. #{score.title&.truncate(40)} -> #{result.instruments}"
     elsif result.success?
-      score.update!(instruments_status: :not_applicable, voicing_status: :not_applicable)
+      # Instrument unknown → chord_span not applicable either
+      score.update!(
+        instruments_status: :not_applicable,
+        voicing_status: :not_applicable,
+        max_chord_span: nil
+      )
       stats[:not_applicable] += 1
       logger.info "[NormalizeInstruments] #{index}. #{score.title&.truncate(40)} -> N/A"
     else

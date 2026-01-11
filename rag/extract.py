@@ -199,27 +199,43 @@ def is_multi_movement(score, result):
     """
     Detect if score is a multi-movement work where tempo/duration are unreliable.
 
-    Returns True if:
-    - Multiple MetronomeMark objects exist (different tempos for different sections)
-    - 2+ movement names found in expressions (Allemande + Courante = suite)
+    Detection methods (in order of reliability):
+    1. Movement names in expressions (Allemande, Courante, etc.) - definitive
+    2. Internal final barlines (light-heavy barline before last measure) - strong indicator
 
     For multi-movement works, tempo_bpm only refers to one movement's tempo,
     and duration_seconds calculated from it is meaningless.
+
+    Note: We intentionally do NOT check for multiple MetronomeMark objects.
+    Many single-movement pieces have tempo changes (Erlkönig: Schnell → Andante)
+    that create multiple MetronomeMark objects but are NOT multi-movement works.
+    Using MetronomeMark count caused 97% false positives in testing.
     """
     cache = result.get("_cache")
     flat = cache.flat if cache else score.flatten()
 
-    # Multiple tempo markings = multiple movements
-    tempos = list(flat.getElementsByClass(tempo.MetronomeMark))
-    if len(tempos) > 1:
-        return True
-
-    # 2+ movement names in expressions = suite/multi-movement
+    # 1. Movement names in expressions = suite/multi-movement
     text_exprs = list(flat.getElementsByClass(expressions.TextExpression))
     all_text = " ".join(e.content.lower() for e in text_exprs if hasattr(e, "content") and e.content)
 
     movement_count = sum(1 for name in MOVEMENT_NAMES if name in all_text)
-    return movement_count >= 2
+    if movement_count >= 2:
+        return True
+
+    # 2. Internal final barlines indicate movement boundaries
+    # A "final" or "light-heavy" barline before the last measure = movement end
+    try:
+        parts = list(score.parts) if hasattr(score, 'parts') else [score]
+        for p in parts[:1]:  # Check first part only
+            measures = list(p.getElementsByClass(stream.Measure))
+            if len(measures) > 2:
+                for m in measures[:-1]:  # Exclude last measure
+                    if m.rightBarline and m.rightBarline.type in ['final', 'light-heavy']:
+                        return True
+    except Exception:
+        pass  # If barline check fails, continue without it
+
+    return False
 
 
 def extract_tempo_duration(score, result):

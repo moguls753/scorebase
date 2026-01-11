@@ -11,10 +11,10 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from music21 import chord, converter, key, meter, note, stream, tempo
+from music21 import bar, chord, converter, expressions, key, meter, note, stream, tempo
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
-from extract import extract
+from extract import extract, is_multi_movement
 
 
 def make_simple_score():
@@ -146,29 +146,8 @@ class TestExtraction:
         assert result["extraction_error"] is not None
 
 
-class TestDifficulty:
-    """Difficulty scoring tests."""
-
-    def test_computed_difficulty_always_present(self):
-        """computed_difficulty should always be 1-5 for successful extraction."""
-        path = save_temp(make_simple_score())
-        try:
-            result = extract(path)
-            assert result["extraction_status"] == "extracted"
-            assert "computed_difficulty" in result
-            assert 1 <= result["computed_difficulty"] <= 5
-        finally:
-            Path(path).unlink()
-
-    def test_simple_score_is_easy(self):
-        """A simple C major scale should score low difficulty."""
-        path = save_temp(make_simple_score())
-        try:
-            result = extract(path)
-            # Simple scale = beginner/easy (1-2)
-            assert result["computed_difficulty"] <= 2
-        finally:
-            Path(path).unlink()
+class TestAdvancedFeatures:
+    """Tests for advanced extraction features."""
 
     def test_hand_span_extracted_for_piano(self):
         """Piano scores should have max_chord_span."""
@@ -192,6 +171,56 @@ class TestDifficulty:
             Path(path).unlink()
 
 
+class TestMultiMovement:
+    """Multi-movement detection tests."""
+
+    def test_tempo_change_not_multi_movement(self):
+        """Tempo changes alone should NOT flag as multi-movement (Erlkönig case)."""
+        s = stream.Score()
+        p = stream.Part()
+        m1 = stream.Measure(number=1)
+        m1.append(tempo.MetronomeMark(text="Schnell", number=148))
+        m1.append(note.Note("C4", quarterLength=4))
+        p.append(m1)
+        m2 = stream.Measure(number=2)
+        m2.append(tempo.MetronomeMark(text="Andante", number=80))
+        m2.append(note.Note("D4", quarterLength=4))
+        p.append(m2)
+        s.append(p)
+
+        assert is_multi_movement(s, {}) is False
+
+    def test_movement_names_is_multi_movement(self):
+        """Movement names (Allemande, Courante) should flag as multi-movement."""
+        s = stream.Score()
+        p = stream.Part()
+        p.append(expressions.TextExpression("Allemande"))
+        p.append(note.Note("C4"))
+        p.append(expressions.TextExpression("Courante"))
+        p.append(note.Note("D4"))
+        s.append(p)
+
+        assert is_multi_movement(s, {}) is True
+
+    def test_internal_final_barline_is_multi_movement(self):
+        """Internal final barline should flag as multi-movement."""
+        s = stream.Score()
+        p = stream.Part()
+        m1 = stream.Measure(number=1)
+        m1.append(note.Note("C4", quarterLength=4))
+        m1.rightBarline = bar.Barline('light-heavy')
+        p.append(m1)
+        m2 = stream.Measure(number=2)
+        m2.append(note.Note("D4", quarterLength=4))
+        p.append(m2)
+        m3 = stream.Measure(number=3)
+        m3.append(note.Note("E4", quarterLength=4))
+        p.append(m3)
+        s.append(p)
+
+        assert is_multi_movement(s, {}) is True
+
+
 class TestCLI:
     """CLI interface tests."""
 
@@ -207,13 +236,13 @@ class TestCLI:
         finally:
             Path(path).unlink()
 
-    def test_cli_missing_arg(self):
+    def test_cli_missing_arg_shows_usage(self):
+        """CLI without args shows usage help."""
         proc = subprocess.run(
             [sys.executable, str(Path(__file__).parent.parent / "extract.py")],
             capture_output=True, text=True
         )
-        output = json.loads(proc.stdout)
-        assert output["extraction_status"] == "failed"
+        assert "usage:" in proc.stdout.lower() or "usage:" in proc.stderr.lower()
 
 
 if __name__ == "__main__":

@@ -36,7 +36,8 @@
       "Bash(node -c:*)",
       "Bash(source venv/bin/activate)",
       "Bash(python3:*)",
-      "Bash(node -e:*)"
+      "Bash(node -e:*)",
+      "WebFetch(domain:www.music21.org)"
     ]
   }
 }

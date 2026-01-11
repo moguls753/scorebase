@@ -199,9 +199,6 @@ class Score < ApplicationRecord
   # Sources
   SOURCES = %w[pdmx cpdl imslp openscore-lieder openscore-quartets].freeze
 
-  # Enforce chord_span only for applicable instruments (keyboard/harp)
-  before_save :enforce_chord_span_applicability
-
   # Active Storage attachments
   has_one_attached :pdf_file
 
