@@ -199,6 +199,9 @@ class Score < ApplicationRecord
   # Sources
   SOURCES = %w[pdmx cpdl imslp openscore-lieder openscore-quartets].freeze
 
+  # Clean up extraction fields when instrument context changes
+  after_save :apply_extraction_context!, if: :instrument_context_changed?
+
   # Active Storage attachments
   has_one_attached :pdf_file
 
@@ -564,5 +567,24 @@ class Score < ApplicationRecord
   def update_normalized_search_columns
     self.title_normalized = self.class.normalize_for_search(title)
     self.composer_normalized = self.class.normalize_for_search(composer)
+  end
+
+  # chord_span only meaningful for solo keyboard/harp (reliable semitone measurement)
+  # Not for: vocals, chamber music, guitar (fret measurement unreliable)
+  def chord_span_applicable?
+    return false if has_vocal
+    return false if instruments.blank?
+    return false if instruments.include?(',')
+
+    instruments.downcase.match?(/piano|organ|harpsichord|clavichord|keyboard|harp/)
+  end
+
+  def instrument_context_changed?
+    saved_change_to_instruments? || saved_change_to_has_vocal?
+  end
+
+  def apply_extraction_context!
+    return if chord_span_applicable? || max_chord_span.nil?
+    update_columns(max_chord_span: nil)
   end
 end

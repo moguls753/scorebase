@@ -229,6 +229,27 @@ namespace :scores do
     print_difficulty_distribution
   end
 
+  desc "Backfill extraction context (nil chord_span for non-applicable instruments)"
+  task backfill_extraction_context: :environment do
+    # Find scores with chord_span (skip pending - callback will handle when normalized)
+    scope = Score.where.not(max_chord_span: nil)
+                 .where.not(instruments_status: :pending)
+
+    total = scope.count
+    puts "Checking #{total} scores with chord_span..."
+
+    cleaned = 0
+    scope.find_each.with_index do |score, i|
+      unless score.chord_span_applicable?
+        score.update_columns(max_chord_span: nil)
+        cleaned += 1
+      end
+      print "\r  Progress: #{i + 1}/#{total} (cleaned: #{cleaned})" if (i + 1) % 100 == 0
+    end
+
+    puts "\nDone. Cleaned #{cleaned} scores."
+  end
+
   def print_difficulty_distribution
     puts
     puts "Difficulty distribution:"
