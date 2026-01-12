@@ -2,13 +2,23 @@
 
 # Computes instrument-aware difficulty on 1-5 scale.
 #
+# Only calculates for TRUE SOLO scores:
+# - Solo instrument (has_vocal=false, single instrument)
+# - Unaccompanied voice (has_vocal=true, no instruments)
+#
+# Returns nil for:
+# - Voice + accompaniment (Solo S, Piano) - use range queries instead
+# - Chamber music (Violin, Piano) - ambiguous whose difficulty
+# - Ensembles (SATB, String quartet) - multiple independent parts
+#
 # Uses pure omission: only count metrics that exist.
 # Missing tempo? Skip throughput, don't penalize.
 #
 # Usage:
 #   calc = DifficultyCalculator.new(score)
-#   calc.difficulty  # => 1..5
-#   calc.label       # => "intermediate"
+#   calc.applicable? # => true/false
+#   calc.difficulty  # => 1..5 or nil if not applicable
+#   calc.label       # => "intermediate" or nil
 #   calc.breakdown   # => { speed: { source: :throughput, ... }, ... }
 #
 class DifficultyCalculator
@@ -38,7 +48,24 @@ class DifficultyCalculator
 
   attr_reader :instrument
 
+  # Check if difficulty calculation is meaningful for this score.
+  # Only true solo scores have unambiguous difficulty:
+  # - Solo instrument: one performer, clear difficulty target
+  # - Unaccompanied voice: singer without accompaniment
+  def applicable?
+    return @applicable if defined?(@applicable)
+
+    @applicable = if @score.has_vocal?
+      # Unaccompanied voice: has_vocal but no instruments
+      @score.instruments.blank?
+    else
+      # Solo instrument: no comma means single instrument
+      @score.instruments.present? && !@score.instruments.include?(",")
+    end
+  end
+
   def difficulty
+    return nil unless applicable?
     @difficulty ||= compute_difficulty
   end
 
@@ -46,6 +73,7 @@ class DifficultyCalculator
   alias compute difficulty
 
   def label
+    return nil unless applicable?
     LABELS[difficulty]
   end
 

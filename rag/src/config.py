@@ -18,8 +18,8 @@ PDMX_PATH = Path.home() / "data" / "pdmx"
 # Vector database storage
 CHROMA_PATH = BASE_DIR / "data" / "chroma"
 
-# Embedding model (small, fast, good quality)
-EMBEDDING_MODEL = "all-MiniLM-L6-v2"
+# Embedding model (multilingual for German/French/Italian queries)
+EMBEDDING_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
 
 # Search defaults
 DEFAULT_TOP_K = 20
