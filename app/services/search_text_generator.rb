@@ -10,13 +10,6 @@
 #   result.issues       # => [] (empty if valid)
 #
 class SearchTextGenerator
-  DIFFICULTY_TERMS = %w[
-    easy beginner simple
-    intermediate moderate
-    advanced challenging
-    virtuoso demanding expert
-  ].freeze
-
   # Academic metric-compounds that no one searches for.
   # Individual terms like "chromatic", "polyphonic", "syncopation" are fine.
   JARGON_TERMS = [
@@ -58,7 +51,7 @@ class SearchTextGenerator
     - START with the title. If composer is provided, include it (e.g., "Étude Op.6 by Fernando Sor is..."). If no composer, start with just the title (e.g., "O Come All Ye Faithful is a beloved Christmas hymn...").
     - Include ALL of these elements:
       (1) TITLE (and COMPOSER if provided) in the first sentence
-      (2) DIFFICULTY: Use the difficulty_level field. Only use "virtuoso" if is_virtuoso is true; otherwise use easy/beginner, intermediate, or advanced.
+      (2) DIFFICULTY: If difficulty_level is provided, use it (beginner/easy/intermediate/advanced/expert). If is_virtuoso is true, say "virtuoso". If difficulty_level is NOT provided, do NOT mention difficulty at all.
       (3) CHARACTER (2-3 mood/style words: gentle, dramatic, contemplative, energetic, majestic, lyrical, playful, solemn, etc.)
       (4) BEST FOR (specific uses: sight-reading practice, student recitals, church services, exam repertoire, technique building, competitions, teaching specific skills)
       (5) MUSICAL FEATURES (texture, harmonic language, notable patterns like arpeggios, scales, counterpoint)
@@ -67,12 +60,13 @@ class SearchTextGenerator
     - Use words musicians actually search: "sight-reading", "recital piece", "exam repertoire", "church anthem", "teaching piece", "competition", "Baroque counterpoint", "lyrical melody", "chromatic passages", "syncopated rhythms".
     - NEVER use academic metric-compounds like "chromatic complexity", "vertical density", "melodic complexity", "rhythmic variety". The data uses searchable terms already - use them naturally in prose.
     - STRICT: Only mention instruments, voicing, genre, and other details that appear in <data/>. Do not invent or assume facts not present in the data.
+    - CRITICAL: If difficulty_level is missing from the data, you MUST NOT use words like "beginner", "easy", "intermediate", "advanced", "expert", or "virtuoso". Simply omit any mention of difficulty.
     - Do not produce a bullet point list.
     </rules>
 
     <steps>
     1) Read the metadata: identify instrument, genre, key, time signature, texture, range, duration.
-    2) Choose exactly one DIFFICULTY from difficulty_level. Only say "virtuoso" if is_virtuoso is true.
+    2) If difficulty_level is provided, use it. If not provided, skip mentioning difficulty entirely.
     3) Pick 2–3 CHARACTER words based on metadata cues (key, tempo, texture suggest mood).
     4) List 2–3 specific BEST FOR uses (teaching, performance, liturgical, exam, etc.).
     5) Note interesting MUSICAL FEATURES worth mentioning (counterpoint, ornamentation, range demands).
@@ -82,7 +76,7 @@ class SearchTextGenerator
     <examples>
     - "Sonatina in C major by Muzio Clementi is an easy piano piece with a gentle, flowing character. The simple melodic lines and steady rhythms make it ideal for first-year students developing hand coordination. Perfect for sight-reading practice or as an early recital piece. The piece stays in a comfortable range and uses basic chord patterns. About 2 minutes long, it works well for building confidence in young pianists."
     - "Ascendit Deus by Peter Philips is an advanced SATB anthem with a joyful, majestic character, well-suited for Easter services or festive choir concerts. The four-part writing features independent voice lines and some chromatic passages that require confident singers. Soprano part reaches B5, so ensure your section can handle the tessitura. The energetic rhythms and triumphant harmonies make this a rewarding showpiece. About 4 minutes long."
-    - "Violin Sonata No. 1 by Johannes Brahms is an intermediate violin sonata in the Romantic style, lyrical and deeply expressive. Features singing melodic lines with moderate technical demands including some position work and dynamic contrasts. Excellent choice for student recitals, conservatory auditions, or as exam repertoire. The piano accompaniment provides rich harmonic support. A substantial work around 25 minutes that develops musicality and interpretation skills."
+    - "Violin Sonata No. 1 by Johannes Brahms is a lyrical and deeply expressive violin sonata in the Romantic style. Features singing melodic lines with dynamic contrasts and rich piano accompaniment. Excellent choice for student recitals, conservatory auditions, or as exam repertoire. A substantial work around 25 minutes that develops musicality and interpretation skills." (Note: no difficulty_level was provided, so difficulty is not mentioned)
     - "O Come All Ye Faithful is a beloved intermediate Christmas hymn for SATB choir with organ accompaniment. The stately, joyful character makes it a staple of holiday church services and carol concerts. Features straightforward four-part harmony with some moving inner voices. The familiar melody is accessible for congregational singing while offering enough interest for trained choirs. About 3 minutes long, ideal for processionals or as a service closer."
     </examples>
 
@@ -95,6 +89,8 @@ class SearchTextGenerator
     </output_format>
   PROMPT
 
+  DIFFICULTY_WORDS = %w[beginner easy intermediate advanced expert virtuoso].freeze
+
   def initialize(client: nil)
     @client = client || LlmClient.new
   end
@@ -106,7 +102,17 @@ class SearchTextGenerator
     response = @client.chat_json(prompt)
     description = response["description"].to_s.strip
 
-    issues = validate(description)
+    # Retry once if LLM hallucinated difficulty when we didn't provide one
+    if metadata[:difficulty_level].nil? && mentions_difficulty?(description)
+      description = regenerate_without_difficulty(metadata)
+    end
+
+    issues = validate(description, expects_difficulty: metadata[:difficulty_level].present?)
+
+    # Flag if retry still hallucinated difficulty
+    if metadata[:difficulty_level].nil? && mentions_difficulty?(description)
+      issues << "hallucinated_difficulty"
+    end
     Result.new(description: description, issues: issues, error: nil)
   rescue JSON::ParserError => e
     Result.new(description: nil, issues: [], error: "JSON parse error: #{e.message}")
@@ -118,18 +124,30 @@ class SearchTextGenerator
 
   private
 
-  def validate(description)
+  def validate(description, expects_difficulty: true)
     issues = []
 
     return ["too_short"] if description.blank? || description.length < 200
     issues << "too_long" if description.length > 1500
 
     desc_lower = description.downcase
-    issues << "missing_difficulty" unless DIFFICULTY_TERMS.any? { |t| desc_lower.include?(t) }
+    issues << "missing_difficulty" if expects_difficulty && !mentions_difficulty?(description)
     issues << "jargon" if JARGON_TERMS.any? { |t| desc_lower.include?(t) }
     issues << "bullet_list" if description.count("-") > 3 && description.count(".") < 2
 
     issues
+  end
+
+  def mentions_difficulty?(text)
+    DIFFICULTY_WORDS.any? { |word| text.downcase.include?(word) }
+  end
+
+  def regenerate_without_difficulty(metadata)
+    stronger_prompt = format(PROMPT, metadata_json: metadata.to_json)
+    stronger_prompt += "\n\nIMPORTANT: difficulty_level was NOT provided. Do NOT mention difficulty at all."
+
+    response = @client.chat_json(stronger_prompt)
+    response["description"].to_s.strip
   end
 
   def build_metadata(score)
@@ -179,15 +197,17 @@ class SearchTextGenerator
   end
 
   # Use computed_difficulty (1-5) from music21 extraction
+  # Returns nil for non-solo scores (difficulty not applicable)
   def difficulty_label(score)
-    level = score.computed_difficulty || 3
+    level = score.computed_difficulty
+    return nil unless level
+
     case level
     when 1 then "beginner"
     when 2 then "easy"
     when 3 then "intermediate"
     when 4 then "advanced"
     when 5 then "expert"
-    else "intermediate"
     end
   end
 
@@ -227,15 +247,13 @@ class SearchTextGenerator
   def detect_instrument_family(score)
     instruments = score.instruments.to_s.downcase
 
-    # Prioritize specific instruments over has_vocal
-    return :guitar if instruments.match?(/\bguitar\b/i)
-    return :violin if instruments.match?(/\bviolin\b/i)
-    return :cello if instruments.match?(/\bcello\b/i)
-    return :strings if instruments.match?(/\b(viola|double bass|string quartet|strings)\b/i)
-    return :keyboard if instruments.match?(/\b(piano|organ|harpsichord|keyboard|clavichord)\b/i)
-
-    return :vocal if score.has_vocal
-    return :vocal if instruments.match?(/\b(voice|choir|chorus|satb|soprano|alto|tenor|bass|choral)\b/i)
+    return :guitar if instruments.include?("guitar")
+    return :violin if instruments.include?("violin")
+    return :cello if instruments.include?("cello")
+    return :strings if instruments.match?(/viola|double bass|string quartet|strings/)
+    return :keyboard if instruments.match?(/piano|organ|harpsichord|keyboard|clavichord/)
+    return :vocal if score.has_vocal?
+    return :vocal if instruments.match?(/voice|choir|chorus|satb|soprano|alto|tenor|bass|choral/)
 
     :other
   end
