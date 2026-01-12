@@ -1,22 +1,25 @@
 # frozen_string_literal: true
 
 # Infers pedagogical grade for known pieces using LLM.
-# Targets pieces where algorithm difficulty may be misleading:
-# - computed_difficulty 1-3 (algorithm says easy-to-moderate)
-# - Known composer (composer_status: normalized)
-# - Confirmed instrumental (has_vocal_status: normalized, has_vocal: false)
-# - Has instruments metadata
+#
+# Scope: All scores with known composer (~51K scores)
+# - composer_status: normalized
+# - Has title
+#
+# Model: Groq Llama 4 Maverick (90% accuracy, ~$2.63 for full run)
 #
 # Usage:
 #   NormalizePedagogicalGradeJob.perform_later
-#   NormalizePedagogicalGradeJob.perform_later(limit: 1000, batch_size: 5)
+#   NormalizePedagogicalGradeJob.perform_later(limit: 1000)
 #
 class NormalizePedagogicalGradeJob < ApplicationJob
   queue_as :default
 
-  BATCH_SIZE = 5
+  BATCH_SIZE = 2
 
-  def perform(limit: 100, backend: :openai, model: nil, batch_size: BATCH_SIZE)
+  GROQ_MODEL = "meta-llama/llama-4-maverick-17b-128e-instruct"
+
+  def perform(limit: 100, backend: :groq, model: GROQ_MODEL, batch_size: BATCH_SIZE)
     scores = eligible_scores(limit).to_a
     return log_empty if scores.empty?
 
@@ -43,14 +46,12 @@ class NormalizePedagogicalGradeJob < ApplicationJob
 
   private
 
-  # High priority: algorithm says easy but likely wrong for pedagogical pieces
+  # Scores eligible for LLM grade normalization:
+  # - Known composer (composer_status: normalized)
+  # - Has title (for LLM to identify the piece)
   def eligible_scores(limit)
     Score.grade_pending
-         .where(computed_difficulty: [1, 2, 3])   # algorithm says easy-to-moderate
-         .where(composer_status: :normalized)      # known composer
-         .where(has_vocal_status: :normalized)     # vocal detection completed
-         .where(has_vocal: false)                  # instrumental only (vocal grades differ)
-         .where.not(instruments: [nil, ""])        # has instrument info
+         .where(composer_status: :normalized)
          .where.not(title: [nil, ""])
          .order(prioritized_order)
          .limit(limit)
