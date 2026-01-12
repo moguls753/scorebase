@@ -262,6 +262,13 @@ class Score < ApplicationRecord
     failed: "failed"
   }, default: :pending, prefix: :voicing
 
+  enum :grade_status, {
+    pending: "pending",
+    normalized: "normalized",
+    not_applicable: "not_applicable",
+    failed: "failed"
+  }, default: :pending, prefix: :grade
+
   enum :extraction_status, {
     pending: "pending",
     extracted: "extracted",
