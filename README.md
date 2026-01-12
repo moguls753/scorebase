@@ -30,20 +30,52 @@ Smart Search runs on AI. AI costs money. Your subscription keeps it running whil
 Each source has a dedicated importer handling its specific format and metadata structure.
 
 ### 2. Normalize
-Raw imports have inconsistent metadata. Normalization standardizes:
-- **Composers** — "Bach, J.S." → "Johann Sebastian Bach"
-- **Genres** — Inferred from title, composer, instrumentation
-- **Instruments** — Normalized names and family classification
-- **Periods** — Medieval, Renaissance, Baroque, Classical, Romantic, Modern
+Raw imports have inconsistent metadata. LLM-powered normalizers standardize fields that can't be fixed with simple rules:
+
+| Field | Example | Approach |
+|-------|---------|----------|
+| **Composers** | "Bach, J.S." → "Johann Sebastian Bach" | LLM with composer database context |
+| **Voicing** | "For SATB choir" → `[S, A, T, B]` | LLM extracts from title/description |
+| **Genres** | Inferred from title, composer, instrumentation | LLM classification |
+| **Instruments** | Normalized names + family classification | Rule-based + LLM fallback |
+| **Periods** | Composer birth year → Musical period | Rule-based lookup |
+
+Pattern: **Python extracts facts → Ruby applies business logic → LLM normalizes ambiguous cases**
 
 ### 3. Extract
-For scores with MusicXML, music21 extracts musical features: pitch range, key/time signature analysis, tempo, duration, rhythmic patterns, harmonic content, and a computed difficulty score (1-5).
+For scores with MusicXML, Python extracts raw musical features:
 
-### 4. Index
-Score metadata is embedded into vectors (sentence-transformers) and stored in ChromaDB for semantic search.
+**Per-score:** duration, tempo, key/time signatures, modulation count
 
-### 5. Search
-Smart Search: query → embedding → vector similarity → LLM reranking (Groq/Llama 3.3) → results with explanations.
+**Per-part:** pitch range, tessitura (average pitch), note density, chromatic ratio, rhythmic complexity, interval patterns, max chord span (keyboard), position shifts (strings/guitar)
+
+### 4. Difficulty Calculation
+Computed difficulty (1-5) uses instrument-specific weighted algorithms:
+
+| Instrument | Key Factors |
+|------------|-------------|
+| **Keyboard** | Hand span, polyphony, tempo, chromatic content |
+| **Guitar** | Position shifts, chord complexity, tempo |
+| **Strings** | Position shifts, double stops, tempo |
+| **Voice** | Range, tessitura, intervallic leaps |
+
+Fallback: note density percentile when instrument-specific metrics unavailable.
+
+### 5. Index
+Score metadata is embedded into vectors and stored in ChromaDB for semantic search.
+
+### 6. Search
+Smart Search: query → embedding → vector similarity → LLM reranking → results with explanations.
+
+## Roadmap: LLM-Enhanced Difficulty
+
+Three planned improvements to difficulty scoring:
+
+**1. Pedagogical Grade Normalizer** — For known repertoire, query LLM for standard grade levels (ABRSM/RCM). Algorithm difficulty becomes fallback for obscure pieces.
+
+**2. Context-Aware Query Interpretation** — Infer user context at search time: student vs performer, pedagogical terms ("Grade 4") vs casual ("easy"), then rank accordingly.
+
+**3. Conversational Clarification** — When "easy" is ambiguous, ask one clarifying question: true beginner, intermediate-accessible, or easy relative to concert repertoire.
 
 ## Self-Hosting
 
