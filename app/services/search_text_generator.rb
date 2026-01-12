@@ -51,7 +51,11 @@ class SearchTextGenerator
     - START with the title. If composer is provided, include it (e.g., "Étude Op.6 by Fernando Sor is..."). If no composer, start with just the title (e.g., "O Come All Ye Faithful is a beloved Christmas hymn...").
     - Include ALL of these elements:
       (1) TITLE (and COMPOSER if provided) in the first sentence
-      (2) DIFFICULTY: If difficulty_level is provided, use it (beginner/easy/intermediate/advanced/expert). If is_virtuoso is true, say "virtuoso". If difficulty_level is NOT provided, do NOT mention difficulty at all.
+      (2) DIFFICULTY: Handle based on the format of difficulty_level:
+          - If it starts with "Grade" (e.g., "Grade 4-5 (Mittelstufe I)"): This is a pedagogical grade. Use it naturally: "an intermediate piece (Grade 4-5)" or "suitable for Grade 4-5 students (Mittelstufe I)".
+          - If it's a neutral phrase like "technically accessible" or "moderate technical demands": Use it as-is to describe the piece. Do NOT convert to "beginner" or "easy".
+          - If is_virtuoso is true, say "virtuoso".
+          - If difficulty_level is NOT provided, do NOT mention difficulty at all.
       (3) CHARACTER (2-3 mood/style words: gentle, dramatic, contemplative, energetic, majestic, lyrical, playful, solemn, etc.)
       (4) BEST FOR (specific uses: sight-reading practice, student recitals, church services, exam repertoire, technique building, competitions, teaching specific skills)
       (5) MUSICAL FEATURES (texture, harmonic language, notable patterns like arpeggios, scales, counterpoint)
@@ -60,13 +64,13 @@ class SearchTextGenerator
     - Use words musicians actually search: "sight-reading", "recital piece", "exam repertoire", "church anthem", "teaching piece", "competition", "Baroque counterpoint", "lyrical melody", "chromatic passages", "syncopated rhythms".
     - NEVER use academic metric-compounds like "chromatic complexity", "vertical density", "melodic complexity", "rhythmic variety". The data uses searchable terms already - use them naturally in prose.
     - STRICT: Only mention instruments, voicing, genre, and other details that appear in <data/>. Do not invent or assume facts not present in the data.
-    - CRITICAL: If difficulty_level is missing from the data, you MUST NOT use words like "beginner", "easy", "intermediate", "advanced", "expert", or "virtuoso". Simply omit any mention of difficulty.
+    - CRITICAL: If difficulty_level is missing from the data, you MUST NOT mention difficulty. If difficulty_level is a neutral phrase (not a Grade), do NOT convert it to "beginner" or "easy" - use the exact phrase provided.
     - Do not produce a bullet point list.
     </rules>
 
     <steps>
     1) Read the metadata: identify instrument, genre, key, time signature, texture, range, duration.
-    2) If difficulty_level is provided, use it. If not provided, skip mentioning difficulty entirely.
+    2) If difficulty_level is provided, use it exactly as described in the rules. If not provided, skip mentioning difficulty entirely.
     3) Pick 2–3 CHARACTER words based on metadata cues (key, tempo, texture suggest mood).
     4) List 2–3 specific BEST FOR uses (teaching, performance, liturgical, exam, etc.).
     5) Note interesting MUSICAL FEATURES worth mentioning (counterpoint, ornamentation, range demands).
@@ -74,8 +78,9 @@ class SearchTextGenerator
     </steps>
 
     <examples>
-    - "Sonatina in C major by Muzio Clementi is an easy piano piece with a gentle, flowing character. The simple melodic lines and steady rhythms make it ideal for first-year students developing hand coordination. Perfect for sight-reading practice or as an early recital piece. The piece stays in a comfortable range and uses basic chord patterns. About 2 minutes long, it works well for building confidence in young pianists."
+    - "Étude Op.6 No.1 by Fernando Sor is an intermediate guitar piece (Grade 4-5, Mittelstufe I) with a lyrical, singing character. The study develops right-hand arpeggiation while maintaining a clear melodic line in the upper voice. Excellent for students working toward Grade 5 exams or preparing for intermediate-level recitals. Features moderate position shifts and demands good finger independence. About 2 minutes long, ideal for technique building in the classical guitar curriculum."
     - "Ascendit Deus by Peter Philips is an advanced SATB anthem with a joyful, majestic character, well-suited for Easter services or festive choir concerts. The four-part writing features independent voice lines and some chromatic passages that require confident singers. Soprano part reaches B5, so ensure your section can handle the tessitura. The energetic rhythms and triumphant harmonies make this a rewarding showpiece. About 4 minutes long."
+    - "Prelude in C minor by an unknown composer is a technically accessible keyboard piece with a contemplative, introspective character. The stepwise melodic motion and straightforward harmonies make it approachable for developing pianists. Useful for building comfort with minor keys and simple ornamentation. About 2 minutes long."
     - "Violin Sonata No. 1 by Johannes Brahms is a lyrical and deeply expressive violin sonata in the Romantic style. Features singing melodic lines with dynamic contrasts and rich piano accompaniment. Excellent choice for student recitals, conservatory auditions, or as exam repertoire. A substantial work around 25 minutes that develops musicality and interpretation skills." (Note: no difficulty_level was provided, so difficulty is not mentioned)
     - "O Come All Ye Faithful is a beloved intermediate Christmas hymn for SATB choir with organ accompaniment. The stately, joyful character makes it a staple of holiday church services and carol concerts. Features straightforward four-part harmony with some moving inner voices. The familiar melody is accessible for congregational singing while offering enough interest for trained choirs. About 3 minutes long, ideal for processionals or as a service closer."
     </examples>
@@ -89,7 +94,26 @@ class SearchTextGenerator
     </output_format>
   PROMPT
 
-  DIFFICULTY_WORDS = %w[beginner easy intermediate advanced expert virtuoso].freeze
+  # Traditional difficulty labels - used to detect hallucinated difficulty
+  # when no difficulty_level was provided
+  HALLUCINATION_WORDS = %w[beginner easy].freeze
+
+  # All words/phrases that indicate difficulty was mentioned
+  # Includes pedagogical grades and neutral phrases
+  DIFFICULTY_INDICATORS = [
+    /grade \d/i,                    # "Grade 4", "Grade 4-5"
+    /unterstufe/i,                  # German grades
+    /mittelstufe/i,
+    /oberstufe/i,
+    /technically accessible/i,      # Neutral phrases
+    /moderate technical demands/i,
+    /technically demanding/i,
+    /virtuosic/i,
+    /virtuoso/i,
+    /intermediate/i,
+    /advanced/i,
+    /expert/i
+  ].freeze
 
   def initialize(client: nil)
     @client = client || LlmClient.new
@@ -102,15 +126,15 @@ class SearchTextGenerator
     response = @client.chat_json(prompt)
     description = response["description"].to_s.strip
 
-    # Retry once if LLM hallucinated difficulty when we didn't provide one
-    if metadata[:difficulty_level].nil? && mentions_difficulty?(description)
+    # Retry once if LLM hallucinated "beginner"/"easy" when we didn't provide those
+    if metadata[:difficulty_level].nil? && hallucinated_difficulty?(description)
       description = regenerate_without_difficulty(metadata)
     end
 
     issues = validate(description, expects_difficulty: metadata[:difficulty_level].present?)
 
     # Flag if retry still hallucinated difficulty
-    if metadata[:difficulty_level].nil? && mentions_difficulty?(description)
+    if metadata[:difficulty_level].nil? && hallucinated_difficulty?(description)
       issues << "hallucinated_difficulty"
     end
     Result.new(description: description, issues: issues, error: nil)
@@ -138,8 +162,14 @@ class SearchTextGenerator
     issues
   end
 
+  # Check if LLM used misleading difficulty words we explicitly avoid
+  def hallucinated_difficulty?(text)
+    HALLUCINATION_WORDS.any? { |word| text.downcase.include?(word) }
+  end
+
+  # Check if difficulty was properly mentioned (grades, neutral phrases, etc.)
   def mentions_difficulty?(text)
-    DIFFICULTY_WORDS.any? { |word| text.downcase.include?(word) }
+    DIFFICULTY_INDICATORS.any? { |pattern| text.match?(pattern) }
   end
 
   def regenerate_without_difficulty(metadata)
@@ -196,18 +226,32 @@ class SearchTextGenerator
     found.join(", ")
   end
 
-  # Use computed_difficulty (1-5) from music21 extraction
-  # Returns nil for non-solo scores (difficulty not applicable)
+  # Returns difficulty label for search_text generation.
+  #
+  # Priority:
+  # 1. Pedagogical grade (LLM-verified) - use verbatim with German equivalent
+  # 2. Algorithm-only - use NEUTRAL language (never "beginner" or "easy")
+  #
+  # This prevents misleading search results like Sor Etudes showing up
+  # for "easy beginner guitar" searches.
   def difficulty_label(score)
+    # Pedagogical grade takes priority - it's pedagogically accurate
+    if score.pedagogical_grade.present?
+      label = score.pedagogical_grade
+      label += " (#{score.pedagogical_grade_de})" if score.pedagogical_grade_de.present?
+      return label
+    end
+
+    # Algorithm-only: use neutral language to avoid misleading embeddings
+    # "technically accessible" won't match "easy beginner" searches
     level = score.computed_difficulty
     return nil unless level
 
     case level
-    when 1 then "beginner"
-    when 2 then "easy"
-    when 3 then "intermediate"
-    when 4 then "advanced"
-    when 5 then "expert"
+    when 1, 2 then "technically accessible"   # NOT "beginner" or "easy"
+    when 3    then "moderate technical demands"
+    when 4    then "technically demanding"
+    when 5    then "virtuosic"
     end
   end
 
