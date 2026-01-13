@@ -434,3 +434,82 @@
 "Morrison, Van": "Contemporary"
 "Troob, Danny": "Contemporary"
 "Perry, Chris": "Contemporary"
+
+# ============================================================================
+# Additional composers from normalization fixes (2026-01)
+# ============================================================================
+
+# Renaissance
+"Attaingnant, Pierre": "Renaissance"
+"Croce, Giovanni": "Renaissance"
+"Walter, Johann": "Renaissance"
+"White, Robert": "Renaissance"
+"Farmer, John": "Renaissance"
+"Bentivoglio, Ippolita": "Renaissance"
+
+# Baroque
+"Galuppi, Baldassare": "Baroque"
+"Jenkins, John": "Baroque"
+"Cattaneo, Pietro": "Baroque"
+
+# Classical
+"Albrechtsberger, Johann Georg": "Classical"
+"Ries, Ferdinand": "Classical"
+"Kreutzer, Rodolphe": "Classical"
+"Schneider, Georg Abraham": "Classical"
+"Krommer, Franz": "Classical"
+"Eberl, Anton": "Classical"
+"Dotzauer, Friedrich": "Classical"
+"Bochsa, Nicholas Charles": "Classical"
+"Bochsa, Charles": "Classical"
+"Adam, Louis": "Classical"
+
+# Romantic
+"Dancla, Charles": "Romantic"
+"Brüll, Ignaz": "Romantic"
+"Hauptmann, Moritz": "Romantic"
+"Noskowski, Zygmunt": "Romantic"
+"Gurlitt, Cornelius": "Romantic"
+"Kullak, Theodor": "Romantic"
+"Ernst, Heinrich Wilhelm": "Romantic"
+"Benoit, Peter": "Romantic"
+"Herzogenberg, Heinrich von": "Romantic"
+"Draeseke, Felix": "Romantic"
+"Schytte, Ludvig": "Romantic"
+"Kücken, Friedrich Wilhelm": "Romantic"
+"Ferrari, Carlotta": "Romantic"
+"Tinel, Jef": "Romantic"
+"Rosellen, Henri": "Romantic"
+"Bohm, Carl": "Romantic"
+"Boieldieu, François Adrien": "Romantic"
+"Bomtempo, João Domingos": "Romantic"
+
+# Late Romantic
+"Foote, Arthur": "Late Romantic"
+"Thuille, Ludwig": "Late Romantic"
+"Peterson-Berger, Wilhelm": "Late Romantic"
+"Weingartner, Felix": "Late Romantic"
+"Stenhammar, Wilhelm": "Late Romantic"
+"Reznicek, Emil von": "Late Romantic"
+"Graener, Paul": "Late Romantic"
+"Nielsen, Ludolf": "Late Romantic"
+
+# 20th Century
+"Distler, Hugo": "20th Century"
+"Bowen, York": "20th Century"
+"Roslavets, Nikolay": "20th Century"
+"Kaski, Heino": "20th Century"
+"Powell, John": "20th Century"
+"Statkowski, Roman": "20th Century"
+
+# Romantic (additional)
+"Concone, Giuseppe": "Romantic"
+"Orda, Napoleon": "Romantic"
+"Glæser, Joseph": "Romantic"
+"Niewiadomski, Stanisław": "Romantic"
+"Krzyżanowski, Ignacy": "Romantic"
+"Walczyński, Franciszek": "Romantic"
+
+# Contemporary
+"ZUN": "Contemporary"
+"Beatty, Stephen W.": "Contemporary"
