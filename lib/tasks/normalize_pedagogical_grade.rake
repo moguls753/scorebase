@@ -6,7 +6,7 @@ namespace :normalize do
     limit = ENV.fetch("LIMIT", 100).to_i
     backend = ENV.fetch("BACKEND", "groq").to_sym
     model = ENV["MODEL"]  # Optional: gpt-4o for better accuracy
-    batch_size = ENV.fetch("BATCH_SIZE", 5).to_i
+    batch_size = ENV.fetch("BATCH_SIZE", 2).to_i
 
     NormalizePedagogicalGradeJob.perform_now(limit: limit, backend: backend, model: model, batch_size: batch_size)
     print_grade_stats
@@ -37,7 +37,14 @@ namespace :normalize do
     puts
     puts "Pedagogical grade stats:"
     puts "  Normalized:     #{Score.grade_normalized.count}"
+
+    # Break down not_applicable by reason
+    na_llm = Score.grade_not_applicable.where(grade_source: "llm").count
+    na_no_composer = Score.grade_not_applicable.where(grade_source: "no_composer").count
     puts "  Not applicable: #{Score.grade_not_applicable.count}"
+    puts "    - LLM unknown:  #{na_llm}" if na_llm > 0
+    puts "    - No composer:  #{na_no_composer}" if na_no_composer > 0
+
     puts "  Failed:         #{Score.grade_failed.count}"
     puts "  Pending:        #{Score.grade_pending.count}"
 
