@@ -43,6 +43,22 @@ RSpec.describe Score do
         expect(Score.needing_pdf_sync).to eq([needs_work])
       end
     end
+
+    describe '.search' do
+      it 'finds accented titles with plain ASCII query' do
+        score = create(:score, title: 'Études transcendantes', composer: 'Liszt')
+        create(:score, title: 'Sonata', composer: 'Mozart')
+
+        expect(Score.search('Etudes')).to include(score)
+        expect(Score.search('Études')).to include(score)
+      end
+
+      it 'finds accented composers with plain ASCII query' do
+        score = create(:score, title: 'Symphony', composer: 'Dvořák')
+
+        expect(Score.search('Dvorak')).to include(score)
+      end
+    end
   end
 
   describe '#thumbnail' do
