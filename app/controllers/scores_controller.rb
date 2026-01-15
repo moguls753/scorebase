@@ -224,16 +224,16 @@ class ScoresController < ApplicationController
 
   def apply_sorting(scores, sort)
     case sort
-    when "popularity"
-      scores.order_by_popularity
     when "newest"
       scores.order_by_newest
+    when "popularity"
+      scores.order_by_popularity
     when "title"
       scores.order_by_title
     when "composer"
       scores.order_by_composer
     else
-      scores.order_by_popularity # Default
+      scores.order_by_newest # Default
     end
   end
 end
