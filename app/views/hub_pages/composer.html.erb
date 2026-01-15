@@ -38,7 +38,7 @@
             <span class="hidden xs:inline"><%= t('search.sort_by') %></span>
           </label>
           <%= f.select :sort,
-              [[t('sort.popular'), "popularity"], [t('sort.rated'), "rating"], [t('sort.newest'), "newest"], [t('sort.title'), "title"]],
+              [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"]],
               { selected: @sort },
               { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" }
           %>

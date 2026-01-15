@@ -35,7 +35,7 @@ class ScoresController < ApplicationController
     @scores = @scores.by_time_signature(params[:time]) if params[:time].present?
     @scores = @scores.by_genre(params[:genre]) if params[:genre].present?
     @scores = @scores.by_period(params[:period]) if params[:period].present?
-    @scores = @scores.by_complexity(params[:difficulty]) if params[:difficulty].present?
+    @scores = @scores.by_difficulty(params[:difficulty]) if params[:difficulty].present?
     @scores = @scores.where(language: params[:language]) if params[:language].present?
 
     # Forces filter (number of parts)
@@ -226,8 +226,6 @@ class ScoresController < ApplicationController
     case sort
     when "popularity"
       scores.order_by_popularity
-    when "rating"
-      scores.order_by_rating
     when "newest"
       scores.order_by_newest
     when "title"

@@ -286,8 +286,25 @@ class Score < ApplicationRecord
   # Scopes for filtering
   scope :by_key_signature, ->(key) { where(key_signature: key) if key.present? }
   scope :by_time_signature, ->(time) { where(time_signature: time) if time.present? }
-  scope :by_complexity, ->(complexity) { where(complexity: complexity) if complexity.present? }
   scope :by_num_parts, ->(parts) { where(num_parts: parts) if parts.present? }
+
+  # Difficulty levels - maps user-friendly names to ABRSM-style pedagogical grades
+  # Grades determined by LLM analysis of known repertoire (see NormalizePedagogicalGradeJob)
+  DIFFICULTY_LEVELS = {
+    "beginner"     => ["Grade 1", "Grade 1-2", "Grade 2"],
+    "elementary"   => ["Grade 2-3", "Grade 3", "Grade 1-3", "Grade 2-4"],
+    "intermediate" => ["Grade 3-4", "Grade 4", "Grade 3-5", "Grade 4-5"],
+    "advanced"     => ["Grade 5", "Grade 5-6", "Grade 4-6", "Grade 6", "Grade 5-7"],
+    "expert"       => ["Grade 6-7", "Grade 7", "Grade 6-8", "Grade 7-8", "Grade 8", "Grade 5-8", "Diploma+"]
+  }.freeze
+
+  scope :by_difficulty, ->(level) {
+    return all if level.blank?
+    grades = DIFFICULTY_LEVELS[level.to_s]
+    return none unless grades
+
+    where(pedagogical_grade: grades)
+  }
 
   # Genre filter - exact match on normalized genre field.
   # After normalization, genre is a single clean value (e.g., "Mass", "Hymn").
@@ -353,8 +370,8 @@ class Score < ApplicationRecord
   end
 
   # Sorting scopes
-  scope :order_by_popularity, -> { order(views: :desc, favorites: :desc) }
-  scope :order_by_rating, -> { order(rating: :desc, views: :desc) }
+  # Popularity = views only. Favorites field reserved for future Pro user favorites.
+  scope :order_by_popularity, -> { order(views: :desc) }
   scope :order_by_newest, -> { order(created_at: :desc) }
   scope :order_by_title, -> { order(title: :asc) }
   scope :order_by_composer, -> { order(composer: :asc) }
