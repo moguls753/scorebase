@@ -159,6 +159,7 @@
 #  index_scores_on_composer_normalized           (composer_normalized)
 #  index_scores_on_composer_status               (composer_status)
 #  index_scores_on_computed_difficulty           (computed_difficulty)
+#  index_scores_on_created_at                    (created_at)
 #  index_scores_on_duration_seconds              (duration_seconds)
 #  index_scores_on_event_count                   (event_count)
 #  index_scores_on_external_id                   (external_id)
