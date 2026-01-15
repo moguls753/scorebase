@@ -1,0 +1,7 @@
+services:
+  cloudflare-bypass:
+    image: ghcr.io/sarperavci/cloudflarebypassforscraping:latest
+    container_name: cloudflare-bypass
+    ports:
+      - "8000:8000"
+    restart: unless-stopped

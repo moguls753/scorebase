@@ -18,12 +18,16 @@ class CpdlImporter
     @imported_count = 0
     @skipped_count = 0
     @errors = []
+    @cloudflare_bypass = nil
   end
 
   def import!
     puts "Starting CPDL import..."
     puts "Limit: #{@limit || 'none'}"
     puts "(Existing scores are always skipped - never overwritten)"
+
+    # Initialize CloudflareBypass if available
+    init_cloudflare_bypass!
 
     # Get all score pages from CPDL
     pages = fetch_all_score_pages
@@ -257,9 +261,12 @@ class CpdlImporter
       info["genre"] = clean_wiki_value(match[1])
     end
 
-    # Extract language: {{Language|Lang}}
+    # Extract language: {{Language|Lang}} or {{Language|count|Lang1|Lang2}}
     if match = wikitext.match(/\{\{Language\|([^}]+)\}\}/i)
-      info["language"] = clean_wiki_value(match[1])
+      lang_parts = match[1].split("|")
+      # If first part is a number, it's a count - skip it
+      lang_parts.shift if lang_parts.first&.match?(/^\d+$/)
+      info["language"] = lang_parts.map { |l| clean_wiki_value(l) }.compact.join(", ")
     end
 
     # Extract instruments: {{Instruments|Type}}
@@ -414,45 +421,58 @@ class CpdlImporter
     urls
   end
 
+  def init_cloudflare_bypass!
+    client = CloudflareBypassClient.new
+    if client.available?
+      @cloudflare_bypass = client
+      puts "CloudflareBypass available - requests will be proxied"
+    else
+      puts "CloudflareBypass not available, falling back to direct HTTP"
+    end
+  end
+
   def api_request(params, retry_count: 0)
-    # Add delay before each API call to respect rate limits
     sleep(API_CALL_DELAY)
 
     uri = URI(BASE_URL)
     uri.query = URI.encode_www_form(params)
 
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    # Use VERIFY_NONE as a workaround for CRL checking issues
-    # CPDL's certificate has a CRL endpoint that Ruby's OpenSSL can't reach
-    # The connection is still encrypted, just certificate revocation isn't checked
-    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-
-    request = Net::HTTP::Get.new(uri)
-    request["User-Agent"] = USER_AGENT
-    request["Accept"] = "application/json"
-
-    response = http.request(request)
+    response = if @cloudflare_bypass
+      @cloudflare_bypass.get(uri.to_s)
+    else
+      direct_request(uri)
+    end
 
     unless response.is_a?(Net::HTTPSuccess)
       if response.code == "403"
-        raise RateLimitError, "CPDL API returned 403 Forbidden. Your IP may be temporarily blocked. Wait 1-24 hours and try again with resume mode: bin/rails \"cpdl:sync[true]\""
+        raise RateLimitError, "CPDL API returned 403. Start cloudflare-bypass container."
       elsif response.code == "500" && retry_count < 3
-        # Exponential backoff for 500 errors (server issues)
         wait_time = [30, 60, 120][retry_count]
-        puts "  ⚠️  Server error (500). Retrying in #{wait_time}s... (attempt #{retry_count + 1}/3)"
+        puts "  Server error (500). Retrying in #{wait_time}s..."
         sleep(wait_time)
         return api_request(params, retry_count: retry_count + 1)
       end
-      puts "  API error: #{response.code} - #{response.message}"
+      puts "  API error: #{response.code}"
       return nil
     end
 
     JSON.parse(response.body)
   rescue RateLimitError
-    raise  # Re-raise rate limit errors
-  rescue => e
+    raise
+  rescue JSON::ParserError => e
+    puts "  JSON parse error: #{e.message}"
+    nil
+  rescue StandardError => e
     puts "  Request failed: #{e.message}"
     nil
+  end
+
+  def direct_request(uri)
+    Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 10, read_timeout: 30) do |http|
+      request = Net::HTTP::Get.new(uri)
+      request["User-Agent"] = USER_AGENT
+      request["Accept"] = "application/json"
+      http.request(request)
+    end
   end
 end
