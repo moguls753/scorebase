@@ -47,7 +47,7 @@ gem "image_processing", "~> 1.2"
 gem "aws-sdk-s3", require: false
 
 # Use Tailwind CSS [https://github.com/rails/tailwindcss-rails]
-gem "tailwindcss-rails", "~> 3.3.1"
+gem "tailwindcss-rails"
 
 # Pagination [https://github.com/kaminari/kaminari]
 gem "kaminari"
