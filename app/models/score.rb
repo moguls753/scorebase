@@ -599,7 +599,7 @@ class Score < ApplicationRecord
   def chord_span_applicable?
     return false if has_vocal
     return false if instruments.blank?
-    return false if instruments.include?(',')
+    return false if instruments.include?(",")
 
     instruments.downcase.match?(/piano|organ|harpsichord|clavichord|keyboard|harp/)
   end

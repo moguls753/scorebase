@@ -60,7 +60,7 @@ class TempoEstimator
     /\banimé\b/i => 130,
     /\banime\b/i => 130,
     /\bvif\b/i => 150,
-    /\bvite\b/i => 160,
+    /\bvite\b/i => 160
   }.freeze
 
   # Estimate BPM from tempo marking text
