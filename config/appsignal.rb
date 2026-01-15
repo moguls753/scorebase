@@ -4,11 +4,7 @@
 Appsignal.configure do |config|
   config.activate_if_environment("development", "production")
   config.name = "Scorebase"
-  # The application's Push API key
-  # We recommend removing this line and setting this option with the
-  # APPSIGNAL_PUSH_API_KEY environment variable instead.
-  # https://docs.appsignal.com/ruby/configuration/options.html#option-push_api_key
-  config.push_api_key = "1792645c-11d4-4f30-b571-693a5e7c2487"
+  config.push_api_key = ENV["APPSIGNAL_PUSH_API_KEY"]
 
   # Configure actions that should not be monitored by AppSignal.
   # For more information see our docs:
