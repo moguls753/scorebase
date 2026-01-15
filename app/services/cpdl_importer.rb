@@ -193,8 +193,8 @@ class CpdlImporter
     # Get num_parts from infobox (already extracted from {{Voicing}} template)
     num_parts = infobox["num_parts"]
 
-    # Extract genres from categories
-    genres = extract_genres(categories)
+    # Use genre from template, fallback to categories
+    genre = infobox["genre"] || extract_genres(categories).first
 
     # Get file names from wikitext
     file_names = extract_file_info(wikitext)
@@ -221,7 +221,7 @@ class CpdlImporter
       cpdl_number: infobox["cpdl_number"],
       posted_date: infobox["posted_date"],
       page_count: infobox["page_count"],
-      genre: genres.join("-"),
+      genre: genre,
       tags: categories.first(5).join("-"),
       complexity: nil,
       rating: nil,
@@ -256,9 +256,10 @@ class CpdlImporter
       info["voicing"] = clean_wiki_value(match[2])
     end
 
-    # Extract genre: {{Genre|Type1|Type2}}
+    # Extract genre: {{Genre|Sacred|Motets}} - take most specific (last) value
     if match = wikitext.match(/\{\{Genre\|([^}]+)\}\}/i)
-      info["genre"] = clean_wiki_value(match[1])
+      genre_parts = match[1].split("|")
+      info["genre"] = clean_wiki_value(genre_parts.last)
     end
 
     # Extract language: {{Language|Lang}} or {{Language|count|Lang1|Lang2}}
