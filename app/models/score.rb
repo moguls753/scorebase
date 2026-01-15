@@ -199,8 +199,8 @@ class Score < ApplicationRecord
   # Sources
   SOURCES = %w[pdmx cpdl imslp openscore-lieder openscore-quartets].freeze
 
-  # Clean up extraction fields when instrument context changes
-  after_save :apply_extraction_context!, if: :instrument_context_changed?
+  # Enforce chord_span only for applicable instruments (keyboard/harp)
+  before_save :enforce_chord_span_applicability
 
   # Active Storage attachments
   has_one_attached :pdf_file
@@ -586,5 +586,9 @@ class Score < ApplicationRecord
   def apply_extraction_context!
     return if chord_span_applicable? || max_chord_span.nil?
     update_columns(max_chord_span: nil)
+  end
+
+  def enforce_chord_span_applicability
+    self.max_chord_span = nil unless chord_span_applicable?
   end
 end
