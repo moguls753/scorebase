@@ -43,6 +43,7 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
+    - APPSIGNAL_PUSH_API_KEY
   clear:
     PDMX_DATA_PATH: /opt/pdmx
     OPENSCORE_LIEDER_PATH: /opt/openscore-lieder
