@@ -57,8 +57,11 @@ class Music21Extractor
       return dest
     end
 
-    # CPDL is Cloudflare-protected
-    raise Error, "CPDL downloads blocked by Cloudflare" if @score.cpdl?
+    # CPDL is Cloudflare-protected - use CloudflareBypass proxy
+    if @score.cpdl?
+      download_via_cloudflare_bypass(source, dest)
+      return dest
+    end
 
     # IMSLP needs cookie to bypass disclaimer
     headers = @score.imslp? ? { "Cookie" => "imslpdisclaimeraccepted=yes" } : {}
@@ -69,6 +72,15 @@ class Music21Extractor
     raise Error, "Download failed: #{response.code}" unless response.is_a?(Net::HTTPSuccess)
     File.binwrite(dest, response.body)
     dest
+  end
+
+  def download_via_cloudflare_bypass(url, dest)
+    content = CloudflareBypassClient.new.download(url)
+    File.binwrite(dest, content)
+
+    raise Error, "CloudflareBypass download produced empty file" if File.size(dest).zero?
+  rescue CloudflareBypassClient::Error => e
+    raise Error, e.message
   end
 
   def fetch_with_redirects(uri, headers = {}, limit = 5)

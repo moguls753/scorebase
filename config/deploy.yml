@@ -114,6 +114,12 @@ builder:
 #   user: app
 
 # Use accessory services (secrets come from .kamal/secrets).
+accessories:
+  cloudflare-bypass:
+    image: ghcr.io/sarperavci/cloudflarebypassforscraping:latest
+    host: 46.224.124.123
+    port: "127.0.0.1:8000:8000"
+
 # accessories:
 #   db:
 #     image: mysql:8.0
