@@ -138,9 +138,9 @@ class DifficultyCalculator
     return nil unless span
 
     thresholds = case @instrument
-                 when :keyboard then [[16, 1.0], [14, 0.7], [12, 0.3]]
-                 else [[14, 1.0], [12, 0.5]]
-                 end
+    when :keyboard then [[16, 1.0], [14, 0.7], [12, 0.3]]
+    else [[14, 1.0], [12, 0.5]]
+    end
 
     { value: span, score: score_value(span, thresholds) }
   end
@@ -150,10 +150,10 @@ class DifficultyCalculator
     return nil unless interval
 
     thresholds = case @instrument
-                 when :keyboard then [[24, 1.0], [19, 0.6], [15, 0.3]]
-                 when :strings  then [[15, 1.0], [12, 0.7], [7, 0.4]]
-                 else [[15, 1.0], [12, 0.5], [7, 0.2]]
-                 end
+    when :keyboard then [[24, 1.0], [19, 0.6], [15, 0.3]]
+    when :strings  then [[15, 1.0], [12, 0.7], [7, 0.4]]
+    else [[15, 1.0], [12, 0.5], [7, 0.2]]
+    end
 
     { value: interval, score: score_value(interval, thresholds) }
   end
@@ -170,9 +170,9 @@ class DifficultyCalculator
     return nil unless semitones
 
     thresholds = case @instrument
-                 when :guitar then [[40, 1.0], [36, 0.5], [30, 0.3], [27, 0.15]]
-                 else [[24, 1.0], [18, 0.6], [12, 0.3]]
-                 end
+    when :guitar then [[40, 1.0], [36, 0.5], [30, 0.3], [27, 0.15]]
+    else [[24, 1.0], [18, 0.6], [12, 0.3]]
+    end
 
     { value: semitones, score: score_value(semitones, thresholds) }
   end
