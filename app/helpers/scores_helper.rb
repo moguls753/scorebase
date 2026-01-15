@@ -1,6 +1,8 @@
 module ScoresHelper
-  # Single source of truth for filter parameters
-  FILTER_PARAMS = %i[key time voicing voice_type genre period source difficulty language].freeze
+  # Filter parameters visible in UI (used for active count badge and hidden fields)
+  # Note: Controller also accepts source/key/time for backwards compatibility with
+  # bookmarked URLs, but they're not shown in UI or counted as active filters.
+  FILTER_PARAMS = %i[period genre voicing voice_type difficulty language].freeze
 
   # Count active filters from params
   def active_filters_count

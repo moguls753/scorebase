@@ -113,10 +113,10 @@ en:
     mens: "Men's"
     unison: "Unison"
 
-  # Difficulty levels (1-5 scale)
+  # Difficulty levels - mapped to ABRSM-style pedagogical grades
   difficulty:
     beginner: "Beginner"
-    easy: "Easy"
+    elementary: "Elementary"
     intermediate: "Intermediate"
     advanced: "Advanced"
     expert: "Expert"

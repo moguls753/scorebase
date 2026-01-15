@@ -7,84 +7,19 @@
 <% grid_class = mobile ? "grid grid-cols-2 gap-3 mb-4" : "" %>
 
 <div class="<%= grid_class %>">
-  <!-- Filter: Key Signature -->
+  <!-- Filter: Period (most useful - musicians think in eras) -->
   <div class="<%= mobile ? '' : 'mb-4' %>">
-    <%= f.label :key, t('filters.key'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :key,
+    <%= f.label :period, t('filters.period'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
+    <%= f.select :period,
         options_for_select([
           [t('filters.any'), ''],
-          [t('keys.c_major'), 'C major'],
-          [t('keys.g_major'), 'G major'],
-          [t('keys.d_major'), 'D major'],
-          [t('keys.a_major'), 'A major'],
-          [t('keys.f_major'), 'F major'],
-          [t('keys.bb_major'), 'Bb major'],
-          [t('keys.eb_major'), 'Eb major'],
-          [t('keys.a_minor'), 'A minor'],
-          [t('keys.e_minor'), 'E minor'],
-          [t('keys.d_minor'), 'D minor'],
-          [t('keys.g_minor'), 'G minor'],
-          [t('keys.b_minor'), 'B minor'],
-          [t('keys.c_minor'), 'C minor']
-        ], params[:key]),
-        {},
-        {
-          class: "mm-input w-full text-xs",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-        }
-    %>
-  </div>
-
-  <!-- Filter: Forces (Voicing) -->
-  <div class="<%= mobile ? '' : 'mb-4' %>">
-    <%= f.label :voicing, t('filters.forces'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :voicing,
-        options_for_select([
-          [t('filters.any'), ''],
-          [t('forces.solo'), 'solo'],
-          [t('forces.duet'), 'duet'],
-          [t('forces.trio'), 'trio'],
-          [t('forces.quartet'), 'quartet'],
-          [t('forces.ensemble'), 'ensemble']
-        ], params[:voicing]),
-        {},
-        {
-          class: "mm-input w-full text-xs",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-        }
-    %>
-  </div>
-
-  <!-- Filter: Voice Type -->
-  <div class="<%= mobile ? '' : 'mb-4' %>">
-    <%= f.label :voice_type, t('filters.voice_type'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :voice_type,
-        options_for_select([
-          [t('filters.any'), ''],
-          [t('voice_type.mixed'), 'mixed'],
-          [t('voice_type.treble'), 'treble'],
-          [t('voice_type.mens'), 'mens'],
-          [t('voice_type.unison'), 'unison']
-        ], params[:voice_type]),
-        {},
-        {
-          class: "mm-input w-full text-xs",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-        }
-    %>
-  </div>
-
-  <!-- Filter: Difficulty -->
-  <div class="<%= mobile ? '' : 'mb-4' %>">
-    <%= f.label :difficulty, t('filters.difficulty'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :difficulty,
-        options_for_select([
-          [t('filters.any'), ''],
-          [t('difficulty.beginner'), '0'],
-          [t('difficulty.easy'), '1'],
-          [t('difficulty.intermediate'), '2'],
-          [t('difficulty.advanced'), '3']
-        ], params[:difficulty]),
+          [t('periods.medieval'), 'medieval'],
+          [t('periods.renaissance'), 'renaissance'],
+          [t('periods.baroque'), 'baroque'],
+          [t('periods.classical'), 'classical'],
+          [t('periods.romantic'), 'romantic'],
+          [t('periods.modern'), 'modern']
+        ], params[:period]),
         {},
         {
           class: "mm-input w-full text-xs",
@@ -115,19 +50,18 @@
     %>
   </div>
 
-  <!-- Filter: Period -->
+  <!-- Filter: Forces (Voicing) - practical constraint -->
   <div class="<%= mobile ? '' : 'mb-4' %>">
-    <%= f.label :period, t('filters.period'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :period,
+    <%= f.label :voicing, t('filters.forces'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
+    <%= f.select :voicing,
         options_for_select([
           [t('filters.any'), ''],
-          [t('periods.medieval'), 'medieval'],
-          [t('periods.renaissance'), 'renaissance'],
-          [t('periods.baroque'), 'baroque'],
-          [t('periods.classical'), 'classical'],
-          [t('periods.romantic'), 'romantic'],
-          [t('periods.modern'), 'modern']
-        ], params[:period]),
+          [t('forces.solo'), 'solo'],
+          [t('forces.duet'), 'duet'],
+          [t('forces.trio'), 'trio'],
+          [t('forces.quartet'), 'quartet'],
+          [t('forces.ensemble'), 'ensemble']
+        ], params[:voicing]),
         {},
         {
           class: "mm-input w-full text-xs",
@@ -136,21 +70,17 @@
     %>
   </div>
 
-  <!-- Filter: Time Signature -->
+  <!-- Filter: Voice Type (for choral music) -->
   <div class="<%= mobile ? '' : 'mb-4' %>">
-    <%= f.label :time, t('filters.time'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :time,
+    <%= f.label :voice_type, t('filters.voice_type'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
+    <%= f.select :voice_type,
         options_for_select([
           [t('filters.any'), ''],
-          ['4/4', '4/4'],
-          ['3/4', '3/4'],
-          ['2/4', '2/4'],
-          ['6/8', '6/8'],
-          ['9/8', '9/8'],
-          ['12/8', '12/8'],
-          ['3/8', '3/8'],
-          ['2/2', '2/2']
-        ], params[:time]),
+          [t('voice_type.mixed'), 'mixed'],
+          [t('voice_type.treble'), 'treble'],
+          [t('voice_type.mens'), 'mens'],
+          [t('voice_type.unison'), 'unison']
+        ], params[:voice_type]),
         {},
         {
           class: "mm-input w-full text-xs",
@@ -159,8 +89,28 @@
     %>
   </div>
 
-  <!-- Filter: Language -->
+  <!-- Filter: Difficulty (AI-determined pedagogical grades) -->
   <div class="<%= mobile ? '' : 'mb-4' %>">
+    <%= f.label :difficulty, t('filters.difficulty'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
+    <%= f.select :difficulty,
+        options_for_select([
+          [t('filters.any'), ''],
+          [t('difficulty.beginner'), 'beginner'],
+          [t('difficulty.elementary'), 'elementary'],
+          [t('difficulty.intermediate'), 'intermediate'],
+          [t('difficulty.advanced'), 'advanced'],
+          [t('difficulty.expert'), 'expert']
+        ], params[:difficulty]),
+        {},
+        {
+          class: "mm-input w-full text-xs",
+          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
+        }
+    %>
+  </div>
+
+  <!-- Filter: Language (for vocal music) -->
+  <div class="<%= mobile ? '' : 'mb-5' %>">
     <%= f.label :language, t('filters.language'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
     <%= f.select :language,
         options_for_select([
@@ -172,26 +122,6 @@
           [t('languages.french'), 'French'],
           [t('languages.spanish'), 'Spanish']
         ], params[:language]),
-        {},
-        {
-          class: "mm-input w-full text-xs",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-        }
-    %>
-  </div>
-
-  <!-- Filter: Source -->
-  <div class="<%= mobile ? '' : 'mb-5' %>">
-    <%= f.label :source, t('filters.source'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :source,
-        options_for_select([
-          [t('filters.any'), ''],
-          ['PDMX', 'pdmx'],
-          ['CPDL', 'cpdl'],
-          ['IMSLP', 'imslp'],
-          ['OpenScore Lieder', 'openscore-lieder'],
-          ['OpenScore Quartets', 'openscore-quartets']
-        ], params[:source]),
         {},
         {
           class: "mm-input w-full text-xs",

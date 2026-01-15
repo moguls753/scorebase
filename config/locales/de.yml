@@ -113,11 +113,11 @@ de:
     mens: "Männerchor"
     unison: "Einstimmig"
 
-  # Difficulty levels (1-5 scale)
+  # Difficulty levels - mapped to ABRSM-style pedagogical grades
   difficulty:
     beginner: "Anfänger"
-    easy: "Leicht"
-    intermediate: "Mittel"
+    elementary: "Unterstufe"
+    intermediate: "Mittelstufe"
     advanced: "Fortgeschritten"
     expert: "Virtuos"
 
