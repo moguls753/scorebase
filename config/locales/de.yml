@@ -469,7 +469,7 @@ de:
     comparison_bad_desc: "47.000 Ergebnisse. Jedes Bach-Klavierstück. Kein Verständnis von \"Anfänger\"."
     comparison_good_title: "Smart Search"
     comparison_good_query: "Einfache Bach-Stücke für Klavierschüler nach 2 Jahren"
-    comparison_good_desc: "Versteht Schwierigkeitsgrad, filtert nach passenden Stücken, liefert 12 relevante Noten."
+    comparison_good_desc: "Versteht Schwierigkeitsgrad, filtert gezielt, zeigt passende Ergebnisse."
 
     # Solution section
     solution_title: "Smart Search versteht, was du meinst"
