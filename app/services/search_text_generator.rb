@@ -20,6 +20,36 @@ class SearchTextGenerator
     "rhythmic variety"
   ].freeze
 
+  # Banned boilerplate phrases that destroy embedding distinctiveness
+  BANNED_PHRASES = [
+    "with a gentle",
+    "with a contemplative",
+    "with a lyrical",
+    "suitable for",
+    "well-suited for",
+    "making it suitable",
+    "ideal for",
+    "excellent for",
+    "perfect for",
+    "about 1 minute long",
+    "about 2 minutes long",
+    "about 3 minutes long",
+    "about 4 minutes long",
+    "about 5 minutes long",
+    "minutes long, ideal",
+    "making it an excellent",
+    "for developing pianists",
+    "for developing singers",
+    "for developing guitarists"
+  ].freeze
+
+  # Banned sentence starters that create identical embeddings
+  BANNED_STARTERS = [
+    /\A[A-Z][^,]+ by [A-Z][^,]+ is an?\s/i,  # "X by Y is a/an..."
+    /\AThis (piece|work|composition|song|hymn|anthem) /i,
+    /\AThe piece /i
+  ].freeze
+
   # Composer values that should be omitted from search text.
   # These scores still have valuable metadata, just no known composer.
   COMPOSER_PLACEHOLDERS = %w[
@@ -43,46 +73,129 @@ class SearchTextGenerator
 
   PROMPT = <<~PROMPT
     <role>
-    You write rich, searchable descriptions for a sheet music catalog used by music teachers, choir directors, church musicians, and university professors. Follow the <rules/> and the <steps/> to generate an answer. You can find some positive examples in the <examples/> section.
+    You write searchable descriptions for a sheet music database. Your text will be converted to embeddings for semantic search. The goal is FINDABILITY: users must find THIS specific piece when they search for its distinctive features.
     </role>
 
-    <rules>
-    - Write 5–7 sentences (150-250 words) in a paragraph that gives a complete picture of the piece.
-    - START with the title. If composer is provided, include it (e.g., "Étude Op.6 by Fernando Sor is..."). If no composer, start with just the title (e.g., "O Come All Ye Faithful is a beloved Christmas hymn...").
-    - Include ALL of these elements:
-      (1) TITLE (and COMPOSER if provided) in the first sentence
-      (2) DIFFICULTY: Handle based on the format of difficulty_level:
-          - If it starts with "Grade" (e.g., "Grade 4-5 (Mittelstufe I)"): This is a pedagogical grade. Use it naturally: "an intermediate piece (Grade 4-5)" or "suitable for Grade 4-5 students (Mittelstufe I)".
-          - If it's a neutral phrase like "technically accessible" or "moderate technical demands": Use it as-is to describe the piece. Do NOT convert to "beginner" or "easy".
-          - If is_virtuoso is true, say "virtuoso".
-          - If difficulty_level is NOT provided, do NOT mention difficulty at all.
-      (3) CHARACTER (2-3 mood/style words: gentle, dramatic, contemplative, energetic, majestic, lyrical, playful, solemn, etc.)
-      (4) BEST FOR (specific uses: sight-reading practice, student recitals, church services, exam repertoire, technique building, competitions, teaching specific skills)
-      (5) MUSICAL FEATURES (texture, harmonic language, notable patterns like arpeggios, scales, counterpoint)
-      (6) KEY DETAILS (duration, instrumentation, key, period/style)
-      (7) SECTIONS: If "sections" field lists movement types (e.g., "allemande, courante, sarabande, gigue"), mention them - users search for these dance forms
-    - Use words musicians actually search: "sight-reading", "recital piece", "exam repertoire", "church anthem", "teaching piece", "competition", "Baroque counterpoint", "lyrical melody", "chromatic passages", "syncopated rhythms".
-    - NEVER use academic metric-compounds like "chromatic complexity", "vertical density", "melodic complexity", "rhythmic variety". The data uses searchable terms already - use them naturally in prose.
-    - STRICT: Only mention instruments, voicing, genre, and other details that appear in <data/>. Do not invent or assume facts not present in the data.
-    - CRITICAL: If difficulty_level is missing from the data, you MUST NOT mention difficulty. If difficulty_level is a neutral phrase (not a Grade), do NOT convert it to "beginner" or "easy" - use the exact phrase provided.
-    - Do not produce a bullet point list.
-    </rules>
+    <critical_embedding_rules>
+    These rules exist because embedding models weight all text equally. Boilerplate phrases dilute the signal from distinctive terms.
 
-    <steps>
-    1) Read the metadata: identify instrument, genre, key, time signature, texture, range, duration.
-    2) If difficulty_level is provided, use it exactly as described in the rules. If not provided, skip mentioning difficulty entirely.
-    3) Pick 2–3 CHARACTER words based on metadata cues (key, tempo, texture suggest mood).
-    4) List 2–3 specific BEST FOR uses (teaching, performance, liturgical, exam, etc.).
-    5) Note interesting MUSICAL FEATURES worth mentioning (counterpoint, ornamentation, range demands).
-    6) Write 5–7 flowing sentences covering all elements above.
-    </steps>
+    BANNED PHRASES (these appear in every description and destroy search precision):
+    - "with a [adjective], [adjective] character"
+    - "suitable for" / "well-suited for" / "making it suitable"
+    - "ideal for" / "excellent for" / "perfect for"
+    - "About X minutes long"
+    - "making it an excellent choice"
+    - "this piece is" / "the piece features"
+    - "for developing [instrument]ists"
+
+    BANNED SENTENCE STARTERS (creates identical embeddings):
+    - "[Title] by [Composer] is a/an..."
+    - "This [genre] features..."
+    - "The piece..."
+
+    REQUIRED: Every description must be structurally unique. Vary your sentence patterns.
+    </critical_embedding_rules>
+
+    <what_makes_pieces_findable>
+    Users search for SPECIFIC combinations. Front-load these distinctive identifiers:
+
+    1. INSTRUMENTATION (most important for search):
+       - "Solo piano" / "Piano solo" / "Klavier"
+       - "SATB choir with organ" / "Mixed chorus a cappella"
+       - "Flute and guitar duo" / "Violin and piano"
+       - "Orchestra with trumpet, oboe, strings"
+       - List ALL instruments from the data prominently
+
+    2. FORM & STRUCTURE:
+       - Suite movements: "allemande, courante, sarabande, gigue"
+       - "Prelude and fugue" / "Theme and variations"
+       - "Sonata form" / "Rondo" / "ABA form"
+
+    3. KEY & MODE (people search by key!):
+       - "G-sharp minor" / "B-flat major" / "D minor"
+       - "Modal" / "Chromatic" / "Diatonic"
+
+    4. DIFFICULTY (CRITICAL - MUST include if provided):
+       - "Grade 1-2 (Unterstufe)" / "Grade 4-5 (Mittelstufe I)"
+       - ALWAYS include the exact grade from difficulty_level in data
+       - This is the #1 search criterion for teachers - NEVER omit if provided
+       - If difficulty_level is NOT in the data, omit entirely
+
+    5. GENRE & PERIOD:
+       - "Baroque fugue" / "Renaissance madrigal" / "Romantic lied"
+       - "Jazz standard" / "Folk song arrangement" / "Christmas carol"
+
+    6. COMPOSER (for famous ones, include nationality/era):
+       - "Bach" alone is fine, but "J.S. Bach, Baroque" helps
+       - "Mozart, Classical era" / "Ellington, jazz"
+
+    7. PURPOSE & OCCASION:
+       - "church service" / "wedding" / "funeral"
+       - "exam repertoire" / "competition piece" / "sight-reading"
+       - "Christmas" / "Easter" / "Advent"
+    </what_makes_pieces_findable>
+
+    <structure_templates>
+    Rotate between these structures. NEVER use the same pattern twice in a row:
+
+    A) INSTRUMENTATION-FIRST:
+       "For [instruments], [Composer]'s [Title] in [key]..."
+
+    B) GENRE-FIRST:
+       "[Genre] from the [period]: [Title] by [Composer]..."
+
+    C) DIFFICULTY-FIRST (if grade provided):
+       "Grade [X] [instrument] piece: [Title]..."
+
+    D) PURPOSE-FIRST:
+       "[Occasion/purpose] music: [Title] for [instruments]..."
+
+    E) FORM-FIRST (for suites, sonatas):
+       "[Form] in [key] comprising [movements]: [Composer]'s [Title]..."
+
+    F) QUESTION-STYLE:
+       "Looking for [specific feature]? [Title] offers..."
+    </structure_templates>
+
+    <character_vocabulary>
+    Choose 1-2 words that PRECISELY fit the metadata. Be specific, not generic:
+
+    ENERGY: driving, urgent, restless, serene, tranquil, meditative, stormy, explosive
+    MOOD: wistful, triumphant, anguished, tender, jubilant, haunting, bittersweet, noble
+    STYLE: dance-like, hymn-like, operatic, pastoral, martial, processional, improvisatory
+    TEXTURE: polyphonic, homophonic, antiphonal, imitative, chordal, contrapuntal
+
+    AVOID overusing: gentle, contemplative, lyrical (these are in 80%% of current descriptions)
+    </character_vocabulary>
+
+    <data_rules>
+    - CRITICAL: If difficulty_level is provided, you MUST include it verbatim. Teachers search by grade!
+    - Include ALL instruments listed in the data - this is critical for search
+    - Include the EXACT key signature (G-sharp minor, not just "minor key")
+    - If "sections" lists movements (allemande, courante, etc.), list them ALL
+    - Include tempo marking if provided
+    - STRICT: Only mention what appears in <data/>. Never invent.
+    - If difficulty_level is missing, do NOT mention difficulty at all
+    </data_rules>
 
     <examples>
-    - "Étude Op.6 No.1 by Fernando Sor is an intermediate guitar piece (Grade 4-5, Mittelstufe I) with a lyrical, singing character. The study develops right-hand arpeggiation while maintaining a clear melodic line in the upper voice. Excellent for students working toward Grade 5 exams or preparing for intermediate-level recitals. Features moderate position shifts and demands good finger independence. About 2 minutes long, ideal for technique building in the classical guitar curriculum."
-    - "Ascendit Deus by Peter Philips is an advanced SATB anthem with a joyful, majestic character, well-suited for Easter services or festive choir concerts. The four-part writing features independent voice lines and some chromatic passages that require confident singers. Soprano part reaches B5, so ensure your section can handle the tessitura. The energetic rhythms and triumphant harmonies make this a rewarding showpiece. About 4 minutes long."
-    - "Prelude in C minor by an unknown composer is a technically accessible keyboard piece with a contemplative, introspective character. The stepwise melodic motion and straightforward harmonies make it approachable for developing pianists. Useful for building comfort with minor keys and simple ornamentation. About 2 minutes long."
-    - "Violin Sonata No. 1 by Johannes Brahms is a lyrical and deeply expressive violin sonata in the Romantic style. Features singing melodic lines with dynamic contrasts and rich piano accompaniment. Excellent choice for student recitals, conservatory auditions, or as exam repertoire. A substantial work around 25 minutes that develops musicality and interpretation skills." (Note: no difficulty_level was provided, so difficulty is not mentioned)
-    - "O Come All Ye Faithful is a beloved intermediate Christmas hymn for SATB choir with organ accompaniment. The stately, joyful character makes it a staple of holiday church services and carol concerts. Features straightforward four-part harmony with some moving inner voices. The familiar melody is accessible for congregational singing while offering enough interest for trained choirs. About 3 minutes long, ideal for processionals or as a service closer."
+    GOOD (distinctive, searchable, varied structure):
+
+    "Solo piano, Grade 5-7 (Mittelstufe I/II): Bach's French Suite No. 4 in E-flat major BWV 815. A Baroque dance suite comprising allemande, courante, sarabande, gavotte, menuet, air, and gigue. E-flat major, elegant and stately. Develops independence between hands through polyphonic texture. 15 minutes. Exam repertoire, recital centerpiece."
+
+    "For SATB chorus with trumpet, oboe, and orchestra: Bach's Mass in B minor BWV 232. Monumental sacred work, Grade 6-8 (Oberstufe). Latin mass setting featuring complex fugal choruses and expressive arias. Demands confident choral forces and Baroque orchestral forces including natural trumpet. Concert mass, not liturgical use. 110 minutes."
+
+    "Flute and classical guitar duo, Grade 3-4 (Mittelstufe I): Giuliani's 16 Pièces faciles et agréables Op. 74. Charming Classical-era chamber music. Stepwise melodies, light texture. Student recitals, chamber music introduction. 20 minutes total."
+
+    "Renaissance madrigal for SATB a cappella: Morley's 'April is in my mistress' face.' English madrigal, imitative polyphony, word-painting on 'April' and 'spring.' Grade 5-6. Chamber choir, madrigal dinner, Renaissance program."
+
+    "Jazz big band: Ellington's Caravan. Trumpet, alto sax, tenor sax, trombone, guitar, piano, bass, drums. Exotic, driving, syncopated. F major. Grade 5-6. Jazz ensemble concert, swing dance."
+
+    BAD (generic, templated, unfindable):
+
+    "Caravan by Duke Ellington is a jazz piece with a lively, energetic character. The piece features syncopated rhythms and a rich texture, making it suitable for jazz ensembles. About 4 minutes long, ideal for concerts." ← BANNED PHRASES, NO INSTRUMENTS LISTED, GENERIC
+
+    "French Suite No. 4 by Bach is an intermediate piano suite with an elegant, stately character. Excellent for students working on Baroque style. Features dance movements and contrapuntal texture. About 15 minutes long." ← NO KEY, NO MOVEMENT NAMES, TEMPLATE START
     </examples>
 
     <data>
@@ -90,7 +203,7 @@ class SearchTextGenerator
     </data>
 
     <output_format>
-    Return valid JSON with this structure: {"description": "your description here"}
+    Return valid JSON: {"description": "your 100-180 word description"}
     </output_format>
   PROMPT
 
@@ -126,17 +239,17 @@ class SearchTextGenerator
     response = @client.chat_json(prompt)
     description = response["description"].to_s.strip
 
-    # Retry once if LLM hallucinated "beginner"/"easy" when we didn't provide those
-    if metadata[:difficulty_level].nil? && hallucinated_difficulty?(description)
-      description = regenerate_without_difficulty(metadata)
-    end
-
     issues = validate(description, expects_difficulty: metadata[:difficulty_level].present?)
 
-    # Flag if retry still hallucinated difficulty
+    # Flag issues - no auto-retry, let it fail so we can rerun manually
     if metadata[:difficulty_level].nil? && hallucinated_difficulty?(description)
       issues << "hallucinated_difficulty"
     end
+
+    if uses_banned_phrases?(description)
+      issues << "banned_phrase"
+    end
+
     Result.new(description: description, issues: issues, error: nil)
   rescue JSON::ParserError => e
     Result.new(description: nil, issues: [], error: "JSON parse error: #{e.message}")
@@ -151,8 +264,8 @@ class SearchTextGenerator
   def validate(description, expects_difficulty: true)
     issues = []
 
-    return ["too_short"] if description.blank? || description.length < 200
-    issues << "too_long" if description.length > 1500
+    return ["too_short"] if description.blank? || description.length < 150
+    issues << "too_long" if description.length > 1200
 
     desc_lower = description.downcase
     issues << "missing_difficulty" if expects_difficulty && !mentions_difficulty?(description)
@@ -167,18 +280,18 @@ class SearchTextGenerator
     HALLUCINATION_WORDS.any? { |word| text.downcase.include?(word) }
   end
 
+  # Check if LLM used banned boilerplate phrases
+  def uses_banned_phrases?(text)
+    desc_lower = text.downcase
+    BANNED_PHRASES.any? { |phrase| desc_lower.include?(phrase) } ||
+      BANNED_STARTERS.any? { |pattern| text.match?(pattern) }
+  end
+
   # Check if difficulty was properly mentioned (grades, neutral phrases, etc.)
   def mentions_difficulty?(text)
     DIFFICULTY_INDICATORS.any? { |pattern| text.match?(pattern) }
   end
 
-  def regenerate_without_difficulty(metadata)
-    stronger_prompt = format(PROMPT, metadata_json: metadata.to_json)
-    stronger_prompt += "\n\nIMPORTANT: difficulty_level was NOT provided. Do NOT mention difficulty at all."
-
-    response = @client.chat_json(stronger_prompt)
-    response["description"].to_s.strip
-  end
 
   def build_metadata(score)
     # Omit placeholder composers - score still has valuable metadata

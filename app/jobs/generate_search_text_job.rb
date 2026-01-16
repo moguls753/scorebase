@@ -17,13 +17,16 @@ class GenerateSearchTextJob < ApplicationJob
   # (less template repetition, better embedding differentiation for RAG)
   DEFAULT_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
 
-  # Priority scope for testing - covers main user types with instrument diversity
-  # Balanced sampling: LIMIT/4 from each category
+  # Priority scope for testing - balanced across instruments, composers AND grades
+  # Ensures we get beginner through advanced pieces for search testing
   PRIORITY_CATEGORIES = [
     "voicing = 'SATB'",
     "instruments LIKE '%Guitar%'",
-    "voicing LIKE 'Solo%'",
-    "(composer LIKE '%Bach%' OR composer LIKE '%Mozart%' OR composer LIKE '%Handel%')"
+    "instruments LIKE '%Piano%'",
+    "(composer LIKE '%Bach%' OR composer LIKE '%Mozart%' OR composer LIKE '%Handel%')",
+    "pedagogical_grade LIKE 'Grade 1%' OR pedagogical_grade LIKE 'Grade 2%'",  # Beginner
+    "pedagogical_grade LIKE 'Grade 3%'",                                        # Intermediate
+    "pedagogical_grade LIKE 'Grade 6%' OR pedagogical_grade LIKE 'Grade 7%'"   # Advanced
   ].freeze
 
   def perform(limit: 100, backend: :groq, model: DEFAULT_MODEL, scope: nil, force: false)
