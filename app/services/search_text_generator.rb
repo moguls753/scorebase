@@ -21,26 +21,13 @@ class SearchTextGenerator
   ].freeze
 
   # Banned boilerplate phrases that destroy embedding distinctiveness
+  # NOTE: Recommendation phrases (suitable for, ideal for, etc.) removed - they're useful for search
   BANNED_PHRASES = [
     "with a gentle",
     "with a contemplative",
     "with a lyrical",
-    "suitable for",
-    "well-suited for",
-    "making it suitable",
-    "ideal for",
-    "excellent for",
-    "perfect for",
-    "about 1 minute long",
-    "about 2 minutes long",
-    "about 3 minutes long",
-    "about 4 minutes long",
-    "about 5 minutes long",
-    "minutes long, ideal",
-    "making it an excellent",
-    "for developing pianists",
-    "for developing singers",
-    "for developing guitarists"
+    "with a serene",
+    "with a tender"
   ].freeze
 
   # Banned sentence starters that create identical embeddings
