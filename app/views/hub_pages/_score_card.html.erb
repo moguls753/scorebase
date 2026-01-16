@@ -1,4 +1,4 @@
-<%= link_to score_path(score), class: "mm-card overflow-hidden group block", data: { turbo_frame: "_top" } do %>
+<%= link_to score_path(score), class: "mm-card overflow-hidden group block", data: { turbo_frame: "_top", turbo_prefetch: false } do %>
   <%= render "scores/thumbnail", score: score %>
 
   <!-- Card Content - Generous spacing for readability -->

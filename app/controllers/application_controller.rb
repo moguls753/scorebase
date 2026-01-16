@@ -37,13 +37,18 @@ class ApplicationController < ActionController::Base
   end
 
   def track_visit
-    return if bot?
+    return if bot? || prefetch?
     DailyStat.track_visit!
   end
 
   def bot?
     user_agent = request.user_agent.to_s.downcase
     user_agent.match?(/bot|crawl|spider|slurp|bingpreview|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|curl|wget|python|ruby|java|php|go-http|axios|postman/i)
+  end
+
+  def prefetch?
+    request.headers["Sec-Purpose"] == "prefetch" ||
+      request.headers["Purpose"] == "prefetch"
   end
 
   # Protect production site during testing phase

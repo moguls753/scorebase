@@ -38,7 +38,7 @@ class ScoresController < ApplicationController
       .with_attached_thumbnail_image
       .includes(score_pages: { image_attachment: :blob })
       .find(params[:id])
-    @score.increment!(:views) unless bot?
+    @score.increment!(:views) unless bot? || prefetch?
   end
 
   # NOTE: Hybrid file serving - three approaches by design:
