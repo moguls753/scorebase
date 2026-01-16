@@ -195,8 +195,8 @@
             <%= f.hidden_field :q, value: params[:q] %>
             <%= filter_hidden_fields(f) %>
             <%= f.select :sort,
-                [[t('sort.newest'), "newest"], [t('sort.popular'), "popularity"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
-                { selected: params[:sort] || "newest" },
+                [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
+                { selected: params[:sort] || "popularity" },
                 { class: "mm-button mm-button-secondary text-xs w-full font-black uppercase filter-btn-padded sort-select-mobile",
                   id: "sort-mobile",
                   data: { action: "change->url-sync#submit" } }
@@ -222,8 +222,8 @@
               <span><%= t('search.sort_by') %></span>
             </label>
             <%= f.select :sort,
-                [[t('sort.newest'), "newest"], [t('sort.popular'), "popularity"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
-                { selected: params[:sort] || "newest" },
+                [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
+                { selected: params[:sort] || "popularity" },
                 { class: "sort-select", id: "sort", data: { action: "change->url-sync#submit" } }
             %>
           </div>

@@ -80,7 +80,7 @@ class HubPagesController < ApplicationController
   private
 
   def set_sort
-    @sort = params[:sort] || "newest"
+    @sort = params[:sort] || "popularity"
   end
 
   def find_or_404(type, slug)
@@ -99,7 +99,7 @@ class HubPagesController < ApplicationController
     when "newest"     then scope.order_by_newest
     when "title"      then scope.order_by_title
     when "composer"   then scope.order_by_composer
-    else scope.order_by_newest
+    else scope.order_by_popularity
     end
   end
 

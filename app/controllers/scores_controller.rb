@@ -211,7 +211,7 @@ class ScoresController < ApplicationController
     when "composer"
       scores.order_by_composer
     else
-      scores.order_by_newest # Default
+      scores.order_by_popularity # Default
     end
   end
 end
