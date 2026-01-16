@@ -1,24 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <defs>
-    <!-- Neon glow filter -->
-    <filter id="neonGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="3" result="blur"/>
-      <feMerge>
-        <feMergeNode in="blur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
-    </filter>
-    <!-- Gradient for subtle ring -->
-    <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.4"/>
-      <stop offset="50%" stop-color="#ff0080" stop-opacity="0.2"/>
-      <stop offset="100%" stop-color="#a855f7" stop-opacity="0.3"/>
-    </linearGradient>
-  </defs>
-  <!-- Dark background circle -->
-  <circle cx="50" cy="50" r="48" fill="#0a0a12"/>
-  <!-- Subtle gradient ring -->
-  <circle cx="50" cy="50" r="44" fill="none" stroke="url(#ringGradient)" stroke-width="2"/>
-  <!-- Letter S with neon cyan glow -->
-  <text x="50" y="70" font-family="system-ui, -apple-system, sans-serif" font-size="65" font-weight="900" fill="#00f0ff" filter="url(#neonGlow)" text-anchor="middle">S</text>
+  <!-- Neubrutalist hard shadow -->
+  <rect x="8" y="8" width="88" height="88" rx="6" fill="#4a4035"/>
+  <!-- Dark warm background -->
+  <rect x="4" y="4" width="88" height="88" rx="6" fill="#1f1b17" stroke="#4a4035" stroke-width="3"/>
+  <!-- Bold rust orange S -->
+  <text x="48" y="72" font-family="system-ui, -apple-system, sans-serif" font-size="68" font-weight="900" fill="#c45a10" text-anchor="middle">S</text>
 </svg>
