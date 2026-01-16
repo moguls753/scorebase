@@ -1,26 +1,4 @@
 class ScoresController < ApplicationController
-  def smart_search
-    @query = params[:q].to_s.strip
-
-    if @query.blank?
-      @rag_result = RagSearch::Result.new({})
-      @scores = Score.none
-      return
-    end
-
-    # Call RAG API for smart recommendations
-    @rag_result = RagSearch.smart_search(@query)
-
-    # Load full score objects from database
-    if @rag_result.score_ids.any?
-      scores_by_id = Score.where(id: @rag_result.score_ids).index_by(&:id)
-      # Preserve RAG ranking order
-      @scores = @rag_result.score_ids.filter_map { |id| scores_by_id[id] }
-    else
-      @scores = []
-    end
-  end
-
   def index
     @scores = Score.all
 
