@@ -12,7 +12,7 @@
     "operatingSystem": "Web",
     "offers": {
       "@type": "Offer",
-      "price": "2.99",
+      "price": "2.00",
       "priceCurrency": "USD",
       "availability": "https://schema.org/PreOrder",
       "priceValidUntil": "2026-12-31",
@@ -187,12 +187,19 @@
       <%= t('pro.pricing_title') %>
     </h2>
 
-    <div class="price-badge"><%= t('pro.pricing_amount') %></div>
-    <p class="pricing-period"><%= t('pro.pricing_period') %></p>
+    <div class="pricing-tiers">
+      <div class="pricing-tier pricing-tier-free">
+        <div class="pricing-tier-label"><%= t('pro.pricing_free') %></div>
+        <p class="pricing-tier-desc"><%= t('pro.pricing_free_desc') %></p>
+      </div>
 
-    <p class="pro-section-text-centered">
-      <%= t('pro.pricing_desc', count: number_with_delimiter(@total_count)) %>
-    </p>
+      <div class="pricing-tier-arrow" aria-hidden="true">↓</div>
+
+      <div class="pricing-tier pricing-tier-paid">
+        <div class="pricing-tier-label"><%= t('pro.pricing_then') %> <span class="pricing-amount-inline"><%= t('pro.pricing_amount') %></span> <%= t('pro.pricing_period') %></div>
+        <p class="pricing-tier-desc"><%= t('pro.pricing_desc') %></p>
+      </div>
+    </div>
   </div>
 
   <div class="pro-divider"></div>

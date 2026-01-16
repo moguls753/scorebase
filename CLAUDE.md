@@ -6,8 +6,8 @@ Open source sheet music search engine. Deploys to scorebase.org.
 
 Sheet music search engine (100k+ scores) with AI-powered smart search.
 
-- **Free:** Browse, search, discover
-- **Pro (€2.99/mo):** Natural language RAG search, favorites, collections
+- **Free:** Browse, search, discover (+ 5 free Smart Searches)
+- **Pro (€2/mo):** Smart Search, favorites, collections
 
 ## Tech Stack
 

@@ -260,13 +260,52 @@
   margin-top: 0.5rem;
 }
 
-/* Pricing badge */
-.price-badge {
-  display: inline-block;
-  font-size: 3rem;
-  font-weight: 900;
+/* Pricing tiers */
+.pricing-tiers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.pricing-tier {
+  width: 100%;
+  max-width: 24rem;
+  padding: 1.5rem 2rem;
+  background: var(--color-bg-card);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+}
+
+.pricing-tier-free {
+  border-color: var(--color-accent);
+  box-shadow: 4px 4px 0 var(--color-accent);
+}
+
+.pricing-tier-label {
+  font-size: 1.25rem;
+  font-weight: 700;
   font-family: var(--font-family-display);
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+.pricing-amount-inline {
   color: var(--color-accent);
+  font-weight: 900;
+}
+
+.pricing-tier-desc {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.pricing-tier-arrow {
+  font-size: 1.5rem;
+  color: var(--color-text-subtle);
   line-height: 1;
 }
 
