@@ -4,9 +4,8 @@ require "uri"
 
 class CpdlImporter
   BASE_URL = "https://www.cpdl.org/wiki/api.php"
-  BATCH_SIZE = 5  # Process 5 scores per batch
-  BATCH_DELAY = 30.0  # 30 seconds between batches
-  API_CALL_DELAY = 6.0  # 6 seconds between individual API calls = ~10 requests/min max
+  BATCH_SIZE = 20  # Process 20 scores per batch
+  API_CALL_DELAY = 1.5  # 1.5 seconds between API calls (~40 requests/min, within MediaWiki etiquette)
 
   # Required by MediaWiki API etiquette - see https://www.mediawiki.org/wiki/API:Etiquette
   USER_AGENT = "ScorebaseBot/1.0 (https://github.com/scorebase; contact@scorebase.app) Ruby/#{RUBY_VERSION}"
@@ -24,7 +23,7 @@ class CpdlImporter
   def import!
     puts "Starting CPDL import..."
     puts "Limit: #{@limit || 'none'}"
-    puts "(Existing scores are always skipped - never overwritten)"
+    puts "(Existing scores are always skipped - safe to re-run)"
 
     # Initialize CloudflareBypass if available
     init_cloudflare_bypass!
@@ -42,10 +41,10 @@ class CpdlImporter
     pages = pages.first(@limit) if @limit
 
     # Process in batches
+    total_batches = (pages.size.to_f / BATCH_SIZE).ceil
     pages.each_slice(BATCH_SIZE).with_index do |batch, batch_index|
-      puts "Processing batch #{batch_index + 1} (#{@imported_count + @skipped_count}/#{pages.size})..."
+      puts "Processing batch #{batch_index + 1}/#{total_batches} (#{@imported_count}/#{pages.size} imported)..."
       process_batch(batch)
-      sleep(BATCH_DELAY) unless batch_index == (pages.size / BATCH_SIZE) # Don't sleep after last batch
     end
 
     puts "\nCPDL import complete!"
@@ -62,9 +61,8 @@ class CpdlImporter
   rescue RateLimitError => e
     puts "\nRate limit exceeded!"
     puts e.message
-    puts "\nProgress so far:"
-    puts "Imported: #{@imported_count}"
-    puts "Skipped: #{@skipped_count}"
+    puts "\nAlready imported scores are saved - safe to re-run"
+    puts "Imported so far: #{@imported_count}"
     raise
   end
 
@@ -108,8 +106,6 @@ class CpdlImporter
       # Check for continuation
       continue_token = response.dig("continue", "apcontinue")
       break unless continue_token
-
-      sleep(API_CALL_DELAY)  # Rate limit between pagination requests
     end
 
     score_pages
@@ -325,26 +321,6 @@ class CpdlImporter
       .gsub(/\{\{[^}]+\}\}/, "")                  # Remove templates
       .strip
       .presence
-  end
-
-  def extract_num_parts(infobox, wikitext)
-    voicing = infobox["voicing"] || ""
-
-    # Common voicing patterns
-    case voicing.downcase
-    when /satb/, /4.?part/, /four.?part/
-      4
-    when /sab/, /3.?part/, /three.?part/
-      3
-    when /sa/, /tb/, /2.?part/, /two.?part/, /duet/
-      2
-    when /solo/, /1.?part/, /unison/
-      1
-    when /\d+/
-      voicing.scan(/\d+/).first.to_i
-    else
-      nil
-    end
   end
 
   def extract_genres(categories)
