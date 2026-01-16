@@ -24,9 +24,9 @@ export default class extends Controller {
     this.element.querySelectorAll("input, select").forEach(field => {
       let paramValue = params.get(field.name) || ""
 
-      // Default sort to "popularity" when not specified in URL
+      // Default sort to "newest" when not specified in URL
       if (field.name === "sort" && paramValue === "") {
-        paramValue = "popularity"
+        paramValue = "newest"
       }
 
       if (field.type === "hidden" || field.type === "text") {
