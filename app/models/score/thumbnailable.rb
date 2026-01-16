@@ -8,10 +8,11 @@ module Score::Thumbnailable
   included do
     has_one_attached :thumbnail_image
 
+    # Scores that can have thumbnails generated (from URL or PDF) but don't have one yet
     scope :needing_thumbnail, -> {
-      where.not(thumbnail_url: [nil, ""])
-           .left_joins(:thumbnail_image_attachment)
-           .where(active_storage_attachments: { id: nil })
+      left_joins(:thumbnail_image_attachment)
+        .where(active_storage_attachments: { id: nil })
+        .where("thumbnail_url IS NOT NULL AND thumbnail_url != '' OR pdf_path IS NOT NULL AND pdf_path != ''")
     }
   end
 
