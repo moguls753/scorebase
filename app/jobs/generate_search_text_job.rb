@@ -53,8 +53,12 @@ class GenerateSearchTextJob < ApplicationJob
       else
         score.update!(rag_status: :failed)
         stats[:failed] += 1
-        reason = result.error || result.issues.join(", ")
-        logger.warn "[GenerateSearchText] #{i + 1}. #{score.title&.truncate(40)} ✗ #{reason}"
+        begin
+          reason = result.error || result.issues.join(", ")
+          logger.warn "[GenerateSearchText] #{i + 1}. #{score.title&.truncate(40)} ✗ #{reason}"
+        rescue Encoding::CompatibilityError
+          logger.warn "[GenerateSearchText] #{i + 1}. (id:#{score.id}) ✗ (encoding error in log)"
+        end
       end
 
       sleep 0.1 if backend != :lmstudio
