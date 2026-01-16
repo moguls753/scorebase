@@ -246,8 +246,8 @@ class SearchTextGenerator
       issues << "hallucinated_difficulty"
     end
 
-    if uses_banned_phrases?(description)
-      issues << "banned_phrase"
+    if (banned = find_banned_phrase(description))
+      issues << "banned_phrase:#{banned}"
     end
 
     Result.new(description: description, issues: issues, error: nil)
@@ -280,11 +280,20 @@ class SearchTextGenerator
     HALLUCINATION_WORDS.any? { |word| text.downcase.include?(word) }
   end
 
-  # Check if LLM used banned boilerplate phrases
-  def uses_banned_phrases?(text)
+  # Find which banned phrase was used (returns phrase or nil)
+  def find_banned_phrase(text)
     desc_lower = text.downcase
-    BANNED_PHRASES.any? { |phrase| desc_lower.include?(phrase) } ||
-      BANNED_STARTERS.any? { |pattern| text.match?(pattern) }
+
+    # Check phrase list
+    found_phrase = BANNED_PHRASES.find { |phrase| desc_lower.include?(phrase) }
+    return found_phrase if found_phrase
+
+    # Check starter patterns
+    BANNED_STARTERS.each_with_index do |pattern, i|
+      return "STARTER_#{i}" if text.match?(pattern)
+    end
+
+    nil
   end
 
   # Check if difficulty was properly mentioned (grades, neutral phrases, etc.)
