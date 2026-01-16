@@ -10,12 +10,12 @@ class HubPagesController < ApplicationController
   end
 
   def genres_index
-    @genres = HubDataBuilder.genres
+    @genres = localize_hub_items(:genres, HubDataBuilder.genres)
     set_index_meta(:genres)
   end
 
   def instruments_index
-    @instruments = HubDataBuilder.instruments
+    @instruments = localize_hub_items(:instruments, HubDataBuilder.instruments)
     set_index_meta(:instruments)
   end
 
@@ -116,5 +116,12 @@ class HubPagesController < ApplicationController
 
   def not_found
     raise ActionController::RoutingError, "Not Found"
+  end
+
+  # Adds translated display names and sorts by locale
+  def localize_hub_items(type, items)
+    items.map do |item|
+      item.merge(display_name: helpers.translate_hub_name(type, item))
+    end.sort_by { |item| item[:display_name].downcase }
   end
 end

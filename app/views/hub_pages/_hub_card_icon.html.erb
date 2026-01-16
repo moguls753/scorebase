@@ -1,24 +1,23 @@
 <%# Hub Card - Icon Style (used for Instruments)
     Local variables:
-    - item: Hash - Item data with :name, :slug, :count
+    - item: Hash - Item data with :name, :slug, :count, :display_name
     - path: String - URL path for the link
     - icon: String - Emoji icon to display
     - search_attribute: String - Data attribute name for search (e.g., "instrumentName")
     - index: Integer - Card index for animation delay
-    - hub_type: Symbol - Type for translation lookup (:genres, :instruments, :periods)
 %>
 <% data_key = search_attribute.underscore.to_sym %>
-<% translated_name = hub_type ? translate_hub_name(hub_type, item) : item[:name] %>
+<% display_name = item[:display_name] || item[:name] %>
 <%= link_to path,
     class: "hub-card hub-card--icon mm-card group",
     style: hub_card_style(index || 0),
     data: {
       list_filter_target: "item",
-      data_key => item[:name].to_s.downcase
+      data_key => display_name.to_s.downcase
     } do %>
   <div class="hub-card__icon"><%= icon %></div>
   <h3 class="hub-card__name" data-list-filter-target="itemName">
-    <%= translated_name %>
+    <%= display_name %>
   </h3>
   <span class="hub-card__count">
     <%= number_with_delimiter(item[:count]) %>

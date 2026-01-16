@@ -30,7 +30,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-0 sm:py-8">
     <% if @instruments.any? %>
       <% global_index = 0 %>
-      <% hub_group_by_letter(@instruments).each do |letter, instruments_in_group| %>
+      <% hub_group_by_letter(@instruments, name_key: :display_name).each do |letter, instruments_in_group| %>
         <section class="hub-letter-group"
                  id="letter-<%= letter %>"
                  data-letter="<%= letter %>"
@@ -46,8 +46,7 @@
                   path: instrument_path(slug: instrument[:slug]),
                   icon: instrument_icon(instrument[:name]),
                   search_attribute: "instrumentName",
-                  index: global_index,
-                  hub_type: :instruments %>
+                  index: global_index %>
               <% global_index += 1 %>
             <% end %>
           </div>

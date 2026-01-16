@@ -30,7 +30,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 py-0 sm:py-8">
     <% if @genres.any? %>
       <% global_index = 0 %>
-      <% hub_group_by_letter(@genres).each do |letter, genres_in_group| %>
+      <% hub_group_by_letter(@genres, name_key: :display_name).each do |letter, genres_in_group| %>
         <section class="hub-letter-group"
                  id="letter-<%= letter %>"
                  data-letter="<%= letter %>"
@@ -47,8 +47,7 @@
                   icon: genre_icon(genre[:name]),
                   search_attribute: "genreName",
                   index: global_index,
-                  count_label: t('search.results_count').downcase,
-                  hub_type: :genres %>
+                  count_label: t('search.results_count').downcase %>
               <% global_index += 1 %>
             <% end %>
           </div>
