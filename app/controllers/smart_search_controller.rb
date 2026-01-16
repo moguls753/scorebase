@@ -1,9 +1,5 @@
 class SmartSearchController < ApplicationController
-  http_basic_authenticate_with(
-    name: Rails.application.credentials.dig(:basic_auth, :user) || "admin",
-    password: Rails.application.credentials.dig(:basic_auth, :password),
-    if: -> { Rails.env.production? && Rails.application.credentials.dig(:basic_auth, :password).present? }
-  )
+  before_action :authenticate, if: -> { Rails.env.production? }
 
   def show
     @query = params[:q].to_s.strip
@@ -24,6 +20,18 @@ class SmartSearchController < ApplicationController
       @scores = @rag_result.score_ids.filter_map { |id| scores_by_id[id] }
     else
       @scores = []
+    end
+  end
+
+  private
+
+  def authenticate
+    credentials = Rails.application.credentials
+    return unless credentials.dig(:basic_auth, :password).present?
+
+    authenticate_or_request_with_http_basic do |user, password|
+      ActiveSupport::SecurityUtils.secure_compare(user, credentials.dig(:basic_auth, :user) || "admin") &
+        ActiveSupport::SecurityUtils.secure_compare(password, credentials.dig(:basic_auth, :password))
     end
   end
 end
