@@ -487,9 +487,12 @@ de:
 
     # Pricing section
     pricing_title: "Preis"
-    pricing_amount: "2,99 €"
-    pricing_period: "pro Monat"
-    pricing_desc: "Smart Search, gespeicherte Suchen, Favoriten, Sammlungen und Schwierigkeitsfilter. Jederzeit kündbar."
+    pricing_free: "5 Suchen gratis"
+    pricing_free_desc: "Kostenloser Account. Keine Kreditkarte."
+    pricing_then: "Dann"
+    pricing_amount: "2 €"
+    pricing_period: "im Monat"
+    pricing_desc: "Keine Bindung."
 
     # Waitlist section
     waitlist_title: "In Arbeit"
@@ -504,14 +507,14 @@ de:
     faq_title: "Fragen"
     faq_1_q: "Wann geht's los?"
     faq_1_a: "Bald. Ich baue gerade das KI-Modell und die Such-Infrastruktur. Wenn du der Warteliste beitrittst, erfährst du es, sobald es startet."
-    faq_2_q: "Was ist mit der kostenlosen Version?"
-    faq_2_a: "Der kostenlose Katalog bleibt kostenlos. %{count} Noten, durchsuchbar mit einfacher Stichwortsuche. Pro fügt Smart Search und Organisationsfunktionen hinzu."
+    faq_2_q: "Kann ich es gratis testen?"
+    faq_2_a: "Ja. Leg dir einen Account an und du bekommst 5 Smart Searches. Keine Kreditkarte nötig. Der Katalog mit normaler Suche bleibt für immer kostenlos."
     faq_3_q: "Was ist der Unterschied zu IMSLP?"
     faq_3_a: "IMSLP ist ein Noten-Archiv mit Stichwortsuche. ScoreBase vereint mehrere Quellen (IMSLP, CPDL, OpenScore und mehr) und fügt Smart Search hinzu, die musikalischen Kontext versteht: Schwierigkeit, Stimmumfänge, Dauer, Stil."
     faq_4_q: "Kann ich jederzeit kündigen?"
     faq_4_a: "Ja. Keine Vertragsbindung. Kündige wann immer du willst."
-    faq_5_q: "Warum kostet Smart Search Geld?"
-    faq_5_a: "Jede Suche nutzt KI, um deine Anfrage zu verstehen und die besten Treffer zu finden. Diese API-Aufrufe kosten echtes Geld. Dein Abo finanziert die Infrastruktur, während der gesamte Katalog für alle kostenlos bleibt."
+    faq_5_q: "Warum kostet es nach den Gratis-Suchen Geld?"
+    faq_5_a: "Jede Suche nutzt KI, um deine Anfrage zu verstehen und die besten Treffer zu finden. Das kostet mich echtes Geld. Deine 2 € decken die Infrastruktur, während der Katalog für alle kostenlos bleibt."
 
     # Footer
     back_to_catalog: "← Zurück zum kostenlosen Katalog"

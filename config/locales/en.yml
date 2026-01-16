@@ -487,9 +487,12 @@ en:
 
     # Pricing section
     pricing_title: "Pricing"
-    pricing_amount: "$2.99"
+    pricing_free: "5 free searches"
+    pricing_free_desc: "Create a free account. No credit card."
+    pricing_then: "Then"
+    pricing_amount: "$2"
     pricing_period: "per month"
-    pricing_desc: "Smart Search, saved searches, favorites, collections, and difficulty filtering. Cancel anytime. The free catalog (%{count} scores) stays free."
+    pricing_desc: "Cancel anytime."
 
     # Waitlist section
     waitlist_title: "I'm working on this"
@@ -504,14 +507,14 @@ en:
     faq_title: "Questions"
     faq_1_q: "When will this be ready?"
     faq_1_a: "Soon. I'm building the AI model and search infrastructure now. If you join the waitlist, you'll know when it launches."
-    faq_2_q: "What about the free version?"
-    faq_2_a: "The free catalog stays free. %{count} scores, browsable and searchable with basic keyword search. Pro adds Smart Search and organization features."
+    faq_2_q: "Can I try it for free?"
+    faq_2_a: "Yes. Create a free account and get 5 Smart Searches. No credit card required. The full catalog with basic search stays free forever."
     faq_3_q: "How is this different from IMSLP?"
     faq_3_a: "IMSLP is a score archive with keyword search. ScoreBase aggregates multiple sources (IMSLP, CPDL, OpenScore, and more) and adds Smart Search that understands musical context: difficulty, ranges, duration, style."
     faq_4_q: "Can I cancel anytime?"
     faq_4_a: "Yes. No long-term commitment. Cancel whenever you want."
-    faq_5_q: "Why does Smart Search cost money?"
-    faq_5_a: "Every search uses AI to understand your query and find the best matches. These API calls have real costs. Your subscription covers the infrastructure while keeping the full catalog free for everyone."
+    faq_5_q: "Why does it cost money after the free searches?"
+    faq_5_a: "Every search uses AI to understand your query and find the best matches. These API calls have real costs. Your $2 covers the infrastructure while keeping the full catalog free for everyone."
 
     # Footer
     back_to_catalog: "← Back to Free Catalog"
