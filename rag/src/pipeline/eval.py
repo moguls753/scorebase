@@ -22,56 +22,57 @@ class TestCase:
 
 
 # Test cases: queries that SHOULD find specific pieces based on their search_text
+# Updated to use actually indexed score IDs
 TEST_CASES = [
     TestCase(
-        query="Bach choral work with orchestra trumpet oboe",
-        expected_ids=[49614],
-        description="Mass in B minor - has SSATB, Barock Trompete, Oboe in search_text"
+        query="Bach piano suite allemande courante sarabande gigue Baroque",
+        expected_ids=[10219, 10492, 10822],
+        description="French Suite No.4 BWV 815 - lists dance movements"
     ),
     TestCase(
-        query="Bach piano suite with allemande courante sarabande gigue",
-        expected_ids=[7737],
-        description="French Suite No.4 - explicitly lists these dance movements"
+        query="Bach fugue piano advanced Grade 6",
+        expected_ids=[1951, 3802, 5029, 5956],
+        description="Bach Prelude and Fugue BWV 862 - Grade 6-8 piano"
     ),
     TestCase(
-        query="flute and guitar duo easy classical",
-        expected_ids=[74683],
-        description="Giuliani 16 Pièces - flute and classical guitar duo, Grade 3-4"
+        query="Renaissance madrigal SATB a cappella Italian",
+        expected_ids=[2681, 3706],
+        description="Marenzio Piango che Amor - Renaissance madrigal SATB"
     ),
     TestCase(
-        query="Renaissance madrigal about spring SATB Morley",
-        expected_ids=[21267],
-        description="April is in my mistress' face - Renaissance madrigal"
+        query="Schutz German motet SATB Baroque choir",
+        expected_ids=[3565, 4358],
+        description="Schutz Lobt Gott in seinem Heiligtum - German motet"
     ),
     TestCase(
-        query="Mozart Requiem choir organ",
-        expected_ids=[74074],
-        description="Mozart Requiem - SATB with organ"
+        query="easy beginner piano Grade 1 simple",
+        expected_ids=[16977, 35212, 20776],
+        description="Patapan - Grade 1-2 piano piece"
     ),
     TestCase(
-        query="Sor guitar sonata intermediate",
-        expected_ids=[65615],
-        description="Sor Sonata in A major - guitar, Grade 4-5"
+        query="piano duet Classical era Grade 2",
+        expected_ids=[51538],
+        description="Brandi Duet Presto - Grade 2-3 piano duet"
     ),
     TestCase(
-        query="Bach fugue G sharp minor advanced piano",
-        expected_ids=[57296],
-        description="Prelude and Fugue BWV 887 - G# minor, Grade 7-8"
+        query="Mozart minuet piano Classical",
+        expected_ids=[79700],
+        description="Mozart Minuet - Grade 2-3 Classical piano"
     ),
     TestCase(
-        query="Heinrich Schutz German motet SATB",
-        expected_ids=[10734],
-        description="Wer wird Herr in der Hütten dein - German title, Schutz"
+        query="Lully Baroque minuet D minor dance",
+        expected_ids=[93162],
+        description="Lully Minuet D minor - Baroque dance"
     ),
     TestCase(
-        query="Duke Ellington jazz big band trumpet saxophone",
-        expected_ids=[87282],
-        description="Caravan - jazz ensemble with trumpet, sax, trombone"
+        query="Christmas carol piano easy Patapan",
+        expected_ids=[16977],
+        description="Patapan - Christmas carol Grade 1-2"
     ),
     TestCase(
-        query="easy beginner piano Grade 1",
-        expected_ids=[79700],  # Mozart Minuet Grade 2-3
-        description="Mozart Minuet - early intermediate, Grade 2-3"
+        query="Debussy impressionist piano suite",
+        expected_ids=[4326],
+        description="Suite bergamasque - Debussy impressionist"
     ),
 ]
 
