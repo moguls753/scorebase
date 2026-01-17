@@ -636,44 +636,40 @@
    Horizontal cards with A4 thumbnails
    ======================================== */
 
-/* Wrapper - positioning context for badge */
-.smart-search-result {
-  position: relative;
-  padding-left: 12px;
-  padding-top: 12px;
-}
-
-/* Card - horizontal flex layout */
+/* Card - custom card without overflow:hidden so badge can escape */
 .smart-search-card {
+  position: relative;
   display: flex;
   flex-direction: row;
+  background: var(--color-bg-card);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  /* NO overflow:hidden - badge can overlap */
 }
 
-/* Disable mm-card transform - wrapper handles it so badge moves too */
-a.smart-search-card.mm-card,
-a.smart-search-card.mm-card:hover,
-a.smart-search-card.mm-card:active {
-  transform: none !important;
+/* Link reset */
+a.smart-search-card {
+  text-decoration: none;
+  color: inherit;
 }
 
-/* Wrapper handles transform so card + badge move together */
-.smart-search-result {
-  transition: transform 0.1s ease;
-}
-
-.smart-search-result:hover {
+a.smart-search-card:hover {
   transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 var(--color-border);
 }
 
-.smart-search-result:active {
+a.smart-search-card:active {
   transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-border);
 }
 
-/* Rank badge - positioned relative to wrapper, overlaps card corner */
+/* Rank badge - inside card, positioned to overlap corner */
 .smart-search-rank {
   position: absolute;
-  left: 0;
-  top: 0;
+  left: -10px;
+  top: -10px;
   width: 32px;
   height: 32px;
   display: flex;
@@ -726,19 +722,14 @@ a.smart-search-card.mm-card:active {
 }
 
 /* Staggered animation for results */
-.smart-search-result:nth-child(1) { animation-delay: 0.05s; }
-.smart-search-result:nth-child(2) { animation-delay: 0.10s; }
-.smart-search-result:nth-child(3) { animation-delay: 0.15s; }
-.smart-search-result:nth-child(4) { animation-delay: 0.20s; }
-.smart-search-result:nth-child(5) { animation-delay: 0.25s; }
+.smart-search-card:nth-child(1) { animation-delay: 0.05s; }
+.smart-search-card:nth-child(2) { animation-delay: 0.10s; }
+.smart-search-card:nth-child(3) { animation-delay: 0.15s; }
+.smart-search-card:nth-child(4) { animation-delay: 0.20s; }
+.smart-search-card:nth-child(5) { animation-delay: 0.25s; }
 
 /* Responsive: larger thumbnail and badge on bigger screens */
 @media (min-width: 640px) {
-  .smart-search-result {
-    padding-left: 14px;
-    padding-top: 14px;
-  }
-
   .smart-search-thumbnail {
     width: 120px;
   }
@@ -751,6 +742,8 @@ a.smart-search-card.mm-card:active {
     width: 36px;
     height: 36px;
     font-size: 15px;
+    left: -12px;
+    top: -12px;
   }
 }
 
@@ -762,11 +755,6 @@ a.smart-search-card.mm-card:active {
 
 /* Mobile: stack vertically on very small screens */
 @media (max-width: 400px) {
-  .smart-search-result {
-    padding-left: 10px;
-    padding-top: 10px;
-  }
-
   .smart-search-card {
     flex-direction: column;
   }
@@ -781,5 +769,7 @@ a.smart-search-card.mm-card:active {
     width: 28px;
     height: 28px;
     font-size: 13px;
+    left: -8px;
+    top: -8px;
   }
 }
