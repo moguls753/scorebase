@@ -228,8 +228,8 @@ en:
     title: "Impressum"
     contact: "Contact"
     privacy: "Privacy"
-    privacy_title: "Zero data collection"
-    privacy_desc: "No analytics, no cookies, no third-party services."
+    privacy_title: "No tracking"
+    privacy_desc: "We don't track you. A technical cookie keeps the site working."
     back_to_search: "Back to Search"
 
   # Language names (for the toggle and filter)

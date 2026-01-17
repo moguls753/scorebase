@@ -228,8 +228,8 @@ de:
     title: "Impressum"
     contact: "Kontakt"
     privacy: "Datenschutz"
-    privacy_title: "Keine Datenerfassung"
-    privacy_desc: "Keine Analyse, keine Cookies, keine Drittanbieter."
+    privacy_title: "Kein Tracking"
+    privacy_desc: "Wir tracken dich nicht. Ein technisches Cookie hält die Seite am Laufen."
     back_to_search: "Zurück zur Suche"
 
   # Language names (for the toggle and filter)
