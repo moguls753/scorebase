@@ -636,18 +636,60 @@
    Horizontal cards with A4 thumbnails
    ======================================== */
 
-.smart-search-card {
+/* Wrapper - positioning context for badge */
+.smart-search-result {
   position: relative;
-  display: flex;
-  flex-direction: row;
-  overflow: hidden;
+  padding-left: 12px;
+  padding-top: 12px;
 }
 
-/* Rank badge - overlaps top-left corner */
+/* Card - horizontal flex layout, disable mm-card hover transform (wrapper handles it) */
+.smart-search-card {
+  display: flex;
+  flex-direction: row;
+}
+
+/* Override mm-card hover - wrapper handles the transform */
+a.smart-search-card.mm-card:hover {
+  transform: none;
+  box-shadow: var(--shadow-card);
+}
+
+a.smart-search-card.mm-card:active {
+  transform: none;
+  box-shadow: var(--shadow-card);
+}
+
+/* Wrapper hover - moves card + badge together */
+.smart-search-result:hover .smart-search-card {
+  box-shadow: 6px 6px 0 var(--color-border);
+}
+
+.smart-search-result:hover {
+  transform: translate(-2px, -2px);
+}
+
+.smart-search-result:active {
+  transform: translate(1px, 1px);
+}
+
+.smart-search-result:active .smart-search-card {
+  box-shadow: 2px 2px 0 var(--color-border);
+}
+
+.smart-search-result {
+  transition: transform 0.1s ease;
+}
+
+.smart-search-result .smart-search-card {
+  transition: box-shadow 0.1s ease;
+}
+
+/* Rank badge - positioned relative to wrapper, overlaps card corner */
 .smart-search-rank {
   position: absolute;
-  left: -3px;
-  top: -3px;
+  left: 0;
+  top: 0;
   width: 32px;
   height: 32px;
   display: flex;
@@ -700,14 +742,19 @@
 }
 
 /* Staggered animation for results */
-.smart-search-card:nth-child(1) { animation-delay: 0.05s; }
-.smart-search-card:nth-child(2) { animation-delay: 0.10s; }
-.smart-search-card:nth-child(3) { animation-delay: 0.15s; }
-.smart-search-card:nth-child(4) { animation-delay: 0.20s; }
-.smart-search-card:nth-child(5) { animation-delay: 0.25s; }
+.smart-search-result:nth-child(1) { animation-delay: 0.05s; }
+.smart-search-result:nth-child(2) { animation-delay: 0.10s; }
+.smart-search-result:nth-child(3) { animation-delay: 0.15s; }
+.smart-search-result:nth-child(4) { animation-delay: 0.20s; }
+.smart-search-result:nth-child(5) { animation-delay: 0.25s; }
 
-/* Responsive: larger thumbnail on bigger screens */
+/* Responsive: larger thumbnail and badge on bigger screens */
 @media (min-width: 640px) {
+  .smart-search-result {
+    padding-left: 14px;
+    padding-top: 14px;
+  }
+
   .smart-search-thumbnail {
     width: 120px;
   }
@@ -731,6 +778,11 @@
 
 /* Mobile: stack vertically on very small screens */
 @media (max-width: 400px) {
+  .smart-search-result {
+    padding-left: 10px;
+    padding-top: 10px;
+  }
+
   .smart-search-card {
     flex-direction: column;
   }
@@ -742,7 +794,8 @@
   }
 
   .smart-search-rank {
-    left: -3px;
-    top: -3px;
+    width: 28px;
+    height: 28px;
+    font-size: 13px;
   }
 }

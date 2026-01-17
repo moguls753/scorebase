@@ -51,48 +51,50 @@
       <!-- Results -->
       <div class="space-y-5">
         <% @scores.each_with_index do |score, index| %>
-          <%= link_to score_path(score), class: "smart-search-card mm-card animate-fade-in group", data: { turbo_frame: "_top", turbo_prefetch: false } do %>
-            <!-- Rank Badge -->
+          <div class="smart-search-result animate-fade-in">
+            <!-- Rank Badge - outside card to avoid overflow clip -->
             <div class="smart-search-rank"><%= index + 1 %></div>
 
-            <!-- Thumbnail -->
-            <div class="smart-search-thumbnail">
-              <% if score.has_thumbnail? %>
-                <%= image_tag score.thumbnail, alt: score.title %>
-              <% else %>
-                <div class="w-full h-full flex items-center justify-center text-4xl text-[var(--color-border-subtle)]">&#9835;</div>
-              <% end %>
-            </div>
-
-            <!-- Content -->
-            <div class="smart-search-content">
-              <h2 class="text-base sm:text-lg font-[var(--font-family-display)] font-bold text-[var(--color-primary)] leading-tight group-hover:text-[var(--color-accent)] transition-colors line-clamp-2">
-                <%= score.title.presence || "Untitled" %>
-              </h2>
-
-              <% if score.composer.present? %>
-                <p class="mt-1 text-sm text-[var(--color-text-muted)] font-medium">
-                  <%= score.composer %>
-                </p>
-              <% end %>
-
-              <% explanation = @rag_result.explanation_for(score.id) %>
-              <% if explanation.present? %>
-                <p class="smart-search-explanation">
-                  <%= explanation %>
-                </p>
-              <% end %>
-
-              <div class="mt-auto pt-3 flex items-center gap-2 flex-wrap">
-                <% if score.primary_key_signature.present? %>
-                  <span class="mm-badge text-[10px] sm:text-[11px]"><%= score.primary_key_signature %></span>
-                <% end %>
-                <% if score.detected_instruments.present? %>
-                  <span class="mm-badge text-[10px] sm:text-[11px]"><%= score.detected_instruments.to_s.split(',').first&.strip %></span>
+            <%= link_to score_path(score), class: "smart-search-card mm-card group", data: { turbo_frame: "_top", turbo_prefetch: false } do %>
+              <!-- Thumbnail -->
+              <div class="smart-search-thumbnail">
+                <% if score.has_thumbnail? %>
+                  <%= image_tag score.thumbnail, alt: score.title %>
+                <% else %>
+                  <div class="w-full h-full flex items-center justify-center text-4xl text-[var(--color-border-subtle)]">&#9835;</div>
                 <% end %>
               </div>
-            </div>
-          <% end %>
+
+              <!-- Content -->
+              <div class="smart-search-content">
+                <h2 class="text-base sm:text-lg font-[var(--font-family-display)] font-bold text-[var(--color-primary)] leading-tight group-hover:text-[var(--color-accent)] transition-colors line-clamp-2">
+                  <%= score.title.presence || "Untitled" %>
+                </h2>
+
+                <% if score.composer.present? %>
+                  <p class="mt-1 text-sm text-[var(--color-text-muted)] font-medium">
+                    <%= score.composer %>
+                  </p>
+                <% end %>
+
+                <% explanation = @rag_result.explanation_for(score.id) %>
+                <% if explanation.present? %>
+                  <p class="smart-search-explanation">
+                    <%= explanation %>
+                  </p>
+                <% end %>
+
+                <div class="mt-auto pt-3 flex items-center gap-2 flex-wrap">
+                  <% if score.primary_key_signature.present? %>
+                    <span class="mm-badge text-[10px] sm:text-[11px]"><%= score.primary_key_signature %></span>
+                  <% end %>
+                  <% if score.detected_instruments.present? %>
+                    <span class="mm-badge text-[10px] sm:text-[11px]"><%= score.detected_instruments.to_s.split(',').first&.strip %></span>
+                  <% end %>
+                </div>
+              </div>
+            <% end %>
+          </div>
         <% end %>
       </div>
 
