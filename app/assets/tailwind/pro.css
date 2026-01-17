@@ -643,26 +643,22 @@
   padding-top: 12px;
 }
 
-/* Card - horizontal flex layout, disable mm-card hover transform (wrapper handles it) */
+/* Card - horizontal flex layout */
 .smart-search-card {
   display: flex;
   flex-direction: row;
 }
 
-/* Override mm-card hover - wrapper handles the transform */
-a.smart-search-card.mm-card:hover {
-  transform: none;
-  box-shadow: var(--shadow-card);
-}
-
+/* Disable mm-card transform - wrapper handles it so badge moves too */
+a.smart-search-card.mm-card,
+a.smart-search-card.mm-card:hover,
 a.smart-search-card.mm-card:active {
-  transform: none;
-  box-shadow: var(--shadow-card);
+  transform: none !important;
 }
 
-/* Wrapper hover - moves card + badge together */
-.smart-search-result:hover .smart-search-card {
-  box-shadow: 6px 6px 0 var(--color-border);
+/* Wrapper handles transform so card + badge move together */
+.smart-search-result {
+  transition: transform 0.1s ease;
 }
 
 .smart-search-result:hover {
@@ -670,19 +666,7 @@ a.smart-search-card.mm-card:active {
 }
 
 .smart-search-result:active {
-  transform: translate(1px, 1px);
-}
-
-.smart-search-result:active .smart-search-card {
-  box-shadow: 2px 2px 0 var(--color-border);
-}
-
-.smart-search-result {
-  transition: transform 0.1s ease;
-}
-
-.smart-search-result .smart-search-card {
-  transition: box-shadow 0.1s ease;
+  transform: translate(2px, 2px);
 }
 
 /* Rank badge - positioned relative to wrapper, overlaps card corner */
