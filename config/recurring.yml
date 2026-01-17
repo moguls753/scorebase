@@ -35,10 +35,10 @@ production:
   #   queue: default
   #   schedule: every day at 2am
 
-  generate_missing_galleries:
-    class: GenerateMissingGalleriesJob
-    queue: default
-    schedule: every day at 5am
+  # generate_missing_galleries:
+  #   class: GenerateMissingGalleriesJob
+  #   queue: default
+  #   schedule: every day at 5am
 
   # sync_missing_pdfs:
   #   class: SyncMissingPdfsJob
