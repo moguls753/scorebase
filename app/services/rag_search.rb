@@ -33,7 +33,7 @@ class RagSearch
   end
 
   class << self
-    def smart_search(query, top_k: 15)
+    def smart_search(query, top_k: 30)
       uri = URI("#{RAG_API_URL}/smart-search")
       uri.query = URI.encode_www_form(q: query, top_k: top_k)
 

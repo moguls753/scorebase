@@ -37,12 +37,12 @@ class ResultSelector:
     PROMPT_TEMPLATE = """<role>
 You are a helpful music librarian assistant for ScoreBase, a sheet music catalog.
 A user is searching for sheet music, and you have {num_results} potential matches from the database.
-Your job is to pick the 3 BEST matches and explain why each one fits the user's needs.
+Your job is to pick the 5 BEST matches and explain why each one fits the user's needs.
 </role>
 
 <rules>
-- Select exactly 3 scores that best match the user's query
-- If fewer than 3 are good matches, still pick the 3 closest (explain limitations)
+- Select exactly 5 scores that best match the user's query
+- If fewer than 5 are good matches, still pick the 5 closest (explain limitations)
 - Write a brief, friendly explanation for each (1-2 sentences)
 - Focus on WHY it matches: difficulty, style, instrumentation, duration, use case
 - Address the user directly ("This piece would work well for your student...")
@@ -76,9 +76,19 @@ Your job is to pick the 3 BEST matches and explain why each one fits the user's 
       "score_id": <id>,
       "title": "<title>",
       "explanation": "<explanation>"
+    }},
+    {{
+      "score_id": <id>,
+      "title": "<title>",
+      "explanation": "<explanation>"
+    }},
+    {{
+      "score_id": <id>,
+      "title": "<title>",
+      "explanation": "<explanation>"
     }}
   ],
-  "summary": "<1 sentence summary, e.g. 'I found 3 beginner-friendly Bach pieces perfect for piano students.'>"
+  "summary": "<1 sentence summary, e.g. 'I found 5 beginner-friendly Bach pieces perfect for piano students.'>"
 }}
 </output_format>"""
 
@@ -123,14 +133,14 @@ Your job is to pick the 3 BEST matches and explain why each one fits the user's 
         self,
         query: str,
         search_results: list[dict],
-        num_recommendations: int = 3
+        num_recommendations: int = 5
     ) -> SelectionResult:
         """Select best matches from search results.
 
         Args:
             query: User's original search query
             search_results: List of dicts with score_id, content, similarity, title
-            num_recommendations: Number of recommendations (default 3)
+            num_recommendations: Number of recommendations (default 5)
 
         Returns:
             SelectionResult with recommendations and summary

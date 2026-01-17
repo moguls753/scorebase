@@ -75,13 +75,13 @@ def search(query: str, top_k: int = 10) -> list[dict]:
     ]
 
 
-def smart_search(query: str, top_k: int = 15, num_recommendations: int = 3) -> dict:
+def smart_search(query: str, top_k: int = 30, num_recommendations: int = 5) -> dict:
     """Search with LLM-powered result selection and explanations.
 
     Args:
         query: Natural language search (e.g., "easy Bach for piano")
-        top_k: Number of candidates for LLM to consider (default 15)
-        num_recommendations: Number of final recommendations (default 3)
+        top_k: Number of candidates for LLM to consider (default 30)
+        num_recommendations: Number of final recommendations (default 5)
 
     Returns:
         Dict with:
@@ -134,8 +134,8 @@ def main():
                         help="Search query")
     parser.add_argument("--smart", action="store_true",
                         help="Use LLM-powered smart search with explanations")
-    parser.add_argument("--top-k", type=int, default=15,
-                        help="Number of candidates (default 15)")
+    parser.add_argument("--top-k", type=int, default=30,
+                        help="Number of candidates (default 30)")
     args = parser.parse_args()
 
     query = " ".join(args.query)

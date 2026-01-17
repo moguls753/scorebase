@@ -22,7 +22,7 @@ CHROMA_PATH = BASE_DIR / "data" / "chroma"
 EMBEDDING_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
 
 # Search defaults
-DEFAULT_TOP_K = 20
+DEFAULT_TOP_K = 30
 
 
 def get_mxl_path(mxl_path: str) -> Path:

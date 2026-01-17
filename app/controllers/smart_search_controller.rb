@@ -13,9 +13,12 @@ class SmartSearchController < ApplicationController
     # Call RAG API for smart recommendations
     @rag_result = RagSearch.smart_search(@query)
 
-    # Load full score objects from database
+    # Load full score objects from database with eager loading for thumbnails
     if @rag_result.score_ids.any?
-      scores_by_id = Score.where(id: @rag_result.score_ids).index_by(&:id)
+      scores_by_id = Score
+        .where(id: @rag_result.score_ids)
+        .with_attached_thumbnail_image
+        .index_by(&:id)
       # Preserve RAG ranking order
       @scores = @rag_result.score_ids.filter_map { |id| scores_by_id[id] }
     else

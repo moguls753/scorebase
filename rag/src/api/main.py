@@ -87,18 +87,18 @@ def search(q: str, top_k: int = 10) -> SearchResponse:
 
 
 @app.get("/smart-search")
-def smart_search(q: str, top_k: int = 15) -> SmartSearchResponse:
+def smart_search(q: str, top_k: int = 30) -> SmartSearchResponse:
     """LLM-powered smart search with recommendations and explanations.
 
-    This is the Pro feature endpoint. Returns 3 best matches with
+    This is the Pro feature endpoint. Returns 5 best matches with
     conversational explanations of why each piece fits the query.
 
     Args:
         q: Natural language query (e.g., "I need something for my piano student")
-        top_k: Number of candidates for LLM to consider (default 15)
+        top_k: Number of candidates for LLM to consider (default 30)
 
     Returns:
-        3 recommendations with explanations and a summary
+        5 recommendations with explanations and a summary
     """
     if not os.environ.get("GROQ_API_KEY"):
         raise HTTPException(
