@@ -51,7 +51,7 @@
       <!-- Results -->
       <div class="space-y-6 pt-3 pl-3">
         <% @scores.each_with_index do |score, index| %>
-          <%= link_to score_path(score), class: "smart-search-card animate-fade-in group block", data: { turbo_frame: "_top", turbo_prefetch: false } do %>
+          <%= link_to score_path(score), class: "smart-search-card group block", data: { turbo_frame: "_top", turbo_prefetch: false } do %>
             <!-- Rank Badge -->
             <div class="smart-search-rank"><%= index + 1 %></div>
 
