@@ -100,11 +100,24 @@ class FlaresolverrClient
     end
 
     FlareSolverrResponse.new(
-      body: solution["response"],
+      body: unwrap_browser_json(solution["response"]),
       code: solution["status"].to_s,
       url: solution["url"],
       cookies: solution["cookies"]
     )
+  end
+
+  # Chrome wraps JSON responses in HTML for display:
+  #   <html>...<pre>{"actual":"json"}</pre>...</html>
+  # Extract the raw JSON from within <pre> tags
+  def unwrap_browser_json(content)
+    return content unless content&.start_with?("<html>", "<!DOCTYPE", "<HTML")
+
+    if match = content.match(%r{<pre[^>]*>(.+?)</pre>}m)
+      match[1]
+    else
+      content
+    end
   end
 
   # Response object that mimics Net::HTTPResponse interface
