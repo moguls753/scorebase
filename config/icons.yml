@@ -1,0 +1,271 @@
+# SVG icons for ScoreBase
+# All paths assume 20x20 viewBox, 1.5px stroke, no fill
+
+instruments:
+  piano: |
+    <path d="M2 5h16v10H2z"/>
+    <path d="M5 5v6M8 5v6M11 5v6M14 5v6"/>
+    <path d="M4 5v4h2V5M7 5v4h2V5M12 5v4h2V5M15 5v4h2V5"/>
+  organ: |
+    <path d="M3 16V6l7-3 7 3v10"/>
+    <path d="M6 16V8M10 16V5M14 16V8"/>
+    <circle cx="10" cy="13" r="1.5"/>
+  harpsichord: |
+    <path d="M2 8h12l4 4v3H2z"/>
+    <path d="M5 8v7M8 8v7M11 8v7"/>
+  violin: |
+    <ellipse cx="10" cy="13" rx="5" ry="4"/>
+    <path d="M10 9V2"/>
+    <path d="M7 5h6"/>
+    <circle cx="8" cy="13" r="1"/><circle cx="12" cy="13" r="1"/>
+  viola: |
+    <ellipse cx="10" cy="12" rx="5.5" ry="4.5"/>
+    <path d="M10 7.5V2"/>
+    <path d="M7 4.5h6"/>
+    <circle cx="8" cy="12" r="1"/><circle cx="12" cy="12" r="1"/>
+  cello: |
+    <ellipse cx="10" cy="12" rx="6" ry="5"/>
+    <path d="M10 7V2"/>
+    <path d="M6 4h8"/>
+    <path d="M10 17v1"/>
+    <circle cx="8" cy="12" r="1"/><circle cx="12" cy="12" r="1"/>
+  double_bass: |
+    <ellipse cx="10" cy="12" rx="6" ry="5"/>
+    <path d="M10 7V1"/>
+    <path d="M6 3h8"/>
+    <path d="M10 17v2"/>
+    <circle cx="8" cy="12" r="1"/><circle cx="12" cy="12" r="1"/>
+  guitar: |
+    <ellipse cx="10" cy="13" rx="6" ry="5"/>
+    <circle cx="10" cy="13" r="2"/>
+    <path d="M10 8V2"/>
+    <path d="M7 3h6"/>
+  harp: |
+    <path d="M5 18V4c0-1 1-2 2-2h2c4 0 7 3 7 7v9"/>
+    <path d="M5 6h9M5 9h10M5 12h10M5 15h9"/>
+  lute: |
+    <ellipse cx="10" cy="13" rx="6" ry="5"/>
+    <path d="M10 8V2l3-1"/>
+    <circle cx="10" cy="13" r="1.5"/>
+  mandolin: |
+    <ellipse cx="10" cy="14" rx="5" ry="4"/>
+    <path d="M10 10V2"/>
+    <path d="M7 3h6"/>
+    <circle cx="10" cy="14" r="1.5"/>
+  banjo: |
+    <circle cx="10" cy="13" r="5"/>
+    <path d="M10 8V2"/>
+    <path d="M8 3h4"/>
+  ukulele: |
+    <ellipse cx="10" cy="14" rx="4" ry="3.5"/>
+    <path d="M10 10.5V3"/>
+    <path d="M8 4h4"/>
+    <circle cx="10" cy="14" r="1"/>
+  theorbo: |
+    <ellipse cx="10" cy="14" rx="5" ry="4"/>
+    <path d="M10 10V1"/>
+    <path d="M6 2h3M11 3h3"/>
+  flute: |
+    <path d="M2 10h16"/>
+    <circle cx="5" cy="10" r="1.5"/>
+    <circle cx="9" cy="10" r="1"/>
+    <circle cx="12" cy="10" r="1"/>
+    <circle cx="15" cy="10" r="1"/>
+  piccolo: |
+    <path d="M4 10h12"/>
+    <circle cx="7" cy="10" r="1"/>
+    <circle cx="10" cy="10" r="1"/>
+    <circle cx="13" cy="10" r="1"/>
+  recorder: |
+    <path d="M10 2v16"/>
+    <circle cx="10" cy="6" r="1"/>
+    <circle cx="10" cy="9" r="1"/>
+    <circle cx="10" cy="12" r="1"/>
+    <path d="M8 16l2 2 2-2"/>
+  clarinet: |
+    <path d="M10 2v14"/>
+    <rect x="8" y="2" width="4" height="3"/>
+    <circle cx="10" cy="8" r="1"/>
+    <circle cx="10" cy="11" r="1"/>
+    <ellipse cx="10" cy="17" rx="2" ry="1.5"/>
+  oboe: |
+    <path d="M10 3v13"/>
+    <path d="M9 2h2v2H9z"/>
+    <circle cx="10" cy="7" r="1"/>
+    <circle cx="10" cy="10" r="1"/>
+    <ellipse cx="10" cy="17" rx="2.5" ry="1.5"/>
+  bassoon: |
+    <path d="M7 3v14M13 5v12"/>
+    <path d="M7 17c0 1 2.5 1.5 6 0"/>
+    <path d="M5 3h4"/>
+    <circle cx="7" cy="8" r="1"/>
+    <circle cx="13" cy="10" r="1"/>
+  english_horn: |
+    <path d="M10 3v13"/>
+    <path d="M8 2h4"/>
+    <circle cx="10" cy="7" r="1"/>
+    <circle cx="10" cy="10" r="1"/>
+    <ellipse cx="10" cy="17.5" rx="3" ry="1.5"/>
+  saxophone: |
+    <path d="M7 2c0 2 2 3 2 6s-3 6-3 9c0 1 1 2 3 2"/>
+    <circle cx="6" cy="17" r="2"/>
+    <path d="M6 2h3"/>
+  trumpet: |
+    <path d="M2 10h12"/>
+    <path d="M14 7v6l4 2v-10z"/>
+    <circle cx="5" cy="10" r="1.5"/>
+    <circle cx="8" cy="10" r="1.5"/>
+    <circle cx="11" cy="10" r="1.5"/>
+  trombone: |
+    <path d="M2 8h8v4H2z"/>
+    <path d="M10 6h4v8h-4"/>
+    <path d="M14 8v4l4 1v-6z"/>
+  horn: |
+    <circle cx="10" cy="10" r="6" fill="none"/>
+    <path d="M16 10h2"/>
+    <circle cx="10" cy="10" r="2"/>
+  tuba: |
+    <ellipse cx="10" cy="13" rx="6" ry="5"/>
+    <path d="M10 8V3"/>
+    <path d="M7 4h6"/>
+    <ellipse cx="10" cy="13" rx="2" ry="1.5"/>
+  cornet: |
+    <path d="M2 10h10"/>
+    <path d="M12 7v6l5 2V5z"/>
+    <circle cx="5" cy="10" r="1.5"/>
+    <circle cx="8" cy="10" r="1.5"/>
+  flugelhorn: |
+    <path d="M2 10h9"/>
+    <path d="M11 6v8l6 2V4z"/>
+    <circle cx="5" cy="10" r="1.5"/>
+    <circle cx="8" cy="10" r="1.5"/>
+  euphonium: |
+    <ellipse cx="10" cy="12" rx="5" ry="4"/>
+    <path d="M10 8V4"/>
+    <path d="M7 5h6"/>
+    <circle cx="10" cy="12" r="1.5"/>
+  timpani: |
+    <ellipse cx="10" cy="8" rx="7" ry="3"/>
+    <path d="M3 8v6c0 2 3 3 7 3s7-1 7-3V8"/>
+  drums: |
+    <ellipse cx="10" cy="6" rx="6" ry="2"/>
+    <path d="M4 6v8c0 1.5 2.5 3 6 3s6-1.5 6-3V6"/>
+    <path d="M2 4l5 5M18 4l-5 5"/>
+  percussion: |
+    <circle cx="6" cy="10" r="4"/>
+    <circle cx="14" cy="10" r="4"/>
+    <path d="M2 4l4 4M18 4l-4 4"/>
+  xylophone: |
+    <rect x="2" y="7" width="3" height="10" rx="0.5"/>
+    <rect x="6" y="5" width="3" height="12" rx="0.5"/>
+    <rect x="10" y="4" width="3" height="13" rx="0.5"/>
+    <rect x="14" y="6" width="3" height="11" rx="0.5"/>
+  marimba: |
+    <rect x="2" y="6" width="3" height="11" rx="0.5"/>
+    <rect x="6" y="4" width="3" height="13" rx="0.5"/>
+    <rect x="10" y="3" width="3" height="14" rx="0.5"/>
+    <rect x="14" y="5" width="3" height="12" rx="0.5"/>
+  vibraphone: |
+    <rect x="3" y="5" width="2.5" height="8" rx="0.5"/>
+    <rect x="7" y="4" width="2.5" height="9" rx="0.5"/>
+    <rect x="11" y="4" width="2.5" height="9" rx="0.5"/>
+    <rect x="15" y="5" width="2.5" height="8" rx="0.5"/>
+    <path d="M4 14v3M8 14v3M12 14v3M16 14v3"/>
+  glockenspiel: |
+    <rect x="3" y="7" width="2" height="6" rx="0.5"/>
+    <rect x="6" y="6" width="2" height="7" rx="0.5"/>
+    <rect x="9" y="5" width="2" height="8" rx="0.5"/>
+    <rect x="12" y="6" width="2" height="7" rx="0.5"/>
+    <rect x="15" y="7" width="2" height="6" rx="0.5"/>
+  voice: |
+    <circle cx="10" cy="6" r="4"/>
+    <path d="M6 10c0 4 2 7 4 8 2-1 4-4 4-8"/>
+  choir: |
+    <circle cx="6" cy="5" r="2.5"/>
+    <circle cx="14" cy="5" r="2.5"/>
+    <circle cx="10" cy="8" r="2.5"/>
+    <path d="M4 8v5M8 11v4M12 11v4M16 8v5"/>
+  keyboard: |
+    <path d="M2 6h16v8H2z"/>
+    <path d="M5 6v5M8 6v5M11 6v5M14 6v5"/>
+  accordion: |
+    <rect x="2" y="4" width="5" height="12" rx="1"/>
+    <rect x="13" y="4" width="5" height="12" rx="1"/>
+    <path d="M7 6h6M7 10h6M7 14h6"/>
+  synthesizer: |
+    <rect x="2" y="7" width="16" height="8" rx="1"/>
+    <path d="M4 10h2M7 10h2M10 10h2M13 10h2"/>
+    <circle cx="5" cy="13" r="0.5"/><circle cx="8" cy="13" r="0.5"/>
+    <circle cx="11" cy="13" r="0.5"/><circle cx="14" cy="13" r="0.5"/>
+  orchestra: |
+    <path d="M10 2v4"/>
+    <path d="M6 8l4-2 4 2"/>
+    <path d="M4 12c2-2 4-2 6-2s4 0 6 2"/>
+    <path d="M2 17c3-3 6-3 8-3s5 0 8 3"/>
+  continuo: |
+    <path d="M2 5h16v10H2z"/>
+    <path d="M5 5v6M8 5v6M11 5v6M14 5v6"/>
+
+periods:
+  medieval: |
+    <path d="M10 2v3M6 5h8l-1 3H7l-1-3z"/>
+    <path d="M6 8v8l4 2 4-2V8"/>
+    <path d="M8 11h4M8 14h4"/>
+  renaissance: |
+    <path d="M10 2v3M6 5h8l-1 3H7l-1-3z"/>
+    <path d="M6 8v8l4 2 4-2V8"/>
+    <circle cx="10" cy="12" r="2"/>
+  baroque: |
+    <path d="M7 18V4c0-1 .5-2 2-2s2 1 2 2"/>
+    <ellipse cx="5" cy="16" rx="3" ry="2"/>
+    <path d="M11 5c3 0 5 2 5 5s-2 4-4 4"/>
+    <path d="M12 10c1 0 2 .5 2 1.5"/>
+  classical: |
+    <path d="M8 18V4c0-1 .5-2 2-2s2 1 2 2"/>
+    <ellipse cx="6" cy="16" rx="4" ry="2.5"/>
+  romantic: |
+    <path d="M10 18V6"/>
+    <path d="M10 6c0-2 2-4 5-4 0 3-2 5-5 5"/>
+    <ellipse cx="7" cy="16" rx="4" ry="2.5"/>
+    <path d="M14 10c1.5 0 3 1 3 2.5s-1.5 2.5-3 2.5"/>
+  impressionist: |
+    <path d="M3 12c2-2 4-2 7-2s5 0 7 2"/>
+    <path d="M4 8c1.5-1.5 3-1.5 6-1.5s4.5 0 6 1.5"/>
+    <path d="M5 16c1.5 1 3 1 5 1s3.5 0 5-1"/>
+    <circle cx="10" cy="12" r="2"/>
+  modern: |
+    <rect x="4" y="4" width="5" height="12"/>
+    <rect x="11" y="6" width="5" height="10"/>
+    <path d="M6 8h2M6 12h2"/>
+    <path d="M13 9h2M13 13h2"/>
+
+genres:
+  sacred: |
+    <path d="M10 2v16M6 6h8"/>
+    <path d="M4 18h12"/>
+  jazz: |
+    <path d="M7 2c0 2 2 3 2 6s-3 6-3 9c0 1 1 2 3 2"/>
+    <circle cx="6" cy="17" r="2"/>
+    <path d="M6 2h3"/>
+  folk: |
+    <ellipse cx="10" cy="13" rx="6" ry="5"/>
+    <circle cx="10" cy="13" r="2"/>
+    <path d="M10 8V2"/>
+    <path d="M7 3h6"/>
+  opera: |
+    <circle cx="7" cy="8" r="4"/>
+    <circle cx="13" cy="8" r="4"/>
+    <path d="M5 12c1 3 3 5 5 5s4-2 5-5"/>
+  march: |
+    <rect x="4" y="6" width="12" height="10" rx="1"/>
+    <path d="M7 6V4M13 6V4"/>
+    <path d="M7 11h6"/>
+  dance: |
+    <circle cx="10" cy="5" r="3"/>
+    <path d="M10 8v4"/>
+    <path d="M6 18l4-6 4 6"/>
+    <path d="M6 12h8"/>
+  default: |
+    <circle cx="10" cy="12" r="3"/>
+    <path d="M10 9V3"/>
+    <path d="M10 3l3 2"/>
