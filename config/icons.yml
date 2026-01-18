@@ -411,33 +411,27 @@ genres:
 # ═══════════════════════════════════════════════════════════════════════
 
 navigation:
-  # Composer bust with musical emanation — "the creator"
+  # Simple bust — person = composer
   composers: |
-    <circle cx="10" cy="6" r="4"/>
-    <path d="M4 18v-2q0-3 6-4 6 1 6 4v2"/>
-    <path d="M15 3q1.5-0.5 2.5 1t0 2.5"/>
-    <path d="M16 6q1 0 1.5 0.5"/>
+    <circle cx="10" cy="7" r="4"/>
+    <path d="M3 18q0-5 7-6 7 1 7 6"/>
 
-  # Double notes on shared stem — "musical variety"
+  # Double eighth notes — musical variety
   genres: |
-    <ellipse cx="6" cy="15" rx="3" ry="2.5"/>
-    <path d="M9 15V5l8-2v10"/>
-    <ellipse cx="14" cy="13" rx="3" ry="2.5"/>
-    <path d="M9 8l8-2"/>
+    <circle cx="6" cy="14" r="2.5"/>
+    <circle cx="14" cy="12" r="2.5"/>
+    <path d="M8.5 14V5h8v7"/>
+    <path d="M8.5 5l8-1"/>
 
-  # Conductor's view of orchestra — "all the tools"
+  # Violin silhouette — the classic instrument
   instruments: |
-    <path d="M10 2v5"/>
-    <path d="M10 2l2 1"/>
-    <path d="M5 10q5-2 10 0"/>
-    <path d="M3 14q7-3 14 0"/>
-    <path d="M2 18q8-4 16 0"/>
+    <ellipse cx="10" cy="12" rx="5" ry="4.5"/>
+    <path d="M10 7.5V3"/>
+    <path d="M7 3h6"/>
+    <path d="M8 11.5h4M8 13h4"/>
 
-  # Timeline with era milestones — "through history"
+  # Hourglass — time/history
   periods: |
-    <path d="M3 10h14"/>
-    <circle cx="5" cy="10" r="2"/>
-    <circle cx="10" cy="10" r="2"/>
-    <circle cx="15" cy="10" r="2"/>
-    <path d="M5 6v-2M10 5v-2M15 6v-2"/>
-    <path d="M5 14v2M10 15v2M15 14v2"/>
+    <path d="M6 2h8M6 18h8"/>
+    <path d="M6 2q0 6 4 8-4 2-4 8"/>
+    <path d="M14 2q0 6-4 8 4 2 4 8"/>
