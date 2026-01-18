@@ -149,11 +149,11 @@ class HubDataBuilder
 
     def build_top_instruments_for(type, name)
       base_scope = case type
-                   when :period then Score.by_period(name)
-                   when :genre then Score.by_genre(name)
-                   when :composer then Score.where(composer: name)
-                   else return []
-                   end
+      when :period then Score.by_period(name)
+      when :genre then Score.by_genre(name)
+      when :composer then Score.where(composer: name)
+      else return []
+      end
 
       VALID_INSTRUMENTS.filter_map do |instrument|
         count = base_scope.by_instrument(instrument).count
