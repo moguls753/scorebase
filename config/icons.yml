@@ -404,3 +404,40 @@ genres:
     <ellipse cx="8" cy="14" rx="3.5" ry="2.5"/>
     <path d="M11.5 14V5"/>
     <path d="M11.5 5l3 2"/>
+
+# ═══════════════════════════════════════════════════════════════════════
+# NAVIGATION — Category browse icons for hub navigation
+# Bold silhouettes that tell the story of each category
+# ═══════════════════════════════════════════════════════════════════════
+
+navigation:
+  # Composer bust with musical emanation — "the creator"
+  composers: |
+    <circle cx="10" cy="6" r="4"/>
+    <path d="M4 18v-2q0-3 6-4 6 1 6 4v2"/>
+    <path d="M15 3q1.5-0.5 2.5 1t0 2.5"/>
+    <path d="M16 6q1 0 1.5 0.5"/>
+
+  # Double notes on shared stem — "musical variety"
+  genres: |
+    <ellipse cx="6" cy="15" rx="3" ry="2.5"/>
+    <path d="M9 15V5l8-2v10"/>
+    <ellipse cx="14" cy="13" rx="3" ry="2.5"/>
+    <path d="M9 8l8-2"/>
+
+  # Conductor's view of orchestra — "all the tools"
+  instruments: |
+    <path d="M10 2v5"/>
+    <path d="M10 2l2 1"/>
+    <path d="M5 10q5-2 10 0"/>
+    <path d="M3 14q7-3 14 0"/>
+    <path d="M2 18q8-4 16 0"/>
+
+  # Timeline with era milestones — "through history"
+  periods: |
+    <path d="M3 10h14"/>
+    <circle cx="5" cy="10" r="2"/>
+    <circle cx="10" cy="10" r="2"/>
+    <circle cx="15" cy="10" r="2"/>
+    <path d="M5 6v-2M10 5v-2M15 6v-2"/>
+    <path d="M5 14v2M10 15v2M15 14v2"/>

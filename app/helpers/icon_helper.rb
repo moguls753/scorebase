@@ -104,6 +104,12 @@ module IconHelper
     build_svg(svg_content, size, html_class)
   end
 
+  def navigation_svg_icon(category, size: 20, html_class: nil)
+    key = category.to_s.downcase.to_sym
+    svg_content = ICONS[:navigation][key] || ICONS[:genres][:default]
+    build_svg(svg_content, size, html_class)
+  end
+
   private
 
   def resolve_instrument_key(name)
