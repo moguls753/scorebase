@@ -17,7 +17,6 @@
         <%= link_to period_instrument_path(period_slug: period[:slug], instrument_slug: slug),
             class: "period-chip",
             style: "animation-delay: #{index * 50}ms" do %>
-          <span class="period-chip__era"><%= period_era_indicator(period[:name]) %></span>
           <span class="period-chip__name"><%= t("hub.period_names.#{period[:slug].underscore}", default: period[:name]) %></span>
         <% end %>
       <% end %>

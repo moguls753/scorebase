@@ -45,7 +45,7 @@
               <%= render "hub_pages/hub_card_row",
                   item: genre,
                   path: genre_path(slug: genre[:slug]),
-                  icon: genre_icon(genre[:name]),
+                  icon: genre_svg_icon(genre[:name], size: 24),
                   search_attribute: "genreName",
                   index: global_index,
                   count_label: t('search.results_count').downcase %>

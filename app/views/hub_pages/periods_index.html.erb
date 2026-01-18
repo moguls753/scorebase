@@ -35,17 +35,8 @@
             class: "hub-card mm-card p-5 sm:p-6 group flex items-center gap-4",
             style: "animation-delay: #{i * 30}ms" do %>
           <!-- Period Icon -->
-          <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-[var(--color-bg)] border-2 border-[var(--color-border)] text-3xl">
-            <% icon = case period[:name]
-               when "Medieval" then "🏰"
-               when "Renaissance" then "🎨"
-               when "Baroque" then "🎻"
-               when "Classical" then "🎹"
-               when "Romantic" then "🌹"
-               when "Modern" then "🎷"
-               else "🎼"
-               end %>
-            <%= icon %>
+          <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-[var(--color-bg)] border-2 border-[var(--color-border)]">
+            <%= period_svg_icon(period[:name], size: 32) %>
           </div>
 
           <div class="flex-1 min-w-0">

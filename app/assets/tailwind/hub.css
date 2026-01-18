@@ -185,9 +185,14 @@ html[data-turbo-preview] .instrument-chip {
 }
 
 .instrument-chip__icon {
-  font-size: 14px;
-  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.15s ease;
+}
+
+.instrument-chip__icon svg {
+  flex-shrink: 0;
 }
 
 .instrument-chip__name {
@@ -314,13 +319,6 @@ html[data-turbo-preview] .period-chip {
   transform: none;
 }
 
-.period-chip__era {
-  font-size: 8px;
-  letter-spacing: -1px;
-  color: var(--color-accent);
-  transition: letter-spacing 0.15s ease;
-}
-
 .period-chip__name {
   transition: color 0.1s ease;
 }
@@ -329,10 +327,6 @@ html[data-turbo-preview] .period-chip {
   transform: translate(-1px, -1px);
   box-shadow: 3px 3px 0 var(--color-border);
   border-color: var(--color-accent);
-}
-
-.period-chip:hover .period-chip__era {
-  letter-spacing: 0px;
 }
 
 .period-chip:hover .period-chip__name {
@@ -357,11 +351,6 @@ html[data-turbo-preview] .period-chip {
   .period-chip {
     padding: 7px 12px;
     font-size: 11px;
-    gap: 6px;
-  }
-
-  .period-chip__era {
-    font-size: 7px;
   }
 }
 
@@ -709,7 +698,14 @@ html[data-turbo-preview] .hub-card {
 .hub-card__icon {
   font-size: 28px;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: transform 0.2s ease;
+}
+
+.hub-card__icon svg {
+  flex-shrink: 0;
 }
 
 .hub-card--icon:hover .hub-card__icon {
