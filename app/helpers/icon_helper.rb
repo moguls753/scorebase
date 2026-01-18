@@ -269,7 +269,7 @@ module IconHelper
       <path d="M4 12c2-2 4-2 6-2s4 0 6 2"/>
       <path d="M2 17c3-3 6-3 8-3s5 0 8 3"/>
     SVG
-    continuo: <<~SVG,
+    continuo: <<~SVG
       <path d="M2 5h16v10H2z"/>
       <path d="M5 5v6M8 5v6M11 5v6M14 5v6"/>
     SVG
@@ -310,7 +310,7 @@ module IconHelper
       <path d="M5 16c1.5 1 3 1 5 1s3.5 0 5-1"/>
       <circle cx="10" cy="12" r="2"/>
     SVG
-    modern: <<~SVG,
+    modern: <<~SVG
       <rect x="4" y="4" width="5" height="12"/>
       <rect x="11" y="6" width="5" height="10"/>
       <path d="M6 8h2M6 12h2"/>
@@ -369,7 +369,7 @@ module IconHelper
       <path d="M6 18l4-6 4 6"/>
       <path d="M6 12h8"/>
     SVG
-    default: <<~SVG,
+    default: <<~SVG
       <circle cx="10" cy="12" r="3"/>
       <path d="M10 9V3"/>
       <path d="M10 3l3 2"/>
