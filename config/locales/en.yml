@@ -274,6 +274,9 @@ en:
     period_instrument_title: "%{period} %{instrument} Sheet Music — Downloads"
     period_instrument_description: "Browse %{count} %{instrument} sheet music scores from the %{period} period. Free to download and print."
 
+    # Separators
+    separator_for: "for"
+
     # UI elements
     scores_count: "%{count} scores"
     browse_all: "Browse All"

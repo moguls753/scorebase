@@ -274,6 +274,9 @@ de:
     period_instrument_title: "%{period} %{instrument} Noten — Download"
     period_instrument_description: "Entdecke %{count} %{instrument}-Noten aus der %{period}. Kostenlos herunterladen und drucken."
 
+    # Separators
+    separator_for: "für"
+
     # UI elements
     scores_count: "%{count} Noten"
     browse_all: "Alle durchsuchen"
