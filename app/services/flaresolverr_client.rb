@@ -25,9 +25,10 @@ class FlaresolverrClient
   DEFAULT_URL = "http://localhost:8191"
   DEFAULT_TIMEOUT = 60_000  # 60 seconds in milliseconds
 
-  def initialize(base_url: nil, max_timeout: nil)
+  def initialize(base_url: nil, max_timeout: nil, session: "scorebase")
     @base_url = base_url || ENV.fetch("FLARESOLVERR_URL", DEFAULT_URL)
     @max_timeout = max_timeout || ENV.fetch("FLARESOLVERR_TIMEOUT", DEFAULT_TIMEOUT).to_i
+    @session = session  # Persist cookies across requests (solves challenge once)
   end
 
   def self.available?
@@ -53,7 +54,8 @@ class FlaresolverrClient
     payload = {
       cmd: "request.get",
       url: url,
-      maxTimeout: request_timeout
+      maxTimeout: request_timeout,
+      session: @session
     }
 
     http = Net::HTTP.new(uri.host, uri.port)
