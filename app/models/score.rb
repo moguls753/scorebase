@@ -216,7 +216,7 @@ class Score < ApplicationRecord
   before_save :update_normalized_search_columns, if: -> { title_changed? || composer_changed? }
 
   # Pagination
-  paginates_per 12
+  paginates_per 30
 
   # Source scopes
   scope :from_pdmx, -> { where(source: "pdmx") }
