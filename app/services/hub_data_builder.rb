@@ -109,6 +109,31 @@ class HubDataBuilder
       Rails.logger.info "[HubDataBuilder] Cache warm complete"
     end
 
+    # Returns top instruments for a given dimension that meet the threshold
+    # Used for cross-linking on single-dimension hub pages
+    #
+    # @param type [Symbol] :period, :genre, or :composer
+    # @param name [String] The dimension value (e.g., "Classical", "Sonata", "Bach, Johann Sebastian")
+    # @param limit [Integer] Maximum number of instruments to return (default 6)
+    # @return [Array<Hash>] Array of {name:, slug:, count:} sorted by count descending
+    def top_instruments_for(type, name, limit: 6)
+      cache_key = "hub/top_instruments/#{type}/#{name.parameterize}"
+      # Cache all matching instruments, slice to limit after retrieval
+      # This avoids cache key conflicts when different limits are requested
+      all_instruments = fetch_or_build(cache_key) { build_top_instruments_for(type, name) }
+      all_instruments.first(limit)
+    end
+
+    # Returns periods for a given instrument that meet the threshold
+    # Used for cross-linking on instrument hub pages
+    #
+    # @param instrument_name [String] The instrument name (e.g., "Piano", "Violin")
+    # @return [Array<Hash>] Array of {name:, slug:, count:} in PERIOD_ORDER
+    def periods_for_instrument(instrument_name)
+      cache_key = "hub/periods_for_instrument/#{instrument_name.parameterize}"
+      fetch_or_build(cache_key) { build_periods_for_instrument(instrument_name) }
+    end
+
     # Slug lookups - verifies item still meets threshold (cache can be stale)
     def find_by_slug(type, slug)
       data = public_send(type)
@@ -121,6 +146,34 @@ class HubDataBuilder
     end
 
     private
+
+    def build_top_instruments_for(type, name)
+      base_scope = case type
+                   when :period then Score.by_period(name)
+                   when :genre then Score.by_genre(name)
+                   when :composer then Score.where(composer: name)
+                   else return []
+                   end
+
+      VALID_INSTRUMENTS.filter_map do |instrument|
+        count = base_scope.by_instrument(instrument).count
+        next if count < THRESHOLD
+
+        { name: instrument.titleize, slug: instrument.parameterize, count: count }
+      end.sort_by { |item| -item[:count] }
+    end
+
+    def build_periods_for_instrument(instrument_name)
+      base_scope = Score.by_instrument(instrument_name)
+
+      # Return in PERIOD_ORDER (chronological) rather than by count
+      PERIOD_ORDER.filter_map do |period|
+        count = base_scope.by_period(period).count
+        next if count < THRESHOLD
+
+        { name: period, slug: period.parameterize, count: count }
+      end
+    end
 
     def current_count(type, name)
       case type

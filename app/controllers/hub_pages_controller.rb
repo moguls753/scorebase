@@ -31,24 +31,28 @@ class HubPagesController < ApplicationController
     @composer_period = Score.where(composer: @composer_name)
                             .where.not(period: [nil, ""])
                             .pick(:period)
+    @top_instruments = HubDataBuilder.top_instruments_for(:composer, @composer_name)
     set_detail_meta(:composer, @composer_name)
   end
 
   def genre
     @genre_name = find_or_404(:genres, params[:slug])
     @scores = paginate(Score.by_genre(@genre_name))
+    @top_instruments = HubDataBuilder.top_instruments_for(:genre, @genre_name)
     set_detail_meta(:genre, @genre_name)
   end
 
   def instrument
     @instrument_name = find_or_404(:instruments, params[:slug])
     @scores = paginate(Score.by_instrument(@instrument_name))
+    @top_periods = HubDataBuilder.periods_for_instrument(@instrument_name)
     set_detail_meta(:instrument, @instrument_name)
   end
 
   def period
     @period_name = find_or_404(:periods, params[:slug])
     @scores = paginate(Score.by_period(@period_name))
+    @top_instruments = HubDataBuilder.top_instruments_for(:period, @period_name)
     set_detail_meta(:period, @period_name)
   end
 

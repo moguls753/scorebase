@@ -21,6 +21,8 @@
           <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@total_count) %></span>
           <%= t('search.results_count').downcase %>
         </p>
+
+        <%= render 'instrument_chips', type: :period, slug: params[:slug], instruments: @top_instruments %>
       </div>
 
       <%= form_with url: period_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores" }, class: "w-full sm:w-auto" do |f| %>

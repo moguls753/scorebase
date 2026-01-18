@@ -57,6 +57,17 @@ module HubPagesHelper
     genre: "🎼"
   }.freeze
 
+  # Era indicators for period chips - abstract geometric marks suggesting time progression
+  PERIOD_ERA_INDICATORS = {
+    "Medieval" => "▪",
+    "Renaissance" => "▫▪",
+    "Baroque" => "▪▪",
+    "Classical" => "▫▪▪",
+    "Romantic" => "▪▪▪",
+    "Impressionist" => "▫▪▪▪",
+    "Modern" => "▪▪▪▪"
+  }.freeze
+
   # Returns an emoji icon for an instrument name
   def instrument_icon(name)
     find_icon(name, INSTRUMENT_ICONS, DEFAULT_ICONS[:instrument])
@@ -65,6 +76,20 @@ module HubPagesHelper
   # Returns an emoji icon for a genre name
   def genre_icon(name)
     find_icon(name, GENRE_ICONS, DEFAULT_ICONS[:genre])
+  end
+
+  # Returns an era indicator for a period name (abstract marks suggesting chronology)
+  def period_era_indicator(name)
+    PERIOD_ERA_INDICATORS[name] || "▪"
+  end
+
+  # Returns the path for an instrument chip based on the dimension type
+  def instrument_chip_path(type, dimension_slug, instrument_slug)
+    case type
+    when :period then period_instrument_path(period_slug: dimension_slug, instrument_slug: instrument_slug)
+    when :genre then genre_instrument_path(genre_slug: dimension_slug, instrument_slug: instrument_slug)
+    when :composer then composer_instrument_path(composer_slug: dimension_slug, instrument_slug: instrument_slug)
+    end
   end
 
   # Normalizes the first letter for grouping, handling non-alphabetic chars

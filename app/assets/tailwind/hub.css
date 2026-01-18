@@ -105,6 +105,267 @@
 }
 
 /* ========================================
+   INSTRUMENT CHIPS - Cross-linking Filters
+   ======================================== */
+
+.instrument-chips {
+  margin-top: 20px;
+}
+
+.instrument-chips__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.instrument-chips__label {
+  font-family: var(--font-family-body);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.instrument-chips__line {
+  flex: 1;
+  height: var(--border-width);
+  background: var(--color-border-subtle);
+}
+
+.instrument-chips__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.instrument-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--color-bg-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+  text-decoration: none;
+  box-shadow: 2px 2px 0 var(--color-border);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+  animation: instrumentChipFadeIn 0.3s ease both;
+}
+
+@keyframes instrumentChipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .instrument-chip {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+html[data-turbo-preview] .instrument-chip {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
+.instrument-chip__icon {
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 0.15s ease;
+}
+
+.instrument-chip__name {
+  transition: color 0.1s ease;
+}
+
+.instrument-chip:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--color-border);
+  border-color: var(--color-accent);
+}
+
+.instrument-chip:hover .instrument-chip__icon {
+  transform: scale(1.15);
+}
+
+.instrument-chip:hover .instrument-chip__name {
+  color: var(--color-accent);
+}
+
+.instrument-chip:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--color-border);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 475px) {
+  .instrument-chips {
+    margin-top: 16px;
+  }
+
+  .instrument-chips__list {
+    gap: 6px;
+  }
+
+  .instrument-chip {
+    padding: 7px 12px;
+    font-size: 11px;
+    gap: 5px;
+  }
+
+  .instrument-chip__icon {
+    font-size: 13px;
+  }
+}
+
+/* ========================================
+   PERIOD CHIPS - Cross-linking for Instruments
+   ======================================== */
+
+.period-chips {
+  margin-top: 20px;
+}
+
+.period-chips__header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.period-chips__label {
+  font-family: var(--font-family-body);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.period-chips__line {
+  flex: 1;
+  height: var(--border-width);
+  background: var(--color-border-subtle);
+}
+
+.period-chips__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.period-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--color-bg-surface);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-family-display);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+  text-decoration: none;
+  box-shadow: 2px 2px 0 var(--color-border);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
+  animation: periodChipFadeIn 0.3s ease both;
+}
+
+@keyframes periodChipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .period-chip {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+html[data-turbo-preview] .period-chip {
+  animation: none;
+  opacity: 1;
+  transform: none;
+}
+
+.period-chip__era {
+  font-size: 8px;
+  letter-spacing: -1px;
+  color: var(--color-accent);
+  transition: letter-spacing 0.15s ease;
+}
+
+.period-chip__name {
+  transition: color 0.1s ease;
+}
+
+.period-chip:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--color-border);
+  border-color: var(--color-accent);
+}
+
+.period-chip:hover .period-chip__era {
+  letter-spacing: 0px;
+}
+
+.period-chip:hover .period-chip__name {
+  color: var(--color-accent);
+}
+
+.period-chip:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--color-border);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 475px) {
+  .period-chips {
+    margin-top: 16px;
+  }
+
+  .period-chips__list {
+    gap: 6px;
+  }
+
+  .period-chip {
+    padding: 7px 12px;
+    font-size: 11px;
+    gap: 6px;
+  }
+
+  .period-chip__era {
+    font-size: 7px;
+  }
+}
+
+/* ========================================
    PAGINATION - Simple Prev/Next
    ======================================== */
 

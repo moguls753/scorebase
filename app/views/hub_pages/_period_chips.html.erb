@@ -1,0 +1,26 @@
+<%# Period Chips - Cross-linking for instrument hub pages
+    Displays period filter chips linking to combined pages (e.g., /periods/baroque/piano)
+    Periods appear in chronological order: Medieval → Renaissance → Baroque → Classical → Romantic → Impressionist → Modern
+
+    Local variables:
+    - slug: String - The instrument slug (e.g., "piano")
+    - periods: Array<Hash> - Periods with :name, :slug, :count (already in chronological order)
+%>
+<% if periods.present? %>
+  <div class="period-chips">
+    <div class="period-chips__header">
+      <span class="period-chips__label"><%= t('hub.browse_by_period') %></span>
+      <span class="period-chips__line"></span>
+    </div>
+    <div class="period-chips__list">
+      <% periods.each_with_index do |period, index| %>
+        <%= link_to period_instrument_path(period_slug: period[:slug], instrument_slug: slug),
+            class: "period-chip",
+            style: "animation-delay: #{index * 50}ms" do %>
+          <span class="period-chip__era"><%= period_era_indicator(period[:name]) %></span>
+          <span class="period-chip__name"><%= t("hub.period_names.#{period[:slug].underscore}", default: period[:name]) %></span>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+<% end %>

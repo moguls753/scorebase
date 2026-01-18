@@ -29,6 +29,8 @@
             <%= t('hub.scores_count', count: @total_count).downcase.gsub(@total_count.to_s, '').strip %>
           </p>
         </div>
+
+        <%= render 'instrument_chips', type: :composer, slug: params[:slug], instruments: @top_instruments %>
       </div>
 
       <!-- Sort Control - Anchored -->

@@ -278,6 +278,8 @@ de:
     separator_for: "für"
 
     # UI elements
+    browse_by_instrument: "Nach Instrument filtern"
+    browse_by_period: "Nach Epoche filtern"
     scores_count: "%{count} Noten"
     browse_all: "Alle durchsuchen"
     back_to_list: "Zurück zur Liste"
