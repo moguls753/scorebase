@@ -8,15 +8,16 @@
 %>
 <% card_index = local_assigns[:hub_card_simple_counter] || index || 0 %>
 <% data_key = search_attribute.underscore.to_sym %>
+<% display_name = item[:display_name] || item[:name] %>
 <%= link_to path,
     class: "hub-card hub-card--simple mm-card group",
     style: hub_card_style(card_index),
     data: {
       list_filter_target: "item",
-      data_key => item[:name].to_s.downcase
+      data_key => display_name.to_s.downcase
     } do %>
   <h3 class="hub-card__name" data-list-filter-target="itemName">
-    <%= item[:name] %>
+    <%= display_name %>
   </h3>
   <span class="hub-card__count">
     <%= number_with_delimiter(item[:count]) %>

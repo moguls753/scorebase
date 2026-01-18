@@ -42,10 +42,9 @@
           </div>
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
             <% instruments_in_group.each do |instrument| %>
-              <%= render "hub_pages/hub_card_icon",
+              <%= render "hub_pages/hub_card_simple",
                   item: instrument,
                   path: instrument_path(slug: instrument[:slug]),
-                  icon: instrument_svg_icon(instrument[:name], size: 28),
                   search_attribute: "instrumentName",
                   index: global_index %>
               <% global_index += 1 %>

@@ -15,7 +15,6 @@
     <div class="instrument-chips__list">
       <% instruments.each_with_index do |instrument, index| %>
         <%= link_to instrument_chip_path(type, slug, instrument[:slug]), class: "instrument-chip", style: "animation-delay: #{index * 40}ms" do %>
-          <span class="instrument-chip__icon"><%= instrument_svg_icon(instrument[:name], size: 16) %></span>
           <span class="instrument-chip__name"><%= translate_hub_name(:instruments, instrument) %></span>
         <% end %>
       <% end %>
