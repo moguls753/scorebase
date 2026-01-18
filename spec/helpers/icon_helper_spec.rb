@@ -66,7 +66,7 @@ RSpec.describe IconHelper, type: :helper do
         "VIOLIN" => :violin,
         "String Quartet" => :violin,
         "Mezzo-soprano" => :voice,
-        "A Cappella Choir" => :voice,
+        "A Cappella Choir" => :choir,
         "Electric Guitar" => :guitar,
         "Double Bass" => :double_bass,
         "Contrabass" => :double_bass,
