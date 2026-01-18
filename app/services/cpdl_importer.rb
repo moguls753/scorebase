@@ -17,7 +17,7 @@ class CpdlImporter
     @imported_count = 0
     @skipped_count = 0
     @errors = []
-    @cloudflare_bypass = nil
+    @flaresolverr = nil
   end
 
   def import!
@@ -25,8 +25,8 @@ class CpdlImporter
     puts "Limit: #{@limit || 'none'}"
     puts "(Existing scores are always skipped - safe to re-run)"
 
-    # Initialize CloudflareBypass if available
-    init_cloudflare_bypass!
+    # Initialize FlareSolverr if available (preferred for API requests)
+    init_flaresolverr!
 
     # Get all score pages from CPDL
     pages = fetch_all_score_pages
@@ -398,13 +398,14 @@ class CpdlImporter
     urls
   end
 
-  def init_cloudflare_bypass!
-    client = CloudflareBypassClient.new
+  def init_flaresolverr!
+    client = FlaresolverrClient.new
     if client.available?
-      @cloudflare_bypass = client
-      puts "CloudflareBypass available - requests will be proxied"
+      @flaresolverr = client
+      puts "FlareSolverr available - API requests will be proxied (60s timeout)"
     else
-      puts "CloudflareBypass not available, falling back to direct HTTP"
+      puts "FlareSolverr not available, falling back to direct HTTP"
+      puts "  Start with: docker run -p 8191:8191 ghcr.io/flaresolverr/flaresolverr"
     end
   end
 
@@ -414,15 +415,15 @@ class CpdlImporter
     uri = URI(BASE_URL)
     uri.query = URI.encode_www_form(params)
 
-    response = if @cloudflare_bypass
-      @cloudflare_bypass.get(uri.to_s)
+    response = if @flaresolverr
+      @flaresolverr.get(uri.to_s)
     else
       direct_request(uri)
     end
 
-    unless response.is_a?(Net::HTTPSuccess)
+    unless response_success?(response)
       if response.code == "403"
-        raise RateLimitError, "CPDL API returned 403. Start cloudflare-bypass container."
+        raise RateLimitError, "CPDL API returned 403. Start FlareSolverr container."
       elsif response.code == "500" && retry_count < 3
         wait_time = [30, 60, 120][retry_count]
         puts "  Server error (500). Retrying in #{wait_time}s..."
@@ -436,12 +437,26 @@ class CpdlImporter
     JSON.parse(response.body)
   rescue RateLimitError
     raise
+  rescue FlaresolverrClient::Error => e
+    puts "  FlareSolverr error: #{e.message}"
+    if retry_count < 3
+      wait_time = [30, 60, 120][retry_count]
+      puts "  Retrying in #{wait_time}s..."
+      sleep(wait_time)
+      return api_request(params, retry_count: retry_count + 1)
+    end
+    nil
   rescue JSON::ParserError => e
     puts "  JSON parse error: #{e.message}"
     nil
   rescue StandardError => e
     puts "  Request failed: #{e.message}"
     nil
+  end
+
+  def response_success?(response)
+    return response.success? if response.respond_to?(:success?)
+    response.is_a?(Net::HTTPSuccess)
   end
 
   def direct_request(uri)
