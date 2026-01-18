@@ -47,6 +47,7 @@ Rails.application.routes.draw do
     # Combined pages (Tier 1 combinations)
     get "composers/:composer_slug/:instrument_slug", to: "hub_pages#composer_instrument", as: :composer_instrument
     get "genres/:genre_slug/:instrument_slug", to: "hub_pages#genre_instrument", as: :genre_instrument
+    get "periods/:period_slug/:instrument_slug", to: "hub_pages#period_instrument", as: :period_instrument
 
     # Pages
     get "about", to: "pages#about"

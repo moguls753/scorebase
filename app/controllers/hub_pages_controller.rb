@@ -77,6 +77,18 @@ class HubPagesController < ApplicationController
       genre: @genre_name, instrument: @instrument_name, count: @total_count)
   end
 
+  def period_instrument
+    @period_name = find_or_404(:periods, params[:period_slug])
+    @instrument_name = find_or_404(:instruments, params[:instrument_slug])
+
+    @scores = paginate(Score.by_period(@period_name).by_instrument(@instrument_name))
+    not_found if @total_count < HubDataBuilder::THRESHOLD
+
+    @page_title = t("hub.period_instrument_title", period: @period_name, instrument: @instrument_name)
+    @page_description = t("hub.period_instrument_description",
+      period: @period_name, instrument: @instrument_name, count: @total_count)
+  end
+
   private
 
   def set_sort

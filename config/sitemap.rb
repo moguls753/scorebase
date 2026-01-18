@@ -53,6 +53,10 @@ SitemapGenerator::Sitemap.create do
   add instruments_path, changefreq: "weekly", priority: 0.9
   add instruments_path(locale: :de), changefreq: "weekly", priority: 0.9
 
+  # Periods index
+  add periods_path, changefreq: "weekly", priority: 0.9
+  add periods_path(locale: :de), changefreq: "weekly", priority: 0.9
+
   # ===========================================
   # INDIVIDUAL HUB PAGES (from HubDataBuilder)
   # ===========================================
@@ -76,6 +80,13 @@ SitemapGenerator::Sitemap.create do
   instruments.each do |item|
     add instrument_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
     add instrument_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
+  end
+
+  # Period pages (historical eras)
+  periods = HubDataBuilder.periods
+  periods.each do |item|
+    add period_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
+    add period_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
   end
 
   # ===========================================
@@ -114,6 +125,22 @@ SitemapGenerator::Sitemap.create do
       add genre_instrument_path(genre_slug: genre_item[:slug], instrument_slug: instrument_item[:slug]),
           changefreq: "weekly", priority: 0.7
       add genre_instrument_path(genre_slug: genre_item[:slug], instrument_slug: instrument_item[:slug], locale: :de),
+          changefreq: "weekly", priority: 0.7
+    end
+  end
+
+  # Period + Instrument combinations
+  # e.g., "Classical Piano", "Baroque Violin"
+  # Uses same scopes as controller for consistent counts
+  periods.each do |period_item|
+    instruments.each do |instrument_item|
+      count = Score.by_period(period_item[:name])
+                   .by_instrument(instrument_item[:name]).count
+      next if count < threshold
+
+      add period_instrument_path(period_slug: period_item[:slug], instrument_slug: instrument_item[:slug]),
+          changefreq: "weekly", priority: 0.7
+      add period_instrument_path(period_slug: period_item[:slug], instrument_slug: instrument_item[:slug], locale: :de),
           changefreq: "weekly", priority: 0.7
     end
   end

@@ -258,19 +258,21 @@ de:
 
     # Single dimension pages
     composer_page_title: "%{name} — Noten"
-    composer_page_description: "Lade %{count} Noten von %{name} herunter. PDF, MusicXML und MIDI."
+    composer_page_description: "Entdecke %{count} Noten von %{name}. Kostenlos herunterladen und drucken."
     genre_page_title: "%{name} Noten — Download"
-    genre_page_description: "Lade %{count} %{name}-Noten herunter. PDF, MusicXML und MIDI."
+    genre_page_description: "Entdecke %{count} %{name}-Noten. Kostenlos herunterladen und drucken."
     instrument_page_title: "%{name} Noten — Download"
-    instrument_page_description: "Lade %{count} Noten für %{name} herunter. PDF, MusicXML und MIDI."
+    instrument_page_description: "Entdecke %{count} Noten für %{name}. Kostenlos herunterladen und drucken."
     period_page_title: "%{name} — Noten"
-    period_page_description: "Lade %{count} Noten aus der %{name} herunter. PDF, MusicXML und MIDI."
+    period_page_description: "Entdecke %{count} Noten aus der %{name}. Kostenlos herunterladen und drucken."
 
     # Combined pages
     composer_instrument_title: "%{composer} %{instrument} Noten — Download"
-    composer_instrument_description: "Lade %{count} %{instrument}-Noten von %{composer} herunter. PDF, MusicXML und MIDI."
+    composer_instrument_description: "Entdecke %{count} %{instrument}-Noten von %{composer}. Kostenlos herunterladen und drucken."
     genre_instrument_title: "%{genre} %{instrument} Noten — Download"
-    genre_instrument_description: "Lade %{count} %{genre}-Noten für %{instrument} herunter. PDF, MusicXML und MIDI."
+    genre_instrument_description: "Entdecke %{count} %{genre}-Noten für %{instrument}. Kostenlos herunterladen und drucken."
+    period_instrument_title: "%{period} %{instrument} Noten — Download"
+    period_instrument_description: "Entdecke %{count} %{instrument}-Noten aus der %{period}. Kostenlos herunterladen und drucken."
 
     # UI elements
     scores_count: "%{count} Noten"

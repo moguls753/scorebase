@@ -7,9 +7,9 @@
     <nav class="flex items-center gap-2 text-xs font-medium text-[var(--color-text-muted)] mb-4 flex-wrap">
       <%= link_to root_path, class: "hover:text-[var(--color-accent)] transition-colors" do %>ScoreBase<% end %>
       <span class="text-[var(--color-border-subtle)]">/</span>
-      <%= link_to genres_path, class: "hover:text-[var(--color-accent)] transition-colors" do %><%= t('filters.genre') %><% end %>
+      <%= link_to periods_path, class: "hover:text-[var(--color-accent)] transition-colors" do %><%= t('hub.periods') %><% end %>
       <span class="text-[var(--color-border-subtle)]">/</span>
-      <%= link_to genre_path(slug: params[:genre_slug]), class: "hover:text-[var(--color-accent)] transition-colors" do %><%= @genre_name %><% end %>
+      <%= link_to period_path(slug: params[:period_slug]), class: "hover:text-[var(--color-accent)] transition-colors" do %><%= t("hub.period_names.#{params[:period_slug].underscore}", default: @period_name) %><% end %>
       <span class="text-[var(--color-border-subtle)]">/</span>
       <span class="text-[var(--color-accent)]"><%= @instrument_name %></span>
     </nav>
@@ -17,7 +17,7 @@
     <div class="flex flex-col gap-4">
       <div>
         <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
-          <%= @genre_name %> <span class="text-[var(--color-accent)]"><%= @instrument_name %></span>
+          <%= t("hub.period_names.#{params[:period_slug].underscore}", default: @period_name) %> <span class="text-[var(--color-accent)]"><%= @instrument_name %></span>
         </h1>
         <p class="text-sm sm:text-base text-[var(--color-text-muted)] max-w-2xl leading-relaxed">
           <%= @page_description %>
@@ -30,7 +30,7 @@
           <%= t('search.results_count').downcase %>
         </p>
 
-        <%= form_with url: genre_instrument_path(genre_slug: params[:genre_slug], instrument_slug: params[:instrument_slug]), method: :get, data: { turbo_frame: "scores" }, class: "w-full sm:w-auto" do |f| %>
+        <%= form_with url: period_instrument_path(period_slug: params[:period_slug], instrument_slug: params[:instrument_slug]), method: :get, data: { turbo_frame: "scores" }, class: "w-full sm:w-auto" do |f| %>
           <div class="sort-control sort-control--anchored">
             <label for="sort" class="sort-label"><span class="sort-icon">↕</span><span class="hidden xs:inline"><%= t('search.sort_by') %></span></label>
             <%= f.select :sort, [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]], { selected: @sort }, { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" } %>
@@ -59,4 +59,3 @@
   <% end %>
 </div>
 </turbo-frame>
-

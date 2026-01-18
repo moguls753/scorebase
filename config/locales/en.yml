@@ -258,19 +258,21 @@ en:
 
     # Single dimension pages
     composer_page_title: "%{name} — Sheet Music"
-    composer_page_description: "Download %{count} sheet music scores by %{name}. PDF, MusicXML, and MIDI files."
+    composer_page_description: "Browse %{count} sheet music scores by %{name}. Free to download and print."
     genre_page_title: "%{name} Sheet Music — Downloads"
-    genre_page_description: "Download %{count} %{name} sheet music scores. PDF, MusicXML, and MIDI files."
+    genre_page_description: "Browse %{count} %{name} sheet music scores. Free to download and print."
     instrument_page_title: "%{name} Sheet Music — Downloads"
-    instrument_page_description: "Download %{count} sheet music scores for %{name}. PDF, MusicXML, and MIDI files."
+    instrument_page_description: "Browse %{count} sheet music scores for %{name}. Free to download and print."
     period_page_title: "%{name} Period — Sheet Music"
-    period_page_description: "Download %{count} sheet music scores from the %{name} period. PDF, MusicXML, and MIDI files."
+    period_page_description: "Browse %{count} sheet music scores from the %{name} period. Free to download and print."
 
     # Combined pages
     composer_instrument_title: "%{composer} %{instrument} Sheet Music — Downloads"
-    composer_instrument_description: "Download %{count} %{instrument} sheet music scores by %{composer}. PDF, MusicXML, and MIDI files."
+    composer_instrument_description: "Browse %{count} %{instrument} sheet music scores by %{composer}. Free to download and print."
     genre_instrument_title: "%{genre} %{instrument} Sheet Music — Downloads"
-    genre_instrument_description: "Download %{count} %{genre} sheet music for %{instrument}. PDF, MusicXML, and MIDI files."
+    genre_instrument_description: "Browse %{count} %{genre} sheet music scores for %{instrument}. Free to download and print."
+    period_instrument_title: "%{period} %{instrument} Sheet Music — Downloads"
+    period_instrument_description: "Browse %{count} %{instrument} sheet music scores from the %{period} period. Free to download and print."
 
     # UI elements
     scores_count: "%{count} scores"

@@ -1,4 +1,5 @@
 <% content_for :title, @page_title %>
+<% content_for :meta_description, @page_description %>
 
 <!-- Hero Section -->
 <section class="hub-hero py-8 sm:py-12 lg:py-16 border-b-2 border-[var(--color-border)]">
@@ -13,34 +14,29 @@
       <span class="text-[var(--color-accent)]"><%= @instrument_name %></span>
     </nav>
 
-    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+    <div class="flex flex-col gap-4">
       <div>
-        <!-- Combined Tags -->
-        <div class="flex flex-wrap gap-2 mb-4">
-          <span class="inline-flex items-center px-3 py-1.5 bg-[var(--color-accent)] text-white font-[var(--font-family-display)] font-bold text-xs border-2 border-[var(--color-border)] shadow-sm">
-            <%= @composer_name %>
-          </span>
-          <span class="inline-flex items-center text-[var(--color-text-muted)] font-bold">+</span>
-          <span class="inline-flex items-center px-3 py-1.5 bg-[var(--color-bg-elevated)] text-[var(--color-text)] font-[var(--font-family-display)] font-bold text-xs border-2 border-[var(--color-border)] shadow-sm">
-            <%= @instrument_name %>
-          </span>
-        </div>
-
-        <h1 class="text-xl sm:text-2xl lg:text-3xl font-[var(--font-family-display)] mb-2 leading-tight font-black uppercase tracking-tight hero-title">
-          <%= @composer_name %> <%= @instrument_name %>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
+          <%= @composer_name %> <span class="text-[var(--color-accent)]"><%= @instrument_name %></span>
         </h1>
+        <p class="text-sm sm:text-base text-[var(--color-text-muted)] max-w-2xl leading-relaxed">
+          <%= @page_description %>
+        </p>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
         <p class="text-sm sm:text-base font-medium hero-subtitle">
           <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@total_count) %></span>
           <%= t('search.results_count').downcase %>
         </p>
-      </div>
 
-      <%= form_with url: composer_instrument_path(composer_slug: params[:composer_slug], instrument_slug: params[:instrument_slug]), method: :get, data: { turbo_frame: "scores" }, class: "w-full sm:w-auto" do |f| %>
-        <div class="sort-control sort-control--anchored">
-          <label for="sort" class="sort-label"><span class="sort-icon">↕</span><span class="hidden xs:inline"><%= t('search.sort_by') %></span></label>
-          <%= f.select :sort, [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"]], { selected: @sort }, { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" } %>
-        </div>
-      <% end %>
+        <%= form_with url: composer_instrument_path(composer_slug: params[:composer_slug], instrument_slug: params[:instrument_slug]), method: :get, data: { turbo_frame: "scores" }, class: "w-full sm:w-auto" do |f| %>
+          <div class="sort-control sort-control--anchored">
+            <label for="sort" class="sort-label"><span class="sort-icon">↕</span><span class="hidden xs:inline"><%= t('search.sort_by') %></span></label>
+            <%= f.select :sort, [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"]], { selected: @sort }, { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" } %>
+          </div>
+        <% end %>
+      </div>
     </div>
   </div>
 </section>
