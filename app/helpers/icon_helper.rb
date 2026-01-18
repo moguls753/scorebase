@@ -7,26 +7,63 @@ module IconHelper
   ICONS = YAML.load_file(Rails.root.join("config/icons.yml")).deep_symbolize_keys.freeze
 
   # Pattern order matters: specific patterns before generic ones
+  # These patterns are fallbacks when exact key lookup fails
   INSTRUMENT_PATTERNS = [
-    [/saxophone|sax/, :saxophone],
-    [/viola/, :viola],
-    [/cello/, :cello],
-    [/bass/, :double_bass],
-    [/violin|fiddle|string/, :violin],
-    [/flute/, :flute],
+    # Woodwinds - specific before generic
+    [/piccolo/, :piccolo],
+    [/recorder|block.?flute/, :recorder],
+    [/saxophone|sax\b/, :saxophone],
     [/clarinet/, :clarinet],
+    [/english.?horn|cor.?anglais/, :english_horn],
     [/oboe/, :oboe],
     [/bassoon|contrabassoon/, :bassoon],
+    [/flute/, :flute],
+
+    # Brass - specific before generic (flugelhorn/euphonium before horn/tuba)
+    [/flugelhorn|flugel\b/, :flugelhorn],
+    [/euphonium|euph\b/, :euphonium],
     [/trumpet/, :trumpet],
     [/trombone/, :trombone],
+    [/cornet/, :cornet],
     [/horn/, :horn],
     [/tuba/, :tuba],
-    [/drum|percussion/, :drums],
-    [/voice|choir|soprano|alto|tenor|baritone|mezzo|cappella/, :voice],
+
+    # Strings - bowed (specific before generic)
+    [/viola/, :viola],
+    [/cello|violoncello/, :cello],
+    [/double.?bass|contrabass|string.?bass/, :double_bass],
+    [/violin|fiddle/, :violin],
+
+    # Strings - plucked
+    [/ukulele|uke\b/, :ukulele],
+    [/mandolin/, :mandolin],
+    [/banjo/, :banjo],
+    [/theorbo/, :theorbo],
+    [/lute/, :lute],
     [/guitar/, :guitar],
-    [/piano|keyboard/, :piano],
+    [/harp/, :harp],
+
+    # Keyboards
+    [/harpsichord|cembalo/, :harpsichord],
+    [/synthesizer|synth\b/, :synthesizer],
+    [/accordion|squeezebox/, :accordion],
     [/organ/, :organ],
-    [/harp/, :harp]
+    [/piano/, :piano],
+
+    # Percussion - specific before generic
+    [/timpani|kettledrum/, :timpani],
+    [/glockenspiel|glock\b|orchestra.?bells/, :glockenspiel],
+    [/vibraphone|vibes\b/, :vibraphone],
+    [/xylophone|xylo\b/, :xylophone],
+    [/marimba/, :marimba],
+    [/drum/, :drums],
+
+    # Voice
+    [/choir|chorus|choral/, :choir],
+    [/voice|soprano|alto|tenor|bass|baritone|mezzo|cappella/, :voice],
+
+    # Catch-all for generic string references
+    [/string/, :violin]
   ].freeze
 
   GENRE_PATTERNS = [
