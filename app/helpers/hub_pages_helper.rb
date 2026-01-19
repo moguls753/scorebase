@@ -1,6 +1,19 @@
 # frozen_string_literal: true
 
 module HubPagesHelper
+  # Filter parameters for composer page
+  COMPOSER_FILTER_PARAMS = %i[instrument genre period].freeze
+
+  # Count active filters for composer page
+  def composer_active_filters_count
+    COMPOSER_FILTER_PARAMS.count { |param| params[param].present? }
+  end
+
+  # Generate hidden fields for composer filter params to preserve state across forms
+  def composer_filter_hidden_fields(form)
+    safe_join(COMPOSER_FILTER_PARAMS.map { |param| form.hidden_field(param, value: params[param]) })
+  end
+
   # Translates a hub item name using I18n
   # Falls back to the English name if no translation exists
   #

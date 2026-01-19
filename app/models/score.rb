@@ -337,6 +337,13 @@ class Score < ApplicationRecord
     where("LOWER(instruments) LIKE ?", "%#{sanitize_sql_like(instrument_name.downcase)}%")
   }
 
+  # Scoped search by title (case-insensitive, for composer page filtering)
+  scope :search_by_title, ->(query) {
+    return all if query.blank?
+    normalized = normalize_for_search(query)
+    where("title_normalized LIKE ?", "%#{sanitize_sql_like(normalized)}%")
+  }
+
   # Forces filters (maps UI labels to num_parts)
   scope :solo, -> { where(num_parts: 1) }
   scope :duet, -> { where(num_parts: 2) }

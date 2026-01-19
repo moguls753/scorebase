@@ -27,11 +27,32 @@ class HubPagesController < ApplicationController
   # Detail pages
   def composer
     @composer_name = find_or_404(:composers, params[:slug])
-    @scores = paginate(Score.where(composer: @composer_name))
-    @composer_period = Score.where(composer: @composer_name)
-                            .where.not(period: [nil, ""])
+
+    # Base scope for this composer
+    base_scope = Score.where(composer: @composer_name)
+
+    # Apply filters (convert slugs to names where needed)
+    filtered_scope = base_scope
+    filtered_scope = filtered_scope.by_instrument(params[:instrument]) if params[:instrument].present?
+    filtered_scope = filtered_scope.by_genre(params[:genre]) if params[:genre].present?
+    filtered_scope = filtered_scope.by_period(period_name_from_slug(params[:period])) if params[:period].present?
+
+    # Apply scoped search
+    filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
+
+    # Counts
+    @total_count = base_scope.count
+    @filtered_count = filtered_scope.count
+
+    # Paginate
+    @scores = paginate_filtered(filtered_scope)
+
+    # Dynamic filter options (faceted)
+    @filter_options = build_composer_filter_options(base_scope, params)
+
+    # Other metadata
+    @composer_period = base_scope.where.not(period: [nil, ""])
                             .pick(:period)
-    @top_instruments = HubDataBuilder.top_instruments_for(:composer, @composer_name)
     set_detail_meta(:composer, @composer_name)
   end
 
@@ -107,6 +128,81 @@ class HubPagesController < ApplicationController
     sorted = apply_sorting(scope)
     @total_count = sorted.count
     sorted.with_attached_thumbnail_image.page(params[:page]).without_count
+  end
+
+  # Paginate without setting @total_count (used when counts are set separately)
+  def paginate_filtered(scope)
+    sorted = apply_sorting(scope)
+    sorted.with_attached_thumbnail_image.page(params[:page]).without_count
+  end
+
+  # Build filter options for composer page using efficient DISTINCT queries
+  # Returns available options (without counts) based on current filters
+  # Only 3 queries total instead of ~137
+  def build_composer_filter_options(base_scope, current_params)
+    # Apply search filter to base scope (affects all filter options)
+    scope = base_scope
+    scope = scope.search_by_title(current_params[:q]) if current_params[:q].present?
+
+    {
+      instruments: available_instruments(scope, current_params),
+      genres: available_genres(scope, current_params),
+      periods: available_periods(scope, current_params)
+    }
+  end
+
+  # Get available instruments using DISTINCT query (1 query)
+  def available_instruments(base_scope, current_params)
+    # Apply other filters (not instrument) to narrow down options
+    scope = base_scope
+    scope = scope.by_genre(current_params[:genre]) if current_params[:genre].present?
+    scope = scope.by_period(period_name_from_slug(current_params[:period])) if current_params[:period].present?
+
+    # Single query: get all distinct instrument strings
+    distinct_values = scope.where.not(instruments: [nil, ""]).distinct.pluck(:instruments)
+
+    # Filter to valid instruments that appear in any string
+    HubDataBuilder::VALID_INSTRUMENTS.filter_map do |instrument|
+      next unless distinct_values.any? { |str| str.downcase.include?(instrument.downcase) }
+      { name: instrument.titleize, slug: instrument.parameterize }
+    end
+  end
+
+  # Get available genres using DISTINCT query (1 query)
+  def available_genres(base_scope, current_params)
+    scope = base_scope
+    scope = scope.by_instrument(current_params[:instrument]) if current_params[:instrument].present?
+    scope = scope.by_period(period_name_from_slug(current_params[:period])) if current_params[:period].present?
+
+    distinct_values = scope.where.not(genre: [nil, ""]).distinct.pluck(:genre)
+
+    HubDataBuilder::VALID_GENRES.filter_map do |genre|
+      # Genre field may contain the genre directly or as part of a list
+      next unless distinct_values.any? { |str| str.downcase.include?(genre.downcase) }
+      { name: genre, slug: genre.parameterize }
+    end
+  end
+
+  # Convert period slug to canonical name (e.g., "baroque" -> "Baroque")
+  def period_name_from_slug(slug)
+    return nil if slug.blank?
+    HubDataBuilder::PERIOD_ORDER.find { |p| p.parameterize == slug }
+  end
+
+  # Get available periods using DISTINCT query (1 query)
+  def available_periods(base_scope, current_params)
+    scope = base_scope
+    scope = scope.by_instrument(current_params[:instrument]) if current_params[:instrument].present?
+    scope = scope.by_genre(current_params[:genre]) if current_params[:genre].present?
+
+    distinct_values = scope.where.not(period: [nil, ""]).distinct.pluck(:period)
+
+    # Match against period variants (e.g., "Baroque" matches "Baroque music")
+    HubDataBuilder::PERIOD_ORDER.filter_map do |period|
+      variants = HubDataBuilder::PERIODS[period] || [period]
+      next unless distinct_values.any? { |val| variants.any? { |v| val.downcase == v.downcase } }
+      { name: period, slug: period.parameterize }
+    end
   end
 
   def apply_sorting(scope)

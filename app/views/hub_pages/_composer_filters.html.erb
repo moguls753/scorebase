@@ -1,0 +1,72 @@
+<%# Shared filter fields for composer page (mobile bottom sheet)
+    Params:
+    - f: form builder
+    - mobile: boolean (optional) - whether this is mobile layout
+    - filter_options: hash with :instruments, :genres, :periods arrays
+%>
+<% mobile ||= false %>
+
+<div class="<%= mobile ? 'grid grid-cols-2 gap-4' : 'space-y-4' %>">
+  <!-- Filter: Instrument -->
+  <% if filter_options[:instruments].present? %>
+    <div>
+      <label for="mobile-instrument" class="block text-xs font-bold text-[var(--color-text-muted)] mb-2 uppercase tracking-wide font-[var(--font-family-display)]">
+        <%= t('score.instrument') %>
+      </label>
+      <%= f.select :instrument,
+          options_for_select(
+            [[t('filters.any'), '']] + filter_options[:instruments].map { |i| [translate_hub_name(:instruments, i), i[:slug]] },
+            params[:instrument]
+          ),
+          {},
+          {
+            id: "mobile-instrument",
+            class: "mm-input w-full text-sm",
+            data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
+          }
+      %>
+    </div>
+  <% end %>
+
+  <!-- Filter: Genre -->
+  <% if filter_options[:genres].present? %>
+    <div>
+      <label for="mobile-genre" class="block text-xs font-bold text-[var(--color-text-muted)] mb-2 uppercase tracking-wide font-[var(--font-family-display)]">
+        <%= t('filters.genre') %>
+      </label>
+      <%= f.select :genre,
+          options_for_select(
+            [[t('filters.any'), '']] + filter_options[:genres].map { |g| [translate_hub_name(:genres, g), g[:slug]] },
+            params[:genre]
+          ),
+          {},
+          {
+            id: "mobile-genre",
+            class: "mm-input w-full text-sm",
+            data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
+          }
+      %>
+    </div>
+  <% end %>
+
+  <!-- Filter: Period -->
+  <% if filter_options[:periods].present? %>
+    <div class="<%= mobile && filter_options[:instruments].present? && filter_options[:genres].present? ? 'col-span-2' : '' %>">
+      <label for="mobile-period" class="block text-xs font-bold text-[var(--color-text-muted)] mb-2 uppercase tracking-wide font-[var(--font-family-display)]">
+        <%= t('filters.period') %>
+      </label>
+      <%= f.select :period,
+          options_for_select(
+            [[t('filters.any'), '']] + filter_options[:periods].map { |p| [translate_hub_name(:periods, p), p[:slug]] },
+            params[:period]
+          ),
+          {},
+          {
+            id: "mobile-period",
+            class: "mm-input w-full text-sm",
+            data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
+          }
+      %>
+    </div>
+  <% end %>
+</div>
