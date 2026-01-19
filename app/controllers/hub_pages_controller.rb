@@ -233,7 +233,7 @@ class HubPagesController < ApplicationController
     # Get top composers with their counts, limited to reasonable dropdown size
     scope.where.not(composer: [nil, ""])
          .group(:composer)
-         .order("COUNT(*) DESC")
+         .order(Arel.sql("COUNT(*) DESC"))
          .limit(50)
          .pluck(:composer)
          .map { |name| { name: name, slug: name.parameterize } }
