@@ -13,11 +13,7 @@
   <div class="filter-control" data-controller="filter-nav">
     <label class="filter-label" for="filter-<%= filter_type %>">
       <span class="filter-icon">
-        <% if filter_type == :period %>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        <% else %>
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-        <% end %>
+        <%= navigation_svg_icon(filter_type == :period ? :periods : :instruments, html_class: "filter-icon-svg") %>
       </span>
       <span class="hidden xs:inline"><%= label %></span>
     </label>
