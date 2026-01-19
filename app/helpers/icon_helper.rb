@@ -30,7 +30,7 @@ module IconHelper
     [/modern|contemporary|20th|21st/, :modern]
   ].freeze
 
-  def navigation_svg_icon(category, size: 20, html_class: nil)
+  def navigation_svg_icon(category, size: 14, html_class: nil)
     key = category.to_s.downcase.to_sym
     icon_name = NAVIGATION_ICONS[key] || "music"
     lucide_icon(icon_name, size: size, class: html_class)
