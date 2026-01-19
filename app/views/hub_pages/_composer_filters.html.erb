@@ -2,7 +2,7 @@
     Params:
     - f: form builder
     - mobile: boolean (optional) - whether this is mobile layout
-    - filter_options: hash with :instruments, :genres, :periods arrays
+    - filter_options: hash with :instruments, :genres arrays
 %>
 <% mobile ||= false %>
 
@@ -49,24 +49,4 @@
     </div>
   <% end %>
 
-  <!-- Filter: Period -->
-  <% if filter_options[:periods].present? %>
-    <div class="<%= mobile && filter_options[:instruments].present? && filter_options[:genres].present? ? 'col-span-2' : '' %>">
-      <label for="mobile-period" class="block text-xs font-bold text-[var(--color-text-muted)] mb-2 uppercase tracking-wide font-[var(--font-family-display)]">
-        <%= t('filters.period') %>
-      </label>
-      <%= f.select :period,
-          options_for_select(
-            [[t('filters.any'), '']] + filter_options[:periods].map { |p| [translate_hub_name(:periods, p), p[:slug]] },
-            params[:period]
-          ),
-          {},
-          {
-            id: "mobile-period",
-            class: "mm-input w-full text-sm",
-            data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-          }
-      %>
-    </div>
-  <% end %>
 </div>

@@ -31,11 +31,10 @@ class HubPagesController < ApplicationController
     # Base scope for this composer
     base_scope = Score.where(composer: @composer_name)
 
-    # Apply filters (convert slugs to names where needed)
+    # Apply filters
     filtered_scope = base_scope
     filtered_scope = filtered_scope.by_instrument(params[:instrument]) if params[:instrument].present?
     filtered_scope = filtered_scope.by_genre(params[:genre]) if params[:genre].present?
-    filtered_scope = filtered_scope.by_period(period_name_from_slug(params[:period])) if params[:period].present?
 
     # Apply scoped search
     filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
@@ -146,8 +145,7 @@ class HubPagesController < ApplicationController
 
     {
       instruments: available_instruments(scope, current_params),
-      genres: available_genres(scope, current_params),
-      periods: available_periods(scope, current_params)
+      genres: available_genres(scope, current_params)
     }
   end
 
@@ -156,7 +154,6 @@ class HubPagesController < ApplicationController
     # Apply other filters (not instrument) to narrow down options
     scope = base_scope
     scope = scope.by_genre(current_params[:genre]) if current_params[:genre].present?
-    scope = scope.by_period(period_name_from_slug(current_params[:period])) if current_params[:period].present?
 
     # Single query: get all distinct instrument strings
     distinct_values = scope.where.not(instruments: [nil, ""]).distinct.pluck(:instruments)
@@ -172,7 +169,6 @@ class HubPagesController < ApplicationController
   def available_genres(base_scope, current_params)
     scope = base_scope
     scope = scope.by_instrument(current_params[:instrument]) if current_params[:instrument].present?
-    scope = scope.by_period(period_name_from_slug(current_params[:period])) if current_params[:period].present?
 
     distinct_values = scope.where.not(genre: [nil, ""]).distinct.pluck(:genre)
 
@@ -187,22 +183,6 @@ class HubPagesController < ApplicationController
   def period_name_from_slug(slug)
     return nil if slug.blank?
     HubDataBuilder::PERIOD_ORDER.find { |p| p.parameterize == slug }
-  end
-
-  # Get available periods using DISTINCT query (1 query)
-  def available_periods(base_scope, current_params)
-    scope = base_scope
-    scope = scope.by_instrument(current_params[:instrument]) if current_params[:instrument].present?
-    scope = scope.by_genre(current_params[:genre]) if current_params[:genre].present?
-
-    distinct_values = scope.where.not(period: [nil, ""]).distinct.pluck(:period)
-
-    # Match against period variants (e.g., "Baroque" matches "Baroque music")
-    HubDataBuilder::PERIOD_ORDER.filter_map do |period|
-      variants = HubDataBuilder::PERIODS[period] || [period]
-      next unless distinct_values.any? { |val| variants.any? { |v| val.downcase == v.downcase } }
-      { name: period, slug: period.parameterize }
-    end
   end
 
   def apply_sorting(scope)

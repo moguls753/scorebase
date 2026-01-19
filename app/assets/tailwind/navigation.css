@@ -72,11 +72,11 @@ main a:not(.mm-button):not(.mm-card):hover {
 .sort-label {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
+  gap: 6px;
+  padding: 10px 14px;
   background: var(--color-accent);
   color: #FFFFFF;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   font-family: var(--font-family-display);
   letter-spacing: 0.04em;
@@ -87,26 +87,26 @@ main a:not(.mm-button):not(.mm-card):hover {
 }
 
 .sort-icon {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1;
   opacity: 0.9;
 }
 
 .sort-select {
-  padding: 6px 8px;
+  padding: 10px 12px;
   border: none;
   background-color: var(--color-bg-elevated);
   color: var(--color-text);
   font-family: var(--font-family-body);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  min-width: 90px;
+  min-width: 100px;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23a89c8c' stroke-width='2' stroke-linecap='square'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 8px center;
-  padding-right: 26px;
+  background-position: right 12px center;
+  padding-right: 32px;
   transition: background-color 0.1s ease;
 }
 
@@ -159,11 +159,11 @@ main a:not(.mm-button):not(.mm-card):hover {
 .filter-label {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 10px;
+  gap: 6px;
+  padding: 10px 12px;
   background: var(--color-bg-surface);
   color: var(--color-text-muted);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   font-family: var(--font-family-display);
   letter-spacing: 0.04em;
@@ -180,21 +180,26 @@ main a:not(.mm-button):not(.mm-card):hover {
   opacity: 0.8;
 }
 
+.filter-icon svg {
+  width: 14px;
+  height: 14px;
+}
+
 .filter-select {
-  padding: 6px 8px;
+  padding: 10px 12px;
   border: none;
   background-color: var(--color-bg-elevated);
   color: var(--color-text);
   font-family: var(--font-family-body);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  min-width: 100px;
+  min-width: 110px;
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23a89c8c' stroke-width='2' stroke-linecap='square'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 8px center;
-  padding-right: 26px;
+  background-position: right 12px center;
+  padding-right: 32px;
   transition: background-color 0.1s ease;
 }
 
@@ -549,13 +554,14 @@ main a:not(.mm-button):not(.mm-card):hover {
 }
 
 .filter-btn-padded {
-  padding: 10px 12px;
+  padding: 12px 16px;
 }
 
 .sort-select-mobile {
   text-align: center;
   text-align-last: center;
   height: 100%;
+  font-size: 13px;
 }
 
 /* Mobile-specific touch targets */

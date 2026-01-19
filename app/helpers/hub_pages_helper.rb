@@ -2,7 +2,7 @@
 
 module HubPagesHelper
   # Filter parameters for composer page
-  COMPOSER_FILTER_PARAMS = %i[instrument genre period].freeze
+  COMPOSER_FILTER_PARAMS = %i[instrument genre].freeze
 
   # Count active filters for composer page
   def composer_active_filters_count

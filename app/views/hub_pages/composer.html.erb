@@ -41,10 +41,11 @@
             <%= f.text_field :q,
               placeholder: t('hub.search_composer_scores', name: @composer_name),
               value: params[:q],
-              class: "w-full mm-input text-sm sm:text-base pl-11",
+              class: "w-full mm-input text-sm sm:text-base",
+              style: "padding-left: 44px;",
               autocomplete: "off"
             %>
-            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none">
+            <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="8"></circle>
                 <path d="m21 21-4.3-4.3"></path>
@@ -121,8 +122,8 @@
         <!-- Filters button -->
         <button type="button"
                 data-action="click->filter-modal#open"
-                class="mm-button mm-button-secondary text-xs flex items-center justify-center gap-2 filter-btn-padded">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                class="mm-button mm-button-secondary text-[13px] flex items-center justify-center gap-2 filter-btn-padded">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
           </svg>
           <span class="font-black uppercase"><%= t('search.filters') %></span>
@@ -147,10 +148,10 @@
     </div>
 
     <!-- Desktop: Horizontal controls bar -->
-    <div class="hidden lg:flex flex-row items-center justify-between gap-4 mb-6">
-      <div class="flex items-center gap-3">
+    <div class="hidden lg:flex flex-row items-center justify-between gap-6 mb-6">
+      <div class="flex items-center gap-4">
         <!-- Results count -->
-        <p class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wide whitespace-nowrap">
+        <p class="text-[13px] text-[var(--color-text-muted)] font-semibold uppercase tracking-wide whitespace-nowrap">
           <% if @filtered_count != @total_count %>
             <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@filtered_count) %></span>
             <span class="text-[var(--color-border)]">/</span>
@@ -161,10 +162,10 @@
         </p>
 
         <!-- Separator -->
-        <div class="w-px h-5 bg-[var(--color-border)]"></div>
+        <div class="w-px h-6 bg-[var(--color-border)]"></div>
 
         <!-- Inline Filters -->
-        <%= form_with url: composer_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "flex items-center gap-2" do |f| %>
+        <%= form_with url: composer_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "flex items-center gap-3" do |f| %>
           <%= f.hidden_field :q, value: params[:q] %>
           <%= f.hidden_field :sort, value: params[:sort] %>
 
@@ -172,7 +173,7 @@
             <div class="filter-control">
               <label class="filter-label" for="filter-instrument">
                 <span class="filter-icon">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
                 </span>
               </label>
               <%= f.select :instrument,
@@ -190,7 +191,7 @@
             <div class="filter-control">
               <label class="filter-label" for="filter-genre">
                 <span class="filter-icon">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
                 </span>
               </label>
               <%= f.select :genre,
@@ -204,28 +205,10 @@
             </div>
           <% end %>
 
-          <% if @filter_options[:periods].present? %>
-            <div class="filter-control">
-              <label class="filter-label" for="filter-period">
-                <span class="filter-icon">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                </span>
-              </label>
-              <%= f.select :period,
-                  options_for_select(
-                    [[t('hub.filter_period'), '']] + @filter_options[:periods].map { |p| [translate_hub_name(:periods, p), p[:slug]] },
-                    params[:period]
-                  ),
-                  {},
-                  { class: "filter-select", id: "filter-period", data: { action: "change->url-sync#submit" } }
-              %>
-            </div>
-          <% end %>
-
           <% if composer_active_filters_count > 0 %>
             <%= link_to composer_path(slug: params[:slug], q: params[:q], sort: params[:sort]),
                 data: { turbo_frame: "scores" },
-                class: "text-xs text-[var(--color-text-muted)] hover:text-[var(--color-accent)] font-bold uppercase tracking-wide transition-colors ml-1" do %>
+                class: "text-[13px] text-[var(--color-text-muted)] hover:text-[var(--color-accent)] font-bold uppercase tracking-wide transition-colors ml-2" do %>
               <%= t('search.clear') %>
             <% end %>
           <% end %>
