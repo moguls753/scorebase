@@ -285,6 +285,8 @@ de:
     filter_genre: "Genre"
     filter_period: "Epoche"
     search_composer_scores: "In %{name}s Noten suchen..."
+    search_genre_scores: "In %{name}-Noten suchen..."
+    filter_composer: "Komponist"
     scores_count: "%{count} Noten"
     browse_all: "Alle durchsuchen"
     back_to_list: "Zurück zur Liste"

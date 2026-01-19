@@ -285,6 +285,8 @@ en:
     filter_genre: "Genre"
     filter_period: "Period"
     search_composer_scores: "Search %{name}'s scores..."
+    search_genre_scores: "Search %{name} scores..."
+    filter_composer: "Composer"
     scores_count: "%{count} scores"
     browse_all: "Browse All"
     back_to_list: "Back to List"
