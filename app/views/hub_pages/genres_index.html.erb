@@ -40,15 +40,13 @@
             <span class="hub-letter-group__badge"><%= letter %></span>
             <span class="hub-letter-group__count"><%= genres_in_group.size %></span>
           </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
             <% genres_in_group.each do |genre| %>
-              <%= render "hub_pages/hub_card_row",
+              <%= render "hub_pages/hub_card_simple",
                   item: genre,
                   path: genre_path(slug: genre[:slug]),
-                  icon: genre_svg_icon(genre[:name], size: 24),
                   search_attribute: "genreName",
-                  index: global_index,
-                  count_label: t('search.results_count').downcase %>
+                  index: global_index %>
               <% global_index += 1 %>
             <% end %>
           </div>
