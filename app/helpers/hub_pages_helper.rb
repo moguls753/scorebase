@@ -14,15 +14,6 @@ module HubPagesHelper
     I18n.t(translation_key, default: item[:name])
   end
 
-  # Returns the path for an instrument chip based on the dimension type
-  def instrument_chip_path(type, dimension_slug, instrument_slug)
-    case type
-    when :period then period_instrument_path(period_slug: dimension_slug, instrument_slug: instrument_slug)
-    when :genre then genre_instrument_path(genre_slug: dimension_slug, instrument_slug: instrument_slug)
-    when :composer then composer_instrument_path(composer_slug: dimension_slug, instrument_slug: instrument_slug)
-    end
-  end
-
   # Normalizes the first letter for grouping, handling non-alphabetic chars
   # Returns the letter (A-Z) or "#" for numbers/symbols
   # Accented letters are normalized: "Ääkkönen" -> "A", "Österreich" -> "O"

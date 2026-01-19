@@ -1,0 +1,47 @@
+<%# Filter Dropdown - Cross-linking navigation for hub pages
+    Replaces chips with a compact dropdown that navigates to combined pages.
+
+    Local variables:
+    - filter_type: Symbol - :instrument or :period
+    - current_slug: String - The current dimension slug (e.g., "piano" for instrument pages)
+    - options: Array<Hash> - Available options with :name, :slug, :count
+    - path_helper: Symbol - :period_instrument, :genre_instrument, :composer_instrument, or :instrument_for_period
+    - path_params: Hash - Additional params for path generation (e.g., composer_slug, genre_slug, period_slug)
+    - label: String - Label for the dropdown (e.g., "Period", "Instrument")
+%>
+<% if options.present? %>
+  <div class="filter-control" data-controller="filter-nav">
+    <label class="filter-label" for="filter-<%= filter_type %>">
+      <span class="filter-icon">
+        <% if filter_type == :period %>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <% else %>
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <% end %>
+      </span>
+      <span class="hidden xs:inline"><%= label %></span>
+    </label>
+    <select class="filter-select"
+            id="filter-<%= filter_type %>"
+            data-action="change->filter-nav#navigate"
+            data-filter-nav-target="select">
+      <option value=""><%= t('hub.filter_all') %></option>
+      <% options.each do |option| %>
+        <% option_path = case path_helper
+           when :period_instrument
+             period_instrument_path(period_slug: option[:slug], instrument_slug: current_slug)
+           when :genre_instrument
+             genre_instrument_path(genre_slug: path_params[:genre_slug], instrument_slug: option[:slug])
+           when :composer_instrument
+             composer_instrument_path(composer_slug: path_params[:composer_slug], instrument_slug: option[:slug])
+           when :instrument_for_period
+             period_instrument_path(period_slug: path_params[:period_slug], instrument_slug: option[:slug])
+           end
+        %>
+        <option value="<%= option_path %>">
+          <%= translate_hub_name(filter_type == :period ? :periods : :instruments, option) %>
+        </option>
+      <% end %>
+    </select>
+  </div>
+<% end %>

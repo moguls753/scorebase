@@ -21,16 +21,26 @@
           <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@total_count) %></span>
           <%= t('search.results_count').downcase %>
         </p>
-
-        <%= render 'instrument_chips', type: :genre, slug: params[:slug], instruments: @top_instruments %>
       </div>
 
-      <%= form_with url: genre_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores" }, class: "w-full sm:w-auto" do |f| %>
-        <div class="sort-control sort-control--anchored">
-          <label for="sort" class="sort-label"><span class="sort-icon">↕</span><span class="hidden xs:inline"><%= t('search.sort_by') %></span></label>
-          <%= f.select :sort, [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]], { selected: @sort }, { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" } %>
-        </div>
-      <% end %>
+      <div class="hub-controls">
+        <% if @top_instruments.present? %>
+          <%= render 'filter_dropdown',
+              filter_type: :instrument,
+              current_slug: params[:slug],
+              options: @top_instruments,
+              path_helper: :genre_instrument,
+              path_params: { genre_slug: params[:slug] },
+              label: t('score.instrument') %>
+        <% end %>
+
+        <%= form_with url: genre_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores" }, class: "contents" do |f| %>
+          <div class="sort-control">
+            <label for="sort" class="sort-label"><span class="sort-icon">↕</span><span class="hidden xs:inline"><%= t('search.sort_by') %></span></label>
+            <%= f.select :sort, [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]], { selected: @sort }, { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" } %>
+          </div>
+        <% end %>
+      </div>
     </div>
   </div>
 </section>

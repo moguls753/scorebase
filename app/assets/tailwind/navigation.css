@@ -135,6 +135,93 @@ main a:not(.mm-button):not(.mm-card):hover {
   }
 }
 
+/* Filter Control - Matches sort-control pattern */
+.filter-control {
+  display: inline-flex;
+  align-items: stretch;
+  background: var(--color-bg-elevated);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  box-shadow: 3px 3px 0 var(--color-border);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.filter-control:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--color-border);
+}
+
+.filter-control:focus-within {
+  border-color: var(--color-accent);
+}
+
+.filter-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 10px;
+  background: var(--color-bg-surface);
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--font-family-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-right: var(--border-width) solid var(--color-border);
+  user-select: none;
+  cursor: pointer;
+}
+
+.filter-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+}
+
+.filter-select {
+  padding: 6px 8px;
+  border: none;
+  background-color: var(--color-bg-elevated);
+  color: var(--color-text);
+  font-family: var(--font-family-body);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  min-width: 100px;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%23a89c8c' stroke-width='2' stroke-linecap='square'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 26px;
+  transition: background-color 0.1s ease;
+}
+
+.filter-select:hover {
+  background-color: var(--color-bg-hover);
+}
+
+.filter-select:focus {
+  outline: none;
+  background-color: var(--color-bg-hover);
+}
+
+/* Hub Controls Bar - Sort + Filter together */
+.hub-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: 100%;
+}
+
+@media (min-width: 640px) {
+  .hub-controls {
+    width: auto;
+    flex-wrap: nowrap;
+  }
+}
+
 /* Pro Badge Button - Bold neubrutalist accent */
 .nav-pro-btn {
   display: inline-flex;
