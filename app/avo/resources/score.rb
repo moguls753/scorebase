@@ -96,11 +96,19 @@ class Avo::Resources::Score < Avo::BaseResource
     # Timestamps
     field :created_at, as: :date_time, hide_on: :index, sortable: true
     field :updated_at, as: :date_time, hide_on: :index, sortable: true
+    field :deleted_at, as: :date_time, hide_on: [:index, :edit], sortable: true
   end
 
   # Filters for the index view
   def filters
+    filter Avo::Filters::ScoreStatusFilter
     filter Avo::Filters::ScoreSourceFilter
     filter Avo::Filters::ScoreRagStatusFilter
+  end
+
+  # Actions
+  def actions
+    action Avo::Actions::SoftDeleteScores
+    action Avo::Actions::RestoreScores
   end
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_01_15_212931) do
+ActiveRecord::Schema[8.1].define(version: 2026_01_20_131749) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -97,6 +97,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_212931) do
     t.string "cpdl_number"
     t.datetime "created_at", null: false
     t.string "data_path"
+    t.datetime "deleted_at"
     t.text "description"
     t.text "detected_instruments"
     t.float "duration_seconds"
@@ -233,6 +234,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_01_15_212931) do
     t.index ["composer_status"], name: "index_scores_on_composer_status"
     t.index ["computed_difficulty"], name: "index_scores_on_computed_difficulty"
     t.index ["created_at"], name: "index_scores_on_created_at"
+    t.index ["deleted_at"], name: "index_scores_on_deleted_at"
     t.index ["duration_seconds"], name: "index_scores_on_duration_seconds"
     t.index ["event_count"], name: "index_scores_on_event_count"
     t.index ["external_id"], name: "index_scores_on_external_id"

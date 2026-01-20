@@ -24,6 +24,11 @@ production:
     queue: default
     schedule: every day at 4am
 
+  purge_deleted_scores:
+    class: PurgeDeletedScoresJob
+    queue: default
+    schedule: every week on Sunday at 3am
+
   # extract_pending_scores:
   #   class: ExtractPendingScoresJob
   #   queue: extractions

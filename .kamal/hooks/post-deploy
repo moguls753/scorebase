@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-
-# Run sitemap refresh on web container (must be web, not job, so sitemap is in the served public/ dir)
-kamal app exec -r web --reuse "bin/rails sitemap:refresh:no_ping"
-
-echo "Sitemap refresh completed"

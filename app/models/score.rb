@@ -21,6 +21,7 @@
 #  contrary_motion_ratio      :float
 #  cpdl_number                :string
 #  data_path                  :string
+#  deleted_at                 :datetime
 #  description                :text
 #  detected_instruments       :text
 #  duration_seconds           :float
@@ -160,6 +161,7 @@
 #  index_scores_on_composer_status               (composer_status)
 #  index_scores_on_computed_difficulty           (computed_difficulty)
 #  index_scores_on_created_at                    (created_at)
+#  index_scores_on_deleted_at                    (deleted_at)
 #  index_scores_on_duration_seconds              (duration_seconds)
 #  index_scores_on_event_count                   (event_count)
 #  index_scores_on_external_id                   (external_id)
@@ -223,6 +225,26 @@ class Score < ApplicationRecord
   scope :from_cpdl, -> { where(source: "cpdl") }
   scope :from_imslp, -> { where(source: "imslp") }
   scope :by_source, ->(source) { where(source: source) if source.present? }
+
+  # Soft delete scopes
+  scope :active, -> { where(deleted_at: nil) }
+  scope :deleted, -> { where.not(deleted_at: nil) }
+  scope :deleted_before, ->(date) { deleted.where("deleted_at < ?", date) }
+
+  # Default scope excludes soft-deleted records
+  default_scope { active }
+
+  def soft_delete!
+    update!(deleted_at: Time.current)
+  end
+
+  def restore!
+    update!(deleted_at: nil)
+  end
+
+  def deleted?
+    deleted_at.present?
+  end
 
   # Status enums for normalized fields
   # All use: pending | normalized | not_applicable | failed
