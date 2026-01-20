@@ -5,7 +5,11 @@ class Avo::Actions::PermanentlyDeleteScores < Avo::BaseAction
   self.cancel_button_label = "Cancel"
 
   def handle(query:, fields:, current_user:, resource:, **args)
-    count = query.destroy_all.count
+    records = query.to_a
+    count = records.size
+    records.each(&:destroy!)
     succeed "Permanently deleted #{count} score(s)."
+  rescue => e
+    fail "Failed to delete: #{e.message}"
   end
 end

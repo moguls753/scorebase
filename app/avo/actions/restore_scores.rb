@@ -7,5 +7,7 @@ class Avo::Actions::RestoreScores < Avo::BaseAction
   def handle(query:, fields:, current_user:, resource:, **args)
     count = query.update_all(deleted_at: nil)
     succeed "Restored #{count} score(s)."
+  rescue => e
+    fail "Failed to restore: #{e.message}"
   end
 end
