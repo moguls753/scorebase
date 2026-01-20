@@ -3,13 +3,14 @@ class Avo::Filters::ScoreStatusFilter < Avo::Filters::SelectFilter
   self.default = -> { "active" }
 
   def apply(request, query, value)
+    # Remove existing deleted_at condition from index_query before applying filter
     case value
     when "active"
-      query.where(deleted_at: nil)
+      query.unscope(where: :deleted_at).where(deleted_at: nil)
     when "deleted"
-      query.where.not(deleted_at: nil)
+      query.unscope(where: :deleted_at).where.not(deleted_at: nil)
     when "all"
-      query
+      query.unscope(where: :deleted_at)
     else
       query
     end
