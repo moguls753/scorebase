@@ -1,0 +1,161 @@
+<div class="flex flex-col gap-6">
+  <%# Service Status %>
+  <%= render Avo::PanelComponent.new(name: 'RAG Service Status') do |c| %>
+    <% c.with_body do %>
+      <div class="px-6 py-4">
+        <div class="flex items-center gap-3">
+          <% if @rag_available %>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+              ● Online
+            </span>
+            <span class="text-gray-600">RAG API is responding</span>
+          <% else %>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+              ● Offline
+            </span>
+            <span class="text-gray-600">RAG API not reachable at <%= ENV.fetch("RAG_API_URL", "http://localhost:8001") %></span>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# Pipeline Stats %>
+  <%= render Avo::PanelComponent.new(name: 'Pipeline Statistics') do |c| %>
+    <% c.with_body do %>
+      <div class="px-6 py-4">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div class="bg-gray-50 rounded-lg p-4">
+            <div class="text-2xl font-bold text-gray-900"><%= number_with_delimiter(@total_scores) %></div>
+            <div class="text-sm text-gray-500">Total Scores</div>
+          </div>
+          <div class="bg-blue-50 rounded-lg p-4">
+            <div class="text-2xl font-bold text-blue-600"><%= number_with_delimiter(@status_counts["indexed"] || 0) %></div>
+            <div class="text-sm text-gray-500">Indexed (searchable)</div>
+          </div>
+          <div class="bg-yellow-50 rounded-lg p-4">
+            <div class="text-2xl font-bold text-yellow-600"><%= number_with_delimiter(@status_counts["pending"] || 0) %></div>
+            <div class="text-sm text-gray-500">Pending</div>
+          </div>
+          <div class="bg-red-50 rounded-lg p-4">
+            <div class="text-2xl font-bold text-red-600"><%= number_with_delimiter(@status_counts["failed"] || 0) %></div>
+            <div class="text-sm text-gray-500">Failed</div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">RAG Status Breakdown</h4>
+          <table class="min-w-full text-sm">
+            <tbody>
+              <% Score.rag_statuses.keys.each do |status| %>
+                <tr class="border-b border-gray-100">
+                  <td class="py-2 text-gray-600"><%= status.titleize %></td>
+                  <td class="py-2 text-right font-mono"><%= number_with_delimiter(@status_counts[status] || 0) %></td>
+                  <td class="py-2 text-right text-gray-400 w-20">
+                    <%= @total_scores > 0 ? "#{((@status_counts[status] || 0) * 100.0 / @total_scores).round(1)}%" : "0%" %>
+                  </td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-6">
+          <h4 class="text-sm font-medium text-gray-700 mb-2">Extraction Status</h4>
+          <table class="min-w-full text-sm">
+            <tbody>
+              <% Score.extraction_statuses.keys.each do |status| %>
+                <tr class="border-b border-gray-100">
+                  <td class="py-2 text-gray-600"><%= status.titleize %></td>
+                  <td class="py-2 text-right font-mono"><%= number_with_delimiter(@extraction_counts[status] || 0) %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# Recently Indexed %>
+  <%= render Avo::PanelComponent.new(name: 'Recently Indexed Scores') do |c| %>
+    <% c.with_body do %>
+      <div class="px-6 py-4">
+        <% if @recently_indexed.any? %>
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th class="py-2 text-left text-gray-600">ID</th>
+                <th class="py-2 text-left text-gray-600">Title</th>
+                <th class="py-2 text-left text-gray-600">Composer</th>
+                <th class="py-2 text-right text-gray-600">Indexed At</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @recently_indexed.each do |score| %>
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                  <td class="py-2 font-mono text-gray-500"><%= score.id %></td>
+                  <td class="py-2">
+                    <%= link_to score.title.truncate(50), avo.resources_score_path(score), class: "text-blue-600 hover:underline" %>
+                  </td>
+                  <td class="py-2 text-gray-600"><%= score.composer.to_s.truncate(30) %></td>
+                  <td class="py-2 text-right text-gray-500"><%= score.indexed_at&.strftime("%Y-%m-%d %H:%M") %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="text-gray-500 italic">No scores have been indexed yet.</p>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# Failed Scores %>
+  <% if @failed_scores.any? %>
+    <%= render Avo::PanelComponent.new(name: "Failed Scores (#{@failed_scores.size})") do |c| %>
+      <% c.with_body do %>
+        <div class="px-6 py-4">
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th class="py-2 text-left text-gray-600">ID</th>
+                <th class="py-2 text-left text-gray-600">Title</th>
+                <th class="py-2 text-left text-gray-600">Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @failed_scores.each do |score| %>
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                  <td class="py-2 font-mono text-gray-500"><%= score.id %></td>
+                  <td class="py-2">
+                    <%= link_to score.title.truncate(50), avo.resources_score_path(score), class: "text-blue-600 hover:underline" %>
+                  </td>
+                  <td class="py-2 text-gray-600"><%= score.source %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+    <% end %>
+  <% end %>
+
+  <%# Quick Stats %>
+  <%= render Avo::PanelComponent.new(name: 'Quick Stats') do |c| %>
+    <% c.with_body do %>
+      <div class="px-6 py-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="bg-purple-50 rounded-lg p-4">
+            <div class="text-2xl font-bold text-purple-600"><%= number_with_delimiter(@waitlist_count) %></div>
+            <div class="text-sm text-gray-500">Waitlist Signups</div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-4">
+            <div class="text-2xl font-bold text-gray-600"><%= number_with_delimiter(Score.sum(:views)) %></div>
+            <div class="text-sm text-gray-500">Total Page Views</div>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>

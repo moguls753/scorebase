@@ -49,6 +49,9 @@ gem "aws-sdk-s3", require: false
 # Use Tailwind CSS [https://github.com/rails/tailwindcss-rails]
 gem "tailwindcss-rails"
 
+# Admin interface [https://avohq.io]
+gem "avo"
+
 # Lucide Icons [https://github.com/lucide-icons/lucide]
 gem "lucide-rails"
 

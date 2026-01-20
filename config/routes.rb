@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  mount_avo
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
@@ -55,5 +56,12 @@ Rails.application.routes.draw do
 
     # Root path
     root "scores#index"
+  end
+end
+
+if defined? ::Avo
+  Avo::Engine.routes.draw do
+    # This route is not protected, secure it with authentication if needed.
+    get "rag_pipeline", to: "tools#rag_pipeline", as: :rag_pipeline
   end
 end
