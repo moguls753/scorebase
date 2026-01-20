@@ -43,18 +43,6 @@
       { class: "filter-select", data: { action: submit_action } }
   %>
 
-  <%# Length - how long? (based on page count) %>
-  <%= f.select :length,
-      options_for_select([
-        [t('filters.any_length'), ''],
-        [t('length.short'), 'short'],
-        [t('length.medium'), 'medium'],
-        [t('length.long'), 'long']
-      ], params[:length]),
-      {},
-      { class: "filter-select", data: { action: submit_action } }
-  %>
-
   <%# Period - when was it written? %>
   <%= f.select :period,
       options_for_select([
@@ -97,6 +85,18 @@
         [t('parts.quartet'), 'quartet'],
         [t('parts.ensemble'), 'ensemble']
       ], params[:voicing]),
+      {},
+      { class: "filter-select", data: { action: submit_action } }
+  %>
+
+  <%# Length - how long? (practical refinement) %>
+  <%= f.select :length,
+      options_for_select([
+        [t('filters.any_length'), ''],
+        [t('length.short'), 'short'],
+        [t('length.medium'), 'medium'],
+        [t('length.long'), 'long']
+      ], params[:length]),
       {},
       { class: "filter-select", data: { action: submit_action } }
   %>

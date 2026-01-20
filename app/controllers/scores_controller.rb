@@ -31,8 +31,8 @@ class ScoresController < ApplicationController
     @total_count = Score.count
     @filtered_count = @scores.count
 
-    # Pagination (without_count skips redundant COUNT query)
-    @scores = @scores.with_attached_thumbnail_image.page(params[:page]).without_count
+    # Pagination: 24 for clean 4-column grid (hub pages use 30 for 5-column)
+    @scores = @scores.with_attached_thumbnail_image.page(params[:page]).per(24).without_count
   end
 
   def show
