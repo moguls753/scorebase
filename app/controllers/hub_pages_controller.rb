@@ -84,8 +84,28 @@ class HubPagesController < ApplicationController
 
   def instrument
     @instrument_name = find_or_404(:instruments, params[:slug])
-    @scores = paginate(Score.by_instrument(@instrument_name))
-    @top_periods = HubDataBuilder.periods_for_instrument(@instrument_name)
+
+    # Base scope for this instrument
+    base_scope = Score.by_instrument(@instrument_name)
+
+    # Apply filters
+    filtered_scope = base_scope
+    filtered_scope = filtered_scope.where(composer: composer_name_from_slug(params[:composer])) if params[:composer].present?
+    filtered_scope = filtered_scope.by_genre(params[:genre]) if params[:genre].present?
+
+    # Apply scoped search
+    filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
+
+    # Counts
+    @total_count = base_scope.count
+    @filtered_count = filtered_scope.count
+
+    # Paginate
+    @scores = paginate_filtered(filtered_scope)
+
+    # Dynamic filter options (faceted)
+    @filter_options = build_instrument_filter_options(base_scope, params)
+
     set_detail_meta(:instrument, @instrument_name)
   end
 
@@ -237,6 +257,46 @@ class HubPagesController < ApplicationController
          .limit(50)
          .pluck(:composer)
          .map { |name| { name: name, slug: name.parameterize } }
+  end
+
+  # Build filter options for instrument page using efficient DISTINCT queries
+  def build_instrument_filter_options(base_scope, current_params)
+    # Apply search filter to base scope (affects all filter options)
+    scope = base_scope
+    scope = scope.search_by_title(current_params[:q]) if current_params[:q].present?
+
+    {
+      composers: available_composers_for_instrument(scope, current_params),
+      genres: available_genres_for_instrument(scope, current_params)
+    }
+  end
+
+  # Get available composers for instrument page (1 query)
+  # Returns top composers by score count within this instrument
+  def available_composers_for_instrument(base_scope, current_params)
+    scope = base_scope
+    scope = scope.by_genre(current_params[:genre]) if current_params[:genre].present?
+
+    # Get top composers with their counts, limited to reasonable dropdown size
+    scope.where.not(composer: [nil, ""])
+         .group(:composer)
+         .order(Arel.sql("COUNT(*) DESC"))
+         .limit(50)
+         .pluck(:composer)
+         .map { |name| { name: name, slug: name.parameterize } }
+  end
+
+  # Get available genres for instrument page (1 query)
+  def available_genres_for_instrument(base_scope, current_params)
+    scope = base_scope
+    scope = scope.where(composer: composer_name_from_slug(current_params[:composer])) if current_params[:composer].present?
+
+    distinct_values = scope.where.not(genre: [nil, ""]).distinct.pluck(:genre)
+
+    HubDataBuilder::VALID_GENRES.filter_map do |genre|
+      next unless distinct_values.any? { |str| str.downcase.include?(genre.downcase) }
+      { name: genre, slug: genre.parameterize }
+    end
   end
 
   # Convert composer slug back to canonical name

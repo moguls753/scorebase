@@ -7,6 +7,9 @@ module HubPagesHelper
   # Filter parameters for genre page
   GENRE_FILTER_PARAMS = %i[instrument composer].freeze
 
+  # Filter parameters for instrument page
+  INSTRUMENT_FILTER_PARAMS = %i[composer genre].freeze
+
   # Count active filters for composer page
   def composer_active_filters_count
     COMPOSER_FILTER_PARAMS.count { |param| params[param].present? }
@@ -25,6 +28,16 @@ module HubPagesHelper
   # Generate hidden fields for genre filter params to preserve state across forms
   def genre_filter_hidden_fields(form)
     safe_join(GENRE_FILTER_PARAMS.map { |param| form.hidden_field(param, value: params[param]) })
+  end
+
+  # Count active filters for instrument page
+  def instrument_active_filters_count
+    INSTRUMENT_FILTER_PARAMS.count { |param| params[param].present? }
+  end
+
+  # Generate hidden fields for instrument filter params to preserve state across forms
+  def instrument_filter_hidden_fields(form)
+    safe_join(INSTRUMENT_FILTER_PARAMS.map { |param| form.hidden_field(param, value: params[param]) })
   end
 
   # Translates a hub item name using I18n

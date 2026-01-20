@@ -1,12 +1,21 @@
 class Avo::Resources::Score < Avo::BaseResource
   self.title = :title
   self.search = {
-    query: -> { query.where("title LIKE ? OR composer LIKE ?", "%#{q}%", "%#{q}%") }
+    query: -> {
+      if q.match?(/^\d+$/)
+        query.where(id: q.to_i)
+      else
+        query.where("title LIKE ? OR composer LIKE ?", "%#{q}%", "%#{q}%")
+      end
+    }
   }
 
   def fields
     # Index view: show only essential columns
     field :id, as: :id, link_to_record: true
+    field :view_on_site, as: :text, only_on: :show do
+      link_to "Open on ScoreBase →", main_app.score_path(record), target: "_blank", class: "text-blue-600 hover:underline"
+    end
     field :title, as: :text, sortable: true, link_to_record: true
     field :composer, as: :text, sortable: true
     field :source, as: :select, options: Score::SOURCES.map { |s| [s, s] }.to_h, sortable: true
