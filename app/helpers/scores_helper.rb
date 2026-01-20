@@ -123,7 +123,7 @@ module ScoresHelper
   end
 
   # Build a fact entry hash with icon data
-  def fact_entry(key, value, link: nil, difficulty: nil, css: nil)
+  def fact_entry(key, value, link: nil, difficulty: nil, grade: nil, css: nil)
     {
       label: t(key),
       value: value,
@@ -131,6 +131,7 @@ module ScoresHelper
       icon_css: fact_icon_css(key),
       link: link,
       difficulty: difficulty,
+      grade: grade,
       css: css
     }.compact
   end
@@ -179,9 +180,11 @@ module ScoresHelper
       facts << fact_entry("score.voicing", score.voicing, link: scores_path(voicing: score.voicing))
     end
 
-    # Difficulty - visual meter (melodic_complexity preferred, legacy complexity as fallback)
+    # Difficulty - visual meter with optional ABRSM grade for teachers
     if (level = score_difficulty_level(score))
-      facts << fact_entry("score.difficulty", nil, difficulty: level)
+      # Use localized grade with fallback: German "Oberstufe" or English "Grade 7-8"
+      grade = localized_pedagogical_grade(score)
+      facts << fact_entry("score.difficulty", nil, difficulty: level, grade: grade)
     end
 
     # Pitch range
@@ -223,24 +226,39 @@ module ScoresHelper
 
   # ─────────────────────────────────────────────────────────────────
   # Difficulty Meter Component
-  # Visual 5-block scale: beginner → easy → intermediate → advanced → expert
+  # Visual 5-block scale: beginner → elementary → intermediate → advanced → expert
+  # Matches filter labels and pedagogical terminology
   # ─────────────────────────────────────────────────────────────────
 
   DIFFICULTY_LABELS = {
-    1 => "beginner", 2 => "easy", 3 => "intermediate", 4 => "advanced", 5 => "expert"
+    1 => "beginner", 2 => "elementary", 3 => "intermediate", 4 => "advanced", 5 => "expert"
   }.freeze
 
-  def difficulty_meter(level)
+  # Inverse mapping: "Grade 7-8" -> 5 (expert)
+  # Built from Score::DIFFICULTY_LEVELS for consistency with filter
+  GRADE_TO_LEVEL = Score::DIFFICULTY_LEVELS.flat_map { |name, grades|
+    level = { "beginner" => 1, "elementary" => 2, "intermediate" => 3, "advanced" => 4, "expert" => 5 }[name]
+    grades.map { |g| [g, level] }
+  }.to_h.freeze
+
+  def difficulty_meter(level, grade: nil)
     level = level.to_i
     return nil unless level.between?(1, 5)
 
     label = translate_difficulty_label(level)
+    aria_label = grade.present? ? "#{label} (#{grade})" : label
 
-    content_tag(:div, class: "difficulty-meter", aria: { label: "#{t('score.difficulty')}: #{label}" }) do
+    content_tag(:div, class: "difficulty-meter", aria: { label: "#{t('score.difficulty')}: #{aria_label}" }) do
       blocks = (1..5).map do |i|
         content_tag(:span, "", class: "difficulty-block #{'is-filled' if i <= level}".strip)
       end
-      safe_join(blocks) + content_tag(:span, label, class: "difficulty-label")
+      # Grade in mixed-case for readability: "EXPERT (Grade 7-8)"
+      label_html = if grade.present?
+        "#{label} ".html_safe + content_tag(:span, "(#{grade})", class: "difficulty-grade")
+      else
+        label
+      end
+      safe_join(blocks) + content_tag(:span, label_html, class: "difficulty-label")
     end
   end
 
@@ -463,10 +481,13 @@ module ScoresHelper
   end
 
   # Get difficulty level (1-5) from score
-  # Priority: computed_difficulty > melodic_complexity > legacy complexity
+  # Priority: pedagogical_grade (matches filter) > computed_difficulty > melodic_complexity > legacy
   def score_difficulty_level(score)
-    # Prefer new computed_difficulty (uses ALL metrics)
-    if score.computed_difficulty.present?
+    # Prefer pedagogical_grade (LLM-assigned, matches filter logic)
+    if score.pedagogical_grade.present? && GRADE_TO_LEVEL[score.pedagogical_grade]
+      GRADE_TO_LEVEL[score.pedagogical_grade]
+    # Fallback to computed_difficulty (algorithmic)
+    elsif score.computed_difficulty.present?
       score.computed_difficulty.to_i.clamp(1, 5)
     # Fallback to melodic_complexity
     elsif score.melodic_complexity.present?
@@ -480,6 +501,17 @@ module ScoresHelper
     # Final fallback to PDMX legacy complexity
     elsif score.complexity.to_i.positive?
       score.complexity.to_i.clamp(1, 5)
+    end
+  end
+
+  # Get localized pedagogical grade with fallback
+  # German: "Oberstufe", English: "Grade 7-8"
+  def localized_pedagogical_grade(score)
+    case I18n.locale
+    when :de
+      score.pedagogical_grade_de.presence || score.pedagogical_grade.presence
+    else
+      score.pedagogical_grade.presence
     end
   end
 

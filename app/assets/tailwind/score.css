@@ -749,6 +749,12 @@
   margin-left: 8px;
 }
 
+.difficulty-grade {
+  text-transform: none;
+  font-weight: 500;
+  opacity: 0.85;
+}
+
 /* ========================================
    PITCH RANGE - Middle C Reference Marker
    ======================================== */

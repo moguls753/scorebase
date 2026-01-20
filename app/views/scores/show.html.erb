@@ -84,13 +84,13 @@
               <% elsif fact[:divider] %>
                 <div class="score-facts-divider"></div>
               <% elsif fact[:difficulty] %>
-                <%# Difficulty meter - special rendering %>
+                <%# Difficulty meter - special rendering with optional ABRSM grade %>
                 <div class="score-fact-cell">
                   <span class="score-fact-label">
                     <% if fact[:icon] %><span class="score-fact-icon <%= fact[:icon_css] %>"><%= fact[:icon] %></span><% end %>
                     <%= fact[:label] %>
                   </span>
-                  <%= difficulty_meter(fact[:difficulty]) %>
+                  <%= difficulty_meter(fact[:difficulty], grade: fact[:grade]) %>
                 </div>
               <% elsif fact[:link] %>
                 <%# Linkable fact - discover more %>

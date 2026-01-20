@@ -615,11 +615,11 @@ de:
       unknown: "Unbekannt"
       unspecified: "Nicht angegeben"
 
-    # Difficulty labels (for difficulty meter)
+    # Difficulty labels (for difficulty meter) - matches filter labels
     difficulty:
       beginner: "Anfänger"
-      easy: "Leicht"
-      intermediate: "Mittel"
+      elementary: "Unterstufe"
+      intermediate: "Mittelstufe"
       advanced: "Fortgeschritten"
       expert: "Virtuos"
 
