@@ -52,6 +52,9 @@ gem "tailwindcss-rails"
 # Admin interface [https://avohq.io]
 gem "avo"
 
+# Job queue dashboard for Solid Queue [https://github.com/rails/mission_control-jobs]
+gem "mission_control-jobs"
+
 # Lucide Icons [https://github.com/lucide-icons/lucide]
 gem "lucide-rails"
 
