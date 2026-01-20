@@ -16,7 +16,7 @@ class Avo::Resources::Score < Avo::BaseResource
     field :view_on_site, as: :text, only_on: :show do
       link_to "Open on ScoreBase →", "/scores/#{record.id}", target: "_blank", class: "text-blue-600 hover:underline"
     end
-    field :title, as: :text, sortable: true, link_to_record: true
+    field :title, as: :text, sortable: true, link_to_record: true, truncate: 50
     field :composer, as: :text, sortable: true
     field :source, as: :select, options: Score::SOURCES.map { |s| [s, s] }.to_h, sortable: true
     field :instruments, as: :text, hide_on: :index
