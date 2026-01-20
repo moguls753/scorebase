@@ -1,167 +1,126 @@
-<%# Filter Fields - Clean single-column layout
-    5 core filters + contextual vocal filters when Voice/Choir selected
-
-    Params:
-      - f: form builder
-      - mobile: boolean (optional) - whether this is mobile layout
+<%# Filter Fields - Label-free, self-describing dropdowns
+    37signals-inspired: calm, obvious, no redundant chrome
 %>
 <% mobile ||= false %>
 <% is_vocal = params[:instrument]&.match?(/voice|choir/i) %>
+<% submit_action = mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" %>
 
-<div class="filter-fields" data-controller="instrument-context">
-  <%# ═══════════════════════════════════════════════════════════════════
-      CORE FILTERS - Always visible, universal across all scores
-      ═══════════════════════════════════════════════════════════════════ %>
+<div class="filter-stack" data-controller="instrument-context">
 
-  <%# 1. Instrument - The primary filter %>
-  <div class="filter-field">
-    <%= f.label :instrument, t('filters.instrument'), class: "filter-label" %>
-    <%= f.select :instrument,
-        options_for_select(instrument_filter_options, params[:instrument]),
-        {},
-        {
-          class: "filter-select",
-          data: {
-            action: "change->instrument-context#update #{mobile ? 'change->filter-modal#closeAndSubmit' : 'change->url-sync#submit'}",
-            instrument_context_target: "select"
-          }
+  <%# Instrument %>
+  <%= f.select :instrument,
+      options_for_select([
+        [t('filters.all_instruments'), ''],
+        [t('instruments.voice_choir'), 'voice'],
+        [t('instruments.piano'), 'piano'],
+        [t('instruments.organ'), 'organ'],
+        [t('instruments.violin'), 'violin'],
+        [t('instruments.cello'), 'cello'],
+        [t('instruments.flute'), 'flute'],
+        [t('instruments.guitar'), 'guitar']
+      ], params[:instrument]),
+      {},
+      {
+        class: "filter-select",
+        data: {
+          action: "change->instrument-context#update #{submit_action}",
+          instrument_context_target: "select"
         }
-    %>
-  </div>
+      }
+  %>
 
-  <%# 2. Difficulty - Universal concern %>
-  <div class="filter-field">
-    <%= f.label :difficulty, t('filters.difficulty'), class: "filter-label" %>
-    <%= f.select :difficulty,
-        options_for_select([
-          [t('filters.any'), ''],
-          [t('difficulty.beginner'), 'beginner'],
-          [t('difficulty.elementary'), 'elementary'],
-          [t('difficulty.intermediate'), 'intermediate'],
-          [t('difficulty.advanced'), 'advanced'],
-          [t('difficulty.expert'), 'expert']
-        ], params[:difficulty]),
-        {},
-        {
-          class: "filter-select",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-        }
-    %>
-  </div>
+  <%# Difficulty %>
+  <%= f.select :difficulty,
+      options_for_select([
+        [t('filters.all_levels'), ''],
+        [t('difficulty.beginner'), 'beginner'],
+        [t('difficulty.elementary'), 'elementary'],
+        [t('difficulty.intermediate'), 'intermediate'],
+        [t('difficulty.advanced'), 'advanced'],
+        [t('difficulty.expert'), 'expert']
+      ], params[:difficulty]),
+      {},
+      { class: "filter-select", data: { action: submit_action } }
+  %>
 
-  <%# 3. Period - Musicians think in eras %>
-  <div class="filter-field">
-    <%= f.label :period, t('filters.period'), class: "filter-label" %>
-    <%= f.select :period,
-        options_for_select([
-          [t('filters.any'), ''],
-          [t('periods.medieval'), 'Medieval'],
-          [t('periods.renaissance'), 'Renaissance'],
-          [t('periods.baroque'), 'Baroque'],
-          [t('periods.classical'), 'Classical'],
-          [t('periods.romantic'), 'Romantic'],
-          [t('periods.modern'), 'Modern']
-        ], params[:period]),
-        {},
-        {
-          class: "filter-select",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-        }
-    %>
-  </div>
+  <%# Period %>
+  <%= f.select :period,
+      options_for_select([
+        [t('filters.all_periods'), ''],
+        [t('periods.medieval'), 'Medieval'],
+        [t('periods.renaissance'), 'Renaissance'],
+        [t('periods.baroque'), 'Baroque'],
+        [t('periods.classical'), 'Classical'],
+        [t('periods.romantic'), 'Romantic'],
+        [t('periods.modern'), 'Modern']
+      ], params[:period]),
+      {},
+      { class: "filter-select", data: { action: submit_action } }
+  %>
 
-  <%# 4. Genre - Style/form %>
-  <div class="filter-field">
-    <%= f.label :genre, t('filters.genre'), class: "filter-label" %>
-    <%= f.select :genre,
-        options_for_select([
-          [t('filters.any'), ''],
-          [t('genres.sacred'), 'sacred'],
-          [t('genres.motet'), 'motet'],
-          [t('genres.madrigal'), 'madrigal'],
-          [t('genres.art_song'), 'art song'],
-          [t('genres.hymn'), 'hymn'],
-          [t('genres.folk'), 'folk'],
-          [t('genres.sonata'), 'sonata'],
-          [t('genres.classical'), 'classical']
-        ], params[:genre]),
-        {},
-        {
-          class: "filter-select",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-        }
-    %>
-  </div>
+  <%# Genre %>
+  <%= f.select :genre,
+      options_for_select([
+        [t('filters.all_genres'), ''],
+        [t('genres.sacred'), 'sacred'],
+        [t('genres.motet'), 'motet'],
+        [t('genres.madrigal'), 'madrigal'],
+        [t('genres.art_song'), 'art song'],
+        [t('genres.hymn'), 'hymn'],
+        [t('genres.folk'), 'folk'],
+        [t('genres.sonata'), 'sonata'],
+        [t('genres.classical'), 'classical']
+      ], params[:genre]),
+      {},
+      { class: "filter-select", data: { action: submit_action } }
+  %>
 
-  <%# 5. Parts - Ensemble size %>
-  <div class="filter-field">
-    <%= f.label :voicing, t('filters.parts'), class: "filter-label" %>
-    <%= f.select :voicing,
-        options_for_select([
-          [t('filters.any'), ''],
-          [t('parts.solo'), 'solo'],
-          [t('parts.duet'), 'duet'],
-          [t('parts.trio'), 'trio'],
-          [t('parts.quartet'), 'quartet'],
-          [t('parts.ensemble'), 'ensemble']
-        ], params[:voicing]),
-        {},
-        {
-          class: "filter-select",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-        }
-    %>
-  </div>
+  <%# Parts %>
+  <%= f.select :voicing,
+      options_for_select([
+        [t('filters.any_size'), ''],
+        [t('parts.solo'), 'solo'],
+        [t('parts.duet'), 'duet'],
+        [t('parts.trio'), 'trio'],
+        [t('parts.quartet'), 'quartet'],
+        [t('parts.ensemble'), 'ensemble']
+      ], params[:voicing]),
+      {},
+      { class: "filter-select", data: { action: submit_action } }
+  %>
 
-  <%# ═══════════════════════════════════════════════════════════════════
-      VOCAL FILTERS - Contextual, shown when Voice/Choir is selected
-      ═══════════════════════════════════════════════════════════════════ %>
+  <%# Vocal-specific filters - appear when Voice/Choir selected %>
   <div class="filter-vocal-section <%= 'is-visible' if is_vocal %>"
        data-instrument-context-target="vocalFilters"
        <% unless is_vocal %>hidden<% end %>>
 
-    <div class="filter-section-label">
-      <%= t('filters.vocal_options') %>
-    </div>
+    <%# Voice Type %>
+    <%= f.select :voice_type,
+        options_for_select([
+          [t('filters.all_voice_types'), ''],
+          [t('voice_type.mixed'), 'mixed'],
+          [t('voice_type.treble'), 'treble'],
+          [t('voice_type.mens'), 'mens'],
+          [t('voice_type.unison'), 'unison']
+        ], params[:voice_type]),
+        {},
+        { class: "filter-select", data: { action: submit_action } }
+    %>
 
-    <%# Voice Type - Choir voicing %>
-    <div class="filter-field">
-      <%= f.label :voice_type, t('filters.voice_type'), class: "filter-label" %>
-      <%= f.select :voice_type,
-          options_for_select([
-            [t('filters.any'), ''],
-            [t('voice_type.mixed'), 'mixed'],
-            [t('voice_type.treble'), 'treble'],
-            [t('voice_type.mens'), 'mens'],
-            [t('voice_type.unison'), 'unison']
-          ], params[:voice_type]),
-          {},
-          {
-            class: "filter-select",
-            data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-          }
-      %>
-    </div>
-
-    <%# Language - Text language %>
-    <div class="filter-field">
-      <%= f.label :language, t('filters.language'), class: "filter-label" %>
-      <%= f.select :language,
-          options_for_select([
-            [t('filters.any'), ''],
-            [t('languages.latin'), 'Latin'],
-            [t('languages.english'), 'English'],
-            [t('languages.german'), 'German'],
-            [t('languages.italian'), 'Italian'],
-            [t('languages.french'), 'French'],
-            [t('languages.spanish'), 'Spanish']
-          ], params[:language]),
-          {},
-          {
-            class: "filter-select",
-            data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-          }
-      %>
-    </div>
+    <%# Language %>
+    <%= f.select :language,
+        options_for_select([
+          [t('filters.all_languages'), ''],
+          [t('languages.latin'), 'Latin'],
+          [t('languages.english'), 'English'],
+          [t('languages.german'), 'German'],
+          [t('languages.italian'), 'Italian'],
+          [t('languages.french'), 'French'],
+          [t('languages.spanish'), 'Spanish']
+        ], params[:language]),
+        {},
+        { class: "filter-select", data: { action: submit_action } }
+    %>
   </div>
+
 </div>

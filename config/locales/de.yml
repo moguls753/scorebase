@@ -51,20 +51,19 @@ de:
     sort_by: "SORTIEREN"
     unknown_composer: "Unbekannt"
 
-  # Filters
+  # Filters - self-describing defaults (no labels needed)
   filters:
+    all_instruments: "Alle Instrumente"
+    all_levels: "Alle Stufen"
+    all_periods: "Alle Epochen"
+    all_genres: "Alle Genres"
+    any_size: "Jede Besetzung"
+    all_voice_types: "Alle Stimmlagen"
+    all_languages: "Alle Sprachen"
+    # Legacy keys for other pages
     key: "Tonart"
     time: "Taktart"
-    parts: "Stimmen"
-    voice_type: "Chortyp"
-    difficulty: "Schwierigkeit"
-    genre: "Genre"
-    period: "Epoche"
     source: "Quelle"
-    language: "Sprache"
-    instrument: "Instrument"
-    any: "Alle"
-    vocal_options: "Vokaloptionen"
 
   # Instruments for filter dropdown
   instruments:

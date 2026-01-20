@@ -505,98 +505,75 @@
 
 /* ========================================
    FILTER SIDEBAR
-   Clean single-column layout with contextual sections
+   37signals-style: label-free, self-describing, calm
    ======================================== */
 
-/* Filter Fields Container */
-.filter-fields {
+.filter-stack {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
 }
 
-/* Individual Filter Field */
-.filter-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-/* Filter Label - Bold, uppercase, neubrutalist */
-.filter-label {
-  font-family: var(--font-family-display);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--color-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
-
-/* Filter Select - Neubrutalist input style */
+/* Self-describing select - no labels needed */
 .filter-select {
   width: 100%;
-  padding: 10px 32px 10px 12px;
+  padding: 11px 34px 11px 14px;
   font-family: var(--font-family-body);
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   color: var(--color-text);
   background: var(--color-bg-elevated);
-  border: var(--border-width) solid var(--color-border);
+  border: 2px solid var(--color-border);
   border-radius: var(--radius-sm);
-  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.08);
   cursor: pointer;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a89c8c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23a89c8c' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 10px center;
+  background-position: right 12px center;
 }
 
+/* Hover - subtle lift */
 .filter-select:hover {
   border-color: var(--color-text-muted);
+  background-color: var(--color-bg-hover);
 }
 
+/* Focus - accent ring */
 .filter-select:focus {
   outline: none;
   border-color: var(--color-accent);
-  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.08), 0 0 0 2px var(--color-accent);
+}
+
+/* Active filter - left accent bar shows "this is filtered" */
+.filter-select:not(:has(option[value=""]:checked)) {
+  border-left: 3px solid var(--color-accent);
+  padding-left: 12px;
 }
 
 /* ========================================
-   CONTEXTUAL VOCAL FILTERS SECTION
-   Appears when Voice/Choir is selected
+   CONTEXTUAL VOCAL FILTERS
+   Smooth reveal, no chrome
    ======================================== */
 
 .filter-vocal-section {
-  margin-top: 8px;
-  padding-top: 16px;
-  border-top: var(--border-width) solid var(--color-border-subtle);
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 10px;
+  max-height: 0;
   opacity: 0;
-  transform: translateY(-8px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease, margin 0.3s ease;
 }
 
 .filter-vocal-section.is-visible {
+  max-height: 150px;
   opacity: 1;
-  transform: translateY(0);
+  margin-top: 6px;
 }
 
 .filter-vocal-section[hidden] {
   display: none;
-}
-
-/* Section Label - Subtle divider text */
-.filter-section-label {
-  font-family: var(--font-family-display);
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--color-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  padding-bottom: 4px;
 }
 
 /* ========================================
@@ -638,25 +615,16 @@
    ======================================== */
 
 @media (max-width: 640px) {
-  .filter-fields {
-    gap: 14px;
-  }
-
-  .filter-label {
-    font-size: 10px;
+  .filter-stack {
+    gap: 8px;
   }
 
   .filter-select {
-    padding: 9px 28px 9px 10px;
-    font-size: 13px;
+    padding: 10px 30px 10px 12px;
+    font-size: 14px;
   }
 
   .filter-vocal-section {
-    padding-top: 14px;
-    gap: 14px;
-  }
-
-  .filter-section-label {
-    font-size: 9px;
+    gap: 8px;
   }
 }

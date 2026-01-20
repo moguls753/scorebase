@@ -51,20 +51,19 @@ en:
     sort_by: "SORT BY"
     unknown_composer: "Unknown"
 
-  # Filters
+  # Filters - self-describing defaults (no labels needed)
   filters:
+    all_instruments: "All instruments"
+    all_levels: "All levels"
+    all_periods: "All periods"
+    all_genres: "All genres"
+    any_size: "Any size"
+    all_voice_types: "All voice types"
+    all_languages: "All languages"
+    # Legacy keys for other pages
     key: "Key"
     time: "Time Signature"
-    parts: "Parts"
-    voice_type: "Voice Type"
-    difficulty: "Difficulty"
-    genre: "Genre"
-    period: "Period"
     source: "Source"
-    language: "Language"
-    instrument: "Instrument"
-    any: "Any"
-    vocal_options: "Vocal Options"
 
   # Instruments for filter dropdown
   instruments:
