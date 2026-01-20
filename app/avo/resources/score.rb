@@ -20,8 +20,8 @@ class Avo::Resources::Score < Avo::BaseResource
     field :composer, as: :text, sortable: true
     field :source, as: :select, options: Score::SOURCES.map { |s| [s, s] }.to_h, sortable: true
     field :instruments, as: :text, hide_on: :index
-    field :voicing, as: :text, sortable: true
-    field :pedagogical_grade, as: :text, sortable: true, name: "Grade"
+    field :voicing, as: :text, hide_on: :index
+    field :pedagogical_grade, as: :text, hide_on: :index, name: "Grade"
     field :rag_status, as: :select, enum: ::Score.rag_statuses, sortable: true
     field :views, as: :number, sortable: true
 
@@ -106,9 +106,9 @@ class Avo::Resources::Score < Avo::BaseResource
     filter Avo::Filters::ScoreRagStatusFilter
   end
 
-  # Actions
+  # Actions (for soft-deleted scores view)
   def actions
-    action Avo::Actions::SoftDeleteScores
     action Avo::Actions::RestoreScores
+    action Avo::Actions::PermanentlyDeleteScores
   end
 end
