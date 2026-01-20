@@ -1,5 +1,7 @@
 class Avo::Resources::Score < Avo::BaseResource
   self.title = :title
+  # Bypass default_scope so Status filter can show deleted records
+  self.index_query = -> { query.unscoped }
   self.search = {
     query: -> {
       if q.match?(/^\d+$/)
