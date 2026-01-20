@@ -1,6 +1,5 @@
 class Avo::Filters::ScoreStatusFilter < Avo::Filters::SelectFilter
   self.name = "Status"
-  self.default = -> { "active" }
 
   def apply(request, query, value)
     case value
@@ -9,7 +8,7 @@ class Avo::Filters::ScoreStatusFilter < Avo::Filters::SelectFilter
     when "deleted"
       query.where.not(deleted_at: nil)
     when "all"
-      query # No filter - show all records
+      query
     else
       query
     end
@@ -17,9 +16,13 @@ class Avo::Filters::ScoreStatusFilter < Avo::Filters::SelectFilter
 
   def options
     {
-      "Active" => "active",
-      "Deleted" => "deleted",
-      "All" => "all"
+      "active": "Active",
+      "deleted": "Deleted",
+      "all": "All"
     }
+  end
+
+  def default
+    :active
   end
 end
