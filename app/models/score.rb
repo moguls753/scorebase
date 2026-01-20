@@ -226,13 +226,10 @@ class Score < ApplicationRecord
   scope :from_imslp, -> { where(source: "imslp") }
   scope :by_source, ->(source) { where(source: source) if source.present? }
 
-  # Soft delete scopes
+  # Soft delete scopes - use Score.active in public-facing code
   scope :active, -> { where(deleted_at: nil) }
   scope :deleted, -> { where.not(deleted_at: nil) }
   scope :deleted_before, ->(date) { deleted.where("deleted_at < ?", date) }
-
-  # Default scope excludes soft-deleted records
-  default_scope { active }
 
   def soft_delete!
     update!(deleted_at: Time.current)

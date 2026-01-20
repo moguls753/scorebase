@@ -1,7 +1,7 @@
 class PagesController < ApplicationController
   def about
-    @total_count = Score.count
-    @source_counts = Score.group(:source).count
+    @total_count = Score.active.count
+    @source_counts = Score.active.group(:source).count
   end
 
   def impressum
@@ -10,6 +10,6 @@ class PagesController < ApplicationController
   def pro
     # Pro landing page with waitlist form
     # Waitlist implementation: see WaitlistSignupsController and WaitlistMailer
-    @total_count = Score.count
+    @total_count = Score.active.count
   end
 end

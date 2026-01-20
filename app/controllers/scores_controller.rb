@@ -1,6 +1,6 @@
 class ScoresController < ApplicationController
   def index
-    @scores = Score.all
+    @scores = Score.active
 
     # Search
     if params[:q].present?
@@ -28,7 +28,7 @@ class ScoresController < ApplicationController
     @scores = apply_sorting(@scores, params[:sort])
 
     # Stats for filters (count before pagination)
-    @total_count = Score.count
+    @total_count = Score.active.count
     @filtered_count = @scores.count
 
     # Pagination: 24 for clean 4-column grid (hub pages use 30 for 5-column)
@@ -36,7 +36,7 @@ class ScoresController < ApplicationController
   end
 
   def show
-    @score = Score
+    @score = Score.active
       .with_attached_thumbnail_image
       .includes(score_pages: { image_attachment: :blob })
       .find(params[:id])
@@ -49,7 +49,7 @@ class ScoresController < ApplicationController
   # 3. OpenScore: Local disk (/opt/openscore-pdfs for PDFs, corpus dir for MXLs)
   # Thumbnails always go to R2 for CDN benefit on grid views.
   def serve_file
-    @score = Score.find(params[:id])
+    @score = Score.active.find(params[:id])
     file_type = params[:file_type]
     disposition = params[:download] == "true" ? "attachment" : "inline"
     nice_filename = nice_filename_for(file_type)

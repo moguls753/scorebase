@@ -1,10 +1,5 @@
 class Avo::Resources::Score < Avo::BaseResource
   self.title = :title
-  # Bypass default_scope but default to showing active (non-deleted) scores
-  # The Status filter can then override this to show deleted/all
-  self.index_query = -> { query.unscoped.where(deleted_at: nil) }
-  self.show_query = -> { query.unscoped }
-  self.edit_query = -> { query.unscoped }
   self.search = {
     query: -> {
       if q.match?(/^\d+$/)

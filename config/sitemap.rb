@@ -102,7 +102,7 @@ SitemapGenerator::Sitemap.create do
   # Uses same scopes as controller for consistent counts
   composers.each do |composer_item|
     instruments.each do |instrument_item|
-      count = Score.where(composer: composer_item[:name])
+      count = Score.active.where(composer: composer_item[:name])
                    .by_instrument(instrument_item[:name]).count
       next if count < threshold
 
@@ -118,7 +118,7 @@ SitemapGenerator::Sitemap.create do
   # Uses same scopes as controller for consistent counts
   genres.each do |genre_item|
     instruments.each do |instrument_item|
-      count = Score.by_genre(genre_item[:name])
+      count = Score.active.by_genre(genre_item[:name])
                    .by_instrument(instrument_item[:name]).count
       next if count < threshold
 
@@ -134,7 +134,7 @@ SitemapGenerator::Sitemap.create do
   # Uses same scopes as controller for consistent counts
   periods.each do |period_item|
     instruments.each do |instrument_item|
-      count = Score.by_period(period_item[:name])
+      count = Score.active.by_period(period_item[:name])
                    .by_instrument(instrument_item[:name]).count
       next if count < threshold
 

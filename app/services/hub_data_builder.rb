@@ -149,9 +149,9 @@ class HubDataBuilder
 
     def build_top_instruments_for(type, name)
       base_scope = case type
-      when :period then Score.by_period(name)
-      when :genre then Score.by_genre(name)
-      when :composer then Score.where(composer: name)
+      when :period then Score.active.by_period(name)
+      when :genre then Score.active.by_genre(name)
+      when :composer then Score.active.where(composer: name)
       else return []
       end
 
@@ -164,7 +164,7 @@ class HubDataBuilder
     end
 
     def build_periods_for_instrument(instrument_name)
-      base_scope = Score.by_instrument(instrument_name)
+      base_scope = Score.active.by_instrument(instrument_name)
 
       # Return in PERIOD_ORDER (chronological) rather than by count
       PERIOD_ORDER.filter_map do |period|
@@ -177,10 +177,10 @@ class HubDataBuilder
 
     def current_count(type, name)
       case type
-      when :composers then Score.where(composer: name).count
-      when :genres then Score.by_genre(name).count
-      when :instruments then Score.by_instrument(name).count
-      when :periods then Score.by_period(name).count
+      when :composers then Score.active.where(composer: name).count
+      when :genres then Score.active.by_genre(name).count
+      when :instruments then Score.active.by_instrument(name).count
+      when :periods then Score.active.by_period(name).count
       else 0
       end
     end
@@ -191,7 +191,7 @@ class HubDataBuilder
 
     def build_composers
       valid_composers = ComposerMapping.normalizable.pluck(:normalized_name).uniq
-      composer_counts = Score.where(composer: valid_composers).group(:composer).count
+      composer_counts = Score.active.where(composer: valid_composers).group(:composer).count
 
       build_hub_items(composer_counts)
     end
@@ -199,7 +199,7 @@ class HubDataBuilder
     def build_genres
       # Count using by_genre scope (exact match + normalized) so counts match actual results
       VALID_GENRES.filter_map do |genre|
-        count = Score.by_genre(genre).count
+        count = Score.active.by_genre(genre).count
         next if count < THRESHOLD
 
         { name: genre, slug: genre.parameterize, count: count }
@@ -209,7 +209,7 @@ class HubDataBuilder
     def build_instruments
       # Count using LIKE matching (same as by_instrument scope) so counts match actual results
       VALID_INSTRUMENTS.filter_map do |instrument|
-        count = Score.by_instrument(instrument).count
+        count = Score.active.by_instrument(instrument).count
         next if count < THRESHOLD
 
         { name: instrument.titleize, slug: instrument.parameterize, count: count }
@@ -218,7 +218,7 @@ class HubDataBuilder
 
     def build_periods
       PERIOD_ORDER.filter_map do |period_name|
-        count = Score.by_period(period_name).count
+        count = Score.active.by_period(period_name).count
         next if count < THRESHOLD
 
         { name: period_name, slug: period_name.parameterize, count: count }

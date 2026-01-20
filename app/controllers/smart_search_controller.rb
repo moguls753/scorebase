@@ -15,7 +15,7 @@ class SmartSearchController < ApplicationController
 
     # Load full score objects from database
     if @rag_result.score_ids.any?
-      scores_by_id = Score.where(id: @rag_result.score_ids).index_by(&:id)
+      scores_by_id = Score.active.where(id: @rag_result.score_ids).index_by(&:id)
       # Preserve RAG ranking order
       @scores = @rag_result.score_ids.filter_map { |id| scores_by_id[id] }
     else

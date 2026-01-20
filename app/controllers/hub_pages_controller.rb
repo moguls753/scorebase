@@ -29,7 +29,7 @@ class HubPagesController < ApplicationController
     @composer_name = find_or_404(:composers, params[:slug])
 
     # Base scope for this composer
-    base_scope = Score.where(composer: @composer_name)
+    base_scope = Score.active.where(composer: @composer_name)
 
     # Apply filters
     filtered_scope = base_scope
@@ -59,7 +59,7 @@ class HubPagesController < ApplicationController
     @genre_name = find_or_404(:genres, params[:slug])
 
     # Base scope for this genre
-    base_scope = Score.by_genre(@genre_name)
+    base_scope = Score.active.by_genre(@genre_name)
 
     # Apply filters
     filtered_scope = base_scope
@@ -86,7 +86,7 @@ class HubPagesController < ApplicationController
     @instrument_name = find_or_404(:instruments, params[:slug])
 
     # Base scope for this instrument
-    base_scope = Score.by_instrument(@instrument_name)
+    base_scope = Score.active.by_instrument(@instrument_name)
 
     # Apply filters
     filtered_scope = base_scope
@@ -111,7 +111,7 @@ class HubPagesController < ApplicationController
 
   def period
     @period_name = find_or_404(:periods, params[:slug])
-    @scores = paginate(Score.by_period(@period_name))
+    @scores = paginate(Score.active.by_period(@period_name))
     @top_instruments = HubDataBuilder.top_instruments_for(:period, @period_name)
     set_detail_meta(:period, @period_name)
   end
@@ -121,7 +121,7 @@ class HubPagesController < ApplicationController
     @composer_name = find_or_404(:composers, params[:composer_slug])
     @instrument_name = find_or_404(:instruments, params[:instrument_slug])
 
-    @scores = paginate(Score.where(composer: @composer_name).by_instrument(@instrument_name))
+    @scores = paginate(Score.active.where(composer: @composer_name).by_instrument(@instrument_name))
     not_found if @total_count < HubDataBuilder::THRESHOLD
 
     @page_title = t("hub.composer_instrument_title", composer: @composer_name, instrument: @instrument_name)
@@ -133,7 +133,7 @@ class HubPagesController < ApplicationController
     @genre_name = find_or_404(:genres, params[:genre_slug])
     @instrument_name = find_or_404(:instruments, params[:instrument_slug])
 
-    @scores = paginate(Score.by_genre(@genre_name).by_instrument(@instrument_name))
+    @scores = paginate(Score.active.by_genre(@genre_name).by_instrument(@instrument_name))
     not_found if @total_count < HubDataBuilder::THRESHOLD
 
     @page_title = t("hub.genre_instrument_title", genre: @genre_name, instrument: @instrument_name)
@@ -145,7 +145,7 @@ class HubPagesController < ApplicationController
     @period_name = find_or_404(:periods, params[:period_slug])
     @instrument_name = find_or_404(:instruments, params[:instrument_slug])
 
-    @scores = paginate(Score.by_period(@period_name).by_instrument(@instrument_name))
+    @scores = paginate(Score.active.by_period(@period_name).by_instrument(@instrument_name))
     not_found if @total_count < HubDataBuilder::THRESHOLD
 
     @page_title = t("hub.period_instrument_title", period: @period_name, instrument: @instrument_name)
