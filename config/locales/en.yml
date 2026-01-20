@@ -55,14 +55,34 @@ en:
   filters:
     key: "Key"
     time: "Time Signature"
-    forces: "Forces"
+    parts: "Parts"
     voice_type: "Voice Type"
     difficulty: "Difficulty"
     genre: "Genre"
     period: "Period"
     source: "Source"
     language: "Language"
+    instrument: "Instrument"
     any: "Any"
+    vocal_options: "Vocal Options"
+
+  # Instruments for filter dropdown
+  instruments:
+    voice_choir: "Voice / Choir"
+    piano: "Piano"
+    organ: "Organ"
+    violin: "Violin"
+    cello: "Cello"
+    flute: "Flute"
+    guitar: "Guitar"
+
+  # Parts / Ensemble size
+  parts:
+    solo: "Solo"
+    duet: "Duet"
+    trio: "Trio"
+    quartet: "Quartet"
+    ensemble: "Ensemble (5+)"
 
   # Sort options
   sort:
@@ -74,13 +94,14 @@ en:
 
   # Genres
   genres:
-    sacred: "Sacred / Religious"
-    classical: "Classical"
+    sacred: "Sacred"
+    motet: "Motet"
+    madrigal: "Madrigal"
+    art_song: "Art Song"
+    hymn: "Hymn"
     folk: "Folk"
-    soundtrack: "Soundtrack"
-    jazz: "Jazz"
-    rock: "Rock"
-    pop: "Pop"
+    sonata: "Sonata"
+    classical: "Classical"
 
   # Key signatures
   keys:

@@ -1,97 +1,37 @@
-<%# Shared filter fields for both mobile and desktop %>
-<%# Params:
-  - f: form builder
-  - mobile: boolean (optional) - whether this is mobile layout
+<%# Filter Fields - Clean single-column layout
+    5 core filters + contextual vocal filters when Voice/Choir selected
+
+    Params:
+      - f: form builder
+      - mobile: boolean (optional) - whether this is mobile layout
 %>
 <% mobile ||= false %>
-<% grid_class = mobile ? "grid grid-cols-2 gap-3 mb-4" : "" %>
+<% is_vocal = params[:instrument]&.match?(/voice|choir/i) %>
 
-<div class="<%= grid_class %>">
-  <!-- Filter: Period (most useful - musicians think in eras) -->
-  <div class="<%= mobile ? '' : 'mb-4' %>">
-    <%= f.label :period, t('filters.period'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :period,
-        options_for_select([
-          [t('filters.any'), ''],
-          [t('periods.medieval'), 'medieval'],
-          [t('periods.renaissance'), 'renaissance'],
-          [t('periods.baroque'), 'baroque'],
-          [t('periods.classical'), 'classical'],
-          [t('periods.romantic'), 'romantic'],
-          [t('periods.modern'), 'modern']
-        ], params[:period]),
+<div class="filter-fields" data-controller="instrument-context">
+  <%# ═══════════════════════════════════════════════════════════════════
+      CORE FILTERS - Always visible, universal across all scores
+      ═══════════════════════════════════════════════════════════════════ %>
+
+  <%# 1. Instrument - The primary filter %>
+  <div class="filter-field">
+    <%= f.label :instrument, t('filters.instrument'), class: "filter-label" %>
+    <%= f.select :instrument,
+        options_for_select(instrument_filter_options, params[:instrument]),
         {},
         {
-          class: "mm-input w-full text-xs",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
+          class: "filter-select",
+          data: {
+            action: "change->instrument-context#update #{mobile ? 'change->filter-modal#closeAndSubmit' : 'change->url-sync#submit'}",
+            instrument_context_target: "select"
+          }
         }
     %>
   </div>
 
-  <!-- Filter: Genre -->
-  <div class="<%= mobile ? '' : 'mb-4' %>">
-    <%= f.label :genre, t('filters.genre'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :genre,
-        options_for_select([
-          [t('filters.any'), ''],
-          [t('genres.sacred'), 'sacred'],
-          [t('genres.classical'), 'classical'],
-          [t('genres.folk'), 'folk'],
-          [t('genres.soundtrack'), 'soundtrack'],
-          [t('genres.jazz'), 'jazz'],
-          [t('genres.rock'), 'rock'],
-          [t('genres.pop'), 'pop']
-        ], params[:genre]),
-        {},
-        {
-          class: "mm-input w-full text-xs",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-        }
-    %>
-  </div>
-
-  <!-- Filter: Forces (Voicing) - practical constraint -->
-  <div class="<%= mobile ? '' : 'mb-4' %>">
-    <%= f.label :voicing, t('filters.forces'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :voicing,
-        options_for_select([
-          [t('filters.any'), ''],
-          [t('forces.solo'), 'solo'],
-          [t('forces.duet'), 'duet'],
-          [t('forces.trio'), 'trio'],
-          [t('forces.quartet'), 'quartet'],
-          [t('forces.ensemble'), 'ensemble']
-        ], params[:voicing]),
-        {},
-        {
-          class: "mm-input w-full text-xs",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-        }
-    %>
-  </div>
-
-  <!-- Filter: Voice Type (for choral music) -->
-  <div class="<%= mobile ? '' : 'mb-4' %>">
-    <%= f.label :voice_type, t('filters.voice_type'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :voice_type,
-        options_for_select([
-          [t('filters.any'), ''],
-          [t('voice_type.mixed'), 'mixed'],
-          [t('voice_type.treble'), 'treble'],
-          [t('voice_type.mens'), 'mens'],
-          [t('voice_type.unison'), 'unison']
-        ], params[:voice_type]),
-        {},
-        {
-          class: "mm-input w-full text-xs",
-          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
-        }
-    %>
-  </div>
-
-  <!-- Filter: Difficulty (AI-determined pedagogical grades) -->
-  <div class="<%= mobile ? '' : 'mb-4' %>">
-    <%= f.label :difficulty, t('filters.difficulty'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
+  <%# 2. Difficulty - Universal concern %>
+  <div class="filter-field">
+    <%= f.label :difficulty, t('filters.difficulty'), class: "filter-label" %>
     <%= f.select :difficulty,
         options_for_select([
           [t('filters.any'), ''],
@@ -103,30 +43,125 @@
         ], params[:difficulty]),
         {},
         {
-          class: "mm-input w-full text-xs",
+          class: "filter-select",
           data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
         }
     %>
   </div>
 
-  <!-- Filter: Language (for vocal music) -->
-  <div class="<%= mobile ? '' : 'mb-5' %>">
-    <%= f.label :language, t('filters.language'), class: "text-xs font-semibold text-[var(--color-text-muted)] #{mobile ? 'mb-1' : 'mb-2'} block uppercase tracking-wide" %>
-    <%= f.select :language,
+  <%# 3. Period - Musicians think in eras %>
+  <div class="filter-field">
+    <%= f.label :period, t('filters.period'), class: "filter-label" %>
+    <%= f.select :period,
         options_for_select([
           [t('filters.any'), ''],
-          [t('languages.latin'), 'Latin'],
-          [t('languages.english'), 'English'],
-          [t('languages.italian'), 'Italian'],
-          [t('languages.german'), 'German'],
-          [t('languages.french'), 'French'],
-          [t('languages.spanish'), 'Spanish']
-        ], params[:language]),
+          [t('periods.medieval'), 'Medieval'],
+          [t('periods.renaissance'), 'Renaissance'],
+          [t('periods.baroque'), 'Baroque'],
+          [t('periods.classical'), 'Classical'],
+          [t('periods.romantic'), 'Romantic'],
+          [t('periods.modern'), 'Modern']
+        ], params[:period]),
         {},
         {
-          class: "mm-input w-full text-xs",
+          class: "filter-select",
           data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
         }
     %>
+  </div>
+
+  <%# 4. Genre - Style/form %>
+  <div class="filter-field">
+    <%= f.label :genre, t('filters.genre'), class: "filter-label" %>
+    <%= f.select :genre,
+        options_for_select([
+          [t('filters.any'), ''],
+          [t('genres.sacred'), 'sacred'],
+          [t('genres.motet'), 'motet'],
+          [t('genres.madrigal'), 'madrigal'],
+          [t('genres.art_song'), 'art song'],
+          [t('genres.hymn'), 'hymn'],
+          [t('genres.folk'), 'folk'],
+          [t('genres.sonata'), 'sonata'],
+          [t('genres.classical'), 'classical']
+        ], params[:genre]),
+        {},
+        {
+          class: "filter-select",
+          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
+        }
+    %>
+  </div>
+
+  <%# 5. Parts - Ensemble size %>
+  <div class="filter-field">
+    <%= f.label :voicing, t('filters.parts'), class: "filter-label" %>
+    <%= f.select :voicing,
+        options_for_select([
+          [t('filters.any'), ''],
+          [t('parts.solo'), 'solo'],
+          [t('parts.duet'), 'duet'],
+          [t('parts.trio'), 'trio'],
+          [t('parts.quartet'), 'quartet'],
+          [t('parts.ensemble'), 'ensemble']
+        ], params[:voicing]),
+        {},
+        {
+          class: "filter-select",
+          data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
+        }
+    %>
+  </div>
+
+  <%# ═══════════════════════════════════════════════════════════════════
+      VOCAL FILTERS - Contextual, shown when Voice/Choir is selected
+      ═══════════════════════════════════════════════════════════════════ %>
+  <div class="filter-vocal-section <%= 'is-visible' if is_vocal %>"
+       data-instrument-context-target="vocalFilters"
+       <% unless is_vocal %>hidden<% end %>>
+
+    <div class="filter-section-label">
+      <%= t('filters.vocal_options') %>
+    </div>
+
+    <%# Voice Type - Choir voicing %>
+    <div class="filter-field">
+      <%= f.label :voice_type, t('filters.voice_type'), class: "filter-label" %>
+      <%= f.select :voice_type,
+          options_for_select([
+            [t('filters.any'), ''],
+            [t('voice_type.mixed'), 'mixed'],
+            [t('voice_type.treble'), 'treble'],
+            [t('voice_type.mens'), 'mens'],
+            [t('voice_type.unison'), 'unison']
+          ], params[:voice_type]),
+          {},
+          {
+            class: "filter-select",
+            data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
+          }
+      %>
+    </div>
+
+    <%# Language - Text language %>
+    <div class="filter-field">
+      <%= f.label :language, t('filters.language'), class: "filter-label" %>
+      <%= f.select :language,
+          options_for_select([
+            [t('filters.any'), ''],
+            [t('languages.latin'), 'Latin'],
+            [t('languages.english'), 'English'],
+            [t('languages.german'), 'German'],
+            [t('languages.italian'), 'Italian'],
+            [t('languages.french'), 'French'],
+            [t('languages.spanish'), 'Spanish']
+          ], params[:language]),
+          {},
+          {
+            class: "filter-select",
+            data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
+          }
+      %>
+    </div>
   </div>
 </div>

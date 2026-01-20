@@ -1,8 +1,8 @@
 module ScoresHelper
-  # Filter parameters visible in UI (used for active count badge and hidden fields)
-  # Note: Controller also accepts source/key/time for backwards compatibility with
-  # bookmarked URLs, but they're not shown in UI or counted as active filters.
-  FILTER_PARAMS = %i[period genre voicing voice_type difficulty language].freeze
+  # All filter parameters (used for hidden fields to preserve state)
+  # Core filters: instrument, difficulty, period, genre, voicing (parts)
+  # Contextual filters: voice_type, language (shown when vocal instrument selected)
+  FILTER_PARAMS = %i[instrument difficulty period genre voicing voice_type language].freeze
 
   # Count active filters from params
   def active_filters_count
@@ -12,6 +12,27 @@ module ScoresHelper
   # Generate hidden fields for all filter params to preserve state across forms
   def filter_hidden_fields(form)
     safe_join(FILTER_PARAMS.map { |param| form.hidden_field(param, value: params[param]) })
+  end
+
+  # Instrument options for filter dropdown
+  # Ordered by match count in database. Only specific instruments, no categories.
+  # Voice/Choir triggers contextual vocal filters (voice_type, language)
+  #
+  # Match counts (via LIKE query):
+  #   voice/cappella: 43k+  |  violin: 6,197  |  flute: 2,680
+  #   piano: 29,576         |  cello: 3,312   |  guitar: 2,273
+  #   organ: 7,770          |
+  def instrument_filter_options
+    [
+      [t("filters.any"), ""],
+      [t("instruments.voice_choir"), "voice"],
+      [t("instruments.piano"), "piano"],
+      [t("instruments.organ"), "organ"],
+      [t("instruments.violin"), "violin"],
+      [t("instruments.cello"), "cello"],
+      [t("instruments.flute"), "flute"],
+      [t("instruments.guitar"), "guitar"]
+    ]
   end
 
   # ─────────────────────────────────────────────────────────────────

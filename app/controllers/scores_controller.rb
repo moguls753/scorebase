@@ -15,6 +15,7 @@ class ScoresController < ApplicationController
     @scores = @scores.by_period(params[:period]) if params[:period].present?
     @scores = @scores.by_difficulty(params[:difficulty]) if params[:difficulty].present?
     @scores = @scores.where(language: params[:language]) if params[:language].present?
+    @scores = @scores.by_instrument(params[:instrument]) if params[:instrument].present?
 
     # Forces filter (number of parts)
     @scores = apply_forces_filter(@scores, params[:voicing]) if params[:voicing].present?

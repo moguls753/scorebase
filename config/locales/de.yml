@@ -55,14 +55,34 @@ de:
   filters:
     key: "Tonart"
     time: "Taktart"
-    forces: "Besetzung"
+    parts: "Stimmen"
     voice_type: "Chortyp"
     difficulty: "Schwierigkeit"
     genre: "Genre"
     period: "Epoche"
     source: "Quelle"
     language: "Sprache"
+    instrument: "Instrument"
     any: "Alle"
+    vocal_options: "Vokaloptionen"
+
+  # Instruments for filter dropdown
+  instruments:
+    voice_choir: "Gesang / Chor"
+    piano: "Klavier"
+    organ: "Orgel"
+    violin: "Violine"
+    cello: "Cello"
+    flute: "Flöte"
+    guitar: "Gitarre"
+
+  # Parts / Ensemble size
+  parts:
+    solo: "Solo"
+    duet: "Duett"
+    trio: "Trio"
+    quartet: "Quartett"
+    ensemble: "Ensemble (5+)"
 
   # Sort options
   sort:
@@ -74,13 +94,14 @@ de:
 
   # Genres
   genres:
-    sacred: "Geistliche Musik"
-    classical: "Klassik"
+    sacred: "Geistlich"
+    motet: "Motette"
+    madrigal: "Madrigal"
+    art_song: "Kunstlied"
+    hymn: "Hymne"
     folk: "Volksmusik"
-    soundtrack: "Filmmusik"
-    jazz: "Jazz"
-    rock: "Rock"
-    pop: "Pop"
+    sonata: "Sonate"
+    classical: "Klassik"
 
   # Key signatures
   keys:

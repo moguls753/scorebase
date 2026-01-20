@@ -502,3 +502,161 @@
     padding: 0 6px;
   }
 }
+
+/* ========================================
+   FILTER SIDEBAR
+   Clean single-column layout with contextual sections
+   ======================================== */
+
+/* Filter Fields Container */
+.filter-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Individual Filter Field */
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Filter Label - Bold, uppercase, neubrutalist */
+.filter-label {
+  font-family: var(--font-family-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Filter Select - Neubrutalist input style */
+.filter-select {
+  width: 100%;
+  padding: 10px 32px 10px 12px;
+  font-family: var(--font-family-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text);
+  background: var(--color-bg-elevated);
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-sm);
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a89c8c' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+}
+
+.filter-select:hover {
+  border-color: var(--color-text-muted);
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: inset 2px 2px 0 rgba(0, 0, 0, 0.08), 0 0 0 2px var(--color-accent);
+}
+
+/* ========================================
+   CONTEXTUAL VOCAL FILTERS SECTION
+   Appears when Voice/Choir is selected
+   ======================================== */
+
+.filter-vocal-section {
+  margin-top: 8px;
+  padding-top: 16px;
+  border-top: var(--border-width) solid var(--color-border-subtle);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  opacity: 0;
+  transform: translateY(-8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.filter-vocal-section.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.filter-vocal-section[hidden] {
+  display: none;
+}
+
+/* Section Label - Subtle divider text */
+.filter-section-label {
+  font-family: var(--font-family-display);
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  padding-bottom: 4px;
+}
+
+/* ========================================
+   MOBILE FILTER CONTROLS
+   ======================================== */
+
+/* Mobile Filter Button with count */
+.filter-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  font-family: var(--font-family-mono);
+  font-size: 10px;
+  font-weight: 800;
+  color: #FFFFFF;
+  background: var(--color-accent);
+  border-radius: var(--radius-sm);
+  margin-left: 4px;
+}
+
+/* Sort select on mobile - match filter button height */
+.sort-select-mobile {
+  text-align: center;
+  appearance: none;
+  padding-right: 12px !important;
+  background-image: none;
+}
+
+/* Filter button padding consistency */
+.filter-btn-padded {
+  padding: 10px 14px !important;
+}
+
+/* ========================================
+   RESPONSIVE ADJUSTMENTS
+   ======================================== */
+
+@media (max-width: 640px) {
+  .filter-fields {
+    gap: 14px;
+  }
+
+  .filter-label {
+    font-size: 10px;
+  }
+
+  .filter-select {
+    padding: 9px 28px 9px 10px;
+    font-size: 13px;
+  }
+
+  .filter-vocal-section {
+    padding-top: 14px;
+    gap: 14px;
+  }
+
+  .filter-section-label {
+    font-size: 9px;
+  }
+}
