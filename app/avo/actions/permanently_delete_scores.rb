@@ -9,6 +9,7 @@ class Avo::Actions::PermanentlyDeleteScores < Avo::BaseAction
     count = records.size
     records.each(&:destroy!)
     succeed "Permanently deleted #{count} score(s)."
+    redirect_to avo.resources_scores_path
   rescue => e
     fail "Failed to delete: #{e.message}"
   end
