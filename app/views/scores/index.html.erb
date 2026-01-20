@@ -146,7 +146,9 @@
         <%# Desktop filter fields (stacked layout) %>
         <%= render 'filter_fields', f: f, mobile: false %>
 
-        <%= link_to t('search.clear'), scores_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
+        <div class="filter-clear-wrap">
+          <%= link_to t('search.clear'), scores_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
+        </div>
       <% end %>
     </aside>
 

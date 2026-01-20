@@ -14,6 +14,7 @@ class ScoresController < ApplicationController
     @scores = @scores.by_genre(params[:genre]) if params[:genre].present?
     @scores = @scores.by_period(params[:period]) if params[:period].present?
     @scores = @scores.by_difficulty(params[:difficulty]) if params[:difficulty].present?
+    @scores = @scores.by_length(params[:length]) if params[:length].present?
     @scores = @scores.where(language: params[:language]) if params[:language].present?
     @scores = @scores.by_instrument(params[:instrument]) if params[:instrument].present?
 

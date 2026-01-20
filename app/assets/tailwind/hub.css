@@ -511,7 +511,7 @@
 .filter-stack {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
 }
 
 /* Self-describing select - no labels needed */
@@ -559,7 +559,7 @@
 .filter-vocal-section {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
   max-height: 0;
   opacity: 0;
   overflow: hidden;
@@ -610,13 +610,20 @@
   padding: 10px 14px !important;
 }
 
+/* Clear button separation */
+.filter-clear-wrap {
+  margin-top: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
 /* ========================================
    RESPONSIVE ADJUSTMENTS
    ======================================== */
 
 @media (max-width: 640px) {
   .filter-stack {
-    gap: 8px;
+    gap: 10px;
   }
 
   .filter-select {
@@ -625,6 +632,11 @@
   }
 
   .filter-vocal-section {
-    gap: 8px;
+    gap: 10px;
+  }
+
+  .filter-clear-wrap {
+    margin-top: 8px;
+    padding-top: 12px;
   }
 }

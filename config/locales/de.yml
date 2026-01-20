@@ -57,6 +57,7 @@ de:
     all_levels: "Alle Stufen"
     all_periods: "Alle Epochen"
     all_genres: "Alle Genres"
+    any_length: "Jede Länge"
     any_size: "Jede Besetzung"
     all_voice_types: "Alle Stimmlagen"
     all_languages: "Alle Sprachen"
@@ -64,6 +65,12 @@ de:
     key: "Tonart"
     time: "Taktart"
     source: "Quelle"
+
+  # Length options (based on page count)
+  length:
+    short: "Kurz (1-2 Seiten)"
+    medium: "Mittel (3-6 Seiten)"
+    long: "Lang (7+ Seiten)"
 
   # Instruments for filter dropdown
   instruments:

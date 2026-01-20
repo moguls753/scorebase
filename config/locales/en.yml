@@ -57,6 +57,7 @@ en:
     all_levels: "All levels"
     all_periods: "All periods"
     all_genres: "All genres"
+    any_length: "Any length"
     any_size: "Any size"
     all_voice_types: "All voice types"
     all_languages: "All languages"
@@ -64,6 +65,12 @@ en:
     key: "Key"
     time: "Time Signature"
     source: "Source"
+
+  # Length options (based on page count)
+  length:
+    short: "Short (1-2 pages)"
+    medium: "Medium (3-6 pages)"
+    long: "Long (7+ pages)"
 
   # Instruments for filter dropdown
   instruments:

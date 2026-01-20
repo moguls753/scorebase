@@ -1,5 +1,5 @@
 <%# Filter Fields - Label-free, self-describing dropdowns
-    37signals-inspired: calm, obvious, no redundant chrome
+    37signals-inspired: calm, obvious, breathing room
 %>
 <% mobile ||= false %>
 <% is_vocal = params[:instrument]&.match?(/voice|choir/i) %>
@@ -7,7 +7,7 @@
 
 <div class="filter-stack" data-controller="instrument-context">
 
-  <%# Instrument %>
+  <%# Instrument - what do you play? %>
   <%= f.select :instrument,
       options_for_select([
         [t('filters.all_instruments'), ''],
@@ -29,7 +29,7 @@
       }
   %>
 
-  <%# Difficulty %>
+  <%# Difficulty - how hard? %>
   <%= f.select :difficulty,
       options_for_select([
         [t('filters.all_levels'), ''],
@@ -43,7 +43,19 @@
       { class: "filter-select", data: { action: submit_action } }
   %>
 
-  <%# Period %>
+  <%# Length - how long? (based on page count) %>
+  <%= f.select :length,
+      options_for_select([
+        [t('filters.any_length'), ''],
+        [t('length.short'), 'short'],
+        [t('length.medium'), 'medium'],
+        [t('length.long'), 'long']
+      ], params[:length]),
+      {},
+      { class: "filter-select", data: { action: submit_action } }
+  %>
+
+  <%# Period - when was it written? %>
   <%= f.select :period,
       options_for_select([
         [t('filters.all_periods'), ''],
@@ -58,7 +70,7 @@
       { class: "filter-select", data: { action: submit_action } }
   %>
 
-  <%# Genre %>
+  <%# Genre - what style? %>
   <%= f.select :genre,
       options_for_select([
         [t('filters.all_genres'), ''],
@@ -75,7 +87,7 @@
       { class: "filter-select", data: { action: submit_action } }
   %>
 
-  <%# Parts %>
+  <%# Parts - how many performers? %>
   <%= f.select :voicing,
       options_for_select([
         [t('filters.any_size'), ''],

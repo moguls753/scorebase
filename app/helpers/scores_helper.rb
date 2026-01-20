@@ -1,8 +1,8 @@
 module ScoresHelper
   # All filter parameters (used for hidden fields to preserve state)
-  # Core filters: instrument, difficulty, period, genre, voicing (parts)
+  # Core filters: instrument, difficulty, period, genre, length, voicing (parts)
   # Contextual filters: voice_type, language (shown when vocal instrument selected)
-  FILTER_PARAMS = %i[instrument difficulty period genre voicing voice_type language].freeze
+  FILTER_PARAMS = %i[instrument difficulty period genre length voicing voice_type language].freeze
 
   # Count active filters from params
   def active_filters_count

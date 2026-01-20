@@ -311,6 +311,20 @@ class Score < ApplicationRecord
     where(pedagogical_grade: grades)
   }
 
+  # Length filter - based on page count
+  # Short: 1-2 pages (sight reading, warm-ups, encores)
+  # Medium: 3-6 pages (standard repertoire)
+  # Long: 7+ pages (substantial works)
+  scope :by_length, ->(length) {
+    return all if length.blank?
+    case length.to_s
+    when "short" then where(page_count: 1..2)
+    when "medium" then where(page_count: 3..6)
+    when "long" then where("page_count >= ?", 7)
+    else all
+    end
+  }
+
   # Genre filter - exact match on normalized genre field.
   # After normalization, genre is a single clean value (e.g., "Mass", "Hymn").
   # Allowlist in HubDataBuilder gates which genres are accessible on hub pages.
