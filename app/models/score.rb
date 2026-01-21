@@ -364,17 +364,23 @@ class Score < ApplicationRecord
     where(period: variants)
   }
 
-  # Instrument filter for hub pages
+  # Instrument filter for hub pages (uses FTS5 trigram index for fast substring matching)
   scope :by_instrument, ->(instrument_name) {
     return all if instrument_name.blank?
-    where("LOWER(instruments) LIKE ?", "%#{sanitize_sql_like(instrument_name.downcase)}%")
+    escaped = escape_fts5_query(instrument_name.downcase)
+    where("id IN (SELECT rowid FROM scores_instruments_fts WHERE instruments MATCH ?)",
+          "\"#{escaped}\"")
   }
 
   # Scoped search by title (case-insensitive, for composer page filtering)
+  # Uses FTS5 trigram index for fast substring matching
   scope :search_by_title, ->(query) {
     return all if query.blank?
     normalized = normalize_for_search(query)
-    where("title_normalized LIKE ?", "%#{sanitize_sql_like(normalized)}%")
+    return all if normalized.blank?
+    escaped = escape_fts5_query(normalized.downcase)
+    where("id IN (SELECT rowid FROM scores_search_fts WHERE title MATCH ?)",
+          "\"#{escaped}\"")
   }
 
   # Forces filters (maps UI labels to num_parts)
@@ -396,15 +402,14 @@ class Score < ApplicationRecord
 
   # Search scope using normalized columns for accent-insensitive search
   # "Etudes" matches "Études", "Dvorak" matches "Dvořák"
+  # Uses FTS5 trigram index for fast substring matching across title, composer, genre
   scope :search, ->(query) {
     return all if query.blank?
-
     normalized = normalize_for_search(query)
-
-    where(
-      "title_normalized LIKE :q OR composer_normalized LIKE :q OR genre LIKE :q",
-      q: "%#{sanitize_sql_like(normalized)}%"
-    )
+    return all if normalized.blank?
+    escaped = escape_fts5_query(normalized.downcase)
+    where("id IN (SELECT rowid FROM scores_search_fts WHERE scores_search_fts MATCH ?)",
+          "\"#{escaped}\"")
   }
 
   # Normalize text for search: strip accents, preserve case
@@ -412,6 +417,12 @@ class Score < ApplicationRecord
   def self.normalize_for_search(text)
     return "" if text.blank?
     text.unicode_normalize(:nfkd).gsub(/\p{M}/, "")
+  end
+
+  # Escape special characters for FTS5 phrase queries
+  # Double quotes are escaped by doubling them: " -> ""
+  def self.escape_fts5_query(text)
+    text.to_s.gsub('"', '""')
   end
 
   # Sorting scopes

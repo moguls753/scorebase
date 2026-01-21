@@ -29,6 +29,9 @@ module Scorebase
       g.test_framework :rspec
     end
 
+    # Use SQL format for schema dump (required for FTS5 virtual tables)
+    config.active_record.schema_format = :sql
+
     # PDMX dataset path (external, not in repo)
     # Dev: ~/data/pdmx (default), Prod: /opt/pdmx (via PDMX_DATA_PATH)
     config.x.pdmx_path = Pathname.new(ENV.fetch("PDMX_DATA_PATH", File.expand_path("~/data/pdmx")))
