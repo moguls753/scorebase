@@ -29,7 +29,7 @@
 
       <!-- Scoped Search Bar - Prominent neubrutalist style -->
       <%= form_with url: instrument_difficulty_path(instrument_slug: params[:instrument_slug], difficulty_slug: params[:difficulty_slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "max-w-2xl" do |f| %>
-        <%= instrument_difficulty_filter_hidden_fields(f) %>
+        <%= instrument_filter_hidden_fields(f) %>
         <%= f.hidden_field :sort, value: params[:sort] %>
         <div class="flex gap-2 sm:gap-3">
           <div class="flex-1 relative">
@@ -85,7 +85,7 @@
         <%= form_with url: instrument_difficulty_path(instrument_slug: params[:instrument_slug], difficulty_slug: params[:difficulty_slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" } do |f| %>
           <%= f.hidden_field :q, value: params[:q] %>
           <%= f.hidden_field :sort, value: params[:sort] %>
-          <%= render 'instrument_difficulty_filters', f: f, mobile: true, filter_options: @filter_options %>
+          <%= render 'instrument_filters', f: f, mobile: true, filter_options: @filter_options %>
         <% end %>
       </div>
 
@@ -122,15 +122,15 @@
             <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
           </svg>
           <span class="font-black uppercase"><%= t('search.filters') %></span>
-          <% if instrument_difficulty_active_filters_count > 0 %>
-            <span class="filter-count"><%= instrument_difficulty_active_filters_count %></span>
+          <% if instrument_active_filters_count > 0 %>
+            <span class="filter-count"><%= instrument_active_filters_count %></span>
           <% end %>
         </button>
 
         <!-- Sort dropdown -->
         <%= form_with url: instrument_difficulty_path(instrument_slug: params[:instrument_slug], difficulty_slug: params[:difficulty_slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "w-full" } do |f| %>
           <%= f.hidden_field :q, value: params[:q] %>
-          <%= instrument_difficulty_filter_hidden_fields(f) %>
+          <%= instrument_filter_hidden_fields(f) %>
           <%= f.select :sort,
               [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
               { selected: params[:sort] || "popularity" },
@@ -200,25 +200,7 @@
             </div>
           <% end %>
 
-          <% if @filter_options[:periods].present? %>
-            <div class="filter-control">
-              <label class="filter-label" for="filter-period">
-                <span class="filter-icon">
-                  <%= navigation_svg_icon(:periods, html_class: "filter-icon-svg") %>
-                </span>
-              </label>
-              <%= f.select :period,
-                  options_for_select(
-                    [[t('hub.filter_period'), '']] + @filter_options[:periods].map { |p| [p[:name], p[:slug]] },
-                    params[:period]
-                  ),
-                  {},
-                  { class: "filter-select", id: "filter-period", data: { action: "change->url-sync#submit" } }
-              %>
-            </div>
-          <% end %>
-
-          <% if instrument_difficulty_active_filters_count > 0 %>
+          <% if instrument_active_filters_count > 0 %>
             <%= link_to instrument_difficulty_path(instrument_slug: params[:instrument_slug], difficulty_slug: params[:difficulty_slug], q: params[:q], sort: params[:sort]),
                 data: { turbo_frame: "scores" },
                 class: "text-[13px] text-[var(--color-text-muted)] hover:text-[var(--color-accent)] font-bold uppercase tracking-wide transition-colors ml-2" do %>
@@ -231,7 +213,7 @@
       <!-- Sort control -->
       <%= form_with url: instrument_difficulty_path(instrument_slug: params[:instrument_slug], difficulty_slug: params[:difficulty_slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "flex-shrink-0" } do |f| %>
         <%= f.hidden_field :q, value: params[:q] %>
-        <%= instrument_difficulty_filter_hidden_fields(f) %>
+        <%= instrument_filter_hidden_fields(f) %>
         <div class="sort-control">
           <label for="sort" class="sort-label">
             <span class="sort-icon">&#8597;</span>
@@ -260,7 +242,7 @@
       <div class="mm-card p-8 sm:p-12 text-center">
         <div class="text-5xl sm:text-6xl mb-4 opacity-30">&#127932;</div>
         <p class="text-[var(--color-text-muted)] font-semibold mb-1"><%= t('hub.no_scores_found') %></p>
-        <% if instrument_difficulty_active_filters_count > 0 || params[:q].present? %>
+        <% if instrument_active_filters_count > 0 || params[:q].present? %>
           <p class="text-xs text-[var(--color-text-subtle)] mb-4"><%= t('hub.no_scores_hint') %></p>
           <%= link_to t('search.clear'), instrument_difficulty_path(instrument_slug: params[:instrument_slug], difficulty_slug: params[:difficulty_slug]),
               data: { turbo_frame: "scores" },

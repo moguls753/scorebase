@@ -167,7 +167,6 @@ class HubPagesController < ApplicationController
     filtered_scope = base_scope
     filtered_scope = filtered_scope.where(composer: composer_name_from_slug(params[:composer])) if params[:composer].present?
     filtered_scope = filtered_scope.by_genre(params[:genre]) if params[:genre].present?
-    filtered_scope = filtered_scope.by_period(period_name_from_slug(params[:period])) if params[:period].present?
 
     # Apply scoped search
     filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
@@ -373,21 +372,20 @@ class HubPagesController < ApplicationController
   end
 
   # Build filter options for instrument+difficulty page using efficient DISTINCT queries
+  # Uses same filters as instrument page (composer, genre) for consistency
   def build_instrument_difficulty_filter_options(base_scope, current_params)
     scope = base_scope
     scope = scope.search_by_title(current_params[:q]) if current_params[:q].present?
 
     {
       composers: available_composers_for_instrument_difficulty(scope, current_params),
-      genres: available_genres_for_instrument_difficulty(scope, current_params),
-      periods: available_periods_for_instrument_difficulty(scope, current_params)
+      genres: available_genres_for_instrument_difficulty(scope, current_params)
     }
   end
 
   def available_composers_for_instrument_difficulty(base_scope, current_params)
     scope = base_scope
     scope = scope.by_genre(current_params[:genre]) if current_params[:genre].present?
-    scope = scope.by_period(period_name_from_slug(current_params[:period])) if current_params[:period].present?
 
     scope.where.not(composer: [nil, ""])
          .group(:composer)
@@ -400,26 +398,12 @@ class HubPagesController < ApplicationController
   def available_genres_for_instrument_difficulty(base_scope, current_params)
     scope = base_scope
     scope = scope.where(composer: composer_name_from_slug(current_params[:composer])) if current_params[:composer].present?
-    scope = scope.by_period(period_name_from_slug(current_params[:period])) if current_params[:period].present?
 
     distinct_values = scope.where.not(genre: [nil, ""]).distinct.pluck(:genre)
 
     HubDataBuilder::VALID_GENRES.filter_map do |genre|
       next unless distinct_values.any? { |str| str.downcase.include?(genre.downcase) }
       { name: genre, slug: genre.parameterize }
-    end
-  end
-
-  def available_periods_for_instrument_difficulty(base_scope, current_params)
-    scope = base_scope
-    scope = scope.where(composer: composer_name_from_slug(current_params[:composer])) if current_params[:composer].present?
-    scope = scope.by_genre(current_params[:genre]) if current_params[:genre].present?
-
-    # Return in PERIOD_ORDER (chronological)
-    HubDataBuilder::PERIOD_ORDER.filter_map do |period|
-      count = scope.by_period(period).count
-      next if count < 1
-      { name: period, slug: period.parameterize }
     end
   end
 
