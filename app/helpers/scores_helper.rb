@@ -36,6 +36,42 @@ module ScoresHelper
   end
 
   # ─────────────────────────────────────────────────────────────────
+  # SEO Meta Description for Score Pages
+  # ─────────────────────────────────────────────────────────────────
+
+  # Generate SEO-optimized meta description for a score page
+  # Target: under 155 chars, includes searchable attributes
+  # Example: "Moonlight Sonata by Beethoven — C# minor, Piano, Intermediate. Free PDF sheet music."
+  def score_meta_description(score)
+    parts = []
+
+    # Title and composer (required)
+    if score.composer.present?
+      parts << "#{score.title} by #{score.composer}"
+    else
+      parts << score.title
+    end
+
+    # Musical attributes (key, instruments, difficulty)
+    attrs = []
+    attrs << score.key_signature if score.key_signature.present?
+    attrs << score.instruments if score.instruments.present?
+
+    if (level = score_difficulty_level(score))
+      attrs << translate_difficulty_label(level)
+    end
+
+    parts << attrs.join(", ") if attrs.any?
+
+    # Value proposition
+    parts << t("meta.score_cta")
+
+    # Join and truncate to 155 chars
+    description = parts.join(" — ")
+    description.truncate(155)
+  end
+
+  # ─────────────────────────────────────────────────────────────────
   # Score Show Page Helpers
   # ─────────────────────────────────────────────────────────────────
 

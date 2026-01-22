@@ -30,6 +30,7 @@ en:
   meta:
     title: "ScoreBase — Sheet Music Search"
     description: "Search and discover thousands of music scores from all major archives."
+    score_cta: "Free PDF sheet music."
 
   # Index / Search Page
   search:

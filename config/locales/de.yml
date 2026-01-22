@@ -30,6 +30,7 @@ de:
   meta:
     title: "ScoreBase — Notensuche"
     description: "Suche und entdecke tausende Musiknoten. Noten aus allen wichtigen Archiven."
+    score_cta: "Kostenlose PDF-Noten."
 
   # Index / Search Page
   search:
