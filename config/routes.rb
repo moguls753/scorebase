@@ -53,6 +53,14 @@ Rails.application.routes.draw do
     get "genres/:genre_slug/:instrument_slug", to: "hub_pages#genre_instrument", as: :genre_instrument
     get "periods/:period_slug/:instrument_slug", to: "hub_pages#period_instrument", as: :period_instrument
 
+    # Instrument + Difficulty pages (SEO landing pages like /piano/beginners)
+    # Short URLs for better SEO - matches only valid instruments and difficulty levels
+    get ":instrument_slug/:difficulty_slug", to: "hub_pages#instrument_difficulty", as: :instrument_difficulty,
+        constraints: {
+          instrument_slug: /piano|organ|harpsichord|clavichord|celesta|harmonium|accordion|keyboard|synthesizer|violin|viola|cello|double-bass|fiddle|guitar|harp|lute|theorbo|mandolin|banjo|ukulele|flute|piccolo|recorder|oboe|english-horn|clarinet|basset-horn|bassoon|contrabassoon|saxophone|trumpet|cornet|flugelhorn|horn|trombone|tuba|euphonium|timpani|xylophone|marimba|vibraphone|glockenspiel|percussion|drums|voice/,
+          difficulty_slug: /beginner|elementary|intermediate|advanced|expert/
+        }
+
     # Pages
     get "about", to: "pages#about"
     get "impressum", to: "pages#impressum"

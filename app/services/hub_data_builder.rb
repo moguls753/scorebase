@@ -31,6 +31,20 @@ class HubDataBuilder
   PERIOD_ORDER = %w[Medieval Renaissance Baroque Classical Romantic Impressionist Modern].freeze
 
   # ===========================================
+  # VALID DIFFICULTY LEVELS (for SEO landing pages)
+  # ===========================================
+  # Maps URL slugs to display names
+  VALID_DIFFICULTIES = {
+    "beginner" => "Beginner",
+    "elementary" => "Elementary",
+    "intermediate" => "Intermediate",
+    "advanced" => "Advanced",
+    "expert" => "Expert"
+  }.freeze
+
+  DIFFICULTY_ORDER = %w[beginner elementary intermediate advanced expert].freeze
+
+  # ===========================================
   # VALID INSTRUMENTS (allowlist for hub pages)
   # ===========================================
   # Uses LIKE matching, so "guitar" matches "electric guitar", "bass guitar", etc.
@@ -136,6 +150,11 @@ class HubDataBuilder
 
     # Slug lookups - verifies item still meets threshold (cache can be stale)
     def find_by_slug(type, slug)
+      # Special case for difficulties - no threshold check needed
+      if type == :difficulties
+        return VALID_DIFFICULTIES[slug]
+      end
+
       data = public_send(type)
       item = data.find { |i| i[:slug] == slug }
       return nil unless item
@@ -143,6 +162,11 @@ class HubDataBuilder
       name = item[:name]
       count = current_count(type, name)
       count >= THRESHOLD ? name : nil
+    end
+
+    # Get count for instrument + difficulty combination
+    def instrument_difficulty_count(instrument_name, difficulty_slug)
+      Score.active.by_instrument(instrument_name).by_difficulty(difficulty_slug).count
     end
 
     private

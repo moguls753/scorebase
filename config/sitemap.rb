@@ -145,6 +145,23 @@ SitemapGenerator::Sitemap.create do
     end
   end
 
+  # Instrument + Difficulty combinations (SEO landing pages)
+  # e.g., "Beginner Piano", "Intermediate Violin"
+  # High-value for long-tail SEO queries like "easy piano sheet music for beginners"
+  difficulties = HubDataBuilder::DIFFICULTY_ORDER
+  instruments.each do |instrument_item|
+    difficulties.each do |difficulty_slug|
+      count = Score.active.by_instrument(instrument_item[:name])
+                   .by_difficulty(difficulty_slug).count
+      next if count < threshold
+
+      add instrument_difficulty_path(instrument_slug: instrument_item[:slug], difficulty_slug: difficulty_slug),
+          changefreq: "weekly", priority: 0.8
+      add instrument_difficulty_path(instrument_slug: instrument_item[:slug], difficulty_slug: difficulty_slug, locale: :de),
+          changefreq: "weekly", priority: 0.8
+    end
+  end
+
   # ===========================================
   # INDIVIDUAL SCORES
   # ===========================================

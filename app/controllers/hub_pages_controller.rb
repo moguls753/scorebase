@@ -153,6 +153,41 @@ class HubPagesController < ApplicationController
       period: @period_name, instrument: @instrument_name, count: @total_count)
   end
 
+  # Instrument + Difficulty pages (SEO landing pages like /piano/beginners)
+  def instrument_difficulty
+    @instrument_name = find_or_404(:instruments, params[:instrument_slug])
+    @difficulty_slug = params[:difficulty_slug]
+    @difficulty_name = HubDataBuilder::VALID_DIFFICULTIES[@difficulty_slug]
+    not_found unless @difficulty_name
+
+    # Base scope for this instrument + difficulty
+    base_scope = Score.active.by_instrument(@instrument_name).by_difficulty(@difficulty_slug)
+
+    # Apply filters
+    filtered_scope = base_scope
+    filtered_scope = filtered_scope.where(composer: composer_name_from_slug(params[:composer])) if params[:composer].present?
+    filtered_scope = filtered_scope.by_genre(params[:genre]) if params[:genre].present?
+    filtered_scope = filtered_scope.by_period(period_name_from_slug(params[:period])) if params[:period].present?
+
+    # Apply scoped search
+    filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
+
+    # Counts
+    @total_count = base_scope.count
+    @filtered_count = filtered_scope.count
+
+    # 404 if combination has too few scores
+    not_found if @total_count < HubDataBuilder::THRESHOLD
+
+    # Paginate
+    @scores = paginate_filtered(filtered_scope)
+
+    # Dynamic filter options (faceted)
+    @filter_options = build_instrument_difficulty_filter_options(base_scope, params)
+
+    set_instrument_difficulty_meta
+  end
+
   private
 
   def set_sort
@@ -335,6 +370,67 @@ class HubPagesController < ApplicationController
 
   def not_found
     raise ActionController::RoutingError, "Not Found"
+  end
+
+  # Build filter options for instrument+difficulty page using efficient DISTINCT queries
+  def build_instrument_difficulty_filter_options(base_scope, current_params)
+    scope = base_scope
+    scope = scope.search_by_title(current_params[:q]) if current_params[:q].present?
+
+    {
+      composers: available_composers_for_instrument_difficulty(scope, current_params),
+      genres: available_genres_for_instrument_difficulty(scope, current_params),
+      periods: available_periods_for_instrument_difficulty(scope, current_params)
+    }
+  end
+
+  def available_composers_for_instrument_difficulty(base_scope, current_params)
+    scope = base_scope
+    scope = scope.by_genre(current_params[:genre]) if current_params[:genre].present?
+    scope = scope.by_period(period_name_from_slug(current_params[:period])) if current_params[:period].present?
+
+    scope.where.not(composer: [nil, ""])
+         .group(:composer)
+         .order(Arel.sql("COUNT(*) DESC"))
+         .limit(50)
+         .pluck(:composer)
+         .map { |name| { name: name, slug: name.parameterize } }
+  end
+
+  def available_genres_for_instrument_difficulty(base_scope, current_params)
+    scope = base_scope
+    scope = scope.where(composer: composer_name_from_slug(current_params[:composer])) if current_params[:composer].present?
+    scope = scope.by_period(period_name_from_slug(current_params[:period])) if current_params[:period].present?
+
+    distinct_values = scope.where.not(genre: [nil, ""]).distinct.pluck(:genre)
+
+    HubDataBuilder::VALID_GENRES.filter_map do |genre|
+      next unless distinct_values.any? { |str| str.downcase.include?(genre.downcase) }
+      { name: genre, slug: genre.parameterize }
+    end
+  end
+
+  def available_periods_for_instrument_difficulty(base_scope, current_params)
+    scope = base_scope
+    scope = scope.where(composer: composer_name_from_slug(current_params[:composer])) if current_params[:composer].present?
+    scope = scope.by_genre(current_params[:genre]) if current_params[:genre].present?
+
+    # Return in PERIOD_ORDER (chronological)
+    HubDataBuilder::PERIOD_ORDER.filter_map do |period|
+      count = scope.by_period(period).count
+      next if count < 1
+      { name: period, slug: period.parameterize }
+    end
+  end
+
+  def set_instrument_difficulty_meta
+    @page_title = t("hub.instrument_difficulty_title",
+      difficulty: @difficulty_name,
+      instrument: @instrument_name)
+    @page_description = t("hub.instrument_difficulty_description",
+      difficulty: @difficulty_name.downcase,
+      instrument: @instrument_name.downcase,
+      count: @total_count)
   end
 
   # Adds translated display names and sorts by locale

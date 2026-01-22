@@ -61,6 +61,8 @@ en:
     any_size: "Any size"
     all_voice_types: "All voice types"
     all_languages: "All languages"
+    any: "Any"
+    genre: "Genre"
     # Legacy keys for other pages
     key: "Key"
     time: "Time Signature"
@@ -300,6 +302,13 @@ en:
     genre_instrument_description: "Browse %{count} %{genre} sheet music scores for %{instrument}. Free to download and print."
     period_instrument_title: "%{period} %{instrument} Sheet Music — Downloads"
     period_instrument_description: "Browse %{count} %{instrument} sheet music scores from the %{period} period. Free to download and print."
+
+    # Instrument + Difficulty pages (SEO landing pages like /piano/beginners)
+    instrument_difficulty_title: "%{difficulty} %{instrument} Sheet Music — Free Downloads"
+    instrument_difficulty_description: "Browse %{count} %{difficulty} sheet music scores for %{instrument}. Perfect for students and teachers. Free PDF downloads."
+    sheet_music: "Sheet Music"
+    free_scores_for_level: "free %{level} pieces to download"
+    search_difficulty_scores: "Search %{level} %{instrument} scores..."
 
     # Separators
     separator_for: "for"

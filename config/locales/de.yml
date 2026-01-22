@@ -61,6 +61,8 @@ de:
     any_size: "Jede Besetzung"
     all_voice_types: "Alle Stimmlagen"
     all_languages: "Alle Sprachen"
+    any: "Alle"
+    genre: "Genre"
     # Legacy keys for other pages
     key: "Tonart"
     time: "Taktart"
@@ -300,6 +302,13 @@ de:
     genre_instrument_description: "Entdecke %{count} %{genre}-Noten für %{instrument}. Kostenlos herunterladen und drucken."
     period_instrument_title: "%{period} %{instrument} Noten — Download"
     period_instrument_description: "Entdecke %{count} %{instrument}-Noten aus der %{period}. Kostenlos herunterladen und drucken."
+
+    # Instrument + Difficulty pages (SEO landing pages like /piano/beginners)
+    instrument_difficulty_title: "%{difficulty} %{instrument} Noten — Kostenloser Download"
+    instrument_difficulty_description: "Entdecke %{count} %{difficulty} Noten für %{instrument}. Perfekt für Schüler und Lehrer. Kostenloser PDF-Download."
+    sheet_music: "Noten"
+    free_scores_for_level: "kostenlose %{level} Stücke zum Download"
+    search_difficulty_scores: "Suche %{level} %{instrument} Noten..."
 
     # Separators
     separator_for: "für"
