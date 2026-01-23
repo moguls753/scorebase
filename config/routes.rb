@@ -61,6 +61,13 @@ Rails.application.routes.draw do
           difficulty_slug: /beginner|elementary|intermediate|advanced|expert/
         }
 
+    # Seasonal landing pages (Christmas)
+    # NOTE: instrument_slug constraint must match HubDataBuilder::CHRISTMAS_INSTRUMENTS
+    get "christmas", to: "hub_pages#christmas", as: :christmas
+    get "christmas/choir", to: "hub_pages#christmas_choir", as: :christmas_choir
+    get "christmas/:instrument_slug", to: "hub_pages#christmas_instrument", as: :christmas_instrument,
+        constraints: { instrument_slug: /piano|violin|viola|cello|guitar|flute|clarinet|saxophone|trumpet|horn|trombone|tuba|organ/ }
+
     # Pages
     get "about", to: "pages#about"
     get "impressum", to: "pages#impressum"

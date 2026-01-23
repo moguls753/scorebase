@@ -187,6 +187,48 @@ class HubPagesController < ApplicationController
     set_instrument_difficulty_meta
   end
 
+  # Christmas landing pages
+  def christmas
+    base_scope = Score.active.christmas
+    @scores = paginate(base_scope)
+    @christmas_instruments = HubDataBuilder::CHRISTMAS_INSTRUMENTS
+    @page_title = t("hub.christmas_title")
+    @page_description = t("hub.christmas_description", count: @total_count)
+  end
+
+  def christmas_choir
+    base_scope = Score.active.christmas.satb_choir
+
+    filtered_scope = base_scope
+    filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
+
+    @total_count = base_scope.count
+    @filtered_count = filtered_scope.count
+    @scores = paginate_filtered(filtered_scope)
+
+    @page_title = t("hub.christmas_choir_title")
+    @page_description = t("hub.christmas_choir_description", count: @total_count)
+  end
+
+  def christmas_instrument
+    @instrument_slug = params[:instrument_slug]
+    @instrument_name = @instrument_slug.titleize
+
+    base_scope = Score.active.christmas.by_instrument(@instrument_slug)
+
+    @total_count = base_scope.count
+    not_found if @total_count < HubDataBuilder::CHRISTMAS_INSTRUMENT_THRESHOLD
+
+    filtered_scope = base_scope
+    filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
+
+    @filtered_count = filtered_scope.count
+    @scores = paginate_filtered(filtered_scope)
+
+    @page_title = t("hub.christmas_instrument_title", instrument: @instrument_name)
+    @page_description = t("hub.christmas_instrument_description", instrument: @instrument_name.downcase, count: @total_count)
+  end
+
   private
 
   def set_sort

@@ -311,6 +311,24 @@ de:
     free_scores_for_level: "kostenlose %{level} Stücke zum Download"
     search_difficulty_scores: "Suche %{level} %{instrument} Noten..."
 
+    # Christmas pages (seasonal SEO landing pages)
+    christmas: "Weihnachten"
+    christmas_title: "Weihnachtsnoten — Kostenloser Download"
+    christmas_description: "Entdecke %{count} Weihnachtsnoten. Weihnachtslieder, Choräle und Festmusik. Kostenloser PDF-Download."
+    free_christmas_scores: "kostenlose Weihnachtsnoten zum Download"
+    christmas_choir: "SATB Chor"
+    christmas_choir_title: "Weihnachtsmusik für SATB Chor — Kostenlose Noten"
+    christmas_choir_description: "Entdecke %{count} Weihnachtsnoten für SATB Chor. Weihnachtslieder, Motetten und Festmusik. Kostenloser PDF-Download."
+    christmas_choir_heading: "Weihnachtsmusik für SATB Chor"
+    free_satb_christmas_scores: "kostenlose SATB Weihnachtsnoten"
+    search_christmas_choir: "Weihnachts-Chormusik suchen..."
+    christmas_instrument_title: "Weihnachtsmusik für %{instrument} — Kostenlose Noten"
+    christmas_instrument_description: "Entdecke %{count} Weihnachtsnoten für %{instrument}. Weihnachtslieder und Festarrangements. Kostenloser PDF-Download."
+    christmas_instrument_heading: "Weihnachtsmusik für %{instrument}"
+    free_instrument_christmas_scores: "kostenlose %{instrument}-Weihnachtsnoten"
+    search_christmas_instrument: "Weihnachts-%{instrument}musik suchen..."
+    choir: "Chor"
+
     # Separators
     separator_for: "für"
 

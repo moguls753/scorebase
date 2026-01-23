@@ -45,6 +45,17 @@ class HubDataBuilder
   DIFFICULTY_ORDER = %w[beginner elementary intermediate advanced expert].freeze
 
   # ===========================================
+  # CHRISTMAS INSTRUMENTS (seasonal landing pages)
+  # ===========================================
+  # Subset of instruments with sufficient Christmas content (10+ scores)
+  CHRISTMAS_INSTRUMENTS = %w[
+    piano organ violin viola cello guitar
+    flute clarinet saxophone trumpet horn trombone tuba
+  ].freeze
+
+  CHRISTMAS_INSTRUMENT_THRESHOLD = 10
+
+  # ===========================================
   # VALID INSTRUMENTS (allowlist for hub pages)
   # ===========================================
   # Uses LIKE matching, so "guitar" matches "electric guitar", "bass guitar", etc.

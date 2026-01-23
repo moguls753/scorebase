@@ -372,6 +372,17 @@ class Score < ApplicationRecord
           "\"#{escaped}\"")
   }
 
+  # Christmas filter for seasonal landing pages
+  # Searches both tags and title for christmas keywords
+  scope :christmas, -> {
+    where("LOWER(tags) LIKE '%christmas%' OR LOWER(title) LIKE '%christmas%'")
+  }
+
+  # SATB choir filter (for Christmas choir page)
+  scope :satb_choir, -> {
+    where("instruments LIKE '%SATB%' OR voicing LIKE '%SATB%'")
+  }
+
   # Scoped search by title (case-insensitive, for composer page filtering)
   # Uses FTS5 trigram index for fast substring matching
   scope :search_by_title, ->(query) {

@@ -311,6 +311,24 @@ en:
     free_scores_for_level: "free %{level} pieces to download"
     search_difficulty_scores: "Search %{level} %{instrument} scores..."
 
+    # Christmas pages (seasonal SEO landing pages)
+    christmas: "Christmas"
+    christmas_title: "Christmas Sheet Music — Free Downloads"
+    christmas_description: "Browse %{count} Christmas sheet music scores. Carols, hymns, and holiday music. Free PDF downloads."
+    free_christmas_scores: "free Christmas scores to download"
+    christmas_choir: "SATB Choir"
+    christmas_choir_title: "Christmas SATB Choir Music — Free Sheet Music"
+    christmas_choir_description: "Browse %{count} Christmas choral scores for SATB choir. Carols, anthems, and holiday music. Free PDF downloads."
+    christmas_choir_heading: "Christmas Music for SATB Choir"
+    free_satb_christmas_scores: "free SATB Christmas scores"
+    search_christmas_choir: "Search Christmas choir music..."
+    christmas_instrument_title: "Christmas %{instrument} Music — Free Sheet Music"
+    christmas_instrument_description: "Browse %{count} Christmas %{instrument} scores. Carols and holiday arrangements. Free PDF downloads."
+    christmas_instrument_heading: "Christmas Music for %{instrument}"
+    free_instrument_christmas_scores: "free %{instrument} Christmas scores"
+    search_christmas_instrument: "Search Christmas %{instrument} music..."
+    choir: "Choir"
+
     # Separators
     separator_for: "for"
 

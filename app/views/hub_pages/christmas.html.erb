@@ -1,0 +1,56 @@
+<% content_for :title, @page_title %>
+<% content_for :meta_description, @page_description %>
+
+<!-- Hero Section -->
+<section class="hub-hero py-8 sm:py-12 lg:py-16 border-b-2 border-[var(--color-border)]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <nav class="flex items-center gap-2 text-xs font-medium text-[var(--color-text-muted)] mb-4">
+      <%= link_to root_path, class: "hover:text-[var(--color-accent)] transition-colors" do %>ScoreBase<% end %>
+      <span class="text-[var(--color-border-subtle)]">/</span>
+      <span class="text-[var(--color-accent)]"><%= t('hub.christmas') %></span>
+    </nav>
+
+    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+      <div>
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] mb-2 leading-tight font-black uppercase tracking-tight hero-title">
+          <%= t('hub.christmas') %>
+        </h1>
+        <p class="text-sm sm:text-base font-medium hero-subtitle">
+          <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@total_count) %></span>
+          <%= t('hub.free_christmas_scores') %>
+        </p>
+      </div>
+
+      <!-- Quick links to sub-pages -->
+      <div class="flex flex-wrap gap-2">
+        <%= link_to christmas_choir_path, class: "mm-button mm-button-secondary text-xs" do %>
+          <%= t('hub.christmas_choir') %>
+        <% end %>
+        <% @christmas_instruments.each do |instrument| %>
+          <%= link_to christmas_instrument_path(instrument_slug: instrument), class: "mm-button mm-button-secondary text-xs" do %>
+            <%= instrument.titleize %>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Scores Grid -->
+<turbo-frame id="scores" data-turbo-action="advance">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+  <% if @scores.any? %>
+    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
+      <% @scores.each do |score| %>
+        <%= render 'score_card', score: score %>
+      <% end %>
+    </div>
+    <%= render 'shared/pagination', scores: @scores, turbo_frame: 'scores' %>
+  <% else %>
+    <div class="mm-card p-8 sm:p-12 text-center">
+      <div class="text-6xl mb-4 text-[var(--color-border-subtle)]">🎄</div>
+      <p class="text-[var(--color-text-muted)] font-medium"><%= t('hub.no_scores_found') %></p>
+    </div>
+  <% end %>
+</div>
+</turbo-frame>

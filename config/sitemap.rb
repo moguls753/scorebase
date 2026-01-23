@@ -163,6 +163,28 @@ SitemapGenerator::Sitemap.create do
   end
 
   # ===========================================
+  # SEASONAL PAGES (Christmas)
+  # ===========================================
+  # High-value for seasonal SEO queries like "christmas choir music free"
+
+  # Christmas index page
+  add christmas_path, changefreq: "yearly", priority: 0.8
+  add christmas_path(locale: :de), changefreq: "yearly", priority: 0.8
+
+  # Christmas choir (SATB)
+  add christmas_choir_path, changefreq: "yearly", priority: 0.8
+  add christmas_choir_path(locale: :de), changefreq: "yearly", priority: 0.8
+
+  # Christmas + Instrument combinations (uses HubDataBuilder as single source of truth)
+  HubDataBuilder::CHRISTMAS_INSTRUMENTS.each do |instrument_slug|
+    count = Score.active.christmas.by_instrument(instrument_slug).count
+    next if count < HubDataBuilder::CHRISTMAS_INSTRUMENT_THRESHOLD
+
+    add christmas_instrument_path(instrument_slug: instrument_slug), changefreq: "yearly", priority: 0.7
+    add christmas_instrument_path(instrument_slug: instrument_slug, locale: :de), changefreq: "yearly", priority: 0.7
+  end
+
+  # ===========================================
   # INDIVIDUAL SCORES
   # ===========================================
   # NOT included in sitemap by design.
