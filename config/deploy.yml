@@ -77,7 +77,7 @@ aliases:
   shell: app exec --interactive --reuse "bash"
   logs: app logs -f
   dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
-  sitemap: app exec --reuse "bin/rails sitemap:refresh:no_ping"
+  sitemap: app exec --reuse -r web "bin/rails sitemap:refresh:no_ping"
 
 # Use a persistent storage volume for sqlite database files and local Active Storage files.
 # Recommended to change this to a mounted volume path that is backed up off server.
