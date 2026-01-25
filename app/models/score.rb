@@ -650,13 +650,6 @@ class Score < ApplicationRecord
     (has_voicing || has_instruments) && (has_composer || has_genre)
   end
 
-  private
-
-  def update_normalized_search_columns
-    self.title_normalized = self.class.normalize_for_search(title)
-    self.composer_normalized = self.class.normalize_for_search(composer)
-  end
-
   # chord_span only meaningful for solo keyboard/harp (reliable semitone measurement)
   # Not for: vocals, chamber music, guitar (fret measurement unreliable)
   def chord_span_applicable?
@@ -665,6 +658,13 @@ class Score < ApplicationRecord
     return false if instruments.include?(",")
 
     instruments.downcase.match?(/piano|organ|harpsichord|clavichord|keyboard|harp/)
+  end
+
+  private
+
+  def update_normalized_search_columns
+    self.title_normalized = self.class.normalize_for_search(title)
+    self.composer_normalized = self.class.normalize_for_search(composer)
   end
 
   def instrument_context_changed?
