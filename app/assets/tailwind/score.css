@@ -88,50 +88,55 @@
   outline-offset: 2px;
 }
 
-/* Admin Edit Button - Subtle utility action */
+/* Admin Edit Button - Neubrutalist utility action */
 .admin-edit-btn {
   flex-shrink: 0;
   align-self: center;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 10px;
+  gap: 5px;
+  height: 32px;
+  padding: 0 10px;
   font-family: var(--font-family-display);
   font-size: 10px;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   text-decoration: none;
-  color: var(--color-text-subtle);
-  background: transparent;
-  border: 1px dashed var(--color-border-subtle);
+  color: #8b9dc3;
+  background: linear-gradient(135deg, #2a3441 0%, #232b38 100%);
+  border: var(--border-width) solid #3d4a5c;
   border-radius: var(--radius-sm);
-  opacity: 0.6;
-  transition: all 0.15s ease;
+  box-shadow: 2px 2px 0 #1a2030;
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.1s ease;
 }
 
 .admin-edit-btn svg {
-  width: 14px;
-  height: 14px;
-  stroke-width: 1.5;
+  width: 13px;
+  height: 13px;
+  stroke-width: 2;
+  opacity: 0.85;
 }
 
 .admin-edit-btn:hover {
+  color: #a8c0e8;
+  border-color: #5a7099;
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 #1a2030;
+}
+
+.admin-edit-btn:hover svg {
   opacity: 1;
-  color: var(--color-accent);
-  border-color: var(--color-accent);
-  border-style: solid;
-  background: rgba(196, 90, 16, 0.08);
 }
 
 .admin-edit-btn:active {
-  transform: scale(0.96);
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 #1a2030;
 }
 
 .admin-edit-btn:focus-visible {
-  outline: 2px solid var(--color-accent);
+  outline: 2px solid #5a7099;
   outline-offset: 2px;
-  opacity: 1;
 }
 
 .admin-edit-label {
@@ -139,6 +144,10 @@
 }
 
 @media (min-width: 640px) {
+  .admin-edit-btn {
+    padding: 0 12px;
+  }
+
   .admin-edit-label {
     display: inline;
   }
