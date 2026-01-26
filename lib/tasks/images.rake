@@ -80,6 +80,32 @@ namespace :images do
     puts "=" * 60
   end
 
+  desc "Find and fix thumbnail attachments where the file is missing from R2"
+  task fix_broken_thumbnails: :environment do
+    scores = Score.includes(thumbnail_image_attachment: :blob).where.not(active_storage_attachments: { id: nil })
+    total = scores.count
+    broken = 0
+    fixed = 0
+
+    puts "Checking #{total} scores with thumbnail attachments..."
+
+    scores.find_each.with_index do |score, i|
+      blob = score.thumbnail_image.blob
+      unless blob.service.exist?(blob.key)
+        broken += 1
+        puts "  [#{broken}] Score ##{score.id}: #{score.title} — blob #{blob.key} missing"
+        score.thumbnail_image.purge
+        GenerateThumbnailJob.perform_later(score.id)
+        fixed += 1
+      end
+
+      print "\r  Checked #{i + 1}/#{total}..." if (i + 1) % 100 == 0
+    end
+
+    puts
+    puts "Done. Found #{broken} broken thumbnails, enqueued #{fixed} for regeneration."
+  end
+
   desc "Regenerate gallery for a specific score. Usage: images:regenerate[score_id]"
   task :regenerate, [:score_id] => :environment do |_t, args|
     score = Score.find(args[:score_id])
