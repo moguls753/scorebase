@@ -14,13 +14,18 @@ Avo.configure do |config|
 
     # In development without credentials, allow access
     if credentials.dig(:basic_auth, :password).blank?
-      next if Rails.env.development?
+      if Rails.env.development?
+        session[:admin_authenticated] = true
+        next
+      end
       raise "basic_auth password not configured in credentials"
     end
 
     authenticate_or_request_with_http_basic("ScoreBase Admin") do |user, password|
-      ActiveSupport::SecurityUtils.secure_compare(user, credentials.dig(:basic_auth, :user) || "admin") &
+      valid = ActiveSupport::SecurityUtils.secure_compare(user, credentials.dig(:basic_auth, :user) || "admin") &
         ActiveSupport::SecurityUtils.secure_compare(password, credentials.dig(:basic_auth, :password))
+      session[:admin_authenticated] = true if valid
+      valid
     end
   end
 

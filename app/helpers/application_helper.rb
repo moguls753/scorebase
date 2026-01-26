@@ -9,4 +9,15 @@ module ApplicationHelper
   rescue URI::InvalidURIError
     nil
   end
+
+  # Check if the current user is authenticated as admin (via Avo)
+  def admin_signed_in?
+    session[:admin_authenticated] == true
+  end
+
+  # Generate Avo admin edit path for a record
+  def avo_edit_path(record)
+    resource_name = record.class.name.underscore.pluralize
+    "/admin/resources/#{resource_name}/#{record.id}/edit"
+  end
 end

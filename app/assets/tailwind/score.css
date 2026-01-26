@@ -88,6 +88,62 @@
   outline-offset: 2px;
 }
 
+/* Admin Edit Button - Subtle utility action */
+.admin-edit-btn {
+  flex-shrink: 0;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  font-family: var(--font-family-display);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  text-decoration: none;
+  color: var(--color-text-subtle);
+  background: transparent;
+  border: 1px dashed var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+  opacity: 0.6;
+  transition: all 0.15s ease;
+}
+
+.admin-edit-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.5;
+}
+
+.admin-edit-btn:hover {
+  opacity: 1;
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  border-style: solid;
+  background: rgba(196, 90, 16, 0.08);
+}
+
+.admin-edit-btn:active {
+  transform: scale(0.96);
+}
+
+.admin-edit-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  opacity: 1;
+}
+
+.admin-edit-label {
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .admin-edit-label {
+    display: inline;
+  }
+}
+
 /* Masthead: Title + Composer */
 .score-masthead {
   flex: 1;
