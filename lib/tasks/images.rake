@@ -89,9 +89,29 @@ namespace :images do
 
     puts "Checking #{total} scores with thumbnail attachments..."
 
+    # Build a Set of all existing R2 keys using LIST API (batches of 1000)
+    # instead of individual HEAD requests per blob.
+    service = ActiveStorage::Blob.service
+    service = service.primary if service.respond_to?(:primary) # handle mirrored services
+    client = service.client
+    bucket = service.bucket.name
+
+    puts "  Listing existing R2 objects..."
+    existing_keys = Set.new
+    continuation_token = nil
+    loop do
+      params = { bucket: bucket, max_keys: 1000 }
+      params[:continuation_token] = continuation_token if continuation_token
+      response = client.list_objects_v2(**params)
+      response.contents.each { |obj| existing_keys.add(obj.key) }
+      break unless response.is_truncated
+      continuation_token = response.next_continuation_token
+    end
+    puts "  Found #{existing_keys.size} objects in R2."
+
     scores.find_each.with_index do |score, i|
       blob = score.thumbnail_image.blob
-      unless blob.service.exist?(blob.key)
+      unless existing_keys.include?(blob.key)
         broken += 1
         puts "  [#{broken}] Score ##{score.id}: #{score.title} — blob #{blob.key} missing"
         score.thumbnail_image.purge
