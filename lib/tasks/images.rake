@@ -93,7 +93,7 @@ namespace :images do
     # instead of individual HEAD requests per blob.
     service = ActiveStorage::Blob.service
     service = service.primary if service.respond_to?(:primary) # handle mirrored services
-    client = service.client
+    client = service.client.client
     bucket = service.bucket.name
 
     puts "  Listing existing R2 objects..."
