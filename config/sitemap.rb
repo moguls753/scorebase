@@ -11,9 +11,10 @@
 
 SitemapGenerator::Sitemap.default_host = ENV.fetch("SITE_URL", "https://scorebase.org")
 
-# Store sitemaps in public/ directory (compressed)
-SitemapGenerator::Sitemap.public_path = "public/"
-SitemapGenerator::Sitemap.sitemaps_path = ""
+# Store sitemaps in storage/ (persisted across deploys via Kamal volume).
+# Entrypoint symlinks public/sitemap.xml.gz -> storage/sitemaps/ so Thruster serves it.
+SitemapGenerator::Sitemap.public_path = "storage/"
+SitemapGenerator::Sitemap.sitemaps_path = "sitemaps"
 SitemapGenerator::Sitemap.compress = true
 
 SitemapGenerator::Sitemap.create do

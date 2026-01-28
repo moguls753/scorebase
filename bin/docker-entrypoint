@@ -1,5 +1,9 @@
 #!/bin/bash -e
 
+# Ensure sitemap directory exists and symlink into public/ for Thruster
+mkdir -p storage/sitemaps
+ln -sf ../storage/sitemaps/sitemap.xml.gz public/sitemap.xml.gz
+
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then
   ./bin/rails db:prepare
