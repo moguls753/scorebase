@@ -8,7 +8,7 @@ module HttpDownloadable
 
   MAX_RETRIES = 3
   RETRY_DELAY = 2  # seconds, doubles each retry
-  CLOUDFLARE_PROTECTED_HOSTS = %w[cpdl.org www.cpdl.org].freeze
+  CLOUDFLARE_PROTECTED_HOSTS = %w[].freeze
 
   private
 
