@@ -39,9 +39,10 @@ production:
       polling_interval: 1
 
     # Thumbnails: mostly I/O (download image, resize, upload to R2)
+    # 8 threads — 93% CPU idle with 2, bottleneck is network wait (CX23: 2 vCPU, 4GB)
     - queues:
         - thumbnails
-      threads: 2
+      threads: 8
       processes: 1
       polling_interval: 1
 
