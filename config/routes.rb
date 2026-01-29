@@ -82,7 +82,8 @@ end
 
 if defined? ::Avo
   Avo::Engine.routes.draw do
-    # This route is not protected, secure it with authentication if needed.
+    # These routes are protected by Avo's authentication
     get "rag_pipeline", to: "tools#rag_pipeline", as: :rag_pipeline
+    get "smd_stats", to: "tools#smd_stats", as: :smd_stats
   end
 end

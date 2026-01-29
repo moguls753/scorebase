@@ -1,4 +1,13 @@
 class Avo::ToolsController < Avo::ApplicationController
+  def smd_stats
+    @page_title = "SMD Affiliate Stats"
+    add_breadcrumb "SMD Stats"
+
+    @stats = DailyStat.where(date: 14.days.ago..Date.current).order(date: :desc)
+    @visits_30d = DailyStat.where(date: 30.days.ago..Date.current).sum(:visits)
+    @clicks_30d = DailyStat.where(date: 30.days.ago..Date.current).sum(&:total_smd_clicks)
+  end
+
   def rag_pipeline
     @page_title = "RAG Pipeline Status"
     add_breadcrumb "RAG Pipeline"

@@ -149,15 +149,16 @@ Avo.configure do |config|
   # end
 
   ## == Menus ==
-  # config.main_menu = -> {
-  #   section "Dashboards", icon: "avo/dashboards" do
-  #     all_dashboards
-  #   end
+  config.main_menu = -> {
+    section "Resources", icon: "avo/resources" do
+      all_resources
+    end
 
-  #   section "Resources", icon: "avo/resources" do
-  #     all_resources
-  #   end
-  # }
+    section "Tools", icon: "avo/tools" do
+      link "RAG Pipeline", path: avo.rag_pipeline_path
+      link "SMD Stats", path: avo.smd_stats_path
+    end
+  }
   # config.profile_menu = -> {
   #   link "Profile", path: "/avo/profile", icon: "heroicons/outline/user-circle"
   # }
