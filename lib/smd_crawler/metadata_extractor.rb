@@ -2,6 +2,7 @@
 
 require "nokogiri"
 require "json"
+require "cgi"
 
 module SmdCrawler
   class MetadataExtractor
@@ -24,12 +25,12 @@ module SmdCrawler
       {
         # Core identifiers (smd_id → external_id in Score)
         external_id: json_ld["mpn"]&.to_s,
-        title: json_ld["name"],
-        clean_title: js_vars["title"],
+        title: decode_html(json_ld["name"]),
+        clean_title: decode_html(js_vars["title"]),
 
         # Artist/contributors (artist → composer in Score)
-        composer: js_vars["artists_contributors_list"]&.first,
-        contributors: js_vars["artists_contributors_list"]&.uniq,
+        composer: decode_html(js_vars["artists_contributors_list"]&.first),
+        contributors: js_vars["artists_contributors_list"]&.map { |c| decode_html(c) }&.uniq,
 
         # Classification
         instruments: instruments_arr.join(", "),
@@ -142,6 +143,18 @@ module SmdCrawler
       end
 
       nil
+    end
+
+    # Decode escaped strings from JS/JSON sources
+    # Handles: \u0027 → ', &#39; → ', &amp; → &, etc.
+    def decode_html(str)
+      return nil if str.nil?
+
+      # First decode JSON/Unicode escapes (\u0027 → ')
+      decoded = JSON.parse(%("#{str}")) rescue str
+
+      # Then decode HTML entities (&#39; → ')
+      CGI.unescapeHTML(decoded)
     end
   end
 end
