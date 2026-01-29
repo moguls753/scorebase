@@ -15,8 +15,12 @@
     {
       "fingerprint": "b6a54cf3a2572b31c3f179d2eeadf9c179273488470d904b9cc44cd325c90883",
       "note": "Reviewed - pdf_path is from Active Storage temp file, not user input"
+    },
+    {
+      "fingerprint": "327dcafb0f42f3b1cba51ac78d97a7905f1cccb26f08b199538202d4203a0115",
+      "note": "Reviewed - SSL CRL bypass needed for SMD crawler (same as ImslpImporter)"
     }
   ],
-  "updated": "2026-01-20",
+  "updated": "2026-01-29",
   "brakeman_version": "7.1.2"
 }
