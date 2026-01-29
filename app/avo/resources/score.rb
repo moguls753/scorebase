@@ -89,9 +89,24 @@ class Avo::Resources::Score < Avo::BaseResource
     field :cpdl_number, as: :text, hide_on: :index
     field :posted_date, as: :date, hide_on: :index
 
+    # SMD (Sheet Music Direct) fields
+    field :clean_title, as: :text, hide_on: :index, name: "SMD Clean Title"
+    field :contributors, as: :code, hide_on: :index, language: :json, name: "SMD Contributors"
+    field :main_instrument, as: :text, hide_on: :index, name: "SMD Main Instrument"
+    field :arrangement_category, as: :text, hide_on: :index, name: "SMD Arrangement"
+    field :smd_category, as: :text, hide_on: :index, name: "SMD Category"
+    field :brand, as: :text, hide_on: :index, name: "SMD Brand/Publisher"
+    field :is_arrangeme, as: :boolean, hide_on: :index, name: "SMD ArrangeMe?"
+    field :price_usd, as: :number, hide_on: :index, name: "SMD Price (USD)"
+    field :original_price_usd, as: :number, hide_on: :index, name: "SMD Original Price"
+    field :review_count, as: :number, hide_on: :index, name: "SMD Review Count"
+    field :pitch_range, as: :text, hide_on: :index, name: "SMD Pitch Range"
+    field :is_interactive, as: :boolean, hide_on: :index, name: "SMD Interactive?"
+    field :preview_image_url, as: :text, hide_on: :index, name: "SMD Preview Image"
+
     # Stats
     field :favorites, as: :number, hide_on: :index
-    field :rating, as: :number, hide_on: :index
+    field :rating, as: :number, hide_on: :index, name: "SMD Rating"
 
     # Timestamps
     field :created_at, as: :date_time, hide_on: :index, sortable: true
