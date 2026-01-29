@@ -6,27 +6,33 @@ class SmdCrawlJob < ApplicationJob
   # Long-running job, limit retries
   retry_on StandardError, wait: 10.minutes, attempts: 2
 
+  VALID_MODES = %i[import update all].freeze
+
   # Crawl SMD products from Hal Leonard catalog
   #
-  # @param limit [Integer, nil] Max products to crawl (nil = all)
-  # @param skip_existing [Boolean] Skip already imported products
+  # @param limit [Integer, nil] Max products to process (nil = all)
+  # @param mode [Symbol] :import (new only), :update (existing only), :all (both)
   # @param catalog [String] Which catalog: "hl", "ame", or "other"
   #
   # Usage:
-  #   SmdCrawlJob.perform_later(limit: 100)  # Test with 100 products
-  #   SmdCrawlJob.perform_later               # Full crawl
+  #   SmdCrawlJob.perform_later(limit: 100)                # Import 100 new
+  #   SmdCrawlJob.perform_later(mode: :update, limit: 50)  # Update 50 existing
+  #   SmdCrawlJob.perform_later(mode: :all)                # Full crawl
   #
-  def perform(limit: nil, skip_existing: true, catalog: "hl")
+  def perform(limit: nil, mode: :import, catalog: "hl")
     require "smd_crawler/crawler"
 
+    mode = mode.to_sym
+    raise ArgumentError, "Invalid mode: #{mode}. Use #{VALID_MODES.join(', ')}" unless VALID_MODES.include?(mode)
+
     index_url = sitemap_index_url(catalog)
-    Rails.logger.info "Starting SMD crawl (catalog: #{catalog}, limit: #{limit || 'unlimited'}, skip_existing: #{skip_existing})"
+    Rails.logger.info "Starting SMD crawl (catalog: #{catalog}, mode: #{mode}, limit: #{limit || 'unlimited'})"
 
     crawler = SmdCrawler::Crawler.new
     stats = crawler.crawl_index(
       index_url,
       product_limit: limit,
-      skip_existing: skip_existing
+      mode: mode
     )
 
     Rails.logger.info "SMD crawl complete: #{stats}"

@@ -1,7 +1,7 @@
 <div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center overflow-hidden">
   <% if score.has_thumbnail? %>
     <%= image_tag score.thumbnail,
-        alt: score.title,
+        alt: score.display_title,
         class: "w-full h-full object-cover object-top"
     %>
   <% else %>

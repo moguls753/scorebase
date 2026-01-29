@@ -74,7 +74,7 @@
               <div class="mb-3">
                 <%= link_to score_path(score), class: "block group-hover:text-[var(--color-accent)] transition-colors" do %>
                   <h2 class="text-lg sm:text-xl font-[var(--font-family-display)] font-bold text-[var(--color-text)] leading-tight">
-                    <%= score.title.presence || "Untitled" %>
+                    <%= score.display_title.presence || "Untitled" %>
                   </h2>
                 <% end %>
                 <% if score.composer.present? %>

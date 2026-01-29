@@ -31,7 +31,7 @@
       <div class="gallery-image-wrap"
            data-action="click->gallery#imageClick touchstart->gallery#touchStart touchend->gallery#touchEnd">
         <%= image_tag gallery_urls.first,
-            alt: "#{score.title} - Page 1",
+            alt: "#{score.display_title} - Page 1",
             class: "gallery-image",
             data: { gallery_target: "image" } %>
       </div>
@@ -113,7 +113,7 @@
   <%# SMD: Use preview_image_url (larger product image) %>
   <div class="mm-card overflow-hidden gallery-fixed-height">
     <%= image_tag score.preview_image_url,
-        alt: score.title,
+        alt: score.display_title,
         class: "w-full h-full object-contain bg-[var(--color-bg)]" %>
   </div>
 
@@ -121,7 +121,7 @@
   <%# Single preview image (no gallery generated yet) %>
   <div class="mm-card overflow-hidden gallery-fixed-height">
     <%= image_tag score.thumbnail_url_original,
-        alt: score.title,
+        alt: score.display_title,
         class: "w-full h-full object-contain bg-[var(--color-bg)]" %>
   </div>
 

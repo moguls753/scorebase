@@ -66,4 +66,36 @@
       </div>
     <% end %>
   <% end %>
+
+  <%# Top Clicked Scores %>
+  <%= render Avo::PanelComponent.new(name: 'Top Clicked Scores (All Time)') do |c| %>
+    <% c.with_body do %>
+      <div class="px-6 py-4">
+        <% if @top_clicked_scores.any? %>
+          <table class="min-w-full text-sm">
+            <thead>
+              <tr class="border-b border-gray-200">
+                <th class="py-2 text-left text-gray-600">Score</th>
+                <th class="py-2 text-left text-gray-600">Composer</th>
+                <th class="py-2 text-right text-gray-600">Clicks</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @top_clicked_scores.each do |score, clicks| %>
+                <tr class="border-b border-gray-100 hover:bg-gray-50">
+                  <td class="py-2">
+                    <%= link_to score.title&.truncate(50) || "Untitled", score_path(score), target: "_blank", class: "text-teal-600 hover:underline" %>
+                  </td>
+                  <td class="py-2 text-gray-500"><%= score.composer&.truncate(30) %></td>
+                  <td class="py-2 text-right font-mono text-teal-600 font-bold"><%= clicks %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="text-gray-500 italic">No clicks recorded yet.</p>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
 </div>

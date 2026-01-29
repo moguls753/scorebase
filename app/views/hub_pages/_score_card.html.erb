@@ -4,7 +4,7 @@
   <!-- Card Content - Generous spacing for readability -->
   <div class="p-4 sm:p-5">
     <h4 class="text-sm sm:text-base font-[var(--font-family-display)] text-[var(--color-primary)] mb-1.5 leading-tight font-bold line-clamp-2 group-hover:text-[var(--color-accent)] transition-colors">
-      <%= score.title %>
+      <%= score.display_title %>
     </h4>
     <p class="text-xs sm:text-sm text-[var(--color-text-muted)] mb-3 line-clamp-1 font-medium">
       <%= score.composer.presence || t('search.unknown_composer') %>

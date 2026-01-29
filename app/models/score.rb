@@ -536,6 +536,11 @@ class Score < ApplicationRecord
     source == "smd"
   end
 
+  # Returns clean_title for SMD scores, title otherwise
+  def display_title
+    smd? ? (clean_title.presence || title) : title
+  end
+
   # SMD score with valid external_id (can link to purchase)
   def smd_purchasable?
     smd? && external_id.present?

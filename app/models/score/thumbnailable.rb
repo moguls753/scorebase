@@ -22,11 +22,13 @@ module Score::Thumbnailable
 
   def thumbnail
     return thumbnail_image.url if thumbnail_image.attached?
+    # SMD: prefer preview_image_url (actual sheet music) over thumbnail_url (CD cover)
+    return preview_image_url if smd? && preview_image_url.present?
     return thumbnail_url if thumbnail_url.present?
     nil
   end
 
   def has_thumbnail?
-    thumbnail_url.present? || thumbnail_image.attached?
+    thumbnail_image.attached? || (smd? && preview_image_url.present?) || thumbnail_url.present?
   end
 end

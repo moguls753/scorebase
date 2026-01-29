@@ -61,16 +61,19 @@ module SmdCrawler
     end
 
     # Crawl all products from a sitemap XML string
-    def crawl_sitemap(sitemap_xml, limit: nil, skip_existing: false)
+    # @param mode [Symbol] :import (new only), :update (existing only), :all (both)
+    def crawl_sitemap(sitemap_xml, limit: nil, mode: :import)
       products = @parser.parse_sitemap(sitemap_xml)
-      products = products.first(limit) if limit
 
-      stats = { total: 0, success: 0, failed: 0, skipped: 0 }
+      stats = { examined: 0, saved: 0, failed: 0, skipped: 0 }
 
       products.each do |product|
-        stats[:total] += 1
+        break if limit && stats[:saved] >= limit
 
-        if skip_existing && Score.exists?(external_id: product[:id], source: "smd")
+        stats[:examined] += 1
+        exists = Score.exists?(external_id: product[:id], source: "smd")
+
+        if should_skip?(mode, exists)
           stats[:skipped] += 1
           next
         end
@@ -79,7 +82,7 @@ module SmdCrawler
 
         if result[:success]
           save_product(result[:metadata])
-          stats[:success] += 1
+          stats[:saved] += 1
         else
           stats[:failed] += 1
           Rails.logger.warn("Failed to crawl #{product[:id]}: #{result[:error]}")
@@ -90,32 +93,36 @@ module SmdCrawler
     end
 
     # Crawl from a sitemap URL
-    def crawl_sitemap_url(sitemap_url, limit: nil, skip_existing: false)
+    def crawl_sitemap_url(sitemap_url, limit: nil, mode: :import)
       result = @fetcher.fetch(sitemap_url)
       raise "Failed to fetch sitemap: #{result[:error]}" unless result[:success]
 
-      crawl_sitemap(result[:body], limit: limit, skip_existing: skip_existing)
+      crawl_sitemap(result[:body], limit: limit, mode: mode)
     end
 
     # Crawl all sitemaps from an index URL
-    def crawl_index(index_url, sitemap_limit: nil, product_limit: nil, skip_existing: false)
+    def crawl_index(index_url, sitemap_limit: nil, product_limit: nil, mode: :import)
       result = @fetcher.fetch(index_url)
       raise "Failed to fetch index: #{result[:error]}" unless result[:success]
 
       sitemap_urls = @parser.parse_index(result[:body])
       sitemap_urls = sitemap_urls.first(sitemap_limit) if sitemap_limit
 
-      total_stats = { total: 0, success: 0, failed: 0, skipped: 0, sitemaps: 0 }
+      total_stats = { examined: 0, saved: 0, failed: 0, skipped: 0, sitemaps: 0 }
 
       sitemap_urls.each do |sitemap_url|
+        break if product_limit&.zero?
+
         Rails.logger.info("Crawling sitemap: #{sitemap_url}")
-        stats = crawl_sitemap_url(sitemap_url, limit: product_limit, skip_existing: skip_existing)
+        stats = crawl_sitemap_url(sitemap_url, limit: product_limit, mode: mode)
 
         total_stats[:sitemaps] += 1
-        total_stats[:total] += stats[:total]
-        total_stats[:success] += stats[:success]
+        total_stats[:examined] += stats[:examined]
+        total_stats[:saved] += stats[:saved]
         total_stats[:failed] += stats[:failed]
         total_stats[:skipped] += stats[:skipped]
+
+        product_limit -= stats[:saved] if product_limit
 
         Rails.logger.info("Sitemap complete: #{stats}")
       end
@@ -124,6 +131,14 @@ module SmdCrawler
     end
 
     private
+
+    def should_skip?(mode, exists)
+      case mode
+      when :import then exists
+      when :update then !exists
+      when :all then false
+      end
+    end
 
     # Map SMD difficulty labels to pedagogical grades
     # "beginner" → "Grade 1", "elementary" → "Grade 2-3", nil → nil

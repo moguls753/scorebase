@@ -143,24 +143,42 @@ RSpec.describe SmdCrawler::Crawler do
     it "crawls all products in a sitemap" do
       stats = crawler.crawl_sitemap(sitemap_xml, limit: 2)
 
-      expect(stats[:total]).to eq(2)
-      expect(stats[:success]).to eq(2)
+      expect(stats[:examined]).to eq(2)
+      expect(stats[:saved]).to eq(2)
       expect(stats[:failed]).to eq(0)
     end
 
     it "respects limit parameter" do
       stats = crawler.crawl_sitemap(sitemap_xml, limit: 1)
 
-      expect(stats[:total]).to eq(1)
+      expect(stats[:saved]).to eq(1)
     end
 
-    it "skips already crawled products" do
+    it "skips existing products in import mode" do
       Score.create!(external_id: "111", source: "smd", title: "Already exists")
 
-      stats = crawler.crawl_sitemap(sitemap_xml, limit: 2, skip_existing: true)
+      stats = crawler.crawl_sitemap(sitemap_xml, limit: 2, mode: :import)
 
       expect(stats[:skipped]).to eq(1)
-      expect(stats[:success]).to eq(1)
+      expect(stats[:saved]).to eq(1)
+    end
+
+    it "skips new products in update mode" do
+      Score.create!(external_id: "111", source: "smd", title: "Already exists")
+
+      stats = crawler.crawl_sitemap(sitemap_xml, limit: 2, mode: :update)
+
+      expect(stats[:skipped]).to eq(1)
+      expect(stats[:saved]).to eq(1)
+    end
+
+    it "processes all products in all mode" do
+      Score.create!(external_id: "111", source: "smd", title: "Already exists")
+
+      stats = crawler.crawl_sitemap(sitemap_xml, limit: 2, mode: :all)
+
+      expect(stats[:skipped]).to eq(0)
+      expect(stats[:saved]).to eq(2)
     end
   end
 end
