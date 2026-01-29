@@ -14,7 +14,7 @@ module SmdCrawler
     ].freeze
 
     def extract(html)
-      doc = Nokogiri::HTML(html)
+      doc = Nokogiri::HTML(html, nil, "UTF-8")
 
       json_ld = extract_json_ld(doc)
       js_vars = extract_js_variables(doc)

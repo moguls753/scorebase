@@ -86,7 +86,10 @@ module SmdCrawler
       @last_request_at = Time.now
       response = http.request(request)
 
-      { status: response.code.to_i, body: response.body }
+      # Force UTF-8 encoding - SMD pages are UTF-8 but Net::HTTP returns ASCII-8BIT
+      body = response.body&.dup&.force_encoding("UTF-8")
+
+      { status: response.code.to_i, body: body }
     end
   end
 end
