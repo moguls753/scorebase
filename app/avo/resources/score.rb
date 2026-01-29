@@ -14,7 +14,7 @@ class Avo::Resources::Score < Avo::BaseResource
     # Index view: show only essential columns
     field :id, as: :id, link_to_record: true
     field :view_on_site, as: :text, only_on: :show do
-      link_to "Open on ScoreBase →", "/scores/#{record.id}", target: "_blank", class: "text-blue-600 hover:underline"
+      link_to "Open on ScoreBase →", main_app.score_path(record), target: "_blank", class: "text-blue-600 hover:underline"
     end
     field :title, as: :text, sortable: true, link_to_record: true, truncate: 50
     field :composer, as: :text, sortable: true
