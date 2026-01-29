@@ -227,6 +227,8 @@ de:
     smd_hint: "Professionelles Arrangement von Sheet Music Direct"
     brand: "Verlag"
     arrangement: "Arrangement"
+    price: "Preis"
+    interactive: "Interaktiv"
 
   # About Page
   about:

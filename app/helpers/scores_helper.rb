@@ -39,10 +39,9 @@ module ScoresHelper
   # SMD (Sheet Music Direct) Helpers
   # ─────────────────────────────────────────────────────────────────
 
-  # Format USD price for display (only shown for English locale)
-  # German users see price on SMD in EUR after clicking through
+  # Format USD price for display
+  # Shows dollar price globally - SMD converts to local currency on their site
   def format_smd_price(score)
-    return nil if I18n.locale == :de
     return nil if score.price_usd.blank? || score.price_usd.to_f <= 0
     "$#{'%.2f' % score.price_usd}"
   end
@@ -54,11 +53,17 @@ module ScoresHelper
       score.original_price_usd > score.price_usd
   end
 
-  # Format original price (crossed out) for sale display
-  def format_smd_original_price(score)
-    return nil if I18n.locale == :de
-    return nil unless smd_on_sale?(score)
-    "$#{'%.2f' % score.original_price_usd}"
+  # Format price with optional sale display
+  # Returns nil or { current:, original?: } hash
+  def format_smd_price_with_sale(score)
+    current = format_smd_price(score)
+    return nil unless current
+
+    if smd_on_sale?(score)
+      { current: current, original: "$#{'%.2f' % score.original_price_usd}" }
+    else
+      { current: current }
+    end
   end
 
   # ─────────────────────────────────────────────────────────────────
@@ -249,8 +254,9 @@ module ScoresHelper
       facts << fact_entry("score.difficulty", nil, difficulty: level, grade: grade)
     end
 
-    # Pitch range
+    # Pitch range - MusicXML extraction OR SMD metadata fallback
     range = format_pitch_range(score.lowest_pitch, score.highest_pitch)
+    range ||= score.pitch_range if score.smd? && score.pitch_range.present?
     facts << fact_entry("score.range", range) if range
 
     # Tempo
@@ -280,19 +286,40 @@ module ScoresHelper
   def build_catalog_facts(score)
     facts = []
 
-    # SMD-specific fields
-    if score.smd?
-      facts << { label: t("score.rating"), value: format_smd_rating(score) }
-      facts << { label: t("score.brand"), value: score.brand }
-      facts << { label: t("score.arrangement"), value: score.arrangement_category }
-    end
+    # Source-specific facts
+    facts.concat(smd_catalog_facts(score)) if score.smd?
 
     # Common catalog fields
     facts << { label: t("score.cpdl_number"), value: score.cpdl_number, css: "font-mono" }
     facts << { label: t("score.editor"), value: score.editor }
     facts << { label: t("score.posted_date"), value: score.posted_date }
     facts << { label: t("score.license"), value: translate_license(score.license) }
-    facts.select { |f| f[:value].present? }
+    facts.select { |f| f[:value].present? || f[:price].present? }
+  end
+
+  # SMD-specific catalog facts - consolidated for maintainability
+  def smd_catalog_facts(score)
+    [
+      smd_price_fact(score),
+      { label: t("score.rating"), value: format_smd_rating(score) },
+      { label: t("score.brand"), value: score.brand },
+      { label: t("score.arrangement"), value: score.arrangement_category },
+      smd_interactive_fact(score)
+    ].compact
+  end
+
+  # Price fact - always uses :price key with { current:, original?: } hash
+  def smd_price_fact(score)
+    price_data = format_smd_price_with_sale(score)
+    return nil unless price_data
+
+    { label: t("score.price"), price: price_data }
+  end
+
+  # Interactive badge - shown when SMD score has playback features
+  def smd_interactive_fact(score)
+    return nil unless score.is_interactive?
+    { label: t("score.interactive"), value: "✓", css: "score-fact-badge" }
   end
 
   # Format SMD rating with stars: "★ 4.5 (12)"

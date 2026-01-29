@@ -101,6 +101,17 @@
                   </span>
                   <%= difficulty_meter(fact[:difficulty], grade: fact[:grade]) %>
                 </div>
+              <% elsif fact[:price] %>
+                <%# Price fact with optional sale strikethrough %>
+                <div class="score-fact-cell">
+                  <span class="score-fact-label"><%= fact[:label] %></span>
+                  <span class="score-fact-value score-fact-price">
+                    <%= fact[:price][:current] %>
+                    <% if fact[:price][:original] %>
+                      <s class="score-fact-price-original"><%= fact[:price][:original] %></s>
+                    <% end %>
+                  </span>
+                </div>
               <% elsif fact[:link] %>
                 <%# Linkable fact - discover more %>
                 <%= link_to fact[:link], class: "score-fact-cell score-fact-cell--link" do %>
