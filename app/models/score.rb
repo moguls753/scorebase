@@ -6,12 +6,15 @@
 #  accidental_count           :integer
 #  ambitus_semitones          :integer
 #  arpeggio_mark_count        :integer
+#  arrangement_category       :string
 #  avg_chord_span             :float
 #  beat_count                 :integer
+#  brand                      :string
 #  cadence_types              :text
 #  chord_count                :integer
 #  chromatic_note_count       :integer
 #  chromatic_ratio            :float
+#  clean_title                :string
 #  clefs_used                 :text
 #  complexity                 :integer
 #  composer                   :string
@@ -19,6 +22,7 @@
 #  composer_status            :string           default("pending"), not null
 #  computed_difficulty        :integer
 #  contrary_motion_ratio      :float
+#  contributors               :json
 #  cpdl_number                :string
 #  data_path                  :string
 #  deleted_at                 :datetime
@@ -64,7 +68,9 @@
 #  instruments_status         :string           default("pending"), not null
 #  interval_count             :integer
 #  interval_distribution      :json
+#  is_arrangeme               :boolean
 #  is_instrumental            :boolean
+#  is_interactive             :boolean
 #  is_multi_movement          :boolean
 #  key_confidence             :float
 #  key_correlations           :json
@@ -77,6 +83,7 @@
 #  lowest_pitch               :string
 #  lyrics                     :text
 #  lyrics_language            :string
+#  main_instrument            :string
 #  max_chord_span             :integer
 #  measure_count              :integer
 #  melodic_complexity         :float
@@ -95,6 +102,7 @@
 #  num_parts                  :integer
 #  oblique_motion_ratio       :float
 #  off_beat_count             :integer
+#  original_price_usd         :decimal(8, 2)
 #  page_count                 :integer
 #  parallel_motion_ratio      :float
 #  part_names                 :text
@@ -105,12 +113,16 @@
 #  period_status              :string           default("pending"), not null
 #  pitch_class_distribution   :json
 #  pitch_count                :integer
+#  pitch_range                :string
 #  pitch_range_per_part       :json
 #  posted_date                :date
 #  predominant_rhythm         :string
+#  preview_image_url          :string
+#  price_usd                  :decimal(8, 2)
 #  rag_status                 :string           default("pending"), not null
 #  rating                     :decimal(3, 2)
 #  repeats_count              :integer
+#  review_count               :integer
 #  rhythm_distribution        :json
 #  rhythmic_variety           :float
 #  search_text                :text
@@ -118,6 +130,7 @@
 #  sections_count             :integer
 #  simultaneous_note_avg      :float
 #  slur_count                 :integer
+#  smd_category               :string
 #  source                     :string           default("pdmx")
 #  stepwise_count             :integer
 #  stepwise_motion_ratio      :float
@@ -154,6 +167,7 @@
 # Indexes
 #
 #  index_scores_on_ambitus_semitones             (ambitus_semitones)
+#  index_scores_on_brand                         (brand)
 #  index_scores_on_chromatic_ratio               (chromatic_ratio)
 #  index_scores_on_complexity                    (complexity)
 #  index_scores_on_composer                      (composer)
@@ -177,6 +191,7 @@
 #  index_scores_on_indexed_at                    (indexed_at)
 #  index_scores_on_instruments                   (instruments)
 #  index_scores_on_instruments_status            (instruments_status)
+#  index_scores_on_is_arrangeme                  (is_arrangeme)
 #  index_scores_on_key_confidence                (key_confidence)
 #  index_scores_on_key_signature                 (key_signature)
 #  index_scores_on_lowest_pitch                  (lowest_pitch)
@@ -187,6 +202,7 @@
 #  index_scores_on_pedagogical_grade             (pedagogical_grade)
 #  index_scores_on_period                        (period)
 #  index_scores_on_period_status                 (period_status)
+#  index_scores_on_price_usd                     (price_usd)
 #  index_scores_on_rag_status                    (rag_status)
 #  index_scores_on_rating                        (rating)
 #  index_scores_on_source                        (source)
@@ -204,14 +220,15 @@ class Score < ApplicationRecord
   include PdfSyncable
 
   # Sources
-  SOURCES = %w[pdmx cpdl imslp openscore-lieder openscore-quartets].freeze
+  SOURCES = %w[pdmx cpdl imslp openscore-lieder openscore-quartets smd].freeze
 
   # Active Storage attachments
   has_one_attached :pdf_file
 
   # Validations
   validates :title, presence: true
-  validates :data_path, presence: true, uniqueness: true
+  validates :data_path, uniqueness: true, allow_nil: true
+  validates :external_id, uniqueness: { scope: :source }, allow_nil: true
   validates :source, inclusion: { in: SOURCES }, allow_nil: true
 
   # Keep normalized search columns in sync

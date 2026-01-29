@@ -31,10 +31,10 @@ production:
       polling_interval: 0.5
 
     # CPU-heavy: PDF-to-image conversion (ImageMagick/Ghostscript)
-    # 1 thread — each convert call pegs a core (2 cores total on server)
+    # 2 threads — overlap PDF download with previous job's conversion (CX23: 2 vCPU)
     - queues:
         - galleries
-      threads: 1
+      threads: 2
       processes: 1
       polling_interval: 1
 
