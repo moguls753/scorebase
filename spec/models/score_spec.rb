@@ -3,8 +3,8 @@ require 'rails_helper'
 RSpec.describe Score do
   describe 'validations' do
     it { should validate_presence_of(:title) }
-    it { should validate_presence_of(:data_path) }
-    it { should validate_uniqueness_of(:data_path) }
+    it { should validate_uniqueness_of(:data_path).allow_nil }
+    it { should validate_uniqueness_of(:external_id).scoped_to(:source).allow_nil }
     it { should validate_inclusion_of(:source).in_array(Score::SOURCES).allow_nil }
   end
 
