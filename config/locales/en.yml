@@ -224,11 +224,9 @@ en:
     badge_fermatas: "Fermatas"
     # SMD (commercial) scores
     buy_on_smd: "Buy on Sheet Music Direct"
-    available_for_purchase: "Available for Purchase"
-    sale: "Sale"
-    pages: "%{count} pages"
-    rating_stars: "%{rating} stars"
-    reviews_count: "%{count} reviews"
+    buy_short: "Buy"
+    brand: "Publisher"
+    arrangement: "Arrangement"
 
   # About Page
   about:

@@ -1,5 +1,5 @@
 <%#
-  Download action buttons for a score
+  Download/Purchase action buttons for a score
 
   Usage:
     render "scores/download_actions", score: @score, variant: :mobile
@@ -8,45 +8,59 @@
     :mobile  - Compact buttons for quick actions above fold
     :sidebar - Full buttons with tooltips for desktop sidebar
 
-  Why one partial with variants (not two partials)?
-  Both share format detection logic (has_pdf?, has_midi?, has_mxl?) and
-  path generation. When new formats are added, only this file needs updating.
+  Handles both free scores (PDF/MIDI/MXL downloads) and SMD commercial scores (buy button).
 %>
 <% score ||= @score %>
 <% variant ||= :sidebar %>
-<% return unless score.has_downloads? %>
+<% return unless score.has_downloads? || score.smd_purchasable? %>
 
 <% if variant == :mobile %>
-  <%# Mobile: Compact single-row layout, all formats visible %>
+  <%# Mobile: Compact single-row layout %>
   <div class="dl-row">
-    <% if score.has_pdf? %>
-      <%= link_to file_score_path(score, 'pdf', download: true),
+    <% if score.smd_purchasable? %>
+      <%# SMD: Single buy button %>
+      <% price = format_smd_price(score) %>
+      <%= link_to smd_redirect_path(smd_id: score.external_id),
           class: "dl-btn dl-btn--primary",
-          aria: { label: t('score.download_pdf') } do %>
+          target: "_blank",
+          rel: "noopener noreferrer sponsored",
+          aria: { label: t('score.buy_on_smd') } do %>
         <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 2l-8.5 8.5M14 2h-5M14 2v5"/>
         </svg>
-        <span class="dl-label">PDF</span>
+        <span class="dl-label"><%= price ? "#{price} ·" : "" %> <%= t('score.buy_short') %></span>
       <% end %>
-    <% end %>
-    <% if score.has_midi? %>
-      <%= link_to file_score_path(score, 'mid', download: true),
-          class: "dl-btn dl-btn--secondary",
-          aria: { label: t('score.download_midi') } do %>
-        <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
-        </svg>
-        <span class="dl-label">MIDI</span>
+    <% else %>
+      <%# Free: Download buttons %>
+      <% if score.has_pdf? %>
+        <%= link_to file_score_path(score, 'pdf', download: true),
+            class: "dl-btn dl-btn--primary",
+            aria: { label: t('score.download_pdf') } do %>
+          <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
+          </svg>
+          <span class="dl-label">PDF</span>
+        <% end %>
       <% end %>
-    <% end %>
-    <% if score.has_mxl? %>
-      <%= link_to file_score_path(score, 'mxl', download: true),
-          class: "dl-btn dl-btn--secondary",
-          aria: { label: t('score.download_mxl') } do %>
-        <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
-        </svg>
-        <span class="dl-label">MXL</span>
+      <% if score.has_midi? %>
+        <%= link_to file_score_path(score, 'mid', download: true),
+            class: "dl-btn dl-btn--secondary",
+            aria: { label: t('score.download_midi') } do %>
+          <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
+          </svg>
+          <span class="dl-label">MIDI</span>
+        <% end %>
+      <% end %>
+      <% if score.has_mxl? %>
+        <%= link_to file_score_path(score, 'mxl', download: true),
+            class: "dl-btn dl-btn--secondary",
+            aria: { label: t('score.download_mxl') } do %>
+          <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
+          </svg>
+          <span class="dl-label">MXL</span>
+        <% end %>
       <% end %>
     <% end %>
   </div>
@@ -54,40 +68,56 @@
 <% else %>
   <%# Sidebar: Full labels, stacked vertically %>
   <div class="dl-stack">
-    <% if score.has_pdf? %>
-      <%= link_to file_score_path(score, 'pdf', download: true),
+    <% if score.smd_purchasable? %>
+      <%# SMD: Single buy button with price %>
+      <% price = format_smd_price(score) %>
+      <%= link_to smd_redirect_path(smd_id: score.external_id),
           class: "dl-btn dl-btn--primary dl-btn--full",
-          aria: { label: t('score.download_pdf') } do %>
+          target: "_blank",
+          rel: "noopener noreferrer sponsored",
+          aria: { label: t('score.buy_on_smd') } do %>
         <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 2l-8.5 8.5M14 2h-5M14 2v5"/>
         </svg>
-        <span class="dl-label"><%= t('score.download_pdf') %></span>
+        <span class="dl-label"><%= price ? "#{price} · " : "" %><%= t('score.buy_on_smd') %></span>
       <% end %>
-    <% end %>
-
-    <% if score.has_midi? %>
-      <%= link_to file_score_path(score, 'mid', download: true),
-          class: "dl-btn dl-btn--secondary dl-btn--full",
-          aria: { label: t('score.download_midi') } do %>
-        <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
-        </svg>
-        <span class="dl-label"><%= t('score.download_midi') %></span>
-      <% end %>
-    <% end %>
-
-    <% if score.has_mxl? %>
-      <div class="mm-tooltip-wrap">
-        <%= link_to file_score_path(score, 'mxl', download: true),
-            class: "dl-btn dl-btn--secondary dl-btn--full",
-            aria: { label: t('score.download_mxl') } do %>
+    <% else %>
+      <%# Free: Download buttons %>
+      <% if score.has_pdf? %>
+        <%= link_to file_score_path(score, 'pdf', download: true),
+            class: "dl-btn dl-btn--primary dl-btn--full",
+            aria: { label: t('score.download_pdf') } do %>
           <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
           </svg>
-          <span class="dl-label"><%= t('score.download_mxl') %></span>
+          <span class="dl-label"><%= t('score.download_pdf') %></span>
         <% end %>
-        <span class="mm-tooltip"><%= t('score.mxl_hint') %></span>
-      </div>
+      <% end %>
+
+      <% if score.has_midi? %>
+        <%= link_to file_score_path(score, 'mid', download: true),
+            class: "dl-btn dl-btn--secondary dl-btn--full",
+            aria: { label: t('score.download_midi') } do %>
+          <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
+          </svg>
+          <span class="dl-label"><%= t('score.download_midi') %></span>
+        <% end %>
+      <% end %>
+
+      <% if score.has_mxl? %>
+        <div class="mm-tooltip-wrap">
+          <%= link_to file_score_path(score, 'mxl', download: true),
+              class: "dl-btn dl-btn--secondary dl-btn--full",
+              aria: { label: t('score.download_mxl') } do %>
+            <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
+              <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
+            </svg>
+            <span class="dl-label"><%= t('score.download_mxl') %></span>
+          <% end %>
+          <span class="mm-tooltip"><%= t('score.mxl_hint') %></span>
+        </div>
+      <% end %>
     <% end %>
   </div>
 <% end %>

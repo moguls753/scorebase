@@ -276,14 +276,31 @@ module ScoresHelper
     facts.select { |f| f[:value].present? || f[:difficulty].present? }
   end
 
-  # Catalog/source facts (secondary - CPDL, IMSLP metadata)
+  # Catalog/source facts (secondary - CPDL, IMSLP, SMD metadata)
   def build_catalog_facts(score)
     facts = []
+
+    # SMD-specific fields
+    if score.smd?
+      facts << { label: t("score.rating"), value: format_smd_rating(score) }
+      facts << { label: t("score.brand"), value: score.brand }
+      facts << { label: t("score.arrangement"), value: score.arrangement_category }
+    end
+
+    # Common catalog fields
     facts << { label: t("score.cpdl_number"), value: score.cpdl_number, css: "font-mono" }
     facts << { label: t("score.editor"), value: score.editor }
     facts << { label: t("score.posted_date"), value: score.posted_date }
     facts << { label: t("score.license"), value: translate_license(score.license) }
     facts.select { |f| f[:value].present? }
+  end
+
+  # Format SMD rating with stars: "★ 4.5 (12)"
+  def format_smd_rating(score)
+    return nil unless score.rating.to_f.positive?
+    rating = "★ #{'%.1f' % score.rating}"
+    rating += " (#{score.review_count})" if score.review_count.to_i.positive?
+    rating
   end
 
   # ─────────────────────────────────────────────────────────────────
