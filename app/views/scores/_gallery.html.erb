@@ -109,6 +109,14 @@
     </div>
   </div>
 
+<% elsif score.smd? && score.preview_image_url.present? %>
+  <%# SMD: Use preview_image_url (larger product image) %>
+  <div class="mm-card overflow-hidden gallery-fixed-height">
+    <%= image_tag score.preview_image_url,
+        alt: score.title,
+        class: "w-full h-full object-contain bg-[var(--color-bg)]" %>
+  </div>
+
 <% elsif score.thumbnail_url.present? %>
   <%# Single preview image (no gallery generated yet) %>
   <div class="mm-card overflow-hidden gallery-fixed-height">

@@ -51,8 +51,12 @@
       <%= render "scores/gallery", score: @score %>
     </div>
 
-    <%# Mobile Downloads - Compact, right after gallery %>
-    <% if @score.has_downloads? %>
+    <%# Mobile Actions - Downloads or SMD Purchase %>
+    <% if @score.smd_purchasable? %>
+      <div class="score-mobile-downloads">
+        <%= render "scores/smd_purchase", score: @score, variant: :mobile %>
+      </div>
+    <% elsif @score.has_downloads? %>
       <div class="score-mobile-downloads">
         <%= render "scores/download_actions", score: @score, variant: :mobile %>
       </div>
@@ -62,15 +66,19 @@
     <aside class="score-sidebar">
       <div class="score-sidebar-inner">
 
-        <%# 1. DOWNLOADS (hidden on mobile - shown in quick actions above) %>
-        <% if @score.has_downloads? %>
+        <%# 1. DOWNLOADS or SMD PURCHASE (hidden on mobile - shown in quick actions above) %>
+        <% if @score.smd_purchasable? %>
+          <div class="mm-card p-3 sm:p-4 score-downloads-card">
+            <%= render "scores/smd_purchase", score: @score, variant: :sidebar %>
+          </div>
+        <% elsif @score.has_downloads? %>
           <div class="mm-card p-3 sm:p-4 score-downloads-card">
             <%= render "scores/download_actions", score: @score, variant: :sidebar %>
           </div>
         <% end %>
 
-        <%# 2. MIDI PLAYER %>
-        <% if @score.has_midi? %>
+        <%# 2. MIDI PLAYER (not available for SMD commercial scores) %>
+        <% if @score.has_midi? && !@score.smd? %>
           <%= render "scores/midi_player", score: @score %>
         <% end %>
 

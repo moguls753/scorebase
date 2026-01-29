@@ -222,6 +222,9 @@ class Score < ApplicationRecord
   # Sources
   SOURCES = %w[pdmx cpdl imslp openscore-lieder openscore-quartets smd].freeze
 
+  # SMD affiliate ID for commission tracking
+  SMD_AFFILIATE_ID = "67428".freeze
+
   # Active Storage attachments
   has_one_attached :pdf_file
 
@@ -527,6 +530,15 @@ class Score < ApplicationRecord
 
   def openscore?
     source&.start_with?("openscore")
+  end
+
+  def smd?
+    source == "smd"
+  end
+
+  # SMD score with valid external_id (can link to purchase)
+  def smd_purchasable?
+    smd? && external_id.present?
   end
 
   # Derived from has_vocal (set by LLM normalizer)

@@ -31,6 +31,7 @@ en:
     title: "ScoreBase — Sheet Music Search"
     description: "Search and discover thousands of music scores from all major archives."
     score_cta: "Free PDF sheet music."
+    score_cta_smd: "Digital sheet music available for purchase."
 
   # Index / Search Page
   search:
@@ -221,6 +222,13 @@ en:
     badge_ornaments: "Ornaments"
     badge_articulations: "Articulations"
     badge_fermatas: "Fermatas"
+    # SMD (commercial) scores
+    buy_on_smd: "Buy on Sheet Music Direct"
+    available_for_purchase: "Available for Purchase"
+    sale: "Sale"
+    pages: "%{count} pages"
+    rating_stars: "%{rating} stars"
+    reviews_count: "%{count} reviews"
 
   # About Page
   about:

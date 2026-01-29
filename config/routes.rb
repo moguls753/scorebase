@@ -1,6 +1,9 @@
 Rails.application.routes.draw do
   mount_avo
 
+  # SMD affiliate redirect with click tracking
+  get "/go/smd/:smd_id", to: "redirects#smd", as: :smd_redirect
+
   # Job queue dashboard (same auth as Avo admin)
   mount MissionControl::Jobs::Engine, at: "/jobs"
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html

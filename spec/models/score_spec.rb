@@ -71,4 +71,12 @@ RSpec.describe Score do
       expect(score.thumbnail).to eq('http://r2/cached.webp')
     end
   end
+
+  describe '#smd_purchasable?' do
+    it 'requires SMD source and external_id' do
+      expect(build(:score, :smd).smd_purchasable?).to be true
+      expect(build(:score, source: 'smd', external_id: nil).smd_purchasable?).to be false
+      expect(build(:score, :pdmx).smd_purchasable?).to be false
+    end
+  end
 end

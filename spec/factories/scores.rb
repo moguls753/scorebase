@@ -238,6 +238,18 @@ FactoryBot.define do
       external_id { "67890" }
     end
 
+    trait :smd do
+      source { "smd" }
+      external_id { "437132" }
+      price_usd { 7.19 }
+      preview_image_url { "https://img.sheetmusic.direct/catalogue/product/test.jpg" }
+    end
+
+    trait :smd_on_sale do
+      smd
+      original_price_usd { 8.99 }
+    end
+
     trait :with_pdf do
       pdf_path { "test.pdf" }
     end

@@ -291,6 +291,12 @@ a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
   border: var(--border-width) solid #9a3412;
 }
 
+.mm-badge-smd {
+  background: #0891b2;
+  color: #FFFFFF;
+  border: var(--border-width) solid #0e7490;
+}
+
 .mm-badge-tag {
   background: var(--color-bg-surface);
   border: var(--border-width) solid var(--color-border);

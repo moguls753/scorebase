@@ -36,6 +36,32 @@ module ScoresHelper
   end
 
   # ─────────────────────────────────────────────────────────────────
+  # SMD (Sheet Music Direct) Helpers
+  # ─────────────────────────────────────────────────────────────────
+
+  # Format USD price for display (only shown for English locale)
+  # German users see price on SMD in EUR after clicking through
+  def format_smd_price(score)
+    return nil if I18n.locale == :de
+    return nil if score.price_usd.blank? || score.price_usd.to_f <= 0
+    "$#{'%.2f' % score.price_usd}"
+  end
+
+  # Check if score has a sale price (original > current)
+  def smd_on_sale?(score)
+    score.original_price_usd.present? &&
+      score.price_usd.present? &&
+      score.original_price_usd > score.price_usd
+  end
+
+  # Format original price (crossed out) for sale display
+  def format_smd_original_price(score)
+    return nil if I18n.locale == :de
+    return nil unless smd_on_sale?(score)
+    "$#{'%.2f' % score.original_price_usd}"
+  end
+
+  # ─────────────────────────────────────────────────────────────────
   # SEO Meta Description for Score Pages
   # ─────────────────────────────────────────────────────────────────
 
@@ -63,8 +89,8 @@ module ScoresHelper
 
     parts << attrs.join(", ") if attrs.any?
 
-    # Value proposition
-    parts << t("meta.score_cta")
+    # Value proposition (different for commercial vs free)
+    parts << (score.smd? ? t("meta.score_cta_smd") : t("meta.score_cta"))
 
     # Join and truncate to 155 chars
     description = parts.join(" — ")

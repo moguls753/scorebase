@@ -37,7 +37,12 @@
       "Bash(source venv/bin/activate)",
       "Bash(python3:*)",
       "Bash(node -e:*)",
-      "WebFetch(domain:www.music21.org)"
+      "WebFetch(domain:www.music21.org)",
+      "Bash(gunzip:*)",
+      "WebFetch(domain:www.sheetmusicdirect.com)",
+      "WebFetch(domain:api.sheetmusicdirect.com)",
+      "Bash(shuf:*)",
+      "Bash(sort:*)"
     ]
   }
 }

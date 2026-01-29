@@ -1,0 +1,86 @@
+<%#
+  SMD purchase button and pricing for commercial scores
+  Neubrutalist design matching the site aesthetic
+
+  Usage:
+    render "scores/smd_purchase", score: @score, variant: :mobile
+
+  Variants:
+    :mobile  - Compact button for quick actions
+    :sidebar - Full button with price display
+%>
+<% score ||= @score %>
+<% variant ||= :sidebar %>
+<% return unless score.smd_purchasable? %>
+
+<% if variant == :mobile %>
+  <%# Mobile: Compact buy button %>
+  <% price = format_smd_price(score) %>
+  <div class="dl-row">
+    <%= link_to smd_redirect_path(smd_id: score.external_id),
+        class: "dl-btn dl-btn--smd-primary",
+        target: "_blank",
+        rel: "noopener noreferrer sponsored",
+        aria: { label: t('score.buy_on_smd') } do %>
+      <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 2l-8.5 8.5M14 2h-5M14 2v5"/>
+      </svg>
+      <span class="dl-label">
+        <%= t('score.buy_on_smd') %><%= " · #{price}" if price %>
+      </span>
+    <% end %>
+  </div>
+
+<% else %>
+  <%# Sidebar: Full button with price and sale display %>
+  <% price = format_smd_price(score) %>
+  <div class="smd-purchase-stack">
+    <%# Price display (English only) %>
+    <% if price %>
+      <div class="smd-price-block">
+        <% if smd_on_sale?(score) %>
+          <span class="smd-price-original"><%= format_smd_original_price(score) %></span>
+          <span class="smd-price-current smd-price-current--sale"><%= price %></span>
+          <span class="smd-sale-tag"><%= t('score.sale') %></span>
+        <% else %>
+          <span class="smd-price-current"><%= price %></span>
+        <% end %>
+      </div>
+    <% end %>
+
+    <%# Buy button %>
+    <%= link_to smd_redirect_path(smd_id: score.external_id),
+        class: "smd-buy-btn",
+        target: "_blank",
+        rel: "noopener noreferrer sponsored",
+        aria: { label: t('score.buy_on_smd') } do %>
+      <span class="smd-buy-btn__label"><%= t('score.buy_on_smd') %></span>
+      <svg class="smd-buy-btn__icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 12L12 4M12 4H6M12 4v6"/>
+      </svg>
+    <% end %>
+
+    <%# Metadata row: pages, rating %>
+    <% if score.page_count.to_i.positive? || score.rating.to_f.positive? %>
+      <div class="smd-meta-row">
+        <% if score.page_count.to_i.positive? %>
+          <span class="smd-meta-item">
+            <svg class="smd-meta-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 2h8a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1zM6 5h4M6 8h4M6 11h2"/>
+            </svg>
+            <%= t('score.pages', count: score.page_count) %>
+          </span>
+        <% end %>
+        <% if score.rating.to_f.positive? %>
+          <span class="smd-meta-item smd-meta-item--rating">
+            <span class="smd-star">★</span>
+            <span class="smd-rating-value"><%= '%.1f' % score.rating %></span>
+            <% if score.review_count.to_i.positive? %>
+              <span class="smd-review-count">(<%= score.review_count %>)</span>
+            <% end %>
+          </span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>
