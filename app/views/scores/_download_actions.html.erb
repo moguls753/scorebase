@@ -18,17 +18,13 @@
   <%# Mobile: Compact single-row layout %>
   <div class="dl-row">
     <% if score.smd_purchasable? %>
-      <%# SMD: Single buy button %>
-      <% price = format_smd_price(score) %>
+      <%# SMD: Single buy button (teal to distinguish from free downloads) %>
       <%= link_to smd_redirect_path(smd_id: score.external_id),
-          class: "dl-btn dl-btn--primary",
+          class: "dl-btn dl-btn--primary dl-btn--buy",
           target: "_blank",
           rel: "noopener noreferrer sponsored",
-          aria: { label: t('score.buy_on_smd') } do %>
-        <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 2l-8.5 8.5M14 2h-5M14 2v5"/>
-        </svg>
-        <span class="dl-label"><%= price ? "#{price} ·" : "" %> <%= t('score.buy_short') %></span>
+          aria: { label: t('score.buy_at_smd') } do %>
+        <span class="dl-label"><%= t('score.buy_at_smd') %></span>
       <% end %>
     <% else %>
       <%# Free: Download buttons %>
@@ -69,18 +65,15 @@
   <%# Sidebar: Full labels, stacked vertically %>
   <div class="dl-stack">
     <% if score.smd_purchasable? %>
-      <%# SMD: Single buy button with price %>
-      <% price = format_smd_price(score) %>
+      <%# SMD: Buy button with helper text (teal to distinguish from free downloads) %>
       <%= link_to smd_redirect_path(smd_id: score.external_id),
-          class: "dl-btn dl-btn--primary dl-btn--full",
+          class: "dl-btn dl-btn--primary dl-btn--buy dl-btn--full",
           target: "_blank",
           rel: "noopener noreferrer sponsored",
-          aria: { label: t('score.buy_on_smd') } do %>
-        <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 2l-8.5 8.5M14 2h-5M14 2v5"/>
-        </svg>
-        <span class="dl-label"><%= price ? "#{price} · " : "" %><%= t('score.buy_on_smd') %></span>
+          aria: { label: t('score.buy_at_smd') } do %>
+        <span class="dl-label"><%= t('score.buy_at_smd') %></span>
       <% end %>
+      <p class="dl-hint"><%= t('score.smd_hint') %></p>
     <% else %>
       <%# Free: Download buttons %>
       <% if score.has_pdf? %>

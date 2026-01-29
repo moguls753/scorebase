@@ -223,8 +223,8 @@ en:
     badge_articulations: "Articulations"
     badge_fermatas: "Fermatas"
     # SMD (commercial) scores
-    buy_on_smd: "Buy on Sheet Music Direct"
-    buy_short: "Buy"
+    buy_at_smd: "Buy at SMD"
+    smd_hint: "Professional arrangement from Sheet Music Direct"
     brand: "Publisher"
     arrangement: "Arrangement"
 

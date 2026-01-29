@@ -462,6 +462,41 @@
   outline-offset: 2px;
 }
 
+/* Helper text under buttons (e.g., SMD explanation) */
+.dl-hint {
+  margin-top: 10px;
+  font-size: 11px;
+  font-weight: 500;
+  font-style: italic;
+  line-height: 1.4;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* Commercial/external buy button - teal to distinguish from free downloads */
+.dl-btn--buy {
+  background: #0d9488;
+  border-color: #0f766e;
+  box-shadow: 3px 3px 0 var(--color-bg-deep);
+}
+
+.dl-btn--buy:hover {
+  background: #14b8a6;
+  border-color: #0d9488;
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--color-bg-deep);
+}
+
+.dl-btn--buy:active {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--color-bg-deep);
+}
+
+.dl-btn--buy:focus-visible {
+  outline: 2px solid #14b8a6;
+  outline-offset: 2px;
+}
+
 /* Touch feedback */
 @media (hover: none) and (pointer: coarse) {
   .dl-btn--primary:active {
