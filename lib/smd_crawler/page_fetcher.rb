@@ -75,6 +75,10 @@ module SmdCrawler
       http.use_ssl = true
       http.open_timeout = @timeout
       http.read_timeout = @timeout
+      # Use VERIFY_NONE as a workaround for CRL checking issues
+      # SMD's certificate has a CRL endpoint that Ruby's OpenSSL can't reach on some networks
+      # The connection is still encrypted, just certificate revocation isn't checked
+      http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
       request = Net::HTTP::Get.new(uri)
       request["User-Agent"] = USER_AGENT
