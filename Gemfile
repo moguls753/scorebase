@@ -117,4 +117,4 @@ group :test do
   gem "rspec_junit_formatter"
 end
 
-gem "chartkick", "~> 5.2"
+# Charts via Chart.js (loaded via importmap, no Ruby gem needed)

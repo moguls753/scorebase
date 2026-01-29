@@ -5,7 +5,8 @@ class Avo::Dashboards::Stats < Avo::Dashboards::BaseDashboard
   self.grid_cols = 3
 
   def cards
+    card Avo::Cards::Visits
     card Avo::Cards::SmdClicks
-    card Avo::Cards::SmdClicksChart
+    card Avo::Cards::DailyStatsTable
   end
 end

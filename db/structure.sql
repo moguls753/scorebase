@@ -13,8 +13,6 @@ FOREIGN KEY ("blob_id")
   REFERENCES "active_storage_blobs" ("id")
 );
 CREATE UNIQUE INDEX "index_active_storage_variant_records_uniqueness" ON "active_storage_variant_records" ("blob_id", "variation_digest") /*application='Scorebase'*/;
-CREATE TABLE IF NOT EXISTS "daily_stats" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date, "visits" integer DEFAULT 0, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "smd_clicks" integer DEFAULT 0 /*application='Scorebase'*/);
-CREATE UNIQUE INDEX "index_daily_stats_on_date" ON "daily_stats" ("date");
 CREATE TABLE IF NOT EXISTS "composer_mappings" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "original_name" varchar NOT NULL, "normalized_name" varchar, "source" varchar, "verified" boolean DEFAULT FALSE NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
 CREATE UNIQUE INDEX "index_composer_mappings_on_original_name" ON "composer_mappings" ("original_name");
 CREATE INDEX "index_composer_mappings_on_normalized_name" ON "composer_mappings" ("normalized_name");
@@ -173,7 +171,11 @@ CREATE TRIGGER scores_search_fts_au AFTER UPDATE ON scores
 CREATE INDEX "index_scores_on_brand" ON "scores" ("brand") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_is_arrangeme" ON "scores" ("is_arrangeme") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_price_usd" ON "scores" ("price_usd") /*application='Scorebase'*/;
+CREATE TABLE IF NOT EXISTS "daily_stats" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date, "visits" integer DEFAULT 0, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "smd_clicks_by_score" json DEFAULT '{}');
+CREATE UNIQUE INDEX "index_daily_stats_on_date" ON "daily_stats" ("date") /*application='Scorebase'*/;
 INSERT INTO "schema_migrations" (version) VALUES
+('20260129142312'),
+('20260129140215'),
 ('20260129111339'),
 ('20260128191452'),
 ('20260121085101'),

@@ -2,12 +2,12 @@
 #
 # Table name: daily_stats
 #
-#  id         :integer          not null, primary key
-#  date       :date
-#  smd_clicks :integer          default(0)
-#  visits     :integer          default(0)
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
+#  id                  :integer          not null, primary key
+#  date                :date
+#  smd_clicks_by_score :json
+#  visits              :integer          default(0)
+#  created_at          :datetime         not null
+#  updated_at          :datetime         not null
 #
 # Indexes
 #
@@ -17,7 +17,7 @@ FactoryBot.define do
   factory :daily_stat do
     date { Date.current }
     visits { rand(100..10000) }
-    smd_clicks { rand(0..50) }
+    smd_clicks_by_score { {} }
 
     trait :yesterday do
       date { Date.yesterday }
@@ -25,6 +25,10 @@ FactoryBot.define do
 
     trait :last_week do
       date { 1.week.ago.to_date }
+    end
+
+    trait :with_smd_clicks do
+      smd_clicks_by_score { { "1" => 5, "2" => 3 } }
     end
   end
 end

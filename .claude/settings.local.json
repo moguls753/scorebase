@@ -42,7 +42,8 @@
       "WebFetch(domain:www.sheetmusicdirect.com)",
       "WebFetch(domain:api.sheetmusicdirect.com)",
       "Bash(shuf:*)",
-      "Bash(sort:*)"
+      "Bash(sort:*)",
+      "Bash(gem search:*)"
     ]
   }
 }
