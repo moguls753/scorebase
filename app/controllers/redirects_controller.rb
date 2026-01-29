@@ -9,8 +9,8 @@ class RedirectsController < ApplicationController
       return
     end
 
-    # Log the click for analytics
-    Rails.logger.info "[SMD Click] id=#{smd_id} ip=#{request.remote_ip} referer=#{request.referer}"
+    # Track the click
+    DailyStat.track_smd_click!
 
     # 302 (not 301) - temporary redirect so we can change affiliate ID or tracking later
     redirect_to smd_product_url(smd_id), allow_other_host: true

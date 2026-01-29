@@ -4,6 +4,7 @@
 #
 #  id         :integer          not null, primary key
 #  date       :date
+#  smd_clicks :integer          default(0)
 #  visits     :integer          default(0)
 #  created_at :datetime         not null
 #  updated_at :datetime         not null
@@ -16,7 +17,7 @@ FactoryBot.define do
   factory :daily_stat do
     date { Date.current }
     visits { rand(100..10000) }
-    unique_visitors { rand(50..5000) }
+    smd_clicks { rand(0..50) }
 
     trait :yesterday do
       date { Date.yesterday }

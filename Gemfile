@@ -116,3 +116,5 @@ group :test do
   # JUnit XML formatter for CI
   gem "rspec_junit_formatter"
 end
+
+gem "chartkick", "~> 5.2"
