@@ -10,7 +10,7 @@
           </div>
           <div class="bg-teal-50 rounded-lg p-4">
             <div class="text-2xl font-bold text-teal-600"><%= number_with_delimiter(@clicks_30d) %></div>
-            <div class="text-sm text-gray-500">SMD Clicks</div>
+            <div class="text-sm text-gray-500">Buy Clicks</div>
           </div>
         </div>
       </div>
@@ -23,7 +23,7 @@
       <div class="px-6 py-4">
         <%= line_chart [
           { name: "Visits", data: @stats.map { |s| [s.date, s.visits] } },
-          { name: "SMD Clicks", data: @stats.map { |s| [s.date, s.total_smd_clicks] } }
+          { name: "Buy Clicks", data: @stats.map { |s| [s.date, s.total_smd_clicks] } }
         ],
         colors: ["#ea580c", "#0d9488"],
         library: {
@@ -45,8 +45,8 @@
               <tr class="border-b border-gray-200">
                 <th class="py-2 text-left text-gray-600">Date</th>
                 <th class="py-2 text-right text-gray-600">Visits</th>
-                <th class="py-2 text-right text-gray-600">SMD Clicks</th>
-                <th class="py-2 text-right text-gray-600">Scores Clicked</th>
+                <th class="py-2 text-right text-gray-600">Buy Clicks</th>
+                <th class="py-2 text-right text-gray-600">Unique Buy Clicks</th>
               </tr>
             </thead>
             <tbody>
