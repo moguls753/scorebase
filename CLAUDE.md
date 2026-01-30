@@ -4,10 +4,10 @@ Open source sheet music search engine. Deploys to scorebase.org.
 
 ## What Is This?
 
-Sheet music search engine (100k+ scores) with AI-powered smart search.
+Sheet music search engine with AI-powered smart search. One search across free public domain scores (100k+) and commercial catalogs (1M+ via Sheet Music Direct).
 
-- **Free:** Browse, search, discover (+ 5 free Smart Searches)
-- **Pro (€2/mo):** Smart Search, favorites, collections
+- **Free:** Browse, search, download free PDFs or purchase commercial arrangements
+- **Pro (€2/mo):** Unlimited Smart Search, favorites, collections
 
 ## Tech Stack
 

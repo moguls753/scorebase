@@ -42,8 +42,23 @@ class ApplicationController < ActionController::Base
   end
 
   def bot?
-    user_agent = request.user_agent.to_s.downcase
-    user_agent.match?(/bot|crawl|spider|slurp|bingpreview|facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|curl|wget|python|ruby|java|php|go-http|axios|postman/i)
+    user_agent = request.user_agent.to_s
+
+    # Empty or suspiciously short user agents are often bots
+    return true if user_agent.blank? || user_agent.length < 20
+
+    user_agent.match?(/
+      bot|crawl|spider|slurp|
+      googlebot|bingpreview|yandex|baidu|duckduck|applebot|
+      facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|pinterest|
+      gptbot|claudebot|claude-web|anthropic|bytespider|ccbot|
+      ahrefsbot|semrush|mj12bot|dotbot|petalbot|dataforseo|
+      headlesschrome|phantomjs|puppeteer|playwright|selenium|
+      curl|wget|python-requests|python-urllib|httpx|aiohttp|
+      ruby|java|php|go-http|axios|postman|insomnia|
+      pingdom|uptimerobot|monitoring|site24x7|newrelic|datadog|
+      screaming|sitebulb|screamingfrog
+    /ix)
   end
 
   def prefetch?

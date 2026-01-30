@@ -9,9 +9,11 @@ class RedirectsController < ApplicationController
       return
     end
 
-    # Track the click
-    score = Score.find_by(external_id: smd_id, source: "smd")
-    DailyStat.track_smd_click!(score_id: score.id) if score
+    # Track the click (skip bots and prefetch)
+    unless bot? || prefetch?
+      score = Score.find_by(external_id: smd_id, source: "smd")
+      DailyStat.track_smd_click!(score_id: score.id) if score
+    end
 
     # 302 (not 301) - temporary redirect so we can change affiliate ID or tracking later
     redirect_to smd_product_url(smd_id), allow_other_host: true
