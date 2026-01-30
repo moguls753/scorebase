@@ -492,8 +492,8 @@ button, input, select {
 }
 
 /* ========================================
-   SCORE CARD PRICE BADGES - Thumbnail Corner
-   Subtle, tactile labels for Free vs Commercial
+   SCORE CARD BADGES - Thumbnail Corner
+   Minimal, equal-weight indicators: "Free" vs "$"
    ======================================== */
 
 .score-card-badge {
@@ -510,27 +510,15 @@ button, input, select {
   line-height: 1;
   z-index: 5;
   box-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
-}
-
-/* Free badge - muted, earthy, unobtrusive */
-.score-card-badge--free {
   background: var(--color-bg-surface);
   color: var(--color-text-muted);
   border: 1px solid var(--color-border);
 }
 
-/* Price badge - SMD teal, slightly more prominent */
-.score-card-badge--price {
-  background: #0d7377;
-  color: #e8f4f4;
-  border: 1px solid #0a5c5f;
-}
-
-/* Sale price badge - accent color for attention */
-.score-card-badge--sale {
-  background: var(--color-accent);
-  color: #ffffff;
-  border: 1px solid var(--color-accent-muted);
+/* Both badges same style - equal visual weight */
+.score-card-badge--free,
+.score-card-badge--commercial {
+  /* Inherits base styles - intentionally identical */
 }
 
 @media (max-width: 640px) {

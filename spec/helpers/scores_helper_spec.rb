@@ -48,18 +48,18 @@ RSpec.describe ScoresHelper, type: :helper do
       expect(result[:text]).to eq("Free")
     end
 
-    it 'returns price badge for SMD scores' do
+    it 'returns commercial badge with $ for SMD scores' do
       score = build(:score, :smd)
       result = helper.score_card_badge(score)
-      expect(result[:type]).to eq(:price)
-      expect(result[:text]).to eq("$7.19")
+      expect(result[:type]).to eq(:commercial)
+      expect(result[:text]).to eq("$")
     end
 
-    it 'returns sale badge for SMD scores on sale' do
+    it 'returns commercial badge for SMD scores on sale (no special treatment)' do
       score = build(:score, :smd_on_sale)
       result = helper.score_card_badge(score)
-      expect(result[:type]).to eq(:sale)
-      expect(result[:text]).to eq("$7.19")
+      expect(result[:type]).to eq(:commercial)
+      expect(result[:text]).to eq("$")
     end
 
     it 'returns free badge for SMD scores with zero price' do

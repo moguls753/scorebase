@@ -837,6 +837,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  width: fit-content;
   min-width: 18px;
   height: 18px;
   padding: 0 4px;

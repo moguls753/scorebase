@@ -67,13 +67,11 @@ module ScoresHelper
   end
 
   # Badge data for score card thumbnails
-  # Returns { type: :free/:price/:sale, text: "Free"/"$7.99" }
+  # Returns { type: :free/:commercial, text: "Free"/"$" }
+  # Intentionally minimal - price details belong on the score page
   def score_card_badge(score)
-    price = format_smd_price(score)
-
-    if price
-      type = smd_on_sale?(score) ? :sale : :price
-      { type: type, text: price }
+    if format_smd_price(score)
+      { type: :commercial, text: "$" }
     else
       { type: :free, text: t("scores.badge_free") }
     end

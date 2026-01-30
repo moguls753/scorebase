@@ -58,6 +58,10 @@ SitemapGenerator::Sitemap.create do
   add periods_path, changefreq: "weekly", priority: 0.9
   add periods_path(locale: :de), changefreq: "weekly", priority: 0.9
 
+  # Artists index (SMD modern artists)
+  add artists_path, changefreq: "weekly", priority: 0.9
+  add artists_path(locale: :de), changefreq: "weekly", priority: 0.9
+
   # ===========================================
   # INDIVIDUAL HUB PAGES (from HubDataBuilder)
   # ===========================================
@@ -67,6 +71,13 @@ SitemapGenerator::Sitemap.create do
   composers.each do |item|
     add composer_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
     add composer_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
+  end
+
+  # Artist pages (SMD modern artists - Taylor Swift, Hans Zimmer, etc.)
+  artists = HubDataBuilder.artists
+  artists.each do |item|
+    add artist_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
+    add artist_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
   end
 
   # Genre pages (only normalized scores, via by_genre scope)
