@@ -44,6 +44,8 @@ Rails.application.routes.draw do
     # Single dimension
     get "composers", to: "hub_pages#composers_index", as: :composers
     get "composers/:slug", to: "hub_pages#composer", as: :composer
+    get "artists", to: "hub_pages#artists_index", as: :artists
+    get "artists/:slug", to: "hub_pages#artist", as: :artist
     get "genres", to: "hub_pages#genres_index", as: :genres
     get "genres/:slug", to: "hub_pages#genre", as: :genre
     get "instruments", to: "hub_pages#instruments_index", as: :instruments

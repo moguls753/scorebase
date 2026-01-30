@@ -21,6 +21,8 @@ module SmdCrawler
 
       genres = js_vars["genres_list"] || []
       instruments_arr = json_ld.dig("additionalProperty", "value") || []
+      tags = genres.join("-")
+      first_contributor = decode_html(js_vars["artists_contributors_list"]&.first)
 
       {
         # Core identifiers (smd_id → external_id in Score)
@@ -28,14 +30,17 @@ module SmdCrawler
         title: decode_html(json_ld["name"]),
         clean_title: decode_html(js_vars["title"]),
 
-        # Artist/contributors (artist → composer in Score)
-        composer: decode_html(js_vars["artists_contributors_list"]&.first),
+        # Artist/contributors
+        # Klassik-tagged scores are classical → no artist (composer only)
+        # Non-Klassik scores are modern → artist = performer/brand name
+        composer: first_contributor,
+        artist: klassik_tagged?(tags) ? nil : first_contributor,
         contributors: js_vars["artists_contributors_list"]&.map { |c| decode_html(c) }&.uniq,
 
         # Classification
         instruments: instruments_arr.join(", "),
         main_instrument: js_vars["main_instrument"],
-        tags: genres.join("-"),  # SMD genres → tags (hyphen-delimited)
+        tags: tags,  # SMD genres → tags (hyphen-delimited)
         smd_category: js_vars["category_level_2"],
         arrangement_category: js_vars["arrangementCategory"],
         difficulty: map_difficulty(js_vars["category_level_2"]),
@@ -143,6 +148,13 @@ module SmdCrawler
       end
 
       nil
+    end
+
+    # Classical music detection via SMD's Klassik genre tag
+    # Klassik-tagged scores don't get artist field (use composer hub pages instead)
+    def klassik_tagged?(tags)
+      return false if tags.nil?
+      tags.include?("Klassik")
     end
 
     # Decode escaped strings from JS/JSON sources

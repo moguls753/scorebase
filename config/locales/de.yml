@@ -26,6 +26,10 @@ de:
     prev: "← Zurück"
     next: "Weiter →"
 
+  # Score Card Badges
+  scores:
+    badge_free: "Gratis"
+
   # Meta
   meta:
     title: "ScoreBase — Notensuche"
@@ -43,6 +47,7 @@ de:
     browse: "Stöbern"
     or_explore: "oder stöbern"
     browse_composers: "Komponisten"
+    browse_artists: "Künstler"
     browse_genres: "Genres"
     browse_instruments: "Instrumente"
     browse_periods: "Epochen"
@@ -60,6 +65,7 @@ de:
     all_periods: "Alle Epochen"
     all_genres: "Alle Genres"
     any_length: "Jede Länge"
+    any_pricing: "Alle Preise"
     any_size: "Jede Besetzung"
     all_voice_types: "Alle Stimmlagen"
     all_languages: "Alle Sprachen"
@@ -75,6 +81,11 @@ de:
     short: "Kurz (1-2 Seiten)"
     medium: "Mittel (3-6 Seiten)"
     long: "Lang (7+ Seiten)"
+
+  # Pricing options
+  pricing:
+    free: "Nur kostenlose"
+    commercial: "Nur kommerzielle"
 
   # Instruments for filter dropdown
   instruments:
@@ -286,6 +297,9 @@ de:
     # Index pages
     composers_title: "Komponisten — Noten"
     composers_description: "Durchsuche %{count} Komponisten mit Noten zum Download."
+    artists_title: "Künstler — Noten"
+    artists_description: "Durchsuche %{count} Künstler mit Notenarrangements."
+    artists: "Künstler"
     genres_title: "Musikgenres — Noten"
     genres_description: "Durchsuche %{count} Genres mit Noten zum Download."
     instruments_title: "Instrumente — Noten"
@@ -297,6 +311,8 @@ de:
     # Single dimension pages
     composer_page_title: "%{name} — Noten"
     composer_page_description: "Entdecke %{count} Noten von %{name}. Kostenlos herunterladen und drucken."
+    artist_page_title: "%{name} — Notenarrangements"
+    artist_page_description: "Entdecke %{count} Notenarrangements von %{name}. Professionelle Arrangements zum Kauf."
     genre_page_title: "%{name} Noten — Download"
     genre_page_description: "Entdecke %{count} %{name}-Noten. Kostenlos herunterladen und drucken."
     instrument_page_title: "%{name} Noten — Download"
@@ -348,6 +364,7 @@ de:
     filter_genre: "Genre"
     filter_period: "Epoche"
     search_composer_scores: "In %{name}s Noten suchen..."
+    search_artist_scores: "In %{name} Arrangements suchen..."
     search_genre_scores: "In %{name}-Noten suchen..."
     search_instrument_scores: "In %{name}-Noten suchen..."
     filter_composer: "Komponist"
@@ -359,6 +376,7 @@ de:
     no_scores_hint: "Versuche andere Filter oder Suchbegriffe"
     view_all_by: "Alle von %{name} anzeigen"
     search_composers: "Komponist suchen..."
+    search_artists: "Künstler suchen..."
     search_instruments: "Instrument suchen..."
     search_genres: "Genre suchen..."
     clear_search: "Suche löschen"
@@ -367,6 +385,10 @@ de:
     composers_found: "Komponisten gefunden"
     no_composers_found: "Keine Komponisten gefunden"
     no_composers_matching: "Keine Komponisten für"
+    artist_found: "Künstler gefunden"
+    artists_found: "Künstler gefunden"
+    no_artists_found: "Keine Künstler gefunden"
+    no_artists_matching: "Keine Künstler für"
     instrument_found: "Instrument gefunden"
     instruments_found: "Instrumente gefunden"
     no_instruments_found: "Keine Instrumente gefunden"
@@ -376,6 +398,7 @@ de:
     no_genres_found: "Keine Genres gefunden"
     no_genres_matching: "Keine Genres für"
     try_different_spelling: "Versuche eine andere Schreibweise oder durchsuche alphabetisch"
+    commercial: "Kommerziell"
 
     # Genre-Übersetzungen (aus genre_vocabulary.yml)
     genre_names:

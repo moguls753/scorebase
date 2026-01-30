@@ -105,6 +105,10 @@ class HubDataBuilder
       fetch_or_build("hub/composers") { build_composers }
     end
 
+    def artists
+      fetch_or_build("hub/artists") { build_artists }
+    end
+
     def genres
       fetch_or_build("hub/genres") { build_genres }
     end
@@ -123,6 +127,7 @@ class HubDataBuilder
 
       {
         composers: build_composers,
+        artists: build_artists,
         genres: build_genres,
         instruments: build_instruments,
         periods: build_periods
@@ -213,6 +218,7 @@ class HubDataBuilder
     def current_count(type, name)
       case type
       when :composers then Score.active.where(composer: name).count
+      when :artists then Score.active.where(artist: name).count
       when :genres then Score.active.by_genre(name).count
       when :instruments then Score.active.by_instrument(name).count
       when :periods then Score.active.by_period(name).count
@@ -229,6 +235,16 @@ class HubDataBuilder
       composer_counts = Score.active.where(composer: valid_composers).group(:composer).count
 
       build_hub_items(composer_counts)
+    end
+
+    def build_artists
+      # Artists are SMD non-classical scores with artist field populated
+      artist_counts = Score.active
+                           .where.not(artist: [nil, ""])
+                           .group(:artist)
+                           .count
+
+      build_hub_items(artist_counts)
     end
 
     def build_genres

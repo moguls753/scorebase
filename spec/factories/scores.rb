@@ -7,6 +7,7 @@
 #  ambitus_semitones          :integer
 #  arpeggio_mark_count        :integer
 #  arrangement_category       :string
+#  artist                     :string
 #  avg_chord_span             :float
 #  beat_count                 :integer
 #  brand                      :string
@@ -168,6 +169,7 @@
 #
 #  index_scores_active_by_created_at             (created_at) WHERE deleted_at IS NULL
 #  index_scores_on_ambitus_semitones             (ambitus_semitones)
+#  index_scores_on_artist                        (artist)
 #  index_scores_on_brand                         (brand)
 #  index_scores_on_chromatic_ratio               (chromatic_ratio)
 #  index_scores_on_complexity                    (complexity)
@@ -241,8 +243,19 @@ FactoryBot.define do
 
     trait :smd do
       source { "smd" }
-      external_id { "437132" }
+      sequence(:external_id) { |n| "smd_#{n}" }
       price_usd { 7.19 }
+      artist { "Taylor Swift" }
+      preview_image_url { "https://img.sheetmusic.direct/catalogue/product/test.jpg" }
+    end
+
+    trait :smd_klassik do
+      source { "smd" }
+      sequence(:external_id) { |n| "smd_klassik_#{n}" }
+      price_usd { 5.99 }
+      artist { nil }
+      tags { "Klassik" }
+      composer { "Johann Sebastian Bach" }
       preview_image_url { "https://img.sheetmusic.direct/catalogue/product/test.jpg" }
     end
 

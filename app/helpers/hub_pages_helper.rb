@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module HubPagesHelper
-  # Filter parameters for composer page
+  # Filter parameters for composer/artist pages (same filters)
   COMPOSER_FILTER_PARAMS = %i[instrument genre].freeze
 
   # Filter parameters for genre page
@@ -19,6 +19,10 @@ module HubPagesHelper
   def composer_filter_hidden_fields(form)
     safe_join(COMPOSER_FILTER_PARAMS.map { |param| form.hidden_field(param, value: params[param]) })
   end
+
+  # Artist uses same filters as composer
+  alias_method :artist_active_filters_count, :composer_active_filters_count
+  alias_method :artist_filter_hidden_fields, :composer_filter_hidden_fields
 
   # Count active filters for genre page
   def genre_active_filters_count

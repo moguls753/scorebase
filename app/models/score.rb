@@ -7,6 +7,7 @@
 #  ambitus_semitones          :integer
 #  arpeggio_mark_count        :integer
 #  arrangement_category       :string
+#  artist                     :string
 #  avg_chord_span             :float
 #  beat_count                 :integer
 #  brand                      :string
@@ -168,6 +169,7 @@
 #
 #  index_scores_active_by_created_at             (created_at) WHERE deleted_at IS NULL
 #  index_scores_on_ambitus_semitones             (ambitus_semitones)
+#  index_scores_on_artist                        (artist)
 #  index_scores_on_brand                         (brand)
 #  index_scores_on_chromatic_ratio               (chromatic_ratio)
 #  index_scores_on_complexity                    (complexity)
@@ -391,6 +393,18 @@ class Score < ApplicationRecord
     escaped = escape_fts5_query(instrument_name.downcase)
     where("id IN (SELECT rowid FROM scores_instruments_fts WHERE instruments MATCH ?)",
           "\"#{escaped}\"")
+  }
+
+  # Pricing filter: free (public domain) vs commercial (SMD with price)
+  scope :by_pricing, ->(pricing) {
+    case pricing
+    when "free"
+      where("source != 'smd' OR price_usd IS NULL OR price_usd <= 0")
+    when "commercial"
+      where(source: "smd").where("price_usd > 0")
+    else
+      all
+    end
   }
 
   # Christmas filter for seasonal landing pages

@@ -38,6 +38,41 @@ RSpec.describe "HubPages" do
     end
   end
 
+  describe "GET /artists" do
+    it "returns success" do
+      get artists_path
+      expect(response).to have_http_status(:success)
+    end
+
+    it "lists artists from SMD scores" do
+      12.times { create(:score, :smd, artist: "Taylor Swift") }
+
+      get artists_path
+      expect(response.body).to include("Taylor Swift")
+    end
+
+    it "excludes Klassik-tagged SMD scores (no artist)" do
+      12.times { create(:score, :smd_klassik) }
+
+      get artists_path
+      expect(response.body).not_to include("Johann Sebastian Bach")
+    end
+  end
+
+  describe "GET /artists/:slug" do
+    it "returns success for artist with enough scores" do
+      12.times { create(:score, :smd, artist: "Taylor Swift") }
+
+      get artist_path(slug: "taylor-swift")
+      expect(response).to have_http_status(:success)
+    end
+
+    it "returns 404 for unknown artist" do
+      get artist_path(slug: "nonexistent")
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
   describe "GET /instruments" do
     it "returns success" do
       get instruments_path

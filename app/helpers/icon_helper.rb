@@ -5,6 +5,7 @@
 module IconHelper
   NAVIGATION_ICONS = {
     composers: "user",
+    artists: "mic",
     genres: "music",
     instruments: "guitar",
     periods: "hourglass"

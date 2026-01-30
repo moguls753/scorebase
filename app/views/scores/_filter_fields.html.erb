@@ -101,6 +101,17 @@
       { class: "filter-select", data: { action: submit_action } }
   %>
 
+  <%# Pricing - free or commercial? %>
+  <%= f.select :pricing,
+      options_for_select([
+        [t('filters.any_pricing'), ''],
+        [t('pricing.free'), 'free'],
+        [t('pricing.commercial'), 'commercial']
+      ], params[:pricing]),
+      {},
+      { class: "filter-select", data: { action: submit_action } }
+  %>
+
   <%# Vocal-specific filters - appear when Voice/Choir selected %>
   <div class="filter-vocal-section <%= 'is-visible' if is_vocal %>"
        data-instrument-context-target="vocalFilters"

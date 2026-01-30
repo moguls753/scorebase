@@ -1,8 +1,8 @@
 module ScoresHelper
   # All filter parameters (used for hidden fields to preserve state)
-  # Core filters: instrument, difficulty, period, genre, length, voicing (parts)
+  # Core filters: instrument, difficulty, period, genre, length, voicing (parts), pricing
   # Contextual filters: voice_type, language (shown when vocal instrument selected)
-  FILTER_PARAMS = %i[instrument difficulty period genre length voicing voice_type language].freeze
+  FILTER_PARAMS = %i[instrument difficulty period genre length voicing voice_type language pricing].freeze
 
   # Count active filters from params
   def active_filters_count
@@ -63,6 +63,19 @@ module ScoresHelper
       { current: current, original: "$#{'%.2f' % score.original_price_usd}" }
     else
       { current: current }
+    end
+  end
+
+  # Badge data for score card thumbnails
+  # Returns { type: :free/:price/:sale, text: "Free"/"$7.99" }
+  def score_card_badge(score)
+    price = format_smd_price(score)
+
+    if price
+      type = smd_on_sale?(score) ? :sale : :price
+      { type: type, text: price }
+    else
+      { type: :free, text: t("scores.badge_free") }
     end
   end
 

@@ -26,6 +26,10 @@ en:
     prev: "← Prev"
     next: "Next →"
 
+  # Score Card Badges
+  scores:
+    badge_free: "Free"
+
   # Meta
   meta:
     title: "ScoreBase — Sheet Music Search"
@@ -43,6 +47,7 @@ en:
     browse: "Browse"
     or_explore: "or explore"
     browse_composers: "Composers"
+    browse_artists: "Artists"
     browse_genres: "Genres"
     browse_instruments: "Instruments"
     browse_periods: "Periods"
@@ -60,6 +65,7 @@ en:
     all_periods: "All periods"
     all_genres: "All genres"
     any_length: "Any length"
+    any_pricing: "Any pricing"
     any_size: "Any size"
     all_voice_types: "All voice types"
     all_languages: "All languages"
@@ -75,6 +81,11 @@ en:
     short: "Short (1-2 pages)"
     medium: "Medium (3-6 pages)"
     long: "Long (7+ pages)"
+
+  # Pricing options
+  pricing:
+    free: "Free only"
+    commercial: "Commercial only"
 
   # Instruments for filter dropdown
   instruments:
@@ -286,6 +297,9 @@ en:
     # Index pages
     composers_title: "Composers — Sheet Music"
     composers_description: "Browse %{count} composers with sheet music downloads."
+    artists_title: "Artists — Sheet Music"
+    artists_description: "Browse %{count} artists with sheet music arrangements."
+    artists: "Artists"
     genres_title: "Music Genres — Sheet Music"
     genres_description: "Browse %{count} genres with sheet music downloads."
     instruments_title: "Instruments — Sheet Music"
@@ -297,6 +311,8 @@ en:
     # Single dimension pages
     composer_page_title: "%{name} — Sheet Music"
     composer_page_description: "Browse %{count} sheet music scores by %{name}. Free to download and print."
+    artist_page_title: "%{name} — Sheet Music Arrangements"
+    artist_page_description: "Browse %{count} sheet music arrangements by %{name}. Professional arrangements available for purchase."
     genre_page_title: "%{name} Sheet Music — Downloads"
     genre_page_description: "Browse %{count} %{name} sheet music scores. Free to download and print."
     instrument_page_title: "%{name} Sheet Music — Downloads"
@@ -348,6 +364,7 @@ en:
     filter_genre: "Genre"
     filter_period: "Period"
     search_composer_scores: "Search %{name}'s scores..."
+    search_artist_scores: "Search %{name} arrangements..."
     search_genre_scores: "Search %{name} scores..."
     search_instrument_scores: "Search %{name} scores..."
     filter_composer: "Composer"
@@ -359,6 +376,7 @@ en:
     no_scores_hint: "Try adjusting your filters or search terms"
     view_all_by: "View all by %{name}"
     search_composers: "Find a composer..."
+    search_artists: "Find an artist..."
     search_instruments: "Find an instrument..."
     search_genres: "Find a genre..."
     clear_search: "Clear search"
@@ -367,6 +385,10 @@ en:
     composers_found: "composers found"
     no_composers_found: "No composers found"
     no_composers_matching: "No composers matching"
+    artist_found: "artist found"
+    artists_found: "artists found"
+    no_artists_found: "No artists found"
+    no_artists_matching: "No artists matching"
     instrument_found: "instrument found"
     instruments_found: "instruments found"
     no_instruments_found: "No instruments found"
@@ -376,6 +398,7 @@ en:
     no_genres_found: "No genres found"
     no_genres_matching: "No genres matching"
     try_different_spelling: "Try a different spelling or browse alphabetically"
+    commercial: "Commercial"
 
     # Genre name translations (from genre_vocabulary.yml)
     genre_names:

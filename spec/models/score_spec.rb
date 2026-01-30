@@ -59,6 +59,37 @@ RSpec.describe Score do
         expect(Score.search('Dvorak')).to include(score)
       end
     end
+
+    describe '.by_pricing' do
+      it 'filters free scores (non-SMD or SMD without price)' do
+        free_pdmx = create(:score, source: 'pdmx')
+        free_cpdl = create(:score, source: 'cpdl')
+        smd_with_price = create(:score, :smd)
+        smd_no_price = create(:score, source: 'smd', price_usd: nil)
+
+        result = Score.by_pricing('free')
+        expect(result).to include(free_pdmx, free_cpdl, smd_no_price)
+        expect(result).not_to include(smd_with_price)
+      end
+
+      it 'filters commercial scores (SMD with price)' do
+        free_pdmx = create(:score, source: 'pdmx')
+        smd_with_price = create(:score, :smd)
+        smd_no_price = create(:score, source: 'smd', price_usd: nil)
+
+        result = Score.by_pricing('commercial')
+        expect(result).to include(smd_with_price)
+        expect(result).not_to include(free_pdmx, smd_no_price)
+      end
+
+      it 'returns all scores for invalid pricing param' do
+        free_pdmx = create(:score, source: 'pdmx')
+        smd_with_price = create(:score, :smd)
+
+        expect(Score.by_pricing('invalid')).to include(free_pdmx, smd_with_price)
+        expect(Score.by_pricing('')).to include(free_pdmx, smd_with_price)
+      end
+    end
   end
 
   describe '#thumbnail' do

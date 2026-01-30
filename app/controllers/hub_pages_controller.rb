@@ -9,6 +9,11 @@ class HubPagesController < ApplicationController
     set_index_meta(:composers)
   end
 
+  def artists_index
+    @artists = HubDataBuilder.artists
+    set_index_meta(:artists)
+  end
+
   def genres_index
     @genres = localize_hub_items(:genres, HubDataBuilder.genres)
     set_index_meta(:genres)
@@ -53,6 +58,33 @@ class HubPagesController < ApplicationController
     @composer_period = base_scope.where.not(period: [nil, ""])
                             .pick(:period)
     set_detail_meta(:composer, @composer_name)
+  end
+
+  def artist
+    @artist_name = find_or_404(:artists, params[:slug])
+
+    # Base scope for this artist (SMD scores only)
+    base_scope = Score.active.where(artist: @artist_name)
+
+    # Apply filters
+    filtered_scope = base_scope
+    filtered_scope = filtered_scope.by_instrument(params[:instrument]) if params[:instrument].present?
+    filtered_scope = filtered_scope.by_genre(params[:genre]) if params[:genre].present?
+
+    # Apply scoped search
+    filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
+
+    # Counts
+    @total_count = base_scope.count
+    @filtered_count = filtered_scope.count
+
+    # Paginate
+    @scores = paginate_filtered(filtered_scope)
+
+    # Dynamic filter options (faceted)
+    @filter_options = build_artist_filter_options(base_scope, params)
+
+    set_detail_meta(:artist, @artist_name)
   end
 
   def genre
@@ -264,6 +296,9 @@ class HubPagesController < ApplicationController
       genres: available_genres(scope, current_params)
     }
   end
+
+  # Artist uses same filter options as composer (instrument + genre)
+  alias_method :build_artist_filter_options, :build_composer_filter_options
 
   # Get available instruments using DISTINCT query (1 query)
   def available_instruments(base_scope, current_params)
