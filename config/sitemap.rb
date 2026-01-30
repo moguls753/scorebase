@@ -197,13 +197,15 @@ SitemapGenerator::Sitemap.create do
   end
 
   # ===========================================
-  # INDIVIDUAL SCORES
+  # INDIVIDUAL SCORES - Not in sitemap by design
   # ===========================================
-  # NOT included in sitemap by design.
-  # Individual scores are discovered by Google through:
-  # 1. Internal links from hub pages (/composers/bach, /genres/classical)
-  # 2. Natural crawling from the score index
+  # Individual scores are discoverable through:
+  # 1. Artist hub pages (Taylor Swift, Hans Zimmer, etc.)
+  # 2. Genre hub pages (Video Game, Musical Theater, etc.)
+  # 3. Composer hub pages (Bach, Mozart, etc.)
+  # 4. Natural crawling from hub page internal links
   #
-  # This keeps the sitemap focused on high-value landing pages
-  # that target actual search queries like "Bach sheet music".
+  # Analysis showed 94-96% of SMD scores (Film/TV, Broadway, Disney)
+  # are already discoverable via artist hubs. Adding them to sitemap
+  # would be bloat without clear SEO benefit.
 end

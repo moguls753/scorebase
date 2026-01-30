@@ -515,10 +515,9 @@ button, input, select {
   border: 1px solid var(--color-border);
 }
 
-/* Both badges same style - equal visual weight */
-.score-card-badge--free,
+/* Commercial badge - inherits base styles */
 .score-card-badge--commercial {
-  /* Inherits base styles - intentionally identical */
+  /* Inherits base styles */
 }
 
 @media (max-width: 640px) {

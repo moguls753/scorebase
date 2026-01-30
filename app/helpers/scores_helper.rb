@@ -67,23 +67,35 @@ module ScoresHelper
   end
 
   # Badge data for score card thumbnails
-  # Returns { type: :free/:commercial, text: "Free"/"$" }
-  # Intentionally minimal - price details belong on the score page
+  # Returns { type: :commercial, text: "$" } for paid scores, nil for free
+  # Free scores have no badge - absence of badge implies free
   def score_card_badge(score)
-    if format_smd_price(score)
-      { type: :commercial, text: "$" }
-    else
-      { type: :free, text: t("scores.badge_free") }
-    end
+    return nil unless format_smd_price(score)
+    { type: :commercial, text: "$" }
   end
 
   # ─────────────────────────────────────────────────────────────────
   # SEO Meta Description for Score Pages
   # ─────────────────────────────────────────────────────────────────
 
+  # SEO-friendly genre labels for SMD scores
+  # Maps SMD tag patterns to user-friendly descriptions
+  SMD_GENRE_LABELS = {
+    "Video Game" => "Video Game",
+    "Film/TV" => "Film/TV",
+    "Broadway" => "Broadway",
+    "Musical/Show" => "Musical",
+    "Disney" => "Disney",
+    "Anime" => "Anime",
+    "Christmas" => "Christmas",
+    "Wedding" => "Wedding",
+    "Klassik" => "Classical"
+  }.freeze
+
   # Generate SEO-optimized meta description for a score page
   # Target: under 155 chars, includes searchable attributes
   # Example: "Moonlight Sonata by Beethoven — C# minor, Piano, Intermediate. Free PDF sheet music."
+  # SMD: "Ezio's Family (from Assassin's Creed II) — Piano, Video Game. Sheet music available."
   def score_meta_description(score)
     parts = []
 
@@ -94,7 +106,7 @@ module ScoresHelper
       parts << score.title
     end
 
-    # Musical attributes (key, instruments, difficulty)
+    # Musical attributes (key, instruments, difficulty, genre for SMD)
     attrs = []
     attrs << score.key_signature if score.key_signature.present?
     attrs << score.instruments if score.instruments.present?
@@ -102,6 +114,15 @@ module ScoresHelper
     if (level = score_difficulty_level(score))
       attrs << translate_difficulty_label(level)
     end
+
+    # Add genre context for SMD (Video Game, Film/TV, Broadway, etc.)
+    if score.smd? && score.tags.present?
+      genre_label = extract_smd_genre_label(score.tags)
+      attrs << genre_label if genre_label
+    end
+
+    # Add page count for SMD (useful info)
+    attrs << "#{score.page_count} pages" if score.smd? && score.page_count.to_i > 0
 
     parts << attrs.join(", ") if attrs.any?
 
@@ -579,6 +600,19 @@ module ScoresHelper
   end
 
   private
+
+  # Extract user-friendly genre label from SMD tags
+  # Tags are hyphen-delimited: "Pop-Video Game-Rock" → "Video Game"
+  # Returns first matching high-value genre or nil
+  def extract_smd_genre_label(tags)
+    return nil if tags.blank?
+
+    SMD_GENRE_LABELS.each do |pattern, label|
+      return label if tags.include?(pattern)
+    end
+
+    nil
+  end
 
   # Format duration in seconds to ISO 8601 duration format (PT3M30S)
   # Required format for schema.org timeRequired property

@@ -1,6 +1,8 @@
 <% badge = score_card_badge(score) %>
 <div class="aspect-square bg-[var(--color-bg)] flex items-center justify-center overflow-hidden relative">
-  <span class="score-card-badge score-card-badge--<%= badge[:type] %>"><%= badge[:text] %></span>
+  <% if badge %>
+    <span class="score-card-badge score-card-badge--<%= badge[:type] %>"><%= badge[:text] %></span>
+  <% end %>
 
   <% if score.has_thumbnail? %>
     <%= image_tag score.thumbnail,

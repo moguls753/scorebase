@@ -41,11 +41,9 @@ RSpec.describe ScoresHelper, type: :helper do
   end
 
   describe '#score_card_badge' do
-    it 'returns free badge for non-SMD scores' do
+    it 'returns nil for non-SMD scores (free scores have no badge)' do
       score = build(:score)
-      result = helper.score_card_badge(score)
-      expect(result[:type]).to eq(:free)
-      expect(result[:text]).to eq("Free")
+      expect(helper.score_card_badge(score)).to be_nil
     end
 
     it 'returns commercial badge with $ for SMD scores' do
@@ -62,10 +60,9 @@ RSpec.describe ScoresHelper, type: :helper do
       expect(result[:text]).to eq("$")
     end
 
-    it 'returns free badge for SMD scores with zero price' do
+    it 'returns nil for SMD scores with zero price' do
       score = build(:score, :smd, price_usd: 0)
-      result = helper.score_card_badge(score)
-      expect(result[:type]).to eq(:free)
+      expect(helper.score_card_badge(score)).to be_nil
     end
   end
 end
