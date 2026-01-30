@@ -173,7 +173,9 @@ CREATE INDEX "index_scores_on_is_arrangeme" ON "scores" ("is_arrangeme") /*appli
 CREATE INDEX "index_scores_on_price_usd" ON "scores" ("price_usd") /*application='Scorebase'*/;
 CREATE TABLE IF NOT EXISTS "daily_stats" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date, "visits" integer DEFAULT 0, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "smd_clicks_by_score" json DEFAULT '{}');
 CREATE UNIQUE INDEX "index_daily_stats_on_date" ON "daily_stats" ("date") /*application='Scorebase'*/;
+CREATE INDEX "index_scores_active_by_created_at" ON "scores" ("created_at" DESC) WHERE deleted_at IS NULL /*application='Scorebase'*/;
 INSERT INTO "schema_migrations" (version) VALUES
+('20260130124957'),
 ('20260129142312'),
 ('20260129140215'),
 ('20260129111339'),

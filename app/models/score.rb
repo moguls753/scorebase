@@ -166,6 +166,7 @@
 #
 # Indexes
 #
+#  index_scores_active_by_created_at             (created_at) WHERE deleted_at IS NULL
 #  index_scores_on_ambitus_semitones             (ambitus_semitones)
 #  index_scores_on_brand                         (brand)
 #  index_scores_on_chromatic_ratio               (chromatic_ratio)
