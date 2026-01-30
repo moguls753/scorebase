@@ -146,6 +146,20 @@
               <p class="source-item__desc"><%= t('about.openscore_description') %></p>
             </div>
           </div>
+
+          <!-- Sheet Music Direct -->
+          <div class="source-item">
+            <div class="source-item__header">
+              <span class="mm-badge-source mm-badge-smd">SMD</span>
+              <span class="source-item__count"><%= number_with_delimiter(@source_counts['smd'] || 0) %></span>
+            </div>
+            <div class="source-item__content">
+              <a href="https://www.sheetmusicdirect.com" target="_blank" rel="nofollow noopener" class="source-item__link">
+                <%= t('about.smd_name') %> <span class="source-item__arrow">→</span>
+              </a>
+              <p class="source-item__desc"><%= t('about.smd_description') %></p>
+            </div>
+          </div>
         </div>
       </div>
 

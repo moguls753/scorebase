@@ -264,6 +264,8 @@ en:
     pdmx_description: "A research dataset of 250K+ MusicXML files collected from MuseScore. Useful for notation software like MuseScore, Sibelius, or Finale."
     openscore_name: "OpenScore"
     openscore_description: "High-quality encodings of 19th-century art songs and string quartets. Includes works by Schubert, Schumann, Brahms, Beethoven, and more."
+    smd_name: "Sheet Music Direct"
+    smd_description: "Digital sheet music platform by Hal Leonard, the world's largest print music publisher. Over 1 million licensed arrangements across pop, rock, film, and Broadway. Commercial scores available for purchase."
     transparency_title: "Why Pro?"
     transparency_p1: "Smart Search runs on AI. AI costs money. Your subscription keeps it running while the catalog stays free for everyone."
 
