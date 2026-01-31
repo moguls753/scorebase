@@ -38,7 +38,7 @@ class ApplicationController < ActionController::Base
 
   def track_visit
     return if bot? || prefetch?
-    DailyStat.track_visit!
+    DailyStat.track_visit!(user_agent: request.user_agent)
   end
 
   def bot?
