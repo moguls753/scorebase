@@ -38,7 +38,25 @@ class ApplicationController < ActionController::Base
 
   def track_visit
     return if bot? || prefetch?
-    DailyStat.track_visit!(user_agent: request.user_agent)
+    DailyStat.track_visit!(
+      user_agent: request.user_agent,
+      country: request.headers["CF-IPCountry"],
+      referer: request.referer,
+      path: request.path,
+      device: request.headers["CF-Device-Type"] || device_type_from_user_agent
+    )
+  end
+
+  def device_type_from_user_agent
+    ua = request.user_agent.to_s
+    case ua
+    when /Mobile|Android.*Mobile|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i
+      "mobile"
+    when /iPad|Android(?!.*Mobile)|Tablet/i
+      "tablet"
+    else
+      "desktop"
+    end
   end
 
   def bot?

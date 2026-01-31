@@ -43,7 +43,9 @@
       "WebFetch(domain:api.sheetmusicdirect.com)",
       "Bash(shuf:*)",
       "Bash(sort:*)",
-      "Bash(gem search:*)"
+      "Bash(gem search:*)",
+      "Bash(ruby -e:*)",
+      "Bash(ruby -rerb -e:*)"
     ]
   }
 }

@@ -3,7 +3,12 @@
 # Table name: daily_stats
 #
 #  id                  :integer          not null, primary key
+#  browsers            :json
+#  countries           :json
 #  date                :date
+#  devices             :json
+#  paths               :json
+#  referrers           :json
 #  smd_clicks_by_score :json
 #  user_agents         :json
 #  visits              :integer          default(0)
@@ -20,6 +25,11 @@ FactoryBot.define do
     visits { rand(100..10000) }
     smd_clicks_by_score { {} }
     user_agents { {} }
+    countries { {} }
+    referrers { {} }
+    paths { {} }
+    devices { {} }
+    browsers { {} }
 
     trait :yesterday do
       date { Date.yesterday }

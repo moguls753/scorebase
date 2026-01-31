@@ -1,4 +1,34 @@
 class Avo::ToolsController < Avo::ApplicationController
+  helper AvoToolsHelper
+
+  COUNTRY_NAMES = {
+    "DE" => "Germany", "US" => "United States", "GB" => "United Kingdom",
+    "FR" => "France", "ES" => "Spain", "IT" => "Italy", "NL" => "Netherlands",
+    "AT" => "Austria", "CH" => "Switzerland", "BE" => "Belgium", "PL" => "Poland",
+    "CA" => "Canada", "AU" => "Australia", "BR" => "Brazil", "MX" => "Mexico",
+    "JP" => "Japan", "KR" => "South Korea", "CN" => "China", "IN" => "India",
+    "RU" => "Russia", "SE" => "Sweden", "NO" => "Norway", "DK" => "Denmark",
+    "FI" => "Finland", "PT" => "Portugal", "CZ" => "Czech Republic", "HU" => "Hungary"
+  }.freeze
+
+  def analytics
+    @page_title = "Analytics Dashboard"
+    add_breadcrumb "Analytics"
+
+    @range_days = (params[:days] || 14).to_i.clamp(7, 90)
+    @stats = DailyStat.where(date: @range_days.days.ago..Date.current).order(date: :asc)
+
+    @total_visits = @stats.sum(:visits)
+    @avg_daily_visits = @stats.any? ? (@total_visits.to_f / @stats.count).round : 0
+    @today = DailyStat.find_by(date: Date.current)
+
+    @countries = aggregate_json_field(:countries)
+    @referrers = aggregate_json_field(:referrers)
+    @paths = aggregate_json_field(:paths)
+    @devices = aggregate_json_field(:devices)
+    @browsers = aggregate_json_field(:browsers)
+  end
+
   def smd_stats
     @page_title = "SMD Affiliate Stats"
     add_breadcrumb "SMD Stats"
@@ -44,5 +74,13 @@ class Avo::ToolsController < Avo::ApplicationController
 
     # Waitlist count
     @waitlist_count = WaitlistSignup.count
+  end
+
+  private
+
+  def aggregate_json_field(field)
+    @stats.pluck(field).compact.each_with_object(Hash.new(0)) do |day_data, totals|
+      day_data.each { |key, count| totals[key] += count }
+    end.sort_by { |_, v| -v }.to_h
   end
 end
