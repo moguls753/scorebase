@@ -1,39 +1,41 @@
 CREATE TABLE IF NOT EXISTS "schema_migrations" ("version" varchar NOT NULL PRIMARY KEY);
 CREATE TABLE IF NOT EXISTS "ar_internal_metadata" ("key" varchar NOT NULL PRIMARY KEY, "value" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
 CREATE TABLE IF NOT EXISTS "active_storage_blobs" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "key" varchar NOT NULL, "filename" varchar NOT NULL, "content_type" varchar, "metadata" text, "service_name" varchar NOT NULL, "byte_size" bigint NOT NULL, "checksum" varchar, "created_at" datetime(6) NOT NULL);
-CREATE UNIQUE INDEX "index_active_storage_blobs_on_key" ON "active_storage_blobs" ("key") /*application='Scorebase'*/;
 CREATE TABLE IF NOT EXISTS "active_storage_attachments" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "name" varchar NOT NULL, "record_type" varchar NOT NULL, "record_id" bigint NOT NULL, "blob_id" bigint NOT NULL, "created_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_c3b3935057"
 FOREIGN KEY ("blob_id")
   REFERENCES "active_storage_blobs" ("id")
 );
-CREATE INDEX "index_active_storage_attachments_on_blob_id" ON "active_storage_attachments" ("blob_id") /*application='Scorebase'*/;
-CREATE UNIQUE INDEX "index_active_storage_attachments_uniqueness" ON "active_storage_attachments" ("record_type", "record_id", "name", "blob_id") /*application='Scorebase'*/;
 CREATE TABLE IF NOT EXISTS "active_storage_variant_records" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "blob_id" bigint NOT NULL, "variation_digest" varchar NOT NULL, CONSTRAINT "fk_rails_993965df05"
 FOREIGN KEY ("blob_id")
   REFERENCES "active_storage_blobs" ("id")
 );
-CREATE UNIQUE INDEX "index_active_storage_variant_records_uniqueness" ON "active_storage_variant_records" ("blob_id", "variation_digest") /*application='Scorebase'*/;
 CREATE TABLE IF NOT EXISTS "composer_mappings" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "original_name" varchar NOT NULL, "normalized_name" varchar, "source" varchar, "verified" boolean DEFAULT FALSE NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
-CREATE UNIQUE INDEX "index_composer_mappings_on_original_name" ON "composer_mappings" ("original_name");
-CREATE INDEX "index_composer_mappings_on_normalized_name" ON "composer_mappings" ("normalized_name");
 CREATE TABLE IF NOT EXISTS "score_pages" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "score_id" integer NOT NULL, "page_number" integer NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_6636f54ed1"
 FOREIGN KEY ("score_id")
   REFERENCES "scores" ("id")
  ON DELETE CASCADE);
-CREATE UNIQUE INDEX "index_score_pages_on_score_id_and_page_number" ON "score_pages" ("score_id", "page_number");
 CREATE TABLE IF NOT EXISTS "waitlist_signups" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "email" varchar NOT NULL, "locale" varchar DEFAULT 'en' NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
-CREATE UNIQUE INDEX "index_waitlist_signups_on_email" ON "waitlist_signups" ("email");
 CREATE TABLE IF NOT EXISTS "score_page_deletion_logs" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "score_page_id" integer NOT NULL, "score_id" integer NOT NULL, "page_number" integer NOT NULL, "deleted_at" datetime(6) NOT NULL, "source" varchar, "context" text);
+CREATE TABLE IF NOT EXISTS "scores" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar, "composer" varchar, "key_signature" varchar, "time_signature" varchar, "num_parts" integer, "genre" text, "tags" text, "complexity" integer, "rating" decimal(3,2), "views" integer DEFAULT 0, "favorites" integer DEFAULT 0, "data_path" varchar, "metadata_path" varchar, "mxl_path" varchar, "pdf_path" varchar, "mid_path" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "source" varchar DEFAULT 'pdmx', "external_url" varchar, "external_id" varchar, "language" varchar, "instruments" varchar, "voicing" varchar, "description" text, "editor" varchar, "license" varchar, "lyrics" text, "cpdl_number" varchar, "posted_date" date, "page_count" integer, "thumbnail_url" varchar, "composer_status" varchar DEFAULT 'pending' NOT NULL, "highest_pitch" varchar, "lowest_pitch" varchar, "ambitus_semitones" integer, "pitch_range_per_part" json, "voice_ranges" json, "tempo_bpm" integer, "tempo_marking" varchar, "duration_seconds" float, "measure_count" integer, "event_count" integer, "note_density" float, "unique_pitches" integer, "accidental_count" integer, "chromatic_ratio" float, "rhythm_distribution" json, "syncopation_level" float, "rhythmic_variety" float, "predominant_rhythm" varchar, "key_confidence" float, "key_correlations" json, "modulations" text, "modulation_count" integer, "harmonic_rhythm" float, "interval_distribution" json, "largest_interval" integer, "stepwise_motion_ratio" float, "melodic_contour" varchar, "melodic_complexity" float, "form_analysis" varchar, "sections_count" integer, "repeats_count" integer, "cadence_types" text, "final_cadence" varchar, "clefs_used" text, "has_dynamics" boolean, "dynamic_range" varchar, "has_articulations" boolean, "has_ornaments" boolean, "has_tempo_changes" boolean, "has_fermatas" boolean, "expression_markings" text, "has_extracted_lyrics" boolean, "extracted_lyrics" text, "syllable_count" integer, "lyrics_language" varchar, "part_names" text, "detected_instruments" text, "instrument_families" text, "has_vocal" boolean, "is_instrumental" boolean, "has_accompaniment" boolean, "texture_type" varchar, "vertical_density" float, "voice_independence" float, "extraction_status" varchar DEFAULT 'pending' NOT NULL, "extraction_error" text, "extracted_at" datetime(6), "music21_version" varchar, "musicxml_source" varchar, "rag_status" varchar DEFAULT 'pending' NOT NULL, "search_text" text, "search_text_generated_at" datetime(6), "indexed_at" datetime(6), "index_version" integer, "period" varchar, "genre_status" varchar DEFAULT 'pending' NOT NULL, "period_status" varchar DEFAULT 'pending' NOT NULL, "instruments_status" varchar DEFAULT 'pending' NOT NULL, "computed_difficulty" integer, "max_chord_span" integer, "tessitura" json, "leap_count" integer, "leaps_per_measure" float, "has_vocal_status" varchar DEFAULT 'pending' NOT NULL, "voicing_status" varchar DEFAULT 'pending' NOT NULL, "chromatic_note_count" integer, "meter_classification" varchar, "beat_count" integer, "has_pedal_marks" boolean, "slur_count" integer, "has_ottava" boolean, "trill_count" integer, "mordent_count" integer, "turn_count" integer, "tremolo_count" integer, "grace_note_count" integer, "arpeggio_mark_count" integer, "modulation_targets" json, "unique_duration_count" integer, "off_beat_count" integer, "chord_count" integer, "interval_count" integer, "stepwise_count" integer, "simultaneous_note_avg" float, "pitch_count" integer, "pitch_class_distribution" json, "texture_variation" float, "avg_chord_span" float, "contrary_motion_ratio" float, "parallel_motion_ratio" float, "oblique_motion_ratio" float, "unique_chord_count" integer, "estimated_tempo_bpm" integer, "estimated_duration_seconds" float, "tempo_referent" float, "total_quarter_length" float, "is_multi_movement" boolean /*application='Scorebase'*/, "pedagogical_grade" varchar /*application='Scorebase'*/, "pedagogical_grade_de" varchar /*application='Scorebase'*/, "grade_status" varchar DEFAULT 'pending' NOT NULL /*application='Scorebase'*/, "grade_source" varchar /*application='Scorebase'*/, "title_normalized" varchar /*application='Scorebase'*/, "composer_normalized" varchar /*application='Scorebase'*/, "deleted_at" datetime(6), "clean_title" varchar, "contributors" json, "main_instrument" varchar, "arrangement_category" varchar, "smd_category" varchar, "brand" varchar, "is_arrangeme" boolean, "price_usd" decimal(8,2), "original_price_usd" decimal(8,2), "review_count" integer, "pitch_range" varchar, "is_interactive" boolean, "preview_image_url" varchar, "artist" varchar);
+CREATE TABLE IF NOT EXISTS 'scores_instruments_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
+CREATE TABLE IF NOT EXISTS 'scores_instruments_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
+CREATE TABLE IF NOT EXISTS 'scores_instruments_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
+CREATE TABLE IF NOT EXISTS 'scores_instruments_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
+CREATE TABLE IF NOT EXISTS 'scores_search_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
+CREATE TABLE IF NOT EXISTS 'scores_search_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
+CREATE TABLE IF NOT EXISTS 'scores_search_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
+CREATE TABLE IF NOT EXISTS 'scores_search_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
+CREATE TABLE IF NOT EXISTS "daily_stats" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date, "visits" integer DEFAULT 0, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "smd_clicks_by_score" json DEFAULT '{}', "user_agents" json /*application='Scorebase'*/);
+CREATE UNIQUE INDEX "index_active_storage_blobs_on_key" ON "active_storage_blobs" ("key") /*application='Scorebase'*/;
+CREATE INDEX "index_active_storage_attachments_on_blob_id" ON "active_storage_attachments" ("blob_id") /*application='Scorebase'*/;
+CREATE UNIQUE INDEX "index_active_storage_attachments_uniqueness" ON "active_storage_attachments" ("record_type", "record_id", "name", "blob_id") /*application='Scorebase'*/;
+CREATE UNIQUE INDEX "index_active_storage_variant_records_uniqueness" ON "active_storage_variant_records" ("blob_id", "variation_digest") /*application='Scorebase'*/;
+CREATE UNIQUE INDEX "index_composer_mappings_on_original_name" ON "composer_mappings" ("original_name");
+CREATE INDEX "index_composer_mappings_on_normalized_name" ON "composer_mappings" ("normalized_name");
+CREATE UNIQUE INDEX "index_score_pages_on_score_id_and_page_number" ON "score_pages" ("score_id", "page_number");
+CREATE UNIQUE INDEX "index_waitlist_signups_on_email" ON "waitlist_signups" ("email");
 CREATE INDEX "index_score_page_deletion_logs_on_deleted_at" ON "score_page_deletion_logs" ("deleted_at");
 CREATE INDEX "index_score_page_deletion_logs_on_score_id" ON "score_page_deletion_logs" ("score_id");
-CREATE TRIGGER log_score_page_deletion
-      AFTER DELETE ON score_pages
-      FOR EACH ROW
-      BEGIN
-        INSERT INTO score_page_deletion_logs (score_page_id, score_id, page_number, deleted_at, source)
-        VALUES (OLD.id, OLD.score_id, OLD.page_number, datetime('now'), 'trigger');
-      END;
-CREATE TABLE IF NOT EXISTS "scores" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar, "composer" varchar, "key_signature" varchar, "time_signature" varchar, "num_parts" integer, "genre" text, "tags" text, "complexity" integer, "rating" decimal(3,2), "views" integer DEFAULT 0, "favorites" integer DEFAULT 0, "data_path" varchar, "metadata_path" varchar, "mxl_path" varchar, "pdf_path" varchar, "mid_path" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "source" varchar DEFAULT 'pdmx', "external_url" varchar, "external_id" varchar, "language" varchar, "instruments" varchar, "voicing" varchar, "description" text, "editor" varchar, "license" varchar, "lyrics" text, "cpdl_number" varchar, "posted_date" date, "page_count" integer, "thumbnail_url" varchar, "composer_status" varchar DEFAULT 'pending' NOT NULL, "highest_pitch" varchar, "lowest_pitch" varchar, "ambitus_semitones" integer, "pitch_range_per_part" json, "voice_ranges" json, "tempo_bpm" integer, "tempo_marking" varchar, "duration_seconds" float, "measure_count" integer, "event_count" integer, "note_density" float, "unique_pitches" integer, "accidental_count" integer, "chromatic_ratio" float, "rhythm_distribution" json, "syncopation_level" float, "rhythmic_variety" float, "predominant_rhythm" varchar, "key_confidence" float, "key_correlations" json, "modulations" text, "modulation_count" integer, "harmonic_rhythm" float, "interval_distribution" json, "largest_interval" integer, "stepwise_motion_ratio" float, "melodic_contour" varchar, "melodic_complexity" float, "form_analysis" varchar, "sections_count" integer, "repeats_count" integer, "cadence_types" text, "final_cadence" varchar, "clefs_used" text, "has_dynamics" boolean, "dynamic_range" varchar, "has_articulations" boolean, "has_ornaments" boolean, "has_tempo_changes" boolean, "has_fermatas" boolean, "expression_markings" text, "has_extracted_lyrics" boolean, "extracted_lyrics" text, "syllable_count" integer, "lyrics_language" varchar, "part_names" text, "detected_instruments" text, "instrument_families" text, "has_vocal" boolean, "is_instrumental" boolean, "has_accompaniment" boolean, "texture_type" varchar, "vertical_density" float, "voice_independence" float, "extraction_status" varchar DEFAULT 'pending' NOT NULL, "extraction_error" text, "extracted_at" datetime(6), "music21_version" varchar, "musicxml_source" varchar, "rag_status" varchar DEFAULT 'pending' NOT NULL, "search_text" text, "search_text_generated_at" datetime(6), "indexed_at" datetime(6), "index_version" integer, "period" varchar, "genre_status" varchar DEFAULT 'pending' NOT NULL, "period_status" varchar DEFAULT 'pending' NOT NULL, "instruments_status" varchar DEFAULT 'pending' NOT NULL, "computed_difficulty" integer, "max_chord_span" integer, "tessitura" json, "leap_count" integer, "leaps_per_measure" float, "has_vocal_status" varchar DEFAULT 'pending' NOT NULL, "voicing_status" varchar DEFAULT 'pending' NOT NULL, "chromatic_note_count" integer, "meter_classification" varchar, "beat_count" integer, "has_pedal_marks" boolean, "slur_count" integer, "has_ottava" boolean, "trill_count" integer, "mordent_count" integer, "turn_count" integer, "tremolo_count" integer, "grace_note_count" integer, "arpeggio_mark_count" integer, "modulation_targets" json, "unique_duration_count" integer, "off_beat_count" integer, "chord_count" integer, "interval_count" integer, "stepwise_count" integer, "simultaneous_note_avg" float, "pitch_count" integer, "pitch_class_distribution" json, "texture_variation" float, "avg_chord_span" float, "contrary_motion_ratio" float, "parallel_motion_ratio" float, "oblique_motion_ratio" float, "unique_chord_count" integer, "estimated_tempo_bpm" integer, "estimated_duration_seconds" float, "tempo_referent" float, "total_quarter_length" float, "is_multi_movement" boolean /*application='Scorebase'*/, "pedagogical_grade" varchar /*application='Scorebase'*/, "pedagogical_grade_de" varchar /*application='Scorebase'*/, "grade_status" varchar DEFAULT 'pending' NOT NULL /*application='Scorebase'*/, "grade_source" varchar /*application='Scorebase'*/, "title_normalized" varchar /*application='Scorebase'*/, "composer_normalized" varchar /*application='Scorebase'*/, "deleted_at" datetime(6), "clean_title" varchar, "contributors" json, "main_instrument" varchar, "arrangement_category" varchar, "smd_category" varchar, "brand" varchar, "is_arrangeme" boolean, "price_usd" decimal(8,2), "original_price_usd" decimal(8,2), "review_count" integer, "pitch_range" varchar, "is_interactive" boolean, "preview_image_url" varchar, "artist" varchar /*application='Scorebase'*/);
 CREATE INDEX "index_scores_on_key_signature" ON "scores" ("key_signature") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_time_signature" ON "scores" ("time_signature") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_num_parts" ON "scores" ("num_parts") /*application='Scorebase'*/;
@@ -78,16 +80,25 @@ CREATE INDEX "index_scores_on_title_normalized" ON "scores" ("title_normalized")
 CREATE INDEX "index_scores_on_composer_normalized" ON "scores" ("composer_normalized") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_created_at" ON "scores" ("created_at");
 CREATE INDEX "index_scores_on_deleted_at" ON "scores" ("deleted_at");
+CREATE INDEX "index_scores_on_brand" ON "scores" ("brand");
+CREATE INDEX "index_scores_on_is_arrangeme" ON "scores" ("is_arrangeme");
+CREATE INDEX "index_scores_on_price_usd" ON "scores" ("price_usd");
+CREATE UNIQUE INDEX "index_daily_stats_on_date" ON "daily_stats" ("date");
+CREATE INDEX "index_scores_active_by_created_at" ON "scores" ("created_at" DESC) WHERE deleted_at IS NULL;
+CREATE INDEX "index_scores_on_artist" ON "scores" ("artist");
+CREATE TRIGGER log_score_page_deletion
+      AFTER DELETE ON score_pages
+      FOR EACH ROW
+      BEGIN
+        INSERT INTO score_page_deletion_logs (score_page_id, score_id, page_number, deleted_at, source)
+        VALUES (OLD.id, OLD.score_id, OLD.page_number, datetime('now'), 'trigger');
+      END;
 CREATE VIRTUAL TABLE scores_instruments_fts USING fts5(
         instruments,
         content='',
         tokenize='trigram'
       )
 /* scores_instruments_fts(instruments) */;
-CREATE TABLE IF NOT EXISTS 'scores_instruments_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
-CREATE TABLE IF NOT EXISTS 'scores_instruments_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
-CREATE TABLE IF NOT EXISTS 'scores_instruments_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
-CREATE TABLE IF NOT EXISTS 'scores_instruments_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
 CREATE TRIGGER scores_instruments_fts_ai AFTER INSERT ON scores
       WHEN NEW.instruments IS NOT NULL AND NEW.instruments != '' AND NEW.deleted_at IS NULL
       BEGIN
@@ -124,10 +135,6 @@ CREATE VIRTUAL TABLE scores_search_fts USING fts5(
         tokenize='trigram'
       )
 /* scores_search_fts(title,composer,genre) */;
-CREATE TABLE IF NOT EXISTS 'scores_search_fts_data'(id INTEGER PRIMARY KEY, block BLOB);
-CREATE TABLE IF NOT EXISTS 'scores_search_fts_idx'(segid, term, pgno, PRIMARY KEY(segid, term)) WITHOUT ROWID;
-CREATE TABLE IF NOT EXISTS 'scores_search_fts_docsize'(id INTEGER PRIMARY KEY, sz BLOB);
-CREATE TABLE IF NOT EXISTS 'scores_search_fts_config'(k PRIMARY KEY, v) WITHOUT ROWID;
 CREATE TRIGGER scores_search_fts_ai AFTER INSERT ON scores
       WHEN NEW.deleted_at IS NULL
       BEGIN
@@ -168,14 +175,8 @@ CREATE TRIGGER scores_search_fts_au AFTER UPDATE ON scores
                COALESCE(LOWER(NEW.genre), '')
         WHERE NEW.deleted_at IS NULL;
       END;
-CREATE INDEX "index_scores_on_brand" ON "scores" ("brand");
-CREATE INDEX "index_scores_on_is_arrangeme" ON "scores" ("is_arrangeme");
-CREATE INDEX "index_scores_on_price_usd" ON "scores" ("price_usd");
-CREATE TABLE IF NOT EXISTS "daily_stats" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date, "visits" integer DEFAULT 0, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "smd_clicks_by_score" json DEFAULT '{}');
-CREATE UNIQUE INDEX "index_daily_stats_on_date" ON "daily_stats" ("date");
-CREATE INDEX "index_scores_active_by_created_at" ON "scores" ("created_at" DESC) WHERE deleted_at IS NULL;
-CREATE INDEX "index_scores_on_artist" ON "scores" ("artist") /*application='Scorebase'*/;
 INSERT INTO "schema_migrations" (version) VALUES
+('20260131124536'),
 ('20260130134622'),
 ('20260130124957'),
 ('20260129142312'),

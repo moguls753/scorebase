@@ -5,6 +5,7 @@
 #  id                  :integer          not null, primary key
 #  date                :date
 #  smd_clicks_by_score :json
+#  user_agents         :json
 #  visits              :integer          default(0)
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
@@ -18,6 +19,7 @@ FactoryBot.define do
     date { Date.current }
     visits { rand(100..10000) }
     smd_clicks_by_score { {} }
+    user_agents { {} }
 
     trait :yesterday do
       date { Date.yesterday }

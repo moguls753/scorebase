@@ -5,6 +5,7 @@
 #  id                  :integer          not null, primary key
 #  date                :date
 #  smd_clicks_by_score :json
+#  user_agents         :json
 #  visits              :integer          default(0)
 #  created_at          :datetime         not null
 #  updated_at          :datetime         not null
@@ -14,9 +15,17 @@
 #  index_daily_stats_on_date  (date) UNIQUE
 #
 class DailyStat < ApplicationRecord
-  def self.track_visit!
+  def self.track_visit!(user_agent: nil)
     daily_stat = find_or_create_by(date: Date.current)
     daily_stat.increment!(:visits)
+
+    if user_agent.present?
+      agents = daily_stat.user_agents || {}
+      # Truncate to keep storage reasonable
+      key = user_agent.truncate(100, omission: "")
+      agents[key] = (agents[key] || 0) + 1
+      daily_stat.update_column(:user_agents, agents)
+    end
   end
 
   def self.track_smd_click!(score_id:)
