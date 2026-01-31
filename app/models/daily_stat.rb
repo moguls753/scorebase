@@ -92,12 +92,7 @@ class DailyStat < ApplicationRecord
   end
 
   def self.normalize_path(path)
-    # Replace numeric IDs with :id to prevent path explosion
-    # /scores/12345 → /scores/:id
-    # /de/scores/12345 → /de/scores/:id
-    path.split("?").first
-        .gsub(%r{/\d+}, "/:id")
-        .truncate(100, omission: "")
+    path.split("?").first.truncate(100, omission: "")
   end
 
   def self.track_smd_click!(score_id:)

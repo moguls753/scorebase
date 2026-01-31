@@ -136,6 +136,7 @@
       <p class="text-sm text-gray-500">Traffic and visitor insights</p>
     </div>
     <div class="range-selector">
+      <%= link_to "1D", avo.analytics_path(days: 1), class: "range-btn #{@range_days == 1 ? 'active' : ''}" %>
       <%= link_to "7D", avo.analytics_path(days: 7), class: "range-btn #{@range_days == 7 ? 'active' : ''}" %>
       <%= link_to "14D", avo.analytics_path(days: 14), class: "range-btn #{@range_days == 14 ? 'active' : ''}" %>
       <%= link_to "30D", avo.analytics_path(days: 30), class: "range-btn #{@range_days == 30 ? 'active' : ''}" %>
@@ -345,7 +346,15 @@
               <% @paths.first(20).each do |path, count| %>
                 <tr>
                   <td>
-                    <code class="text-sm bg-gray-100 px-2 py-0.5 rounded text-gray-700"><%= path %></code>
+                    <% score_id = extract_score_id(path) %>
+                    <% if score_id && @score_titles[score_id] %>
+                      <div class="flex flex-col gap-0.5">
+                        <span class="text-sm font-medium text-gray-800"><%= @score_titles[score_id].truncate(60) %></span>
+                        <code class="text-xs text-gray-400"><%= path %></code>
+                      </div>
+                    <% else %>
+                      <code class="text-sm bg-gray-100 px-2 py-0.5 rounded text-gray-700"><%= path %></code>
+                    <% end %>
                   </td>
                   <td class="right font-medium"><%= number_with_delimiter(count) %></td>
                   <td class="right text-gray-500"><%= percentage(count, total) %>%</td>
@@ -408,6 +417,37 @@
           </table>
         <% else %>
           <p class="text-gray-400 text-center py-8">No data for this period</p>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
+  <%# User Agents (for bot detection) %>
+  <%= render Avo::PanelComponent.new(name: "User Agents (Bot Detection)") do |c| %>
+    <% c.with_body do %>
+      <div class="px-2 py-2 max-h-96 overflow-y-auto">
+        <% if @user_agents.any? %>
+          <p class="text-xs text-gray-500 mb-3 px-4">Review for potential bots that slipped through detection</p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>User Agent</th>
+                <th class="right">Hits</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% @user_agents.first(50).each do |ua, count| %>
+                <tr>
+                  <td>
+                    <code class="text-xs bg-gray-50 px-2 py-1 rounded text-gray-600 break-all"><%= ua %></code>
+                  </td>
+                  <td class="right font-medium"><%= number_with_delimiter(count) %></td>
+                </tr>
+              <% end %>
+            </tbody>
+          </table>
+        <% else %>
+          <p class="text-gray-400 text-center py-8">No user agent data yet</p>
         <% end %>
       </div>
     <% end %>

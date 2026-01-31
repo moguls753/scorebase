@@ -23,4 +23,8 @@ module AvoToolsHelper
     return 0 if total.zero?
     ((count.to_f / total) * 100).round(1)
   end
+
+  def extract_score_id(path)
+    path[%r{/scores/(\d+)}, 1]&.to_i
+  end
 end

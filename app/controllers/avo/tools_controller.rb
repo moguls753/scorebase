@@ -15,7 +15,7 @@ class Avo::ToolsController < Avo::ApplicationController
     @page_title = "Analytics Dashboard"
     add_breadcrumb "Analytics"
 
-    @range_days = (params[:days] || 14).to_i.clamp(7, 90)
+    @range_days = (params[:days] || 14).to_i.clamp(1, 90)
     @stats = DailyStat.where(date: @range_days.days.ago..Date.current).order(date: :asc)
 
     @total_visits = @stats.sum(:visits)
@@ -27,6 +27,11 @@ class Avo::ToolsController < Avo::ApplicationController
     @paths = aggregate_json_field(:paths)
     @devices = aggregate_json_field(:devices)
     @browsers = aggregate_json_field(:browsers)
+    @user_agents = aggregate_json_field(:user_agents)
+
+    # Preload score titles for path display
+    score_ids = @paths.keys.filter_map { |p| p[%r{/scores/(\d+)}, 1]&.to_i }.uniq.first(50)
+    @score_titles = Score.where(id: score_ids).pluck(:id, :title).to_h
   end
 
   def smd_stats
