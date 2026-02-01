@@ -10,10 +10,18 @@
       <%= score.composer.presence || t('search.unknown_composer') %>
     </p>
 
-    <% if score.primary_key_signature.present? %>
-      <span class="mm-badge text-[10px] sm:text-[11px] inline-block">
-        <%= score.primary_key_signature %>
-      </span>
-    <% end %>
+    <div class="flex flex-wrap gap-1.5">
+      <% if score.primary_key_signature.present? %>
+        <span class="mm-badge text-[10px] sm:text-[11px]">
+          <%= score.primary_key_signature %>
+        </span>
+      <% end %>
+
+      <% if score.has_grouped_parts? %>
+        <span class="mm-badge mm-badge--parts text-[10px] sm:text-[11px]">
+          <%= score.group_parts_count %> <%= t('score.parts_label') %>
+        </span>
+      <% end %>
+    </div>
   </div>
 <% end %>

@@ -272,14 +272,14 @@ class HubPagesController < ApplicationController
   end
 
   def paginate(scope)
-    sorted = apply_sorting(scope)
+    sorted = apply_sorting(scope).deduplicate_arrangements
     @total_count = sorted.count
     sorted.with_attached_thumbnail_image.page(params[:page]).without_count
   end
 
   # Paginate without setting @total_count (used when counts are set separately)
   def paginate_filtered(scope)
-    sorted = apply_sorting(scope)
+    sorted = apply_sorting(scope).deduplicate_arrangements
     sorted.with_attached_thumbnail_image.page(params[:page]).without_count
   end
 

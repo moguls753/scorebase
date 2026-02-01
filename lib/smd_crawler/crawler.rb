@@ -35,6 +35,7 @@ module SmdCrawler
       score.assign_attributes(
         title: metadata[:title],
         clean_title: metadata[:clean_title],
+        group_key: Score.derive_group_key(metadata[:clean_title], metadata[:thumbnail_url]),
         composer: metadata[:composer],
         contributors: metadata[:contributors],
         instruments: metadata[:instruments],

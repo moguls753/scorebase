@@ -69,6 +69,11 @@
           </div>
         <% end %>
 
+        <%# 1b. GROUPED PARTS - Other parts in this arrangement (SMD only) %>
+        <% if @score.has_grouped_parts? %>
+          <%= render "scores/grouped_parts", score: @score %>
+        <% end %>
+
         <%# 2. MIDI PLAYER (not available for SMD commercial scores) %>
         <% if @score.has_midi? && !@score.smd? %>
           <%= render "scores/midi_player", score: @score %>

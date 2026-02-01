@@ -721,4 +721,53 @@ module ScoresHelper
     else pitch
     end
   end
+
+  # ─────────────────────────────────────────────────────────────────
+  # Grouped Parts Helpers (SMD Ensemble Arrangements)
+  # ─────────────────────────────────────────────────────────────────
+
+  # Instrument family patterns for grouping parts
+  # Order matters: more specific patterns first
+  INSTRUMENT_FAMILIES = {
+    "Score" => /^(full|conductor|score)/i,
+    "Brass" => /trumpet|trombone|horn|tuba|euphonium|cornet|flugelhorn|baritone(?! sax)/i,
+    "Woodwinds" => /flute|clarinet|oboe|bassoon|sax|piccolo|recorder/i,
+    "Strings" => /violin|viola|cello|bass(?! clar)|harp|string|fiddle/i,
+    "Percussion" => /percussion|drums?|timpani|mallet|vibes|bell|chime|xylophone|marimba|glock|conga|bongo|tambourine|triangle|cymbal|snare|tom|shaker|cabasa/i,
+    "Keys" => /piano|keyboard|organ|synth|celesta/i,
+    "Guitar" => /guitar|banjo|mandolin|ukulele|dobro/i,
+    "Vocal" => /voice|vocal|soprano|alto|tenor|choir|chorus|satb|ssab|ssaa|sab|ssa|ttbb|tb\b/i
+  }.freeze
+
+  FAMILY_ORDER = %w[Score Brass Woodwinds Strings Percussion Keys Guitar Vocal Other].freeze
+
+  # Determine instrument family from part name
+  def instrument_family(part_name)
+    return "Other" if part_name.blank?
+
+    INSTRUMENT_FAMILIES.each do |family, pattern|
+      return family if part_name.match?(pattern)
+    end
+
+    "Other"
+  end
+
+  # Group parts by instrument family
+  # Returns hash: { "Brass" => [score1, score2], "Woodwinds" => [...] }
+  def group_parts_by_family(parts)
+    grouped = parts.group_by { |part| instrument_family(part.part_name) }
+
+    # Sort by family order
+    FAMILY_ORDER.each_with_object({}) do |family, result|
+      result[family] = grouped[family] if grouped[family].present?
+    end
+  end
+
+  # Threshold for showing grouped vs flat list
+  PARTS_GROUPING_THRESHOLD = 8
+
+  # Should parts be grouped by family?
+  def should_group_parts?(parts_count)
+    parts_count > PARTS_GROUPING_THRESHOLD
+  end
 end

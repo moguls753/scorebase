@@ -49,6 +49,7 @@
 #  grace_note_count           :integer
 #  grade_source               :string
 #  grade_status               :string           default("pending"), not null
+#  group_key                  :string
 #  harmonic_rhythm            :float
 #  has_accompaniment          :boolean
 #  has_articulations          :boolean
@@ -187,6 +188,7 @@
 #  index_scores_on_genre_status                  (genre_status)
 #  index_scores_on_genre_status_and_lower_genre  (genre_status, LOWER(genre))
 #  index_scores_on_grade_status                  (grade_status)
+#  index_scores_on_group_key                     (group_key)
 #  index_scores_on_has_extracted_lyrics          (has_extracted_lyrics)
 #  index_scores_on_has_vocal                     (has_vocal)
 #  index_scores_on_has_vocal_status              (has_vocal_status)
@@ -224,6 +226,42 @@ class Score < ApplicationRecord
 
   # Sources
   SOURCES = %w[pdmx cpdl imslp openscore-lieder openscore-quartets smd].freeze
+
+  # Instrument patterns for grouping SMD ensemble parts
+  INSTRUMENT_PATTERNS = [
+    /^(Full |Conductor)/i,
+    /^Score$/i,
+    /^Piano/i,
+    /^(Keyboard|Synthesizer|Synth|Organ|Electric Piano|Celesta|Electronic Keyboard)/i,
+    /^(Flute|Piccolo)/i,
+    /^(Clarinet|Bass Clarinet)/i,
+    /^(Oboe|Bassoon|Contrabassoon|English Horn)/i,
+    /^(Sax|Saxophone|Bari Sax)/i,
+    /^(Trumpet|Cornet|Flugelhorn)/i,
+    /^(Trombone)/i,
+    /^(Horn|French Horn)/i,
+    /^(Tuba|Euphonium|Baritone)/i,
+    /^(Violin|Viola|Cello|Bass|Contrabass|String Bass|Double Bass|Upright Bass)/i,
+    /^(Harp)/i,
+    /^String[ \/](Electric|Reduction)/i,
+    /^Strings /i,
+    /^(Percussion|Drums|Drum Set|Timpani|Mallet|Aux|Vibes|Vibraphone)/i,
+    /^(Glockenspiel|Xylophone|Marimba|Snare|Cymbals|Suspended Cymbal)/i,
+    /^(Tom|Bells|Chimes|Congas|Bongos|Maracas|Claves|Tambourine)/i,
+    /^(Triangle|Shaker|Cowbell|Wood ?Block|Multiple Bass|Djembe|Timbales|Cabasa|Shekere|Sleigh Bells|Cajon)/i,
+    /^(Handbells|Guiro|Pitched Percussion|Un-?pitched Percussion)/i,
+    /^Quad /i,
+    /^(Guitar|Electric Guitar|Electric Bass|Acoustic Guitar|Capo Guitar|Lead Guitar)/i,
+    /^(Voice|Vocal|Soprano|Alto|Tenor|Baritone|Choir|Chorus)/i,
+    /^(SATB|SSAB|SSAA|SAB|SSA|TTBB|TB)\b/i,
+    /^[23][ -]?(pt|Part)/i,
+    /^(Fiddle|Mandolin|Banjo|Ukulele|Dulcimer|Recorder|Harmonica|Accordion|Dobro|Pennywhistle|Bodhran)/i,
+    /^(Eb|Bb|F|C) /i,
+    /^(1st|2nd|3rd|4th|[0-9]+(st|nd|rd|th)?) /i,
+    /^(Orchestral|Convertible|Alternate|Alt\.|Solo|Sub\.)/i,
+    /^(Rhythm|Acoustic)/i,
+    /^Armonia$/i
+  ].freeze
 
   # SMD affiliate ID for commission tracking
   SMD_AFFILIATE_ID = "67428".freeze
@@ -469,6 +507,84 @@ class Score < ApplicationRecord
   # Double quotes are escaped by doubling them: " -> ""
   def self.escape_fts5_query(text)
     text.to_s.gsub('"', '""')
+  end
+
+  # Derive group_key for SMD ensemble parts
+  # "Title (arr. Someone) - Trombone 2" -> "title (arr. someone)|hl-12345678"
+  # "Title (arr. Someone) - Pt.3 - Viola" -> "title (arr. someone)|hl-12345678"
+  # Returns nil for solo products without instrument suffix
+  # Product code from thumbnail_url distinguishes different editions of same arrangement
+  def self.derive_group_key(clean_title, thumbnail_url = nil)
+    return nil unless clean_title&.include?(" - ")
+
+    before, _, after = clean_title.rpartition(" - ")
+    return nil unless INSTRUMENT_PATTERNS.any? { |pattern| after.match?(pattern) }
+
+    # Strip intermediate segments (Pt.X, Sample Solo) so all parts group together
+    before = before.gsub(/ - Pt\.?\s*\d+\s*$/i, "")
+    before = before.gsub(/ - Sample Solo$/i, "")
+
+    key = before.downcase.strip
+
+    # Append product code to distinguish different editions (jazz band vs concert band)
+    if thumbnail_url.present? && (product_code = extract_product_code(thumbnail_url))
+      key = "#{key}|#{product_code}"
+    end
+
+    key
+  end
+
+  # Extract HL product code from SMD thumbnail URL
+  # "https://img.sheetmusic.direct/catalogue/product/hl-07013386-md.jpg" -> "hl-07013386"
+  def self.extract_product_code(thumbnail_url)
+    return nil if thumbnail_url.blank?
+    thumbnail_url[/hl-\d+/]
+  end
+
+  # Deduplicate SMD arrangements: show one card per group_key
+  # Prefers Full Score > Conductor Score > alphabetically first
+  # Ungrouped scores (group_key IS NULL) always included
+  scope :deduplicate_arrangements, -> {
+    where(<<~SQL.squish)
+      group_key IS NULL
+      OR id = (
+        SELECT s2.id FROM scores s2
+        WHERE s2.group_key = scores.group_key
+          AND s2.deleted_at IS NULL
+        ORDER BY
+          CASE
+            WHEN s2.clean_title LIKE '%Full Score%' THEN 0
+            WHEN s2.clean_title LIKE '%Conductor%' THEN 1
+            ELSE 2
+          END,
+          s2.clean_title
+        LIMIT 1
+      )
+    SQL
+  }
+
+  # Get all other parts in this score's arrangement group
+  def grouped_parts
+    return Score.none if group_key.blank?
+    Score.where(group_key: group_key).where.not(id: id).order(:clean_title)
+  end
+
+  # Check if this score has other parts in its group
+  def has_grouped_parts?
+    group_key.present? && grouped_parts.exists?
+  end
+
+  # Total parts count including this score
+  def group_parts_count
+    return 1 if group_key.blank?
+    Score.where(group_key: group_key).count
+  end
+
+  # Extract the instrument/part name from clean_title
+  # "Birds of a Feather (arr. Roger Holmes) - Trombone 2" -> "Trombone 2"
+  def part_name
+    return nil unless clean_title&.include?(" - ")
+    clean_title.rpartition(" - ").last
   end
 
   # Sorting scopes

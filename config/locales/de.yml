@@ -236,6 +236,9 @@ de:
     arrangement: "Arrangement"
     price: "Preis"
     interactive: "Interaktiv"
+    # SMD grouped parts
+    parts_label: "Stimmen"
+    other_parts: "Weitere Stimmen"
 
   # About Page
   about:

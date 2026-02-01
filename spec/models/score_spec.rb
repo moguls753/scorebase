@@ -110,4 +110,78 @@ RSpec.describe Score do
       expect(build(:score, :pdmx).smd_purchasable?).to be false
     end
   end
+
+  describe '.derive_group_key' do
+    it 'extracts group key from ensemble part titles' do
+      expect(Score.derive_group_key('Birds of a Feather (arr. Roger Holmes) - Trombone 2'))
+        .to eq('birds of a feather (arr. roger holmes)')
+    end
+
+    it 'strips Pt.X segments for flex-band arrangements' do
+      expect(Score.derive_group_key('Crazy Train (arr. Johnnie Vinson) - Pt.3 - Viola'))
+        .to eq('crazy train (arr. johnnie vinson)')
+      expect(Score.derive_group_key('Crazy Train (arr. Johnnie Vinson) - Pt. 5 - Cello/Bass'))
+        .to eq('crazy train (arr. johnnie vinson)')
+    end
+
+    it 'strips Sample Solo segments' do
+      expect(Score.derive_group_key('Sesame Street Theme (arr. Mike Tomaro) - Sample Solo - Trumpet'))
+        .to eq('sesame street theme (arr. mike tomaro)')
+    end
+
+    it 'preserves dashes in movie/album titles' do
+      expect(Score.derive_group_key("Pirates of the Caribbean - Dead Man's Chest - Piano"))
+        .to eq("pirates of the caribbean - dead man's chest")
+    end
+
+    it 'returns nil for solo products without instrument suffix' do
+      expect(Score.derive_group_key('Hallelujah')).to be_nil
+      expect(Score.derive_group_key('Star Wars - Main Theme')).to be_nil
+    end
+
+    it 'includes product code from thumbnail_url to distinguish editions' do
+      title = "(Don't Fear) The Reaper (arr. Paul Murtha) - Trombone 1"
+      jazz_thumb = 'https://img.sheetmusic.direct/catalogue/product/hl-07013386-md.jpg'
+      concert_thumb = 'https://img.sheetmusic.direct/catalogue/product/hl-04005714-md.jpg'
+
+      expect(Score.derive_group_key(title, jazz_thumb))
+        .to eq("(don't fear) the reaper (arr. paul murtha)|hl-07013386")
+      expect(Score.derive_group_key(title, concert_thumb))
+        .to eq("(don't fear) the reaper (arr. paul murtha)|hl-04005714")
+    end
+
+    it 'works without thumbnail_url for backwards compatibility' do
+      expect(Score.derive_group_key('Test - Trumpet 1'))
+        .to eq('test')
+      expect(Score.derive_group_key('Test - Trumpet 1', nil))
+        .to eq('test')
+    end
+  end
+
+  describe '.extract_product_code' do
+    it 'extracts HL product code from SMD thumbnail URL' do
+      url = 'https://img.sheetmusic.direct/catalogue/product/hl-07013386-md.jpg'
+      expect(Score.extract_product_code(url)).to eq('hl-07013386')
+    end
+
+    it 'returns nil for non-SMD URLs' do
+      expect(Score.extract_product_code('https://example.com/image.jpg')).to be_nil
+      expect(Score.extract_product_code(nil)).to be_nil
+      expect(Score.extract_product_code('')).to be_nil
+    end
+  end
+
+  describe '.deduplicate_arrangements' do
+    it 'shows one card per arrangement, preferring Full Score' do
+      group_key = 'test arrangement'
+      full_score = create(:score, :smd, clean_title: 'Test - Full Score', group_key: group_key)
+      create(:score, :smd, clean_title: 'Test - Trumpet 1', group_key: group_key)
+      create(:score, :smd, clean_title: 'Test - Trombone 1', group_key: group_key)
+      solo = create(:score, :smd, clean_title: 'Solo Product', group_key: nil)
+
+      result = Score.where(source: 'smd').deduplicate_arrangements
+      expect(result).to include(full_score, solo)
+      expect(result.count).to eq(2)
+    end
+  end
 end

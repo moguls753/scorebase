@@ -236,6 +236,9 @@ en:
     arrangement: "Arrangement"
     price: "Price"
     interactive: "Interactive"
+    # SMD grouped parts
+    parts_label: "parts"
+    other_parts: "Other Parts"
 
   # About Page
   about:

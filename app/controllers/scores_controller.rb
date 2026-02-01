@@ -28,6 +28,9 @@ class ScoresController < ApplicationController
     # Sorting
     @scores = apply_sorting(@scores, params[:sort])
 
+    # Deduplicate SMD arrangements (one card per arrangement)
+    @scores = @scores.deduplicate_arrangements
+
     # Stats for filters (count before pagination)
     @total_count = Score.active.count
     @filtered_count = @scores.count

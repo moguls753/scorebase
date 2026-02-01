@@ -303,6 +303,13 @@ a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
   box-shadow: 2px 2px 0 var(--color-border);
 }
 
+/* Parts badge - subtle accent to indicate ensemble arrangement */
+.mm-badge--parts {
+  background: rgba(var(--color-accent-rgb), 0.15);
+  color: var(--color-accent);
+  border-color: var(--color-accent-muted);
+}
+
 /* ========================================
    LYRICS ACCORDION - Neubrutalist Style
    ======================================== */

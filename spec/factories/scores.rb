@@ -49,6 +49,7 @@
 #  grace_note_count           :integer
 #  grade_source               :string
 #  grade_status               :string           default("pending"), not null
+#  group_key                  :string
 #  harmonic_rhythm            :float
 #  has_accompaniment          :boolean
 #  has_articulations          :boolean
@@ -187,6 +188,7 @@
 #  index_scores_on_genre_status                  (genre_status)
 #  index_scores_on_genre_status_and_lower_genre  (genre_status, LOWER(genre))
 #  index_scores_on_grade_status                  (grade_status)
+#  index_scores_on_group_key                     (group_key)
 #  index_scores_on_has_extracted_lyrics          (has_extracted_lyrics)
 #  index_scores_on_has_vocal                     (has_vocal)
 #  index_scores_on_has_vocal_status              (has_vocal_status)

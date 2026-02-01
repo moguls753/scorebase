@@ -1,0 +1,41 @@
+<%# Grouped Parts Section - Shows other parts in the same arrangement %>
+<%# Only shown for SMD scores with group_key %>
+
+<% parts = score.grouped_parts.to_a %>
+<% return if parts.empty? %>
+
+<div class="grouped-parts">
+  <h3 class="grouped-parts__header">
+    <span class="grouped-parts__icon">♫</span>
+    <%= t('score.other_parts') %>
+    <span class="grouped-parts__count"><%= parts.count %></span>
+  </h3>
+
+  <% if should_group_parts?(parts.count) %>
+    <%# Grouped by instrument family (9+ parts) %>
+    <% grouped = group_parts_by_family(parts) %>
+    <div class="grouped-parts__families">
+      <% grouped.each do |family, family_parts| %>
+        <div class="grouped-parts__family">
+          <h4 class="grouped-parts__family-name"><%= family %></h4>
+          <div class="grouped-parts__chips">
+            <% family_parts.each do |part| %>
+              <%= link_to score_path(part), class: "grouped-parts__chip" do %>
+                <%= part.part_name %>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <%# Flat list (8 or fewer parts) %>
+    <div class="grouped-parts__chips">
+      <% parts.each do |part| %>
+        <%= link_to score_path(part), class: "grouped-parts__chip" do %>
+          <%= part.part_name %>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+</div>
