@@ -489,11 +489,45 @@ class Score < ApplicationRecord
   # "Etudes" matches "Études", "Dvorak" matches "Dvořák"
   # Uses FTS5 trigram index for fast substring matching across title, composer, genre
   # AND matching: all words must appear (in any order)
+  #
+  # Group-aware: when a part matches (e.g., "Birds of a Feather - Bass"), returns
+  # the group representative (Full Score) instead. This ensures search results show
+  # one card per arrangement, not 20 cards for each part.
   scope :search, ->(query) {
     return all if query.blank?
     fts_query = build_fts5_query(query)
     return all if fts_query.blank?
-    where("id IN (SELECT rowid FROM scores_search_fts WHERE scores_search_fts MATCH ?)", fts_query)
+
+    # Subquery for FTS matches
+    fts_match = "SELECT rowid FROM scores_search_fts WHERE scores_search_fts MATCH #{connection.quote(fts_query)}"
+
+    where(<<~SQL.squish)
+      /* Ungrouped matches: include directly */
+      (id IN (#{fts_match}) AND group_key IS NULL)
+      OR
+      /* Grouped matches: include only the representative for each matching group */
+      id IN (
+        SELECT (
+          SELECT s2.id FROM scores s2
+          WHERE s2.group_key = matched_groups.group_key
+            AND s2.deleted_at IS NULL
+          ORDER BY
+            CASE
+              WHEN s2.clean_title LIKE '%Full Score%' THEN 0
+              WHEN s2.clean_title LIKE '%Conductor%' THEN 1
+              ELSE 2
+            END,
+            s2.clean_title
+          LIMIT 1
+        )
+        FROM (
+          SELECT DISTINCT s.group_key
+          FROM scores s
+          WHERE s.id IN (#{fts_match})
+            AND s.group_key IS NOT NULL
+        ) matched_groups
+      )
+    SQL
   }
 
   # Build FTS5 query with AND semantics
@@ -571,6 +605,9 @@ class Score < ApplicationRecord
   # Deduplicate SMD arrangements: show one card per group_key
   # Prefers Full Score > Conductor Score > alphabetically first
   # Ungrouped scores (group_key IS NULL) always included
+  #
+  # Note: For search results, deduplication happens in the search scope itself.
+  # This scope is for non-search listings (browsing all scores, filtering by source, etc.)
   scope :deduplicate_arrangements, -> {
     where(<<~SQL.squish)
       group_key IS NULL
