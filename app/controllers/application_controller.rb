@@ -89,12 +89,16 @@ class ApplicationController < ActionController::Base
       Android\ [45]\.0                   # Android 4.x-5.x (2013-2015)
     /x)
 
+    # Mozilla/5.0 without device info parentheses = spoofed
+    # Real browsers always have: Mozilla/5.0 (platform info here) ...
+    return true if user_agent.match?(/^Mozilla\/5\.0 [^(]/)
+
     # Very old browser versions (likely bots, real browsers auto-update)
     if (match = user_agent.match(/Chrome\/(\d+)\./))
       return true if match[1].to_i < 125
     end
     if (match = user_agent.match(/Firefox\/(\d+)\./))
-      return true if match[1].to_i < 130
+      return true if match[1].to_i < 115  # ESR 115 still supported, Tor Browser uses it
     end
 
     false
