@@ -38,6 +38,7 @@ class ApplicationController < ActionController::Base
 
   def track_visit
     return if bot? || prefetch?
+    return if request.path.start_with?("/admin", "/jobs")
     DailyStat.track_visit!(
       user_agent: request.user_agent,
       country: request.headers["CF-IPCountry"],
