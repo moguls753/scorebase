@@ -45,7 +45,9 @@
       "Bash(sort:*)",
       "Bash(gem search:*)",
       "Bash(ruby -e:*)",
-      "Bash(ruby -rerb -e:*)"
+      "Bash(ruby -rerb -e:*)",
+      "WebFetch(domain:rubygems.org)",
+      "Bash(ruby -v:*)"
     ]
   }
 }

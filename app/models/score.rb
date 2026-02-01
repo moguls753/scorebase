@@ -428,9 +428,9 @@ class Score < ApplicationRecord
   # Instrument filter for hub pages (uses FTS5 trigram index for fast substring matching)
   scope :by_instrument, ->(instrument_name) {
     return all if instrument_name.blank?
-    escaped = escape_fts5_query(instrument_name.downcase)
-    where("id IN (SELECT rowid FROM scores_instruments_fts WHERE instruments MATCH ?)",
-          "\"#{escaped}\"")
+    fts_query = build_fts5_query(instrument_name)
+    return all if fts_query.blank?
+    where("id IN (SELECT rowid FROM scores_instruments_fts WHERE instruments MATCH ?)", fts_query)
   }
 
   # Pricing filter: free (public domain) vs commercial (SMD with price)
@@ -516,9 +516,13 @@ class Score < ApplicationRecord
   # "Title (arr. Someone) - Trombone 2" -> "title (arr. someone)|hl-12345678"
   # "Title (arr. Someone) - Pt.3 - Viola" -> "title (arr. someone)|hl-12345678"
   # Returns nil for solo products without instrument suffix
-  # Product code from thumbnail_url distinguishes different editions of same arrangement
+  # Product code from thumbnail_url distinguishes different editions (jazz band vs concert band)
+  #
+  # Note: Bundle products like "Title (arr. Someone)" without instrument suffix get their
+  # group_key set via backfill task which checks if sibling parts exist with same thumbnail.
   def self.derive_group_key(clean_title, thumbnail_url = nil)
-    return nil unless clean_title&.include?(" - ")
+    return nil if clean_title.blank?
+    return nil unless clean_title.include?(" - ")
 
     before, _, after = clean_title.rpartition(" - ")
     return nil unless INSTRUMENT_PATTERNS.any? { |pattern| after.match?(pattern) }
@@ -530,11 +534,28 @@ class Score < ApplicationRecord
     key = before.downcase.strip
 
     # Append product code to distinguish different editions (jazz band vs concert band)
-    if thumbnail_url.present? && (product_code = extract_product_code(thumbnail_url))
+    if (product_code = extract_product_code(thumbnail_url))
       key = "#{key}|#{product_code}"
     end
 
     key
+  end
+
+  # Derive group_key for bundle products (used by backfill task)
+  # Only returns a key if the bundle's thumbnail matches existing grouped parts
+  def self.derive_bundle_group_key(clean_title, thumbnail_url)
+    return nil if clean_title.blank? || thumbnail_url.blank?
+    return nil if clean_title.include?(" - ") # Has instrument suffix, use derive_group_key instead
+    return nil unless clean_title.match?(/\(arr\.[^)]+\)\s*$/i) # Must have arranger
+
+    product_code = extract_product_code(thumbnail_url)
+    return nil unless product_code
+
+    # Check if parts with this product code exist
+    potential_key = "#{clean_title.downcase.strip}|#{product_code}"
+    return potential_key if where(group_key: potential_key).exists?
+
+    nil
   end
 
   # Extract HL product code from SMD thumbnail URL

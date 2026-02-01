@@ -156,6 +156,34 @@ RSpec.describe Score do
       expect(Score.derive_group_key('Test - Trumpet 1', nil))
         .to eq('test')
     end
+
+  end
+
+  describe '.derive_bundle_group_key' do
+    it 'returns group_key for bundle when parts exist' do
+      thumb = 'https://img.sheetmusic.direct/catalogue/product/hl-04493257-md.jpg'
+      group_key = 'birds of a feather (arr. larry moore)|hl-04493257'
+
+      # Create a part with this group_key
+      create(:score, :smd, group_key: group_key, thumbnail_url: thumb)
+
+      # Bundle should now get the same group_key
+      expect(Score.derive_bundle_group_key('Birds Of A Feather (arr. Larry Moore)', thumb))
+        .to eq(group_key)
+    end
+
+    it 'returns nil for bundle without existing parts' do
+      thumb = 'https://img.sheetmusic.direct/catalogue/product/hl-99999999-md.jpg'
+      expect(Score.derive_bundle_group_key('Some Arrangement (arr. Someone)', thumb)).to be_nil
+    end
+
+    it 'returns nil for non-bundle titles' do
+      thumb = 'https://img.sheetmusic.direct/catalogue/product/hl-04493257-md.jpg'
+      # Has instrument suffix - not a bundle
+      expect(Score.derive_bundle_group_key('Title - Trumpet 1', thumb)).to be_nil
+      # No arranger attribution
+      expect(Score.derive_bundle_group_key('Simple Title', thumb)).to be_nil
+    end
   end
 
   describe '.extract_product_code' do
