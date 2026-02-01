@@ -156,7 +156,6 @@ RSpec.describe Score do
       expect(Score.derive_group_key('Test - Trumpet 1', nil))
         .to eq('test')
     end
-
   end
 
   describe '.derive_bundle_group_key' do
