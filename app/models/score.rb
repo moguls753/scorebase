@@ -460,11 +460,9 @@ class Score < ApplicationRecord
   # Uses FTS5 trigram index for fast substring matching
   scope :search_by_title, ->(query) {
     return all if query.blank?
-    normalized = normalize_for_search(query)
-    return all if normalized.blank?
-    escaped = escape_fts5_query(normalized.downcase)
-    where("id IN (SELECT rowid FROM scores_search_fts WHERE title MATCH ?)",
-          "\"#{escaped}\"")
+    fts_query = build_fts5_query(query)
+    return all if fts_query.blank?
+    where("id IN (SELECT rowid FROM scores_search_fts WHERE title MATCH ?)", fts_query)
   }
 
   # Forces filters (maps UI labels to num_parts)
@@ -487,26 +485,31 @@ class Score < ApplicationRecord
   # Search scope using normalized columns for accent-insensitive search
   # "Etudes" matches "Études", "Dvorak" matches "Dvořák"
   # Uses FTS5 trigram index for fast substring matching across title, composer, genre
+  # AND matching: all words must appear (in any order)
   scope :search, ->(query) {
     return all if query.blank?
-    normalized = normalize_for_search(query)
-    return all if normalized.blank?
-    escaped = escape_fts5_query(normalized.downcase)
-    where("id IN (SELECT rowid FROM scores_search_fts WHERE scores_search_fts MATCH ?)",
-          "\"#{escaped}\"")
+    fts_query = build_fts5_query(query)
+    return all if fts_query.blank?
+    where("id IN (SELECT rowid FROM scores_search_fts WHERE scores_search_fts MATCH ?)", fts_query)
   }
+
+  # Build FTS5 query with AND semantics
+  # "rock & roll" -> "rock" "roll" (AND match, special chars stripped)
+  # "Dvořák symphony" -> "dvorak" "symphony" (accent-normalized)
+  def self.build_fts5_query(query)
+    return "" if query.blank?
+    normalized = query.unicode_normalize(:nfkd).gsub(/\p{M}/, "").downcase
+    words = normalized.split.map { |w| w.gsub(/["\(\)\*\-\+\:\^\~\&]/, "") }.reject(&:empty?)
+    return "" if words.empty?
+    words.map { |w| "\"#{w}\"" }.join(" ")
+  end
 
   # Normalize text for search: strip accents, preserve case
   # "Händel" -> "Handel", "Dvořák" -> "Dvorak", "Café" -> "Cafe"
+  # Used for normalizing title/composer columns and search_by_title scope
   def self.normalize_for_search(text)
     return "" if text.blank?
     text.unicode_normalize(:nfkd).gsub(/\p{M}/, "")
-  end
-
-  # Escape special characters for FTS5 phrase queries
-  # Double quotes are escaped by doubling them: " -> ""
-  def self.escape_fts5_query(text)
-    text.to_s.gsub('"', '""')
   end
 
   # Derive group_key for SMD ensemble parts

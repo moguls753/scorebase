@@ -73,6 +73,25 @@ class ApplicationController < ActionController::Base
     # Mozilla/5.0 without device info parentheses = spoofed
     return true if user_agent.match?(/^Mozilla\/5\.0 [^(]/)
 
+    # DevTools mobile emulation signatures (ancient devices used for scraping)
+    return true if user_agent.match?(/
+      SM-G900P|                          # Galaxy S5 (2014)
+      Nexus\ 5\ Build\/MRA58N|           # Nexus 5 (2015)
+      Pixel\ 2\ Build\/OPD3|             # Pixel 2 DevTools emulation
+      iPhone\ OS\ 1[0-3]_|               # iOS 10-13 (2016-2019)
+      Android\ [45]\.0                   # Android 4.x-5.x (2013-2015)
+    /x)
+
+    # Old browser versions (bots using outdated but valid-looking signatures)
+    if (match = user_agent.match(/Chrome\/(\d+)\./))
+      return true if match[1].to_i < 130  # Chrome 130 = Oct 2024
+    end
+    if (match = user_agent.match(/Firefox\/(\d+)\./))
+      version = match[1].to_i
+      # Block < 115 (ancient) OR 116-127 (non-ESR gap between Tor's 115 and current ESR 128)
+      return true if version < 115 || (version > 115 && version < 128)
+    end
+
     false
   end
 
