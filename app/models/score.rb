@@ -269,6 +269,9 @@ class Score < ApplicationRecord
   # Active Storage attachments
   has_one_attached :pdf_file
 
+  # Normalize empty strings to nil (forms often send "" instead of nil)
+  normalizes :external_id, with: ->(value) { value.presence }
+
   # Validations
   validates :title, presence: true
   validates :data_path, uniqueness: true, allow_nil: true
