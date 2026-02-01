@@ -607,8 +607,11 @@ class Score < ApplicationRecord
   # Extract the instrument/part name from clean_title
   # "Birds of a Feather (arr. Roger Holmes) - Trombone 2" -> "Trombone 2"
   def part_name
-    return nil unless clean_title&.include?(" - ")
-    clean_title.rpartition(" - ").last
+    if clean_title&.include?(" - ")
+      clean_title.rpartition(" - ").last
+    elsif group_key.present?
+      I18n.t("score.set_label", default: "Set")
+    end
   end
 
   # Sorting scopes

@@ -239,6 +239,7 @@ en:
     # SMD grouped parts
     parts_label: "parts"
     other_parts: "Other Parts"
+    set_label: "Parts"
 
   # About Page
   about:

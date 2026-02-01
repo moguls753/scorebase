@@ -239,6 +239,7 @@ de:
     # SMD grouped parts
     parts_label: "Stimmen"
     other_parts: "Weitere Stimmen"
+    set_label: "Stimmensatz"
 
   # About Page
   about:
