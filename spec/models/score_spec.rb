@@ -201,9 +201,9 @@ RSpec.describe Score do
   describe '.deduplicate_arrangements' do
     it 'shows one card per arrangement, preferring Full Score' do
       group_key = 'test arrangement'
-      full_score = create(:score, :smd, clean_title: 'Test - Full Score', group_key: group_key)
-      create(:score, :smd, clean_title: 'Test - Trumpet 1', group_key: group_key)
-      create(:score, :smd, clean_title: 'Test - Trombone 1', group_key: group_key)
+      full_score = create(:score, :smd, clean_title: 'Test - Full Score', group_key: group_key, is_group_representative: true)
+      create(:score, :smd, clean_title: 'Test - Trumpet 1', group_key: group_key, is_group_representative: false)
+      create(:score, :smd, clean_title: 'Test - Trombone 1', group_key: group_key, is_group_representative: false)
       solo = create(:score, :smd, clean_title: 'Solo Product', group_key: nil)
 
       result = Score.where(source: 'smd').deduplicate_arrangements

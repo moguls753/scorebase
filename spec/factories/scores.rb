@@ -71,6 +71,7 @@
 #  interval_count             :integer
 #  interval_distribution      :json
 #  is_arrangeme               :boolean
+#  is_group_representative    :boolean
 #  is_instrumental            :boolean
 #  is_interactive             :boolean
 #  is_multi_movement          :boolean
@@ -197,6 +198,7 @@
 #  index_scores_on_instruments                   (instruments)
 #  index_scores_on_instruments_status            (instruments_status)
 #  index_scores_on_is_arrangeme                  (is_arrangeme)
+#  index_scores_on_is_group_representative       (is_group_representative) WHERE is_group_representative = 1
 #  index_scores_on_key_confidence                (key_confidence)
 #  index_scores_on_key_signature                 (key_signature)
 #  index_scores_on_lowest_pitch                  (lowest_pitch)

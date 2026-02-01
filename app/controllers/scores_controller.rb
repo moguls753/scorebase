@@ -28,12 +28,12 @@ class ScoresController < ApplicationController
     # Sorting
     @scores = apply_sorting(@scores, params[:sort])
 
-    # Deduplicate SMD arrangements (one card per arrangement)
-    @scores = @scores.deduplicate_arrangements
-
-    # Stats for filters (count before pagination)
+    # Stats for filters (count before deduplication for speed)
     @total_count = Score.active.count
     @filtered_count = @scores.count
+
+    # Deduplicate SMD arrangements (one card per arrangement)
+    @scores = @scores.deduplicate_arrangements
 
     # Pagination: 24 for clean 4-column grid (hub pages use 30 for 5-column)
     @scores = @scores.with_attached_thumbnail_image.page(params[:page]).per(24).without_count

@@ -71,6 +71,7 @@
 #  interval_count             :integer
 #  interval_distribution      :json
 #  is_arrangeme               :boolean
+#  is_group_representative    :boolean
 #  is_instrumental            :boolean
 #  is_interactive             :boolean
 #  is_multi_movement          :boolean
@@ -197,6 +198,7 @@
 #  index_scores_on_instruments                   (instruments)
 #  index_scores_on_instruments_status            (instruments_status)
 #  index_scores_on_is_arrangeme                  (is_arrangeme)
+#  index_scores_on_is_group_representative       (is_group_representative) WHERE is_group_representative = 1
 #  index_scores_on_key_confidence                (key_confidence)
 #  index_scores_on_key_signature                 (key_signature)
 #  index_scores_on_lowest_pitch                  (lowest_pitch)
@@ -603,28 +605,13 @@ class Score < ApplicationRecord
   end
 
   # Deduplicate SMD arrangements: show one card per group_key
-  # Prefers Full Score > Conductor Score > alphabetically first
+  # Uses pre-computed is_group_representative column (set by backfill_group_keys task)
   # Ungrouped scores (group_key IS NULL) always included
   #
   # Note: For search results, deduplication happens in the search scope itself.
   # This scope is for non-search listings (browsing all scores, filtering by source, etc.)
   scope :deduplicate_arrangements, -> {
-    where(<<~SQL.squish)
-      group_key IS NULL
-      OR id = (
-        SELECT s2.id FROM scores s2
-        WHERE s2.group_key = scores.group_key
-          AND s2.deleted_at IS NULL
-        ORDER BY
-          CASE
-            WHEN s2.clean_title LIKE '%Full Score%' THEN 0
-            WHEN s2.clean_title LIKE '%Conductor%' THEN 1
-            ELSE 2
-          END,
-          s2.clean_title
-        LIMIT 1
-      )
-    SQL
+    where(group_key: nil).or(where(is_group_representative: true))
   }
 
   # Get all other parts in this score's arrangement group

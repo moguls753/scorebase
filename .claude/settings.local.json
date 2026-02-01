@@ -47,7 +47,8 @@
       "Bash(ruby -e:*)",
       "Bash(ruby -rerb -e:*)",
       "WebFetch(domain:rubygems.org)",
-      "Bash(ruby -v:*)"
+      "Bash(ruby -v:*)",
+      "Bash(RAILS_ENV=test bin/rails:*)"
     ]
   }
 }

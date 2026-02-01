@@ -1,5 +1,6 @@
 namespace :scores do
-  desc "Backfill group_key for SMD arrangements"
+  desc "Backfill group_key and is_group_representative for SMD arrangements"
+  # Run after importing new SMD scores to update grouping and representatives
   task backfill_group_keys: :environment do
     scope = Score.where(source: "smd")
     total = scope.count
@@ -35,6 +36,35 @@ namespace :scores do
     end
     puts "Pass 2 done: #{bundles_updated} bundles grouped"
 
-    puts "\nTotal: #{updated + bundles_updated} updated, #{grouped + bundles_updated} have group_key"
+    # Pass 3: Set is_group_representative for each group
+    # Prefers: Full Score > Conductor Score > alphabetically first
+    puts "\nPass 3: Setting is_group_representative..."
+
+    # Reset all first
+    Score.where.not(is_group_representative: nil).update_all(is_group_representative: nil)
+
+    # Single UPDATE with subquery - finds representative for each group in one query
+    reps_set = Score.connection.update(<<~SQL.squish)
+      UPDATE scores SET is_group_representative = 1
+      WHERE id IN (
+        SELECT (
+          SELECT s2.id FROM scores s2
+          WHERE s2.group_key = groups.group_key
+            AND s2.deleted_at IS NULL
+          ORDER BY
+            CASE
+              WHEN s2.clean_title LIKE '%Full Score%' THEN 0
+              WHEN s2.clean_title LIKE '%Conductor%' THEN 1
+              ELSE 2
+            END,
+            s2.clean_title
+          LIMIT 1
+        )
+        FROM (SELECT DISTINCT group_key FROM scores WHERE group_key IS NOT NULL AND deleted_at IS NULL) groups
+      )
+    SQL
+    puts "Pass 3 done: #{reps_set} representatives set"
+
+    puts "\nTotal: #{updated + bundles_updated} group_keys updated, #{reps_set} representatives marked"
   end
 end
