@@ -65,7 +65,8 @@ class ApplicationController < ActionController::Base
     # Empty or suspiciously short user agents are often bots
     return true if user_agent.blank? || user_agent.length < 20
 
-    user_agent.match?(/
+    # Known bot patterns
+    return true if user_agent.match?(/
       bot|crawl|spider|slurp|
       googlebot|bingpreview|yandex|baidu|duckduck|applebot|
       facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|pinterest|
@@ -77,6 +78,25 @@ class ApplicationController < ActionController::Base
       pingdom|uptimerobot|monitoring|site24x7|newrelic|datadog|
       screaming|sitebulb|screamingfrog
     /ix)
+
+    # DevTools mobile emulation signatures (ancient devices used for scraping)
+    return true if user_agent.match?(/
+      SM-G900P|                          # Galaxy S5 (2014)
+      Nexus\ 5\ Build\/MRA58N|           # Nexus 5 (2015)
+      Pixel\ 2\ Build\/OPD3|             # Pixel 2 DevTools emulation
+      iPhone\ OS\ 1[01]_|                # iOS 10-11 (2016-2017)
+      Android\ [45]\.0                   # Android 4.x-5.x (2013-2015)
+    /x)
+
+    # Very old browser versions (likely bots, real browsers auto-update)
+    if (match = user_agent.match(/Chrome\/(\d+)\./))
+      return true if match[1].to_i < 125
+    end
+    if (match = user_agent.match(/Firefox\/(\d+)\./))
+      return true if match[1].to_i < 130
+    end
+
+    false
   end
 
   def prefetch?
