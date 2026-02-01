@@ -61,45 +61,17 @@ class ApplicationController < ActionController::Base
   end
 
   def bot?
+    # Primary detection via crawler_detect gem (checks 11 HTTP headers, 1000s of bots)
+    return true if request.is_crawler?
+
+    # Fallback checks for edge cases the gem might miss
     user_agent = request.user_agent.to_s
 
-    # Empty or suspiciously short user agents are often bots
+    # Empty or suspiciously short user agents
     return true if user_agent.blank? || user_agent.length < 20
 
-    # Known bot patterns
-    return true if user_agent.match?(/
-      bot|crawl|spider|slurp|
-      googlebot|bingpreview|yandex|baidu|duckduck|applebot|
-      facebookexternalhit|twitterbot|linkedinbot|whatsapp|telegram|pinterest|
-      gptbot|claudebot|claude-web|anthropic|bytespider|ccbot|
-      ahrefsbot|semrush|mj12bot|dotbot|petalbot|dataforseo|
-      headlesschrome|phantomjs|puppeteer|playwright|selenium|
-      curl|wget|python-requests|python-urllib|httpx|aiohttp|
-      ruby|java|php|go-http|axios|postman|insomnia|
-      pingdom|uptimerobot|monitoring|site24x7|newrelic|datadog|
-      screaming|sitebulb|screamingfrog
-    /ix)
-
-    # DevTools mobile emulation signatures (ancient devices used for scraping)
-    return true if user_agent.match?(/
-      SM-G900P|                          # Galaxy S5 (2014)
-      Nexus\ 5\ Build\/MRA58N|           # Nexus 5 (2015)
-      Pixel\ 2\ Build\/OPD3|             # Pixel 2 DevTools emulation
-      iPhone\ OS\ 1[01]_|                # iOS 10-11 (2016-2017)
-      Android\ [45]\.0                   # Android 4.x-5.x (2013-2015)
-    /x)
-
     # Mozilla/5.0 without device info parentheses = spoofed
-    # Real browsers always have: Mozilla/5.0 (platform info here) ...
     return true if user_agent.match?(/^Mozilla\/5\.0 [^(]/)
-
-    # Very old browser versions (likely bots, real browsers auto-update)
-    if (match = user_agent.match(/Chrome\/(\d+)\./))
-      return true if match[1].to_i < 125
-    end
-    if (match = user_agent.match(/Firefox\/(\d+)\./))
-      return true if match[1].to_i < 115  # ESR 115 still supported, Tor Browser uses it
-    end
 
     false
   end

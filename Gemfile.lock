@@ -154,6 +154,8 @@ GEM
       bigdecimal
       rexml
     crass (1.0.6)
+    crawler_detect (1.2.9)
+      qonfig (>= 0.24)
     csv (3.3.5)
     date (3.5.1)
     debug (1.11.0)
@@ -327,6 +329,8 @@ GEM
     public_suffix (7.0.0)
     puma (7.1.0)
       nio4r (~> 2.0)
+    qonfig (0.30.0)
+      base64 (>= 0.2)
     raabro (1.4.0)
     racc (1.8.1)
     rack (3.2.4)
@@ -546,6 +550,7 @@ DEPENDENCIES
   bundler-audit
   capybara
   chartkick
+  crawler_detect
   csv
   debug
   factory_bot_rails
@@ -623,6 +628,7 @@ CHECKSUMS
   connection_pool (3.0.2) sha256=33fff5ba71a12d2aa26cb72b1db8bba2a1a01823559fb01d29eb74c286e62e0a
   crack (1.0.1) sha256=ff4a10390cd31d66440b7524eb1841874db86201d5b70032028553130b6d4c7e
   crass (1.0.6) sha256=dc516022a56e7b3b156099abc81b6d2b08ea1ed12676ac7a5657617f012bd45d
+  crawler_detect (1.2.9) sha256=58101317f4a3fef8bcc7b1314ce51f9de5b8ea42513ca3bce3ada01eebcf8f32
   csv (3.3.5) sha256=6e5134ac3383ef728b7f02725d9872934f523cb40b961479f69cf3afa6c8e73f
   date (3.5.1) sha256=750d06384d7b9c15d562c76291407d89e368dda4d4fff957eb94962d325a0dc0
   debug (1.11.0) sha256=1425db64cfa0130c952684e3dc974985be201dd62899bf4bbe3f8b5d6cf1aef2
@@ -705,6 +711,7 @@ CHECKSUMS
   psych (5.3.1) sha256=eb7a57cef10c9d70173ff74e739d843ac3b2c019a003de48447b2963d81b1974
   public_suffix (7.0.0) sha256=f7090b5beb0e56f9f10d79eed4d5fbe551b3b425da65877e075dad47a6a1b095
   puma (7.1.0) sha256=e45c10cb124f224d448c98db653a75499794edbecadc440ad616cf50f2fd49dd
+  qonfig (0.30.0) sha256=c6b9cd02fb707e919b72e17c866a69f16018c3f8c5e0faca4127f15deab29e19
   raabro (1.4.0) sha256=d4fa9ff5172391edb92b242eed8be802d1934b1464061ae5e70d80962c5da882
   racc (1.8.1) sha256=4a7f6929691dbec8b5209a0b373bc2614882b55fc5d2e447a21aaa691303d62f
   rack (3.2.4) sha256=5d74b6f75082a643f43c1e76b419c40f0e5527fcfee1e669ac1e6b73c0ccb6f6

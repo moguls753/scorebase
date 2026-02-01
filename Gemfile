@@ -119,3 +119,6 @@ end
 
 # Charts
 gem "chartkick"
+
+# Bot/crawler detection [https://github.com/loadkpi/crawler_detect]
+gem "crawler_detect"
