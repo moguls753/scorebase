@@ -4,18 +4,15 @@ Open source sheet music search engine. Deploys to scorebase.org.
 
 ## What Is This?
 
-Sheet music search engine with AI-powered smart search. One search across free public domain scores (100k+) and commercial catalogs (1M+ via Sheet Music Direct).
-
-- **Free:** Browse, search, download free PDFs or purchase commercial arrangements
-- **Pro (€2/mo):** Unlimited Smart Search, favorites, collections
+Sheet music search engine aggregating free public domain scores and commercial catalogs (Sheet Music Direct). Browse, search, download free PDFs or purchase commercial arrangements.
 
 ## Tech Stack
 
 - Rails 8
-- SQLite (scores) + Postgres (users, vectors)
+- SQLite
 - Python/FastAPI RAG service
 - ChromaDB + sentence-transformers for embeddings
-- Stripe for billing
+- LLM for reranking (provider-agnostic)
 - Kamal for deployment
 - Cloudflare CDN
 
@@ -23,9 +20,15 @@ Sheet music search engine with AI-powered smart search. One search across free p
 
 ```bash
 bin/dev              # Start Rails
-bin/rails test       # Run tests
+bin/rspec            # Run tests
 bin/kamal deploy     # Deploy to production
 ```
+
+## Testing
+
+- Use RSpec for all tests
+- Keep tests small and simple
+- Focus on behavior, not implementation details
 
 ## RAG Service
 
@@ -33,7 +36,7 @@ Located in `rag/` directory:
 - FastAPI service
 - Embeds score metadata using sentence-transformers
 - Vector search via ChromaDB
-- LLM reranking via Groq (Llama 3.3 70B)
+- LLM reranking for smart search
 - Called by Rails for smart search
 
 ```bash
