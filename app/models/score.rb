@@ -656,8 +656,11 @@ class Score < ApplicationRecord
   # Primary instrument for display on score cards
   # SMD scores have curated main_instrument; others need extraction/normalization
   def primary_instrument
-    # SMD scores have curated categories - use as-is
-    return main_instrument if main_instrument.present?
+    # SMD scores have curated categories - use as-is (except non-informative "Other")
+    if main_instrument.present?
+      return nil if main_instrument == "Other"
+      return main_instrument
+    end
 
     # For other sources, extract from instruments field
     return nil if instruments.blank?

@@ -117,6 +117,16 @@ RSpec.describe Score do
       expect(score.primary_instrument).to eq('Guitar')
     end
 
+    it 'omits non-informative "Other" from SMD scores' do
+      score = build(:score, source: 'smd', main_instrument: 'Other')
+      expect(score.primary_instrument).to be_nil
+    end
+
+    it 'keeps informative "Other X" variants from SMD scores' do
+      expect(build(:score, source: 'smd', main_instrument: 'Other Strings').primary_instrument).to eq('Other Strings')
+      expect(build(:score, source: 'smd', main_instrument: 'Other Brass').primary_instrument).to eq('Other Brass')
+    end
+
     it 'detects ensemble keywords' do
       expect(build(:score, instruments: 'orchestra').primary_instrument).to eq('Orchestra')
       expect(build(:score, instruments: 'concert band').primary_instrument).to eq('Band')
