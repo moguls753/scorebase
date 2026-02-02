@@ -228,14 +228,14 @@ export default class extends Controller {
     const nameEl = item.querySelector("[data-list-filter-target='itemName']")
     if (!nameEl) return
 
-    const text = nameEl.textContent
+    const text = nameEl.textContent.trim()
     nameEl.innerHTML = this.applyHighlight(text, indices)
   }
 
   clearHighlight(item) {
     const nameEl = item.querySelector("[data-list-filter-target='itemName']")
     if (nameEl) {
-      nameEl.innerHTML = nameEl.textContent
+      nameEl.innerHTML = nameEl.textContent.trim()
     }
   }
 
