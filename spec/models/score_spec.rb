@@ -111,6 +111,47 @@ RSpec.describe Score do
     end
   end
 
+  describe '#primary_instrument' do
+    it 'returns main_instrument for SMD scores' do
+      score = build(:score, source: 'smd', main_instrument: 'Guitar')
+      expect(score.primary_instrument).to eq('Guitar')
+    end
+
+    it 'detects ensemble keywords' do
+      expect(build(:score, instruments: 'orchestra').primary_instrument).to eq('Orchestra')
+      expect(build(:score, instruments: 'concert band').primary_instrument).to eq('Band')
+    end
+
+    it 'maps choral codes to Choir' do
+      expect(build(:score, instruments: 'SATB').primary_instrument).to eq('Choir')
+      expect(build(:score, instruments: 'SSA, Piano').primary_instrument).to eq('Choir')
+      expect(build(:score, instruments: 'TB').primary_instrument).to eq('Choir')
+    end
+
+    it 'preserves A cappella' do
+      expect(build(:score, instruments: 'A cappella').primary_instrument).to eq('A cappella')
+    end
+
+    it 'formats voice + accompaniment' do
+      expect(build(:score, instruments: 'voice, piano').primary_instrument).to eq('Voice & Piano')
+      expect(build(:score, instruments: 'soprano, organ').primary_instrument).to eq('Voice & Organ')
+      expect(build(:score, instruments: 'tenor, guitar').primary_instrument).to eq('Voice & Guitar')
+    end
+
+    it 'returns Ensemble for 3+ instruments' do
+      expect(build(:score, instruments: 'flute, violin, cello').primary_instrument).to eq('Ensemble')
+    end
+
+    it 'returns single instrument capitalized' do
+      expect(build(:score, instruments: 'piano').primary_instrument).to eq('Piano')
+    end
+
+    it 'returns nil when no instrument data' do
+      expect(build(:score, instruments: nil).primary_instrument).to be_nil
+      expect(build(:score, instruments: '').primary_instrument).to be_nil
+    end
+  end
+
   describe '.derive_group_key' do
     it 'extracts group key from ensemble part titles' do
       expect(Score.derive_group_key('Birds of a Feather (arr. Roger Holmes) - Trombone 2'))

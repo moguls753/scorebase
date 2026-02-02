@@ -653,6 +653,18 @@ class Score < ApplicationRecord
     key_signature&.split(",")&.first&.strip
   end
 
+  # Primary instrument for display on score cards
+  # SMD scores have curated main_instrument; others need extraction/normalization
+  def primary_instrument
+    # SMD scores have curated categories - use as-is
+    return main_instrument if main_instrument.present?
+
+    # For other sources, extract from instruments field
+    return nil if instruments.blank?
+
+    normalize_instruments_for_display(instruments)
+  end
+
   # Helper method to get first time signature
   def primary_time_signature
     time_signature&.split(",")&.first&.strip
@@ -880,6 +892,67 @@ class Score < ApplicationRecord
   end
 
   private
+
+  # Voice part codes that indicate choral music (S=soprano, A=alto, T=tenor, B=bass)
+  CHORAL_CODES = %w[satb ssaa ttbb ssab satbb saatbb sab ssa ssb ttb atb stb sat sa tb ab sb].freeze
+
+  # Ensemble keywords that should be shown as-is (not reduced to single instrument)
+  ENSEMBLE_KEYWORDS = %w[orchestra orchestral band ensemble chamber].freeze
+
+  def normalize_instruments_for_display(raw_instruments)
+    normalized = raw_instruments.downcase.strip
+
+    # Check for ensemble keywords first
+    ENSEMBLE_KEYWORDS.each do |keyword|
+      return keyword.capitalize if normalized.include?(keyword)
+    end
+
+    # Check for "a cappella" - keep as-is
+    return "A cappella" if normalized.include?("a cappella") || normalized.include?("acappella")
+
+    # Split by common delimiters
+    parts = raw_instruments.split(/[,;]/).map(&:strip).reject(&:blank?)
+
+    # Check for choral voice codes (SATB, SSA, etc.)
+    first_part_lower = parts.first&.downcase&.gsub(/\s+/, "")
+    if first_part_lower && CHORAL_CODES.include?(first_part_lower)
+      return "Choir"
+    end
+
+    # Check for "Solo S", "Solo A", etc. (solo voice)
+    if parts.first&.match?(/^solo\s+[satb]/i)
+      # If accompanied, show "Voice & [accompaniment]"
+      if parts.size > 1 && parts[1]&.match?(/piano|organ|keyboard/i)
+        return "Voice & Piano"
+      end
+      return "Voice"
+    end
+
+    # If 3+ distinct instruments, it's an ensemble
+    if parts.size >= 3
+      return "Ensemble"
+    end
+
+    # For voice + accompaniment combinations (2 parts)
+    if parts.size == 2
+      voice_part = parts.find { |p| p.match?(/voice|vocal|singer|soprano|alto|tenor|bass|baritone/i) }
+      if voice_part
+        other_part = (parts - [voice_part]).first
+        accompaniment = case other_part&.downcase
+        when /piano|keyboard/ then "Piano"
+        when /organ/ then "Organ"
+        when /guitar/ then "Guitar"
+        when /lute/ then "Lute"
+        when /harp/ then "Harp"
+        else nil
+        end
+        return "Voice & #{accompaniment}" if accompaniment
+      end
+    end
+
+    # Return the first instrument, capitalized
+    parts.first&.capitalize
+  end
 
   def update_normalized_search_columns
     self.title_normalized = self.class.normalize_for_search(title)

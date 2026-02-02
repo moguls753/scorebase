@@ -11,9 +11,9 @@
     </p>
 
     <div class="flex flex-wrap gap-1.5">
-      <% if score.primary_key_signature.present? %>
-        <span class="mm-badge text-[10px] sm:text-[11px]">
-          <%= score.primary_key_signature %>
+      <% if score.primary_instrument.present? %>
+        <span class="mm-badge mm-badge--instrument text-[10px] sm:text-[11px]">
+          <%= score.primary_instrument %>
         </span>
       <% end %>
 

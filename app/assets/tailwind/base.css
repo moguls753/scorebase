@@ -310,6 +310,23 @@ a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
   border-color: var(--color-accent-muted);
 }
 
+/* Instrument badge - warm cream on dark, with musical character */
+.mm-badge--instrument {
+  background: var(--color-bg-deep);
+  color: var(--color-text);
+  border-color: var(--color-border);
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+.mm-badge--instrument::before {
+  content: "♪";
+  margin-right: 4px;
+  opacity: 0.5;
+  font-size: 9px;
+}
+
 /* ========================================
    LYRICS ACCORDION - Neubrutalist Style
    ======================================== */
