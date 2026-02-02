@@ -122,10 +122,11 @@ RSpec.describe Score do
       expect(build(:score, instruments: 'concert band').primary_instrument).to eq('Band')
     end
 
-    it 'maps choral codes to Choir' do
+    it 'maps choral codes to Choir (3+ voices) or Vocal (2 voices)' do
       expect(build(:score, instruments: 'SATB').primary_instrument).to eq('Choir')
       expect(build(:score, instruments: 'SSA, Piano').primary_instrument).to eq('Choir')
-      expect(build(:score, instruments: 'TB').primary_instrument).to eq('Choir')
+      expect(build(:score, instruments: 'SS').primary_instrument).to eq('Vocal')
+      expect(build(:score, instruments: 'TB').primary_instrument).to eq('Vocal')
     end
 
     it 'preserves A cappella' do
@@ -142,8 +143,15 @@ RSpec.describe Score do
       expect(build(:score, instruments: 'flute, violin, cello').primary_instrument).to eq('Ensemble')
     end
 
-    it 'returns single instrument capitalized' do
+    it 'returns known instruments capitalized' do
       expect(build(:score, instruments: 'piano').primary_instrument).to eq('Piano')
+      expect(build(:score, instruments: 'violin').primary_instrument).to eq('Violin')
+      expect(build(:score, instruments: 'flute').primary_instrument).to eq('Flute')
+    end
+
+    it 'returns nil for unknown patterns' do
+      expect(build(:score, instruments: 'Unknown').primary_instrument).to be_nil
+      expect(build(:score, instruments: 'XYZ').primary_instrument).to be_nil
     end
 
     it 'returns nil when no instrument data' do

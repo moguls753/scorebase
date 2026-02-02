@@ -893,11 +893,19 @@ class Score < ApplicationRecord
 
   private
 
-  # Voice part codes that indicate choral music (S=soprano, A=alto, T=tenor, B=bass)
-  CHORAL_CODES = %w[satb ssaa ttbb ssab satbb saatbb sab ssa ssb ttb atb stb sat sa tb ab sb].freeze
-
   # Ensemble keywords that should be shown as-is (not reduced to single instrument)
   ENSEMBLE_KEYWORDS = %w[orchestra orchestral band ensemble chamber].freeze
+
+  # Known instrument names we can confidently display
+  KNOWN_INSTRUMENTS = %w[
+    piano organ harpsichord keyboard clavichord
+    guitar lute harp mandolin banjo ukulele
+    violin viola cello bass contrabass
+    flute oboe clarinet bassoon recorder
+    trumpet trombone horn tuba
+    percussion drums timpani
+    accordion harmonica
+  ].freeze
 
   def normalize_instruments_for_display(raw_instruments)
     normalized = raw_instruments.downcase.strip
@@ -913,10 +921,12 @@ class Score < ApplicationRecord
     # Split by common delimiters
     parts = raw_instruments.split(/[,;]/).map(&:strip).reject(&:blank?)
 
-    # Check for choral voice codes (SATB, SSA, etc.)
-    first_part_lower = parts.first&.downcase&.gsub(/\s+/, "")
-    if first_part_lower && CHORAL_CODES.include?(first_part_lower)
-      return "Choir"
+    # Check for voice part codes (SATB, SSA, SS, etc.) - only S, A, T, B letters
+    first_part_clean = parts.first&.downcase&.gsub(/\s+/, "")
+    if first_part_clean&.match?(/\A[satb]+\z/)
+      # 3+ voice parts = Choir, 2 = Vocal (duet), 1 = skip
+      return "Choir" if first_part_clean.length >= 3
+      return "Vocal" if first_part_clean.length == 2
     end
 
     # Check for "Solo S", "Solo A", etc. (solo voice)
@@ -950,8 +960,19 @@ class Score < ApplicationRecord
       end
     end
 
-    # Return the first instrument, capitalized
-    parts.first&.capitalize
+    # Only return known instrument names, otherwise nil (no badge)
+    first_part = parts.first&.downcase
+    return nil if first_part.blank?
+
+    # Check for exact match or word boundary match (e.g., "piano 4-hands" matches "piano")
+    KNOWN_INSTRUMENTS.each do |instrument|
+      if first_part == instrument || first_part.match?(/\b#{instrument}\b/)
+        return instrument.capitalize
+      end
+    end
+
+    # Unknown pattern - don't show badge
+    nil
   end
 
   def update_normalized_search_columns
