@@ -36,6 +36,7 @@ module SmdCrawler
         title: metadata[:title],
         clean_title: metadata[:clean_title],
         composer: metadata[:composer],
+        artist: metadata[:artist],
         contributors: metadata[:contributors],
         instruments: metadata[:instruments],
         main_instrument: metadata[:main_instrument],
