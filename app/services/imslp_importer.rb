@@ -17,6 +17,7 @@ class ImslpImporter
   USER_AGENT = "ScorebaseBot/1.0 (https://github.com/scorebase; contact@scorebase.app) Ruby/#{RUBY_VERSION}"
 
   # Priority composers to import first (IMSLP category format)
+  # Organized by: Major composers, Pedagogical, Choral/Sacred, Organ, English Cathedral, Guitar
   PRIORITY_COMPOSERS = %w[
     Bach,_Johann_Sebastian
     Beethoven,_Ludwig_van
@@ -68,6 +69,33 @@ class ImslpImporter
     Mussorgsky,_Modest
     Rimsky-Korsakov,_Nikolai
     Borodin,_Alexander
+    Burgmüller,_Friedrich
+    Czerny,_Carl
+    Clementi,_Muzio
+    Kuhlau,_Friedrich
+    Diabelli,_Anton
+    Kabalevsky,_Dmitry
+    Gurlitt,_Cornelius
+    Heller,_Stephen
+    Byrd,_William
+    Tallis,_Thomas
+    Victoria,_Tomás_Luis_de
+    Lassus,_Orlande_de
+    Josquin_des_Prez
+    Gibbons,_Orlando
+    Schütz,_Heinrich
+    Praetorius,_Michael
+    Allegri,_Gregorio
+    Lotti,_Antonio
+    Buxtehude,_Dieterich
+    Pachelbel,_Johann
+    Widor,_Charles-Marie
+    Vierne,_Louis
+    Dupré,_Marcel
+    Stanford,_Charles_Villiers
+    Parry,_Hubert
+    Howells,_Herbert
+    Rutter,_John
     Giuliani,_Mauro
     Sor,_Fernando
     Carulli,_Ferdinando
