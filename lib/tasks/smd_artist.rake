@@ -1,28 +1,29 @@
 # frozen_string_literal: true
 
 namespace :smd do
-  desc "Backfill artist field for SMD scores (non-Klassik only)"
+  desc "Backfill artist field for SMD scores (non-Klassik/Barock only)"
   task backfill_artist: :environment do
     puts "Backfilling artist field for SMD scores..."
 
-    # Non-Klassik SMD scores get artist = composer
-    non_klassik = Score.where(source: "smd")
-                       .where.not("tags LIKE ?", "%Klassik%")
-                       .where(artist: nil)
+    # Non-Klassik/Barock SMD scores get artist = composer
+    non_classical = Score.where(source: "smd")
+                         .where.not("tags LIKE ?", "%Klassik%")
+                         .where.not("tags LIKE ?", "%Barock%")
+                         .where(artist: nil)
 
-    non_klassik_count = non_klassik.count
-    puts "Found #{non_klassik_count} non-Klassik SMD scores to update"
+    non_classical_count = non_classical.count
+    puts "Found #{non_classical_count} non-Klassik/Barock SMD scores to update"
 
-    if non_klassik_count > 0
-      non_klassik.update_all("artist = composer")
-      puts "Set artist = composer for #{non_klassik_count} scores"
+    if non_classical_count > 0
+      non_classical.update_all("artist = composer")
+      puts "Set artist = composer for #{non_classical_count} scores"
     end
 
-    # Klassik SMD scores keep artist = nil (already nil by default)
-    klassik_count = Score.where(source: "smd")
-                         .where("tags LIKE ?", "%Klassik%")
-                         .count
-    puts "#{klassik_count} Klassik SMD scores left with artist = nil"
+    # Klassik/Barock SMD scores keep artist = nil
+    excluded_count = Score.where(source: "smd")
+                          .where("tags LIKE ? OR tags LIKE ?", "%Klassik%", "%Barock%")
+                          .count
+    puts "#{excluded_count} Klassik/Barock SMD scores left with artist = nil"
 
     puts "Done!"
   end
