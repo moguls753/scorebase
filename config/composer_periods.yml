@@ -510,6 +510,118 @@
 "Krzyżanowski, Ignacy": "Romantic"
 "Walczyński, Franciszek": "Romantic"
 
+# ============================================================================
+# Missing priority list composers (2026-02)
+# ============================================================================
+
+# Renaissance / Early Baroque
+"Allegri, Gregorio": "Renaissance"
+"Milan, Luys de": "Renaissance"
+"Narváez, Luys de": "Renaissance"
+
+# Baroque
+"Lotti, Antonio": "Baroque"
+"Caldara, Antonio": "Baroque"
+"Carissimi, Giacomo": "Baroque"
+"Buxtehude, Dieterich": "Baroque"
+"Weiss, Silvius Leopold": "Baroque"
+
+# Classical
+"Türk, Daniel Gottlob": "Classical"
+"Benda, Jiří Antonín": "Classical"
+"Attwood, Thomas": "Classical"
+"Kuhlau, Friedrich": "Classical"
+
+# Romantic
+"Godard, Benjamin": "Romantic"
+"Burgmüller, Friedrich": "Romantic"
+"Heller, Stephen": "Romantic"
+"Moscheles, Ignaz": "Romantic"
+"Bertini, Henri": "Romantic"
+"Beyer, Ferdinand": "Romantic"
+"Moszkowski, Moritz": "Romantic"
+"Rossini, Gioacchino": "Romantic"
+
+# Late Romantic
+"Granados, Enrique": "Late Romantic"
+"Albéniz, Isaac": "Late Romantic"
+"Arensky, Anton": "Late Romantic"
+"Lyadov, Anatoly": "Late Romantic"
+"Glazunov, Alexander": "Late Romantic"
+"Medtner, Nikolai": "Late Romantic"
+"Widor, Charles-Marie": "Late Romantic"
+"Vierne, Louis": "Late Romantic"
+"Maykapar, Samuil": "Late Romantic"
+"Gedike, Alexander": "Late Romantic"
+"Falla, Manuel de": "Late Romantic"
+
+# 20th Century
+"Kabalevsky, Dmitry": "20th Century"
+"Khachaturian, Aram": "20th Century"
+"Tcherepnin, Alexander": "20th Century"
+"Dupré, Marcel": "20th Century"
+
+# ============================================================================
+# Additional composers from priority list expansion (2026-02)
+# ============================================================================
+
+# Renaissance
+"Milano, Francesco da": "Renaissance"
+"Milano, Francesco Canova da": "Renaissance"
+"Fuenllana, Miguel de": "Renaissance"
+"Le Roy, Adrien": "Renaissance"
+"Dalza, Joan Ambrosio": "Renaissance"
+"Capirola, Vincenzo": "Renaissance"
+"Holborne, Anthony": "Renaissance"
+"Galilei, Vincenzo": "Renaissance"
+
+# Baroque
+"Corbetta, Francesco": "Baroque"
+"Murcia, Santiago de": "Baroque"
+"Foscarini, Giovanni": "Baroque"
+"Bartolotti, Angelo Michele": "Baroque"
+"Roncalli, Lodovico": "Baroque"
+"Falckenhagen, Adam": "Baroque"
+"Froberger, Johann Jacob": "Baroque"
+"Froberger, Johann Jakob": "Baroque"
+"Marais, Marin": "Baroque"
+"Leclair, Jean-Marie": "Baroque"
+"Guerau, Francisco": "Baroque"
+"Soler, Antonio": "Baroque"
+
+# Classical
+"Matiegka, Wenzel Thomas": "Classical"
+"Call, Leonhard von": "Classical"
+"Lhoyer, Antoine de": "Classical"
+"Gragnani, Filippo": "Classical"
+"Fossa, François de": "Classical"
+"Gatayes, Guillaume-Pierre-Antoine": "Classical"
+
+# Romantic
+"Rubinstein, Anton": "Romantic"
+"Raff, Joachim": "Romantic"
+"Loewe, Carl": "Romantic"
+"Bobrowicz, Jan Nepomucen": "Romantic"
+"Ferranti, Marco Aurelio Zani de": "Romantic"
+"Zani de Ferranti, Marco Aurelio": "Romantic"
+"Horetzky, Felix": "Romantic"
+"Darr, Adam": "Romantic"
+"Ferrer, José": "Romantic"
+"Decker-Schenk, Johann": "Romantic"
+"Padovec, Ivan": "Romantic"
+"Huerta, Francisco Trinidad": "Romantic"
+"Cano, Antonio": "Romantic"
+"Pratten, Catharina Josepha": "Romantic"
+
+# Late Romantic
+"Szymanowski, Karol": "Late Romantic"
+"Enescu, George": "Late Romantic"
+"Enesco, Georges": "Late Romantic"
+"Taneyev, Sergey": "Late Romantic"
+"Taneyev, Sergei": "Late Romantic"
+"Lyapunov, Sergey": "Late Romantic"
+"Lyapunov, Sergei": "Late Romantic"
+
 # Contemporary
 "ZUN": "Contemporary"
 "Beatty, Stephen W.": "Contemporary"

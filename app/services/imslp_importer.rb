@@ -54,7 +54,7 @@ class ImslpImporter
     Granados,_Enrique
     Albéniz,_Isaac
     Turina,_Joaquín
-    De_Falla,_Manuel
+    Falla,_Manuel_de
     Paganini,_Niccolò
     Palestrina,_Giovanni_Pierluigi_da
     Monteverdi,_Claudio
@@ -162,6 +162,76 @@ class ImslpImporter
     Pujol,_Emilio
     Lauro,_Antonio
     Moreno_Torroba,_Federico
+    Rossini,_Gioacchino
+    Donizetti,_Gaetano
+    Bellini,_Vincenzo
+    Weber,_Carl_Maria_von
+    Bizet,_Georges
+    Boccherini,_Luigi
+    Bach,_Carl_Philipp_Emanuel
+    Holst,_Gustav
+    Smetana,_Bedřich
+    Gounod,_Charles
+    Massenet,_Jules
+    Offenbach,_Jacques
+    Frescobaldi,_Girolamo
+    Gabrieli,_Giovanni
+    Gesualdo,_Carlo
+    Tartini,_Giuseppe
+    Cimarosa,_Domenico
+    Soler,_Antonio
+    Nielsen,_Carl
+    Janáček,_Leoš
+    Szymanowski,_Karol
+    Spohr,_Louis
+    Rubinstein,_Anton
+    Reinecke,_Carl
+    Raff,_Joachim
+    Balakirev,_Mily
+    Taneyev,_Sergey
+    Lyapunov,_Sergey
+    Locatelli,_Pietro_Antonio
+    Leclair,_Jean-Marie
+    Froberger,_Johann_Jacob
+    Marais,_Marin
+    Loewe,_Carl
+    Delius,_Frederick
+    Enescu,_George
+    Hindemith,_Paul
+    Corbetta,_Francesco
+    Murcia,_Santiago_de
+    Kapsperger,_Giovanni_Girolamo
+    Milano,_Francesco_da
+    Fuenllana,_Miguel_de
+    Guerau,_Francisco
+    Foscarini,_Giovanni
+    Bartolotti,_Angelo_Michele
+    Roncalli,_Lodovico
+    Dalza,_Joan_Ambrosio
+    Capirola,_Vincenzo
+    Galilei,_Vincenzo
+    Holborne,_Anthony
+    Falckenhagen,_Adam
+    Le_Roy,_Adrien
+    Matiegka,_Wenzel_Thomas
+    Call,_Leonhard_von
+    Lhoyer,_Antoine_de
+    Gragnani,_Filippo
+    Fossa,_François_de
+    Küffner,_Joseph
+    Gatayes,_Guillaume-Pierre-Antoine
+    Arcas,_Julián
+    Bobrowicz,_Jan_Nepomucen
+    Ferranti,_Marco_Aurelio_Zani_de
+    Horetzky,_Felix
+    Darr,_Adam
+    Ferrer,_José
+    Decker-Schenk,_Johann
+    Padovec,_Ivan
+    Huerta,_Francisco_Trinidad
+    Cano,_Antonio
+    Pratten,_Catharina_Josepha
+    Tansman,_Alexandre
   ].freeze
 
   class RateLimitError < StandardError; end
