@@ -105,8 +105,8 @@ GEM
     avo-icons (0.1.1)
       inline_svg
     aws-eventstream (1.4.0)
-    aws-partitions (1.1196.0)
-    aws-sdk-core (3.240.0)
+    aws-partitions (1.1212.0)
+    aws-sdk-core (3.242.0)
       aws-eventstream (~> 1, >= 1.3.0)
       aws-partitions (~> 1, >= 1.992.0)
       aws-sigv4 (~> 1.9)
@@ -114,11 +114,11 @@ GEM
       bigdecimal
       jmespath (~> 1, >= 1.6.1)
       logger
-    aws-sdk-kms (1.118.0)
-      aws-sdk-core (~> 3, >= 3.239.1)
+    aws-sdk-kms (1.121.0)
+      aws-sdk-core (~> 3, >= 3.241.4)
       aws-sigv4 (~> 1.5)
-    aws-sdk-s3 (1.208.0)
-      aws-sdk-core (~> 3, >= 3.234.0)
+    aws-sdk-s3 (1.213.0)
+      aws-sdk-core (~> 3, >= 3.241.4)
       aws-sdk-kms (~> 1)
       aws-sigv4 (~> 1.5)
     aws-sigv4 (1.12.1)
@@ -607,10 +607,10 @@ CHECKSUMS
   avo (3.28.0) sha256=9a7ab701f41ee201b87553a36f0d34d4fd03a7c7737aeba6c0da09ba5a031910
   avo-icons (0.1.1) sha256=d9a23d6d47bb7f8f04163119352a66a436dc8accf53f15cd0c3b5fcaffed082c
   aws-eventstream (1.4.0) sha256=116bf85c436200d1060811e6f5d2d40c88f65448f2125bc77ffce5121e6e183b
-  aws-partitions (1.1196.0) sha256=1a62cf7f1298f785bf9fca59ab77f3ceb49dd73bcc547c877236905887c35564
-  aws-sdk-core (3.240.0) sha256=86b63890525caaf56702972e2669b30ec89230c2b45f12c88290ee678d8d189e
-  aws-sdk-kms (1.118.0) sha256=c9c751596d4f1502adac857c90010f00a9a52370b78e170acb198af7fa716fbd
-  aws-sdk-s3 (1.208.0) sha256=3fce13500171bae425ffb0fd30f4caef081c5e9780714ac3484b48e0a1797d6d
+  aws-partitions (1.1212.0) sha256=fa4f5de905cc2b6587747e5b1e2d215e610fa0449c70b9069e3c928a15cc2a15
+  aws-sdk-core (3.242.0) sha256=c17b3003acc78d80c1a8437b285a1cfc5e4d7749ce7821cf3071e847535a29a0
+  aws-sdk-kms (1.121.0) sha256=d563c1cfb4b5754efbc671216c8eca875338748adad0f42518c28dfa0a2d01e0
+  aws-sdk-s3 (1.213.0) sha256=af596ccf544582406db610e95cc9099276eaf03142f57a2f30f76940e598e50d
   aws-sigv4 (1.12.1) sha256=6973ff95cb0fd0dc58ba26e90e9510a2219525d07620c8babeb70ef831826c00
   base64 (0.3.0) sha256=27337aeabad6ffae05c265c450490628ef3ebd4b67be58257393227588f5a97b
   bcrypt_pbkdf (1.1.2) sha256=c2414c23ce66869b3eb9f643d6a3374d8322dfb5078125c82792304c10b94cf6
