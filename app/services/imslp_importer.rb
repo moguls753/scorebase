@@ -17,7 +17,6 @@ class ImslpImporter
   USER_AGENT = "ScorebaseBot/1.0 (https://github.com/scorebase; contact@scorebase.app) Ruby/#{RUBY_VERSION}"
 
   # Priority composers to import first (IMSLP category format)
-  # Organized by: Major composers, Pedagogical, Choral/Sacred, Organ, English Cathedral, Guitar
   PRIORITY_COMPOSERS = %w[
     Bach,_Johann_Sebastian
     Beethoven,_Ludwig_van
@@ -49,6 +48,14 @@ class ImslpImporter
     Elgar,_Edward
     Vaughan_Williams,_Ralph
     Britten,_Benjamin
+    Scriabin,_Alexander
+    Medtner,_Nikolai
+    Alkan,_Charles-Valentin
+    Granados,_Enrique
+    Albéniz,_Isaac
+    Turina,_Joaquín
+    De_Falla,_Manuel
+    Paganini,_Niccolò
     Palestrina,_Giovanni_Pierluigi_da
     Monteverdi,_Claudio
     Purcell,_Henry
@@ -58,6 +65,7 @@ class ImslpImporter
     Couperin,_François
     Rameau,_Jean-Philippe
     Gluck,_Christoph_Willibald
+    Lully,_Jean-Baptiste
     Saint-Saëns,_Camille
     Fauré,_Gabriel
     Franck,_César
@@ -69,6 +77,12 @@ class ImslpImporter
     Mussorgsky,_Modest
     Rimsky-Korsakov,_Nikolai
     Borodin,_Alexander
+    Chaminade,_Cécile
+    Moszkowski,_Moritz
+    Arensky,_Anton
+    Lyadov,_Anatoly
+    Glazunov,_Alexander
+    Godard,_Benjamin
     Burgmüller,_Friedrich
     Czerny,_Carl
     Clementi,_Muzio
@@ -77,6 +91,21 @@ class ImslpImporter
     Kabalevsky,_Dmitry
     Gurlitt,_Cornelius
     Heller,_Stephen
+    Moscheles,_Ignaz
+    Bertini,_Henri
+    Cramer,_Johann_Baptist
+    Dussek,_Jan_Ladislav
+    Field,_John
+    Hummel,_Johann_Nepomuk
+    Türk,_Daniel_Gottlob
+    Hook,_James
+    Benda,_Jiří_Antonín
+    Attwood,_Thomas
+    Beyer,_Ferdinand
+    Khachaturian,_Aram
+    Maykapar,_Samuil
+    Gedike,_Alexander
+    Tcherepnin,_Alexander
     Byrd,_William
     Tallis,_Thomas
     Victoria,_Tomás_Luis_de
@@ -87,11 +116,18 @@ class ImslpImporter
     Praetorius,_Michael
     Allegri,_Gregorio
     Lotti,_Antonio
+    Pergolesi,_Giovanni_Battista
+    Durante,_Francesco
+    Caldara,_Antonio
+    Carissimi,_Giacomo
+    Hassler,_Hans_Leo
+    Sweelinck,_Jan_Pieterszoon
     Buxtehude,_Dieterich
     Pachelbel,_Johann
     Widor,_Charles-Marie
     Vierne,_Louis
     Dupré,_Marcel
+    Böhm,_Georg
     Stanford,_Charles_Villiers
     Parry,_Hubert
     Howells,_Herbert
@@ -114,6 +150,18 @@ class ImslpImporter
     Sanz,_Gaspar
     Visée,_Robert_de
     Weiss,_Silvius_Leopold
+    Dyens,_Roland
+    Mertz,_Johann_Kaspar
+    Coste,_Napoléon
+    Regondi,_Giulio
+    Llobet,_Miguel
+    Legnani,_Luigi
+    Molino,_Francesco
+    Castelnuovo-Tedesco,_Mario
+    Piazzolla,_Astor
+    Pujol,_Emilio
+    Lauro,_Antonio
+    Moreno_Torroba,_Federico
   ].freeze
 
   class RateLimitError < StandardError; end
