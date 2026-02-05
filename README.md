@@ -56,19 +56,6 @@ Instrument-specific algorithms compute difficulty (1-5):
 
 For known repertoire, LLM-inferred pedagogical grades override algorithmic difficulty.
 
-## Development
-
-```bash
-# Rails app
-bin/dev
-
-# RAG service (optional, for smart search)
-cd rag
-python -m venv venv && source venv/bin/activate
-pip install -e .
-python -m src.api.main  # Runs on :8001
-```
-
 ## Tech Stack
 
 | Layer | Technology |
@@ -87,9 +74,9 @@ Smart search with LLM reranking (coming soon). Pro subscription covers API costs
 
 Contributions welcome. Areas where help is appreciated:
 
-- Additional data source importers
-- Difficulty algorithm improvements
-- UI/UX enhancements
+- Bug reports and UX feedback
+- Suggestions for new data sources
+- Improvements to metadata normalization or difficulty scoring
 
 ## License
 
