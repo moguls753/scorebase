@@ -280,7 +280,7 @@ en:
     contact: "Contact"
     privacy: "Privacy"
     privacy_title: "No tracking"
-    privacy_desc: "We don't track you. A technical cookie keeps the site working."
+    privacy_desc: "No tracking. No analytics, no advertising cookies."
     back_to_search: "Back to Search"
 
   # Language names (for the toggle and filter)
