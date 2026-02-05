@@ -208,6 +208,7 @@
 #  index_scores_on_num_parts                     (num_parts)
 #  index_scores_on_pedagogical_grade             (pedagogical_grade)
 #  index_scores_on_period                        (period)
+#  index_scores_on_period_and_deleted_at         (period,deleted_at)
 #  index_scores_on_period_status                 (period_status)
 #  index_scores_on_price_usd                     (price_usd)
 #  index_scores_on_rag_status                    (rag_status)
