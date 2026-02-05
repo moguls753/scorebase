@@ -7,6 +7,9 @@ module HubPagesHelper
   # Filter parameters for genre page
   GENRE_FILTER_PARAMS = %i[instrument composer].freeze
 
+  # Filter parameters for period page
+  PERIOD_FILTER_PARAMS = %i[instrument composer genre].freeze
+
   # Filter parameters for instrument page (also used by instrument+difficulty pages)
   INSTRUMENT_FILTER_PARAMS = %i[composer genre].freeze
 
@@ -32,6 +35,16 @@ module HubPagesHelper
   # Generate hidden fields for genre filter params to preserve state across forms
   def genre_filter_hidden_fields(form)
     safe_join(GENRE_FILTER_PARAMS.map { |param| form.hidden_field(param, value: params[param]) })
+  end
+
+  # Count active filters for period page
+  def period_active_filters_count
+    PERIOD_FILTER_PARAMS.count { |param| params[param].present? }
+  end
+
+  # Generate hidden fields for period filter params to preserve state across forms
+  def period_filter_hidden_fields(form)
+    safe_join(PERIOD_FILTER_PARAMS.map { |param| form.hidden_field(param, value: params[param]) })
   end
 
   # Count active filters for instrument page

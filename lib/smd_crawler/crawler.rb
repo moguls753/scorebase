@@ -54,7 +54,9 @@ module SmdCrawler
         pitch_range: metadata[:pitch_range],
         is_interactive: metadata[:is_interactive],
         thumbnail_url: metadata[:thumbnail_url],
-        preview_image_url: metadata[:preview_image_url]
+        preview_image_url: metadata[:preview_image_url],
+        period: smd_period(metadata[:tags]),
+        period_status: "done"
       )
 
       score.save!
@@ -139,6 +141,14 @@ module SmdCrawler
       when :update then !exists
       when :all then false
       end
+    end
+
+    # SMD scores are Modern unless tagged Klassik or Barock
+    def smd_period(tags)
+      return "Modern" if tags.blank?
+      return nil if tags.include?("Klassik") || tags.include?("Barock")
+
+      "Modern"
     end
 
     # Map SMD difficulty labels to pedagogical grades

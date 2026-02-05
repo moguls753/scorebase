@@ -143,8 +143,29 @@ class HubPagesController < ApplicationController
 
   def period
     @period_name = find_or_404(:periods, params[:slug])
-    @scores = paginate(Score.active.by_period(@period_name))
-    @top_instruments = HubDataBuilder.top_instruments_for(:period, @period_name)
+
+    # Base scope for this period
+    base_scope = Score.active.by_period(@period_name)
+
+    # Apply filters
+    filtered_scope = base_scope
+    filtered_scope = filtered_scope.by_instrument(params[:instrument]) if params[:instrument].present?
+    filtered_scope = filtered_scope.where(composer: composer_name_from_slug(params[:composer])) if params[:composer].present?
+    filtered_scope = filtered_scope.by_genre(params[:genre]) if params[:genre].present?
+
+    # Apply scoped search
+    filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
+
+    # Counts
+    @total_count = base_scope.count
+    @filtered_count = filtered_scope.count
+
+    # Paginate
+    @scores = paginate_filtered(filtered_scope)
+
+    # Dynamic filter options (faceted)
+    @filter_options = build_period_filter_options(base_scope, params)
+
     set_detail_meta(:period, @period_name)
   end
 
@@ -400,6 +421,60 @@ class HubPagesController < ApplicationController
   # Get available genres for instrument page (1 query)
   def available_genres_for_instrument(base_scope, current_params)
     scope = base_scope
+    scope = scope.where(composer: composer_name_from_slug(current_params[:composer])) if current_params[:composer].present?
+
+    distinct_values = scope.where.not(genre: [nil, ""]).distinct.pluck(:genre)
+
+    HubDataBuilder::VALID_GENRES.filter_map do |genre|
+      next unless distinct_values.any? { |str| str.downcase.include?(genre.downcase) }
+      { name: genre, slug: genre.parameterize }
+    end
+  end
+
+  # Build filter options for period page using efficient DISTINCT queries
+  def build_period_filter_options(base_scope, current_params)
+    scope = base_scope
+    scope = scope.search_by_title(current_params[:q]) if current_params[:q].present?
+
+    {
+      instruments: available_instruments_for_period(scope, current_params),
+      composers: available_composers_for_period(scope, current_params),
+      genres: available_genres_for_period(scope, current_params)
+    }
+  end
+
+  # Get available instruments for period page (1 query)
+  def available_instruments_for_period(base_scope, current_params)
+    scope = base_scope
+    scope = scope.where(composer: composer_name_from_slug(current_params[:composer])) if current_params[:composer].present?
+    scope = scope.by_genre(current_params[:genre]) if current_params[:genre].present?
+
+    distinct_values = scope.where.not(instruments: [nil, ""]).distinct.pluck(:instruments)
+
+    HubDataBuilder::VALID_INSTRUMENTS.filter_map do |instrument|
+      next unless distinct_values.any? { |str| str.downcase.include?(instrument.downcase) }
+      { name: instrument.titleize, slug: instrument.parameterize }
+    end
+  end
+
+  # Get available composers for period page (1 query)
+  def available_composers_for_period(base_scope, current_params)
+    scope = base_scope
+    scope = scope.by_instrument(current_params[:instrument]) if current_params[:instrument].present?
+    scope = scope.by_genre(current_params[:genre]) if current_params[:genre].present?
+
+    scope.where.not(composer: [nil, ""])
+         .group(:composer)
+         .order(Arel.sql("COUNT(*) DESC"))
+         .limit(50)
+         .pluck(:composer)
+         .map { |name| { name: name, slug: name.parameterize } }
+  end
+
+  # Get available genres for period page (1 query)
+  def available_genres_for_period(base_scope, current_params)
+    scope = base_scope
+    scope = scope.by_instrument(current_params[:instrument]) if current_params[:instrument].present?
     scope = scope.where(composer: composer_name_from_slug(current_params[:composer])) if current_params[:composer].present?
 
     distinct_values = scope.where.not(genre: [nil, ""]).distinct.pluck(:genre)

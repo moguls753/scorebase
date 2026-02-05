@@ -369,6 +369,7 @@ de:
     search_artist_scores: "In %{name} Arrangements suchen..."
     search_genre_scores: "In %{name}-Noten suchen..."
     search_instrument_scores: "In %{name}-Noten suchen..."
+    search_period_scores: "In %{name}-Noten suchen..."
     filter_composer: "Komponist"
     scores_count: "%{count} Noten"
     browse_all: "Alle durchsuchen"

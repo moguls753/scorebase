@@ -4,6 +4,7 @@
 <!-- Hero Section -->
 <section class="hub-hero py-8 sm:py-12 lg:py-16 border-b-2 border-[var(--color-border)]">
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
+    <!-- Breadcrumb -->
     <nav class="flex items-center gap-2 text-xs font-medium text-[var(--color-text-muted)] mb-4">
       <%= link_to root_path, class: "hover:text-[var(--color-accent)] transition-colors" do %>ScoreBase<% end %>
       <span class="text-[var(--color-border-subtle)]">/</span>
@@ -12,55 +13,258 @@
       <span class="text-[var(--color-accent)]"><%= t("hub.period_names.#{params[:slug].underscore}", default: @period_name) %></span>
     </nav>
 
-    <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+    <div class="flex flex-col gap-5">
+      <!-- Title + Meta -->
       <div>
-        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] mb-2 leading-tight font-black uppercase tracking-tight hero-title">
+        <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
           <%= t("hub.period_names.#{params[:slug].underscore}", default: @period_name) %>
         </h1>
         <p class="text-sm sm:text-base font-medium hero-subtitle">
           <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@total_count) %></span>
-          <%= t('search.results_count').downcase %>
+          <%= t('hub.scores_count', count: @total_count).downcase.gsub(@total_count.to_s, '').strip %>
         </p>
       </div>
 
-      <div class="hub-controls">
-        <% if @top_instruments.present? %>
-          <%= render 'filter_dropdown',
-              filter_type: :instrument,
-              current_slug: params[:slug],
-              options: @top_instruments,
-              path_helper: :instrument_for_period,
-              path_params: { period_slug: params[:slug] },
-              label: t('score.instrument') %>
-        <% end %>
-
-        <%= form_with url: period_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores" }, class: "contents" do |f| %>
-          <div class="sort-control">
-            <label for="sort" class="sort-label"><span class="sort-icon">↕</span><span class="hidden xs:inline"><%= t('search.sort_by') %></span></label>
-            <%= f.select :sort, [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]], { selected: @sort }, { class: "sort-select", id: "sort", onchange: "this.form.requestSubmit()" } %>
+      <!-- Scoped Search Bar -->
+      <%= form_with url: period_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "max-w-2xl" do |f| %>
+        <%= period_filter_hidden_fields(f) %>
+        <%= f.hidden_field :sort, value: params[:sort] %>
+        <div class="flex gap-2 sm:gap-3">
+          <div class="flex-1 relative">
+            <%= f.text_field :q,
+              placeholder: t('hub.search_period_scores', name: t("hub.period_names.#{params[:slug].underscore}", default: @period_name)),
+              value: params[:q],
+              class: "w-full mm-input text-sm sm:text-base",
+              style: "padding-left: 44px;",
+              autocomplete: "off"
+            %>
+            <div class="absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+              </svg>
+            </div>
           </div>
-        <% end %>
-      </div>
+          <%= f.submit t('search.button'), class: "mm-button mm-button-primary cursor-pointer text-xs px-5 sm:px-6" %>
+        </div>
+      <% end %>
     </div>
   </div>
 </section>
 
-<!-- Scores Grid -->
-<turbo-frame id="scores" data-turbo-action="advance">
-<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
-  <% if @scores.any? %>
-    <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
-      <% @scores.each do |score| %>
-        <%= render 'score_card', score: score %>
+<!-- Main Content -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10" data-controller="filter-modal">
+  <!-- Mobile Filter Modal (Bottom Sheet) -->
+  <div data-filter-modal-target="modal"
+       data-action="click->filter-modal#closeOnBackdrop"
+       class="lg:hidden fixed inset-0 z-50 hidden filter-modal-backdrop"
+       role="dialog"
+       aria-modal="true"
+       aria-labelledby="filter-modal-title">
+    <div class="absolute inset-x-0 bottom-0 filter-modal-sheet">
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-4 border-b-2 border-[var(--color-border)]">
+        <h3 id="filter-modal-title" class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight">
+          <%= t('search.filters') %>
+        </h3>
+        <button type="button"
+                data-action="click->filter-modal#close"
+                class="nav-icon-btn"
+                aria-label="<%= t('search.close_filters') %>">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Scrollable Filter Content -->
+      <div class="filter-modal-content">
+        <%= form_with url: period_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" } do |f| %>
+          <%= f.hidden_field :q, value: params[:q] %>
+          <%= f.hidden_field :sort, value: params[:sort] %>
+          <%= render 'period_filters', f: f, mobile: true, filter_options: @filter_options %>
+        <% end %>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="p-4 border-t-2 border-[var(--color-border)]">
+        <%= link_to t('search.clear'), period_path(slug: params[:slug]),
+            data: { turbo_frame: "scores", action: "click->filter-modal#close" },
+            class: "mm-button mm-button-secondary w-full text-center text-xs" %>
+      </div>
+    </div>
+  </div>
+
+  <turbo-frame id="scores" data-turbo-action="advance">
+    <!-- Mobile: Compact control bar -->
+    <div class="lg:hidden mb-5">
+      <!-- Results count -->
+      <p class="text-xs text-[var(--color-text-muted)] font-semibold uppercase tracking-wide mb-3">
+        <% if @filtered_count != @total_count %>
+          <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@filtered_count) %></span>
+          <span class="text-[var(--color-border)]">/</span>
+          <%= number_with_delimiter(@total_count) %> <%= t('search.results_count') %>
+        <% else %>
+          <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@total_count) %></span> <%= t('search.results_count') %>
+        <% end %>
+      </p>
+
+      <!-- Filters + Sort side-by-side -->
+      <div class="grid grid-cols-2 gap-3">
+        <!-- Filters button -->
+        <button type="button"
+                data-action="click->filter-modal#open"
+                class="mm-button mm-button-secondary text-[13px] flex items-center justify-center gap-2 filter-btn-padded">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+          </svg>
+          <span class="font-black uppercase"><%= t('search.filters') %></span>
+          <% if period_active_filters_count > 0 %>
+            <span class="filter-count"><%= period_active_filters_count %></span>
+          <% end %>
+        </button>
+
+        <!-- Sort dropdown -->
+        <%= form_with url: period_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "w-full" } do |f| %>
+          <%= f.hidden_field :q, value: params[:q] %>
+          <%= period_filter_hidden_fields(f) %>
+          <%= f.select :sort,
+              [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
+              { selected: params[:sort] || "popularity" },
+              { class: "mm-button mm-button-secondary text-xs w-full font-black uppercase filter-btn-padded sort-select-mobile",
+                id: "sort-mobile",
+                data: { action: "change->url-sync#submit" } }
+          %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Desktop: Horizontal controls bar -->
+    <div class="hidden lg:flex flex-row items-center justify-between gap-6 mb-6">
+      <div class="flex items-center gap-4">
+        <!-- Results count -->
+        <p class="text-[13px] text-[var(--color-text-muted)] font-semibold uppercase tracking-wide whitespace-nowrap">
+          <% if @filtered_count != @total_count %>
+            <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@filtered_count) %></span>
+            <span class="text-[var(--color-border)]">/</span>
+            <%= number_with_delimiter(@total_count) %> <%= t('search.results_count') %>
+          <% else %>
+            <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@total_count) %></span> <%= t('search.results_count') %>
+          <% end %>
+        </p>
+
+        <!-- Separator -->
+        <div class="w-px h-6 bg-[var(--color-border)]"></div>
+
+        <!-- Inline Filters -->
+        <%= form_with url: period_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "flex items-center gap-3" do |f| %>
+          <%= f.hidden_field :q, value: params[:q] %>
+          <%= f.hidden_field :sort, value: params[:sort] %>
+
+          <% if @filter_options[:instruments].present? %>
+            <div class="filter-control">
+              <label class="filter-label" for="filter-instrument">
+                <span class="filter-icon">
+                  <%= navigation_svg_icon(:instruments, html_class: "filter-icon-svg") %>
+                </span>
+              </label>
+              <%= f.select :instrument,
+                  options_for_select(
+                    [[t('hub.filter_instrument'), '']] + @filter_options[:instruments].map { |i| [translate_hub_name(:instruments, i), i[:slug]] },
+                    params[:instrument]
+                  ),
+                  {},
+                  { class: "filter-select", id: "filter-instrument", data: { action: "change->url-sync#submit" } }
+              %>
+            </div>
+          <% end %>
+
+          <% if @filter_options[:composers].present? %>
+            <div class="filter-control">
+              <label class="filter-label" for="filter-composer">
+                <span class="filter-icon">
+                  <%= navigation_svg_icon(:composers, html_class: "filter-icon-svg") %>
+                </span>
+              </label>
+              <%= f.select :composer,
+                  options_for_select(
+                    [[t('hub.filter_composer'), '']] + @filter_options[:composers].map { |c| [c[:name], c[:slug]] },
+                    params[:composer]
+                  ),
+                  {},
+                  { class: "filter-select", id: "filter-composer", data: { action: "change->url-sync#submit" } }
+              %>
+            </div>
+          <% end %>
+
+          <% if @filter_options[:genres].present? %>
+            <div class="filter-control">
+              <label class="filter-label" for="filter-genre">
+                <span class="filter-icon">
+                  <%= navigation_svg_icon(:genres, html_class: "filter-icon-svg") %>
+                </span>
+              </label>
+              <%= f.select :genre,
+                  options_for_select(
+                    [[t('hub.filter_genre'), '']] + @filter_options[:genres].map { |g| [translate_hub_name(:genres, g), g[:slug]] },
+                    params[:genre]
+                  ),
+                  {},
+                  { class: "filter-select", id: "filter-genre", data: { action: "change->url-sync#submit" } }
+              %>
+            </div>
+          <% end %>
+
+          <% if period_active_filters_count > 0 %>
+            <%= link_to period_path(slug: params[:slug], q: params[:q], sort: params[:sort]),
+                data: { turbo_frame: "scores" },
+                class: "text-[13px] text-[var(--color-text-muted)] hover:text-[var(--color-accent)] font-bold uppercase tracking-wide transition-colors ml-2" do %>
+              <%= t('search.clear') %>
+            <% end %>
+          <% end %>
+        <% end %>
+      </div>
+
+      <!-- Sort control -->
+      <%= form_with url: period_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, html: { class: "flex-shrink-0" } do |f| %>
+        <%= f.hidden_field :q, value: params[:q] %>
+        <%= period_filter_hidden_fields(f) %>
+        <div class="sort-control">
+          <label for="sort" class="sort-label">
+            <span class="sort-icon">&#8597;</span>
+            <span><%= t('search.sort_by') %></span>
+          </label>
+          <%= f.select :sort,
+              [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
+              { selected: @sort },
+              { class: "sort-select", id: "sort", data: { action: "change->url-sync#submit" } }
+          %>
+        </div>
       <% end %>
     </div>
-    <%= render 'shared/pagination', scores: @scores, turbo_frame: 'scores' %>
-  <% else %>
-    <div class="mm-card p-8 sm:p-12 text-center">
-      <div class="text-6xl mb-4 text-[var(--color-border-subtle)]">🎼</div>
-      <p class="text-[var(--color-text-muted)] font-medium"><%= t('hub.no_scores_found') %></p>
-    </div>
-  <% end %>
-</div>
-</turbo-frame>
 
+    <!-- Scores Grid -->
+    <% if @scores.any? %>
+      <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
+        <% @scores.each do |score| %>
+          <%= render 'score_card', score: score %>
+        <% end %>
+      </div>
+
+      <%= render 'shared/pagination', scores: @scores, turbo_frame: 'scores' %>
+    <% else %>
+      <!-- Empty State -->
+      <div class="mm-card p-8 sm:p-12 text-center">
+        <div class="text-5xl sm:text-6xl mb-4 opacity-30">&#127932;</div>
+        <p class="text-[var(--color-text-muted)] font-semibold mb-1"><%= t('hub.no_scores_found') %></p>
+        <% if period_active_filters_count > 0 || params[:q].present? %>
+          <p class="text-xs text-[var(--color-text-subtle)] mb-4"><%= t('hub.no_scores_hint') %></p>
+          <%= link_to t('search.clear'), period_path(slug: params[:slug]),
+              data: { turbo_frame: "scores" },
+              class: "mm-button mm-button-secondary text-xs" %>
+        <% end %>
+      </div>
+    <% end %>
+  </turbo-frame>
+</div>
