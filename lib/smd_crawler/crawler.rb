@@ -56,7 +56,7 @@ module SmdCrawler
         thumbnail_url: metadata[:thumbnail_url],
         preview_image_url: metadata[:preview_image_url],
         period: smd_period(metadata[:tags]),
-        period_status: "done"
+        period_status: "normalized"
       )
 
       score.save!
@@ -143,10 +143,13 @@ module SmdCrawler
       end
     end
 
-    # SMD scores are Modern unless tagged Klassik or Barock
+    # Map SMD German tags to period, most specific wins
+    # Tags are dash-separated and can include multiple period hints
     def smd_period(tags)
       return "Modern" if tags.blank?
-      return nil if tags.include?("Klassik") || tags.include?("Barock")
+      return "Renaissance" if tags.include?("Renaissance")
+      return "Baroque" if tags.include?("Barock")
+      return "Classical" if tags.include?("Klassik")
 
       "Modern"
     end
