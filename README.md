@@ -56,11 +56,7 @@ Instrument-specific algorithms compute difficulty (1-5):
 
 For known repertoire, LLM-inferred pedagogical grades override algorithmic difficulty.
 
-### Hub Pages
-
-Browse by composer, artist, genre, instrument, or period. Faceted filtering and search within each category. SEO-optimized landing pages for common searches (e.g., `/piano/beginner`).
-
-## Self-Hosting
+## Development
 
 ```bash
 # Rails app
@@ -82,7 +78,6 @@ python -m src.api.main  # Runs on :8001
 | **Search** | FTS5 trigram index, ChromaDB vectors, sentence-transformers |
 | **AI** | LLM-powered normalization and reranking |
 | **Extraction** | Python, music21, FastAPI |
-| **Deploy** | Kamal, Cloudflare CDN |
 
 ## Pro
 
@@ -98,7 +93,7 @@ Contributions welcome. Areas where help is appreciated:
 
 ## License
 
-**AGPL-3.0** — Use, modify, and self-host freely. If you run a public service with modifications, share your changes.
+**AGPL-3.0** — Use and modify freely. If you run a public service with modifications, share your changes.
 
 ## Attribution
 
