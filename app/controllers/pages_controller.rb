@@ -1,7 +1,6 @@
 class PagesController < ApplicationController
   def about
     @total_count = Score.active.count
-    @source_counts = Score.active.group(:source).count
   end
 
   def impressum
