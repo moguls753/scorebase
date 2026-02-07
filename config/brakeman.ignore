@@ -1,29 +1,18 @@
-
-== Brakeman Report ==
-
-Application Path: /home/era/projects/scorebase/main
-Rails Version: 8.1.1
-Brakeman Version: 8.0.2
-Scan Date: 2026-02-07 20:40:58 +0100
-Duration: 4.279733422 seconds
-Checks Run: BasicAuth, BasicAuthTimingAttack, CSRFTokenForgeryCVE, ContentTag, CookieSerialization, CreateWith, CrossSiteScripting, DefaultRoutes, Deserialize, DetailedExceptions, DigestDoS, DynamicFinders, EOLRails, EOLRuby, EscapeFunction, Evaluation, Execute, FileAccess, FileDisclosure, FilterSkipping, ForgerySetting, HeaderDoS, I18nXSS, JRubyXML, JSONEncoding, JSONEntityEscape, JSONParsing, LinkTo, LinkToHref, MailTo, MassAssignment, MimeTypeDoS, ModelAttrAccessible, ModelAttributes, ModelSerialize, NestedAttributes, NestedAttributesBypass, NumberToCurrency, PageCachingCVE, Pathname, PermitAttributes, QuoteTableName, Ransack, Redirect, RegexDoS, Render, RenderDoS, RenderInline, RenderRCE, ResponseSplitting, RouteDoS, SQL, SQLCVEs, SSLVerify, SafeBufferManipulation, SanitizeConfigCve, SanitizeMethods, SelectTag, SelectVulnerability, Send, SendFile, SessionManipulation, SessionSettings, SimpleFormat, SingleQuotes, SkipBeforeFilter, SprocketsPathTraversal, StripTags, SymbolDoSCVE, TemplateInjection, TranslateBug, UnsafeReflection, UnsafeReflectionMethods, ValidationRegex, VerbConfusion, WeakRSAKey, WithoutProtection, XMLDoS, YAMLParsing
-
-== Overview ==
-
-Controllers: 10
-Models: 7
-Templates: 54
-Errors: 0
-Security Warnings: 0
-Ignored Warnings: 3
-
-== Warning Types ==
-
-
-== Obsolete Ignore Entries ==
-
-adf789c32e4f101042f972d90d31d92dc0836b086d46dcf90ff7710c96921f1d
-b6a54cf3a2572b31c3f179d2eeadf9c179273488470d904b9cc44cd325c90883
-
-No warnings found
-
+{
+  "ignored_warnings": [
+    {
+      "fingerprint": "31138f7b98556827ae81c8799545bcd8af35cebfd0e6a67475504ff228951aad",
+      "note": "Reviewed - redirect to external score URL (CPDL/IMSLP) is intentional"
+    },
+    {
+      "fingerprint": "752441d360a8b4122e952ba991d7ba6261922a9482fe33933b56f5e4ccc4681c",
+      "note": "Reviewed - SSL bypass needed for IMSLP thumbnail downloads"
+    },
+    {
+      "fingerprint": "327dcafb0f42f3b1cba51ac78d97a7905f1cccb26f08b199538202d4203a0115",
+      "note": "Reviewed - SSL bypass needed for SMD crawler"
+    }
+  ],
+  "updated": "2026-02-07",
+  "brakeman_version": "8.0.2"
+}
