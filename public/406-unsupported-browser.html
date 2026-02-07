@@ -1,135 +1,225 @@
 <!doctype html>
-
 <html lang="en">
-
   <head>
-
-    <title>Your browser is not supported (406 Not Acceptable)</title>
-
+    <title>Browser not supported (406)</title>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, width=device-width">
     <meta name="robots" content="noindex, nofollow">
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
     <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      * { margin: 0; }
 
-      *, *::before, *::after {
-        box-sizing: border-box;
+      :root {
+        --color-bg: #1f1b17;
+        --color-bg-elevated: #2a2520;
+        --color-bg-surface: #352f28;
+        --color-accent: #c45a10;
+        --color-accent-hover: #e06b1a;
+        --color-text: #e8e2d9;
+        --color-text-muted: #a89c8c;
+        --color-border: #4a4035;
+        --border-width: 2px;
+        --shadow-card: 4px 4px 0 var(--color-border);
       }
 
-      * {
-        margin: 0;
-      }
-
-      html {
-        font-size: 16px;
-      }
+      html { font-size: 16px; }
 
       body {
-        background: #FFF;
-        color: #261B23;
+        background: var(--color-bg);
+        color: var(--color-text);
         display: grid;
-        font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, Aptos, Roboto, "Segoe UI", "Helvetica Neue", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-        font-size: clamp(1rem, 2.5vw, 2rem);
+        font-family: 'Outfit', -apple-system, sans-serif;
+        font-size: clamp(1rem, 2vw, 1.25rem);
         -webkit-font-smoothing: antialiased;
-        font-style: normal;
         font-weight: 400;
-        letter-spacing: -0.0025em;
-        line-height: 1.4;
+        letter-spacing: -0.01em;
+        line-height: 1.5;
         min-height: 100dvh;
         place-items: center;
         text-rendering: optimizeLegibility;
-        -webkit-text-size-adjust: 100%;
-      }
-
-      #error-description {
-        fill: #d30001;
-      }
-
-      #error-id {
-        fill: #f0eff0;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        body {
-          background: #101010;
-          color: #e0e0e0;
-        }
-
-        #error-description {
-          fill: #FF6161;
-        }
-
-        #error-id {
-          fill: #2c2c2c;
-        }
-      }
-
-      a {
-        color: inherit;
-        font-weight: 700;
-        text-decoration: underline;
-        text-underline-offset: 0.0925em;
-      }
-
-      b, strong {
-        font-weight: 700;
-      }
-
-      i, em {
-        font-style: italic;
       }
 
       main {
         display: grid;
-        gap: 1em;
+        gap: 1.5em;
         padding: 2em;
         place-items: center;
         text-align: center;
-      }
-
-      main header {
-        width: min(100%, 12em);
-      }
-
-      main header svg {
-        height: auto;
         max-width: 100%;
-        width: 100%;
       }
 
-      main article {
-        width: min(100%, 30em);
+      .error-code {
+        font-size: clamp(5rem, 20vw, 10rem);
+        font-weight: 800;
+        line-height: 1;
+        color: var(--color-border);
+        letter-spacing: -0.04em;
+        position: relative;
       }
 
-      main article p {
-        font-size: 75%;
+      .error-code::after {
+        content: '406';
+        position: absolute;
+        left: 4px;
+        top: 4px;
+        color: #7c3aed;
+        z-index: -1;
       }
 
-      main article br {
-        display: none;
-
-        @media(min-width: 48em) {
-          display: inline;
-        }
+      .error-label {
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: #8b5cf6;
+        background: var(--color-bg-elevated);
+        padding: 0.5em 1em;
+        border: var(--border-width) solid var(--color-border);
+        box-shadow: 2px 2px 0 var(--color-border);
+        margin-top: -0.5em;
       }
 
+      article {
+        width: min(100%, 28em);
+      }
+
+      article p {
+        color: var(--color-text-muted);
+        font-size: 0.95rem;
+      }
+
+      article strong {
+        color: var(--color-text);
+        font-weight: 700;
+      }
+
+      .browser-icons {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+        margin-top: 0.5rem;
+      }
+
+      .browser-link {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1rem;
+        background: var(--color-bg-elevated);
+        border: var(--border-width) solid var(--color-border);
+        box-shadow: 3px 3px 0 var(--color-border);
+        text-decoration: none;
+        color: var(--color-text-muted);
+        font-size: 0.75rem;
+        font-weight: 600;
+        transition: transform 0.1s ease, box-shadow 0.1s ease, color 0.15s ease;
+      }
+
+      .browser-link:hover {
+        transform: translate(-2px, -2px);
+        box-shadow: 5px 5px 0 var(--color-border);
+        color: var(--color-accent);
+      }
+
+      .browser-link svg {
+        width: 2rem;
+        height: 2rem;
+      }
+
+      .btn-home {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5em;
+        padding: 0.875em 1.75em;
+        background: var(--color-accent);
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.875rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        text-decoration: none;
+        border: var(--border-width) solid var(--color-accent);
+        box-shadow: 4px 4px 0 var(--color-border);
+        transition: transform 0.1s ease, box-shadow 0.1s ease;
+        cursor: pointer;
+      }
+
+      .btn-home:hover {
+        background: var(--color-accent-hover);
+        border-color: var(--color-accent-hover);
+        transform: translate(-2px, -2px);
+        box-shadow: 6px 6px 0 var(--color-border);
+      }
+
+      .btn-home:active {
+        transform: translate(2px, 2px);
+        box-shadow: 2px 2px 0 var(--color-border);
+      }
+
+      .btn-home svg {
+        width: 1.125em;
+        height: 1.125em;
+      }
+
+      .music-note {
+        position: fixed;
+        font-size: 2rem;
+        color: var(--color-border);
+        opacity: 0.4;
+        pointer-events: none;
+      }
+
+      .note-1 { top: 15%; left: 10%; transform: rotate(-15deg); }
+      .note-2 { top: 25%; right: 12%; transform: rotate(10deg); }
+      .note-3 { bottom: 20%; left: 15%; transform: rotate(5deg); }
+      .note-4 { bottom: 30%; right: 10%; transform: rotate(-8deg); }
+
+      @media (max-width: 640px) {
+        .music-note { display: none; }
+        .browser-icons { gap: 1rem; }
+        .browser-link { padding: 0.75rem; }
+        .browser-link svg { width: 1.5rem; height: 1.5rem; }
+      }
     </style>
-
   </head>
-
   <body>
-
-    <!-- This file lives in public/406-unsupported-browser.html -->
+    <div class="music-note note-1">&#9834;</div>
+    <div class="music-note note-2">&#9835;</div>
+    <div class="music-note note-3">&#9833;</div>
+    <div class="music-note note-4">&#9839;</div>
 
     <main>
-      <header>
-        <svg height="172" viewBox="0 0 480 172" width="480" xmlns="http://www.w3.org/2000/svg"><path d="m124.48 3.00509-45.6889 100.02991h26.2239v-28.1168h38.119v28.1168h21.628v35.145h-21.628v30.82h-37.308v-30.82h-72.1833v-31.901l50.2851-103.27391zm115.583 168.69891c-40.822 0-64.884-35.146-64.884-85.7015 0-50.5554 24.062-85.700907 64.884-85.700907 40.823 0 64.884 35.145507 64.884 85.700907 0 50.5555-24.061 85.7015-64.884 85.7015zm0-133.2831c-17.572 0-22.709 21.8984-22.709 47.5816 0 25.6835 5.137 47.5815 22.709 47.5815 17.303 0 22.71-21.898 22.71-47.5815 0-25.6832-5.407-47.5816-22.71-47.5816zm202.906 9.7326h-41.093c-2.433-7.2994-7.84-12.4361-17.302-12.4361-16.221 0-25.413 17.5728-25.954 34.8752v1.3517c5.137-7.0291 16.221-12.4361 30.82-12.4361 33.524 0 54.881 24.0612 54.881 53.7998 0 33.253-23.791 58.396-61.64 58.396-21.628 0-39.741-10.003-50.825-27.576-9.733-14.599-13.788-32.442-13.788-54.3406 0-51.9072 24.331-89.485807 66.236-89.485807 32.712 0 53.258 18.654107 58.665 47.851907zm-82.727 66.2355c0 13.247 9.463 22.439 22.71 22.439 12.977 0 22.439-9.192 22.439-22.439 0-13.517-9.462-22.7091-22.439-22.7091-13.247 0-22.71 9.1921-22.71 22.7091z" id="error-id"/><path d="m100.761 68.9967v34.0033h-7.1991l-14.2326-19.8814v19.8814h-8.5839v-34.0033h8.307l13.125 18.7184v-18.7184zm28.454 21.5428c0 7.6978-5.15 13.0145-12.737 13.0145-7.532 0-12.738-5.3167-12.738-13.0145s5.206-13.0143 12.738-13.0143c7.587 0 12.737 5.3165 12.737 13.0143zm-8.529 0c0-3.4336-1.495-5.8703-4.208-5.8703-2.659 0-4.154 2.4367-4.154 5.8703s1.495 5.8149 4.154 5.8149c2.713 0 4.208-2.3813 4.208-5.8149zm13.185 3.8766v-9.5807h-3.655v-6.7564h3.655v-6.8671h8.584v6.8671h5.205v6.7564h-5.205v8.307c0 1.9383.941 2.769 2.658 2.769.941 0 1.994-.2216 2.769-.5538v7.3654c-.997.443-2.88.775-4.818.775-5.87 0-9.193-2.769-9.193-9.0819zm39.02-25.4194h9.083l12.958 34.0033h-9.027l-2.436-6.5902h-12.35l-2.381 6.5902h-8.806zm4.431 10.5222-3.489 9.5807h6.978zm17.44 11.0206c0-7.6978 5.095-13.0143 12.572-13.0143 6.701 0 10.854 3.9874 11.574 9.8023h-8.418c-.221-1.4953-1.384-2.6029-3.156-2.6029-2.437 0-3.988 2.2706-3.988 5.8149s1.551 5.7595 3.988 5.7595c1.772 0 2.935-1.0522 3.156-2.5475h8.418c-.72 5.7596-4.873 9.8025-11.574 9.8025-7.477 0-12.572-5.3167-12.572-13.0145zm25.676 0c0-7.6978 5.095-13.0143 12.572-13.0143 6.701 0 10.854 3.9874 11.574 9.8023h-8.418c-.221-1.4953-1.384-2.6029-3.156-2.6029-2.437 0-3.988 2.2706-3.988 5.8149s1.551 5.7595 3.988 5.7595c1.772 0 2.935-1.0522 3.156-2.5475h8.418c-.72 5.7596-4.873 9.8025-11.574 9.8025-7.477 0-12.572-5.3167-12.572-13.0145zm42.013 3.7658h8.031c-.887 5.7597-5.206 9.2487-11.686 9.2487-7.642 0-12.682-5.2613-12.682-13.0145 0-7.6978 5.317-13.0143 12.516-13.0143 7.643 0 11.962 5.095 11.962 12.5159v2.1598h-16.115c.277 2.9905 1.827 4.5965 4.319 4.5965 1.773 0 3.157-.7753 3.655-2.4921zm-3.821-10.0237c-2.049 0-3.433 1.2737-3.987 3.5997h7.532c-.111-2.0491-1.385-3.5997-3.545-3.5997zm23.4 16.7244v10.799h-8.694v-33.726h8.694v1.9937c1.163-1.3291 3.6-2.5475 6.148-2.5475 7.199 0 11.131 5.8703 11.131 13.0143 0 7.0886-3.932 13.0145-11.131 13.0145-2.548 0-4.985-1.219-6.148-2.548zm0-13.7893v6.5902c.665 1.3845 2.16 2.326 3.822 2.326 2.99 0 4.762-2.3814 4.762-5.5934s-1.772-5.6488-4.762-5.6488c-1.717 0-3.157.9969-3.822 2.326zm21.892 7.1994v-9.5807h-3.655v-6.7564h3.655v-6.8671h8.584v6.8671h5.206v6.7564h-5.206v8.307c0 1.9383.941 2.769 2.658 2.769.942 0 1.994-.2216 2.769-.5538v7.3654c-.997.443-2.88.775-4.818.775-5.87 0-9.193-2.769-9.193-9.0819zm39.458 8.5839h-8.363v-1.274c-.83.831-3.322 1.717-5.981 1.717-4.928 0-9.082-2.769-9.082-8.0301 0-4.818 4.154-7.9193 9.581-7.9193 2.049 0 4.486.6646 5.482 1.3845v-1.606c0-1.606-.941-2.9905-3.045-2.9905-1.606 0-2.548.7199-2.936 1.8275h-8.196c.72-4.8181 4.984-8.6393 11.408-8.6393 7.089 0 11.132 3.7659 11.132 10.2453zm-8.363-6.9779v-1.4399c-.553-1.0522-2.049-1.7167-3.655-1.7167-1.716 0-3.433.7199-3.433 2.3813 0 1.7168 1.717 2.4367 3.433 2.4367 1.606 0 3.102-.6645 3.655-1.6614zm20.742 4.9839v1.994h-8.694v-35.997h8.694v13.0697c1.163-1.3291 3.6-2.5475 6.148-2.5475 7.199 0 11.131 5.8149 11.131 13.0143s-3.932 13.0145-11.131 13.0145c-2.548 0-4.985-1.219-6.148-2.548zm0-13.7893v6.5902c.665 1.3845 2.105 2.326 3.822 2.326 2.99 0 4.762-2.3814 4.762-5.5934s-1.772-5.6488-4.762-5.6488c-1.662 0-3.157.9969-3.822 2.326zm28.759-20.2137v35.997h-8.695v-35.997zm19.172 27.3023h8.03c-.886 5.7597-5.206 9.2487-11.685 9.2487-7.643 0-12.682-5.2613-12.682-13.0145 0-7.6978 5.316-13.0143 12.516-13.0143 7.642 0 11.962 5.095 11.962 12.5159v2.1598h-16.116c.277 2.9905 1.828 4.5965 4.32 4.5965 1.772 0 3.157-.7753 3.655-2.4921zm-3.821-10.0237c-2.049 0-3.434 1.2737-3.988 3.5997h7.532c-.111-2.0491-1.384-3.5997-3.544-3.5997z" id="error-description"/></svg>
-      </header>
+      <div class="error-code">406</div>
+      <div class="error-label">Unsupported Browser</div>
       <article>
-        <p><strong>Your browser is not supported.</strong><br> Please upgrade your browser to continue.</p>
+        <p><strong>Your browser isn't supported.</strong> Please upgrade to a modern browser to use ScoreBase.</p>
+        <div class="browser-icons">
+          <a href="https://www.google.com/chrome/" class="browser-link" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/><circle cx="12" cy="12" r="4"/></svg>
+            Chrome
+          </a>
+          <a href="https://www.mozilla.org/firefox/" class="browser-link" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            Firefox
+          </a>
+          <a href="https://www.apple.com/safari/" class="browser-link" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-5.5-2.5l7.51-3.49L17.5 6.5 9.99 9.99 6.5 17.5zm5.5-6.6c.61 0 1.1.49 1.1 1.1s-.49 1.1-1.1 1.1-1.1-.49-1.1-1.1.49-1.1 1.1-1.1z"/></svg>
+            Safari
+          </a>
+        </div>
       </article>
+      <a href="/" class="btn-home">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+          <polyline points="9 22 9 12 15 12 15 22"></polyline>
+        </svg>
+        Try Anyway
+      </a>
     </main>
-
   </body>
-
 </html>
