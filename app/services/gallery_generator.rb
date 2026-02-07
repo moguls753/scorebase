@@ -1,5 +1,7 @@
 # Generates WebP gallery images from PDF pages and stores in Active Storage (R2)
 # Each page becomes a ScorePage record with an attached image for fast CDN delivery
+require "open3"
+
 class GalleryGenerator
   include PdfFetchable
 
@@ -49,13 +51,21 @@ class GalleryGenerator
 
   def pdf_page_count(pdf_path)
     # Try pdfinfo first (faster)
-    output = `pdfinfo "#{pdf_path}" 2>/dev/null | grep -i "^Pages:" | awk '{print $2}'`.strip
-    count = output.to_i
-    return count if count.positive?
+    begin
+      output, status = Open3.capture2("pdfinfo", pdf_path, err: File::NULL)
+      if status.success?
+        match = output.match(/^Pages:\s*(\d+)/i)
+        return match[1].to_i if match
+      end
+    rescue Errno::ENOENT
+      # pdfinfo not installed, fall through to identify
+    end
 
     # Fallback: ImageMagick identify (count lines of output, one per page)
-    output = `identify "#{pdf_path}" 2>/dev/null | wc -l`.strip
-    output.to_i
+    output, status = Open3.capture2("identify", pdf_path, err: File::NULL)
+    return output.lines.count if status.success?
+
+    0
   rescue StandardError => e
     log_error(e)
     0
