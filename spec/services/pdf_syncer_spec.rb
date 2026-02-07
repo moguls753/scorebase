@@ -43,10 +43,17 @@ RSpec.describe PdfSyncer do
     context "when IMSLP score with valid PDF" do
       let(:score) { create(:score, :imslp, pdf_path: "test.pdf", external_id: "12345") }
       let(:pdf_data) { "%PDF-1.4 fake pdf content" }
+      let(:imslp_html) do
+        '<span id="sm_dl_wait" data-id="https://s9.imslp.org/files/test/Bach_BWV565.pdf"></span>'
+      end
 
       before do
-        # IMSLP uses redirects, so stub the chain
-        stub_request(:get, /imslp\.org/)
+        # IMSLP returns HTML with the real CDN URL in data-id attribute
+        stub_request(:get, /imslp\.org\/wiki\/Special:IMSLPImageHandler/)
+          .to_return(status: 200, body: imslp_html, headers: { "Content-Type" => "text/html" })
+
+        # CDN returns the actual PDF
+        stub_request(:get, "https://s9.imslp.org/files/test/Bach_BWV565.pdf")
           .to_return(
             status: 200,
             body: pdf_data,

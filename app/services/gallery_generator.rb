@@ -48,17 +48,14 @@ class GalleryGenerator
   private
 
   def pdf_page_count(pdf_path)
-    # Try pdfinfo first (faster), fall back to ImageMagick identify
+    # Try pdfinfo first (faster)
     output = `pdfinfo "#{pdf_path}" 2>/dev/null | grep -i "^Pages:" | awk '{print $2}'`.strip
     count = output.to_i
+    return count if count.positive?
 
-    if count.zero?
-      # Fallback: ImageMagick identify
-      output = `identify -format "%n\n" "#{pdf_path}[0]" 2>/dev/null`.strip
-      count = output.to_i
-    end
-
-    count
+    # Fallback: ImageMagick identify (count lines of output, one per page)
+    output = `identify "#{pdf_path}" 2>/dev/null | wc -l`.strip
+    output.to_i
   rescue StandardError => e
     log_error(e)
     0

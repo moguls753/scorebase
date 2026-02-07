@@ -1,4 +1,5 @@
 # Shared HTTP download functionality for ThumbnailGenerator and PdfSyncer
+require "cgi"
 require "net/http"
 require "uri"
 require "openssl"
@@ -13,6 +14,10 @@ module HttpDownloadable
   private
 
   def http_download(url, destination, redirect_limit: 10, timeout: 30, retries: 0)
+    # IMSLP requires special handling - their download page contains the real CDN URL
+    if url.include?("imslp.org/wiki/Special:IMSLPImageHandler")
+      return http_download_imslp(url, destination, timeout: timeout)
+    end
     raise DownloadError, "Too many redirects" if redirect_limit.zero?
 
     uri = URI(url)
@@ -99,6 +104,40 @@ module HttpDownloadable
     else
       raise DownloadError, "#{e.class.name} via bypass after #{MAX_RETRIES} retries: #{e.message}"
     end
+  end
+
+  # IMSLP serves a download page with ads/countdown, but the real PDF URL is in data-id attribute
+  # Flow: fetch HTML page -> extract data-id from #sm_dl_wait -> download from that CDN URL
+  def http_download_imslp(url, destination, timeout: 30)
+    uri = URI(url)
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.open_timeout = 15
+    http.read_timeout = timeout
+    http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+    http.cert_store = OpenSSL::X509::Store.new
+    http.cert_store.set_default_paths
+
+    request = Net::HTTP::Get.new(uri)
+    request["User-Agent"] = "Mozilla/5.0 (compatible; ScorebaseBot/1.0)"
+    request["Cookie"] = "imslpdisclaimeraccepted=yes; redirectPassed=1"
+
+    response = http.request(request)
+
+    unless response.is_a?(Net::HTTPSuccess)
+      raise DownloadError, "IMSLP page fetch failed: HTTP #{response.code}"
+    end
+
+    # Extract direct CDN URL from data-id attribute
+    # Pattern: <span id="sm_dl_wait" data-id="https://s9.imslp.org/files/...">
+    match = response.body.match(/id="sm_dl_wait"[^>]*data-id="([^"]+)"/)
+    unless match
+      raise DownloadError, "Could not find IMSLP download URL in page"
+    end
+
+    cdn_url = CGI.unescapeHTML(match[1])
+    http_download(cdn_url, destination, timeout: timeout)
   end
 
   class DownloadError < StandardError; end
