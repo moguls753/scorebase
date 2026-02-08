@@ -31,18 +31,18 @@ production:
       polling_interval: 0.5
 
     # CPU-heavy: PDF-to-image conversion (ImageMagick/Ghostscript)
-    # 1 thread — SQLite write locks cause contention with concurrent gallery writes
+    # 3 threads — WAL mode allows concurrent reads, writes only block other writes
     - queues:
         - galleries
-      threads: 1
+      threads: 3
       processes: 1
-      polling_interval: 2
+      polling_interval: 1
 
     # Thumbnails: mostly I/O (download image, resize, upload to R2)
-    # 4 threads — reduced from 8 to avoid SQLite write contention
+    # 6 threads — WAL mode handles concurrent reads, writes serialize naturally
     - queues:
         - thumbnails
-      threads: 4
+      threads: 6
       processes: 1
       polling_interval: 1
 
