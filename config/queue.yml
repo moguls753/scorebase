@@ -31,18 +31,18 @@ production:
       polling_interval: 0.5
 
     # CPU-heavy: PDF-to-image conversion (ImageMagick/Ghostscript)
-    # 2 threads — overlap PDF download with previous job's conversion (CX23: 2 vCPU)
+    # 1 thread — SQLite write locks cause contention with concurrent gallery writes
     - queues:
         - galleries
-      threads: 2
+      threads: 1
       processes: 1
-      polling_interval: 1
+      polling_interval: 2
 
     # Thumbnails: mostly I/O (download image, resize, upload to R2)
-    # 8 threads — 93% CPU idle with 2, bottleneck is network wait (CX23: 2 vCPU, 4GB)
+    # 4 threads — reduced from 8 to avoid SQLite write contention
     - queues:
         - thumbnails
-      threads: 8
+      threads: 4
       processes: 1
       polling_interval: 1
 
