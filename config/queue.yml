@@ -31,18 +31,18 @@ production:
       polling_interval: 0.5
 
     # CPU-heavy: PDF-to-image conversion (ImageMagick/Ghostscript)
-    # 3 threads — WAL mode allows concurrent reads, writes only block other writes
+    # 1 thread — each convert uses 200-500MB RAM; concurrent converts OOM the 2GB container
     - queues:
         - galleries
-      threads: 3
+      threads: 1
       processes: 1
       polling_interval: 1
 
     # Thumbnails: mostly I/O (download image, resize, upload to R2)
-    # 6 threads — WAL mode handles concurrent reads, writes serialize naturally
+    # 4 threads — light on CPU but still writes to SQLite
     - queues:
         - thumbnails
-      threads: 6
+      threads: 4
       processes: 1
       polling_interval: 1
 

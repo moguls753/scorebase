@@ -21,6 +21,11 @@ class GalleryGenerator
     return true if score.has_gallery?
     return false unless score.has_pdf?
 
+    # Skip CPDL if PDF not synced - CloudflareBypass currently not working
+    if score.cpdl? && !score.pdf_file.attached?
+      return add_error("CPDL bypass unavailable - skipping until PDF synced")
+    end
+
     Dir.mktmpdir("gallery") do |tmpdir|
       pdf_path = fetch_pdf_to(tmpdir)
       return add_error("Could not fetch PDF") unless pdf_path
