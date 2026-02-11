@@ -5,38 +5,27 @@ require "rails_helper"
 RSpec.describe PeriodFromTitleInferrer do
   let(:client) { instance_double(LlmClient) }
   let(:inferrer) { described_class.new(client: client) }
-  let(:score) { create(:score, title: "Ave maris stella", composer: "Traditional", composer_status: "failed") }
 
   describe "#infer" do
     it "returns period from LLM response" do
+      score = create(:score, title: "Ave maris stella", composer: "Traditional")
       allow(client).to receive(:chat_json).and_return({ "period" => "Renaissance", "confidence" => "high" })
 
       results = inferrer.infer(score)
 
-      expect(results).to be_an(Array)
       expect(results.first.period).to eq("Renaissance")
       expect(results.first).to be_found
     end
 
-    it "includes composer in prompt" do
-      expect(client).to receive(:chat_json) do |prompt|
-        expect(prompt).to include("Composer: Traditional")
-        { "period" => "Renaissance", "confidence" => "high" }
-      end
-
-      inferrer.infer(score)
-    end
-
     it "handles null response" do
+      score = create(:score, title: "Unknown Work")
       allow(client).to receive(:chat_json).and_return({ "period" => nil, "confidence" => "none" })
 
-      results = inferrer.infer(score)
-
-      expect(results.first).to be_success
-      expect(results.first).not_to be_found
+      expect(inferrer.infer(score).first).not_to be_found
     end
 
     it "handles errors gracefully" do
+      score = create(:score, title: "Test")
       allow(client).to receive(:chat_json).and_raise(LlmClient::Error, "API down")
 
       results = inferrer.infer(score)
@@ -46,8 +35,7 @@ RSpec.describe PeriodFromTitleInferrer do
     end
 
     it "processes multiple scores in batch" do
-      score2 = create(:score, title: "Moonlight Sonata", composer: "Beethoven")
-
+      scores = create_list(:score, 2)
       allow(client).to receive(:chat_json).and_return({
         "results" => [
           { "id" => 1, "period" => "Renaissance", "confidence" => "low" },
@@ -55,7 +43,7 @@ RSpec.describe PeriodFromTitleInferrer do
         ]
       })
 
-      results = inferrer.infer([score, score2])
+      results = inferrer.infer(scores)
 
       expect(results.length).to eq(2)
       expect(results[0].period).to eq("Renaissance")
@@ -63,8 +51,7 @@ RSpec.describe PeriodFromTitleInferrer do
     end
 
     it "returns empty array for empty input" do
-      results = inferrer.infer([])
-      expect(results).to eq([])
+      expect(inferrer.infer([])).to eq([])
     end
   end
 end

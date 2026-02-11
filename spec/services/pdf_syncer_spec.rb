@@ -48,8 +48,8 @@ RSpec.describe PdfSyncer do
       end
 
       before do
-        # IMSLP returns HTML with the real CDN URL in data-id attribute
-        stub_request(:get, /imslp\.org\/wiki\/Special:IMSLPImageHandler/)
+        # IMSLP page is fetched via CloudflareBypass proxy (localhost:8000)
+        stub_request(:get, /localhost:8000\/wiki\/Special:IMSLPImageHandler/)
           .to_return(status: 200, body: imslp_html, headers: { "Content-Type" => "text/html" })
 
         # CDN returns the actual PDF
@@ -76,7 +76,7 @@ RSpec.describe PdfSyncer do
       let(:score) { create(:score, :imslp, pdf_path: "test.pdf", external_id: "12345") }
 
       before do
-        stub_request(:get, /imslp\.org/)
+        stub_request(:get, /localhost:8000/)
           .to_return(status: 404, body: "Not Found")
       end
 
