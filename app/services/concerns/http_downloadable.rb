@@ -9,7 +9,7 @@ module HttpDownloadable
 
   MAX_RETRIES = 3
   RETRY_DELAY = 2  # seconds, doubles each retry
-  CLOUDFLARE_PROTECTED_HOSTS = %w[cpdl.org www.cpdl.org].freeze
+  CLOUDFLARE_PROTECTED_HOSTS = %w[cpdl.org www.cpdl.org imslp.org www.imslp.org].freeze
 
   private
 
@@ -107,23 +107,10 @@ module HttpDownloadable
   end
 
   # IMSLP serves a download page with ads/countdown, but the real PDF URL is in data-id attribute
-  # Flow: fetch HTML page -> extract data-id from #sm_dl_wait -> download from that CDN URL
+  # Flow: fetch HTML page via bypass -> extract data-id from #sm_dl_wait -> download from CDN URL
   def http_download_imslp(url, destination, timeout: 30)
-    uri = URI(url)
-
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.use_ssl = true
-    http.open_timeout = 15
-    http.read_timeout = timeout
-    http.verify_mode = OpenSSL::SSL::VERIFY_PEER
-    http.cert_store = OpenSSL::X509::Store.new
-    http.cert_store.set_default_paths
-
-    request = Net::HTTP::Get.new(uri)
-    request["User-Agent"] = "Mozilla/5.0 (compatible; ScorebaseBot/1.0)"
-    request["Cookie"] = "imslpdisclaimeraccepted=yes; redirectPassed=1"
-
-    response = http.request(request)
+    client = CloudflareBypassClient.new
+    response = client.get(url, timeout: timeout)
 
     unless response.is_a?(Net::HTTPSuccess)
       raise DownloadError, "IMSLP page fetch failed: HTTP #{response.code}"
