@@ -108,9 +108,17 @@ module HttpDownloadable
 
   # IMSLP serves a download page with ads/countdown, but the real PDF URL is in data-id attribute
   # Flow: fetch HTML page via bypass -> extract data-id from #sm_dl_wait -> download from CDN URL
-  def http_download_imslp(url, destination, timeout: 30)
+  def http_download_imslp(url, destination, timeout: 30, redirect_limit: 5)
+    raise DownloadError, "IMSLP too many redirects" if redirect_limit.zero?
+
     client = CloudflareBypassClient.new
     response = client.get(url, timeout: timeout)
+
+    if response.is_a?(Net::HTTPRedirection)
+      redirect_url = response["location"]
+      redirect_url = URI.join(url, redirect_url).to_s unless redirect_url.start_with?("http")
+      return http_download_imslp(redirect_url, destination, timeout: timeout, redirect_limit: redirect_limit - 1)
+    end
 
     unless response.is_a?(Net::HTTPSuccess)
       raise DownloadError, "IMSLP page fetch failed: HTTP #{response.code}"
