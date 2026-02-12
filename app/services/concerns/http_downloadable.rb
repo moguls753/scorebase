@@ -125,6 +125,13 @@ module HttpDownloadable
 
     response = http.request(request)
 
+    # IMSLP sometimes 302-redirects directly to the PDF CDN URL
+    if response.is_a?(Net::HTTPRedirection)
+      cdn_url = response["location"]
+      cdn_url = URI.join(url, cdn_url).to_s unless cdn_url.start_with?("http")
+      return http_download(cdn_url, destination, timeout: timeout)
+    end
+
     unless response.is_a?(Net::HTTPSuccess)
       raise DownloadError, "IMSLP page fetch failed: HTTP #{response.code}"
     end
