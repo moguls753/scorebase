@@ -129,6 +129,7 @@ module HttpDownloadable
     if response.is_a?(Net::HTTPRedirection)
       cdn_url = response["location"]
       cdn_url = URI.join(url, cdn_url).to_s unless cdn_url.start_with?("http")
+      cdn_url = URI::DEFAULT_PARSER.escape(cdn_url) unless cdn_url.ascii_only?
       return http_download(cdn_url, destination, timeout: timeout)
     end
 
@@ -144,6 +145,7 @@ module HttpDownloadable
     end
 
     cdn_url = CGI.unescapeHTML(match[1])
+    cdn_url = URI::DEFAULT_PARSER.escape(cdn_url) unless cdn_url.ascii_only?
     http_download(cdn_url, destination, timeout: timeout)
   end
 
