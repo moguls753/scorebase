@@ -9,6 +9,7 @@ module HttpDownloadable
 
   MAX_RETRIES = 3
   RETRY_DELAY = 2  # seconds, doubles each retry
+  IMSLP_RATE_LIMIT = 3  # seconds between IMSLP requests to avoid IP bans
   CLOUDFLARE_PROTECTED_HOSTS = %w[cpdl.org www.cpdl.org].freeze
 
   private
@@ -109,6 +110,12 @@ module HttpDownloadable
   # IMSLP serves a download page with ads/countdown, but the real PDF URL is in data-id attribute
   # Flow: fetch HTML page -> extract data-id from #sm_dl_wait -> download from CDN URL
   def http_download_imslp(url, destination, timeout: 30)
+    # Rate limit IMSLP requests to avoid IP bans (class-level so it persists across instances)
+    @@last_imslp_request ||= Time.at(0) # rubocop:disable Style/ClassVars
+    elapsed = Time.now - @@last_imslp_request
+    sleep(IMSLP_RATE_LIMIT - elapsed) if elapsed < IMSLP_RATE_LIMIT
+    @@last_imslp_request = Time.now
+
     uri = URI(url)
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -125,11 +132,17 @@ module HttpDownloadable
 
     response = http.request(request)
 
-    # IMSLP sometimes 302-redirects directly to the PDF CDN URL
+    # IMSLP sometimes 302-redirects to imslp.eu/linkhandler.php (intermediary page)
     if response.is_a?(Net::HTTPRedirection)
       cdn_url = response["location"]
       cdn_url = URI.join(url, cdn_url).to_s unless cdn_url.start_with?("http")
       cdn_url = URI::DEFAULT_PARSER.escape(cdn_url) unless cdn_url.ascii_only?
+
+      # If redirected to imslp.eu linkhandler, fetch that page and extract the real PDF link
+      if cdn_url.include?("imslp.eu/linkhandler.php")
+        return http_download_imslp_eu(cdn_url, destination, timeout: timeout)
+      end
+
       return http_download(cdn_url, destination, timeout: timeout)
     end
 
@@ -147,6 +160,39 @@ module HttpDownloadable
     cdn_url = CGI.unescapeHTML(match[1])
     cdn_url = URI::DEFAULT_PARSER.escape(cdn_url) unless cdn_url.ascii_only?
     http_download(cdn_url, destination, timeout: timeout)
+  end
+
+  # IMSLP-EU serves an intermediary HTML page with the real PDF link in an href
+  # Flow: fetch HTML -> extract /files/...pdf href -> download from imslp.eu
+  def http_download_imslp_eu(url, destination, timeout: 30)
+    uri = URI(url)
+
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.use_ssl = true
+    http.open_timeout = 15
+    http.read_timeout = timeout
+    http.verify_mode = OpenSSL::SSL::VERIFY_PEER
+    http.cert_store = OpenSSL::X509::Store.new
+    http.cert_store.set_default_paths
+
+    request = Net::HTTP::Get.new(uri)
+    request["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    request["Cookie"] = "imslpdisclaimeraccepted=yes"
+
+    response = http.request(request)
+
+    unless response.is_a?(Net::HTTPSuccess)
+      raise DownloadError, "IMSLP-EU page fetch failed: HTTP #{response.code}"
+    end
+
+    match = response.body.match(/href="(\/files\/[^"]+\.pdf)"/i)
+    unless match
+      raise DownloadError, "Could not find PDF link in IMSLP-EU page"
+    end
+
+    pdf_url = "https://imslp.eu#{match[1]}"
+    pdf_url = URI::DEFAULT_PARSER.escape(pdf_url) unless pdf_url.ascii_only?
+    http_download(pdf_url, destination, timeout: timeout)
   end
 
   class DownloadError < StandardError; end
