@@ -99,7 +99,7 @@ jobs:
         run: bundle exec rspec --format progress --format RspecJunitFormatter --out tmp/rspec_results.xml
 
       - name: Upload test results
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         if: always()
         with:
           name: rspec-results
@@ -135,7 +135,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.9.0
+        uses: webfactory/ssh-agent@v0.9.1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
@@ -170,7 +170,7 @@ jobs:
   #         RAILS_ENV: test
   #       run: bundle exec rspec spec/system --format progress
   #     - name: Keep screenshots from failed system tests
-  #       uses: actions/upload-artifact@v6
+  #       uses: actions/upload-artifact@v7
   #       if: failure()
   #       with:
   #         name: screenshots
