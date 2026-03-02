@@ -138,9 +138,10 @@ module HttpDownloadable
       cdn_url = URI.join(url, cdn_url).to_s unless cdn_url.start_with?("http")
       cdn_url = URI::DEFAULT_PARSER.escape(cdn_url) unless cdn_url.ascii_only?
 
-      # If redirected to imslp.eu linkhandler, fetch that page and extract the real PDF link
-      if cdn_url.include?("imslp.eu/linkhandler.php")
-        return http_download_imslp_eu(cdn_url, destination, timeout: timeout)
+      # If redirected to a linkhandler page (imslp.eu or petruccimusiclibrary.ca),
+      # fetch that page and extract the real PDF link
+      if cdn_url.include?("/linkhandler.php")
+        return http_download_imslp_linkhandler(cdn_url, destination, timeout: timeout)
       end
 
       return http_download(cdn_url, destination, timeout: timeout)
@@ -162,9 +163,10 @@ module HttpDownloadable
     http_download(cdn_url, destination, timeout: timeout)
   end
 
-  # IMSLP-EU serves an intermediary HTML page with the real PDF link in an href
-  # Flow: fetch HTML -> extract /files/...pdf href -> download from imslp.eu
-  def http_download_imslp_eu(url, destination, timeout: 30)
+  # IMSLP linkhandler pages (imslp.eu, petruccimusiclibrary.ca) serve an intermediary
+  # HTML disclaimer page with the real PDF link in an href
+  # Flow: fetch HTML -> extract /files/...pdf href -> download from same host
+  def http_download_imslp_linkhandler(url, destination, timeout: 30)
     uri = URI(url)
 
     http = Net::HTTP.new(uri.host, uri.port)
@@ -177,20 +179,29 @@ module HttpDownloadable
 
     request = Net::HTTP::Get.new(uri)
     request["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    request["Cookie"] = "imslpdisclaimeraccepted=yes"
+    request["Cookie"] = "imslpdisclaimeraccepted=yes; disclaimer_bypass=OK"
 
     response = http.request(request)
 
-    unless response.is_a?(Net::HTTPSuccess)
-      raise DownloadError, "IMSLP-EU page fetch failed: HTTP #{response.code}"
+    # With disclaimer_bypass cookie, linkhandler 302-redirects directly to the PDF
+    if response.is_a?(Net::HTTPRedirection)
+      pdf_path = response["location"]
+      pdf_url = pdf_path.start_with?("http") ? pdf_path : "https://#{uri.host}#{pdf_path}"
+      pdf_url = URI::DEFAULT_PARSER.escape(pdf_url) unless pdf_url.ascii_only?
+      return http_download(pdf_url, destination, timeout: timeout)
     end
 
+    unless response.is_a?(Net::HTTPSuccess)
+      raise DownloadError, "IMSLP linkhandler page fetch failed: HTTP #{response.code}"
+    end
+
+    # Fallback: parse HTML page for PDF link
     match = response.body.match(/href="(\/files\/[^"]+\.pdf)"/i)
     unless match
-      raise DownloadError, "Could not find PDF link in IMSLP-EU page"
+      raise DownloadError, "Could not find PDF link in IMSLP linkhandler page"
     end
 
-    pdf_url = "https://imslp.eu#{match[1]}"
+    pdf_url = "https://#{uri.host}#{match[1]}"
     pdf_url = URI::DEFAULT_PARSER.escape(pdf_url) unless pdf_url.ascii_only?
     http_download(pdf_url, destination, timeout: timeout)
   end
