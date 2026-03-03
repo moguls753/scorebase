@@ -160,6 +160,11 @@ module HttpDownloadable
 
     cdn_url = CGI.unescapeHTML(match[1])
     cdn_url = URI::DEFAULT_PARSER.escape(cdn_url) unless cdn_url.ascii_only?
+
+    if cdn_url.include?("/linkhandler.php")
+      return http_download_imslp_linkhandler(cdn_url, destination, timeout: timeout)
+    end
+
     http_download(cdn_url, destination, timeout: timeout)
   end
 
