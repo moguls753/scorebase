@@ -767,7 +767,9 @@ class Score < ApplicationRecord
   # For IMSLP scores, generate file URLs via Special:IMSLPImageHandler (requires cookie)
   def imslp_file_url(filename)
     return nil unless imslp? && filename.present? && external_id.present?
-    encoded_filename = URI.encode_www_form_component(filename)
+    # IMSLP uses underscores for spaces (MediaWiki convention).
+    # encode_www_form_component encodes spaces as +, which IMSLP interprets literally.
+    encoded_filename = URI.encode_www_form_component(filename).gsub("+", "_")
     "https://imslp.org/wiki/Special:IMSLPImageHandler/#{external_id}/#{encoded_filename}"
   end
 

@@ -151,6 +151,15 @@ module HttpDownloadable
       raise DownloadError, "IMSLP page fetch failed: HTTP #{response.code}"
     end
 
+    # Detect pages that can't be downloaded (copyright review, nonexistent files)
+    if response.body.include?("pending copyright review") || response.body.include?("pending <a")
+      raise DownloadError, "IMSLP file pending copyright review"
+    end
+
+    if response.body.include?("nonexistant file") || response.body.include?("nonexistent file")
+      raise DownloadError, "IMSLP file does not exist"
+    end
+
     # Extract direct CDN URL from data-id attribute
     # Pattern: <span id="sm_dl_wait" data-id="https://s9.imslp.org/files/...">
     match = response.body.match(/id="sm_dl_wait"[^>]*data-id="([^"]+)"/)
