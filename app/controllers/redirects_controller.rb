@@ -9,6 +9,13 @@ class RedirectsController < ApplicationController
       return
     end
 
+    # Reject direct hits without a valid referrer from this site
+    # (bots hitting /go/smd/ directly without visiting a score page)
+    unless valid_internal_referrer?
+      head :forbidden
+      return
+    end
+
     # Track the click (skip bots and prefetch)
     unless bot? || prefetch?
       score = Score.find_by(external_id: smd_id, source: "smd")
@@ -20,6 +27,13 @@ class RedirectsController < ApplicationController
   end
 
   private
+
+  def valid_internal_referrer?
+    return false if request.referer.blank?
+
+    ref_host = URI.parse(request.referer).host rescue nil
+    ref_host.present? && ref_host == request.host
+  end
 
   def smd_product_url(smd_id)
     "https://www.sheetmusicdirect.com/se/ID_No/#{smd_id}/Product.aspx?affiliate=#{Score::SMD_AFFILIATE_ID}"

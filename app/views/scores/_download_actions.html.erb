@@ -19,11 +19,15 @@
   <div class="dl-row">
     <% if score.smd_purchasable? %>
       <%# SMD: Single buy button (teal to distinguish from free downloads) %>
-      <%= link_to smd_redirect_path(smd_id: score.external_id),
+      <%# JS-based redirect: href="#" so bots can't follow, Stimulus handles the click %>
+      <%= link_to "#",
           class: "dl-btn dl-btn--primary dl-btn--buy",
-          target: "_blank",
-          rel: "noopener noreferrer sponsored",
-          aria: { label: t('score.view_on_smd') } do %>
+          aria: { label: t('score.view_on_smd') },
+          data: {
+            controller: "smd-redirect",
+            smd_redirect_url_value: smd_redirect_path(smd_id: score.external_id),
+            action: "click->smd-redirect#go"
+          } do %>
         <span class="dl-label"><%= t('score.view_on_smd') %></span>
       <% end %>
     <% else %>
@@ -66,11 +70,15 @@
   <div class="dl-stack">
     <% if score.smd_purchasable? %>
       <%# SMD: Buy button with helper text (teal to distinguish from free downloads) %>
-      <%= link_to smd_redirect_path(smd_id: score.external_id),
+      <%# JS-based redirect: href="#" so bots can't follow, Stimulus handles the click %>
+      <%= link_to "#",
           class: "dl-btn dl-btn--primary dl-btn--buy dl-btn--full",
-          target: "_blank",
-          rel: "noopener noreferrer sponsored",
-          aria: { label: t('score.view_on_smd') } do %>
+          aria: { label: t('score.view_on_smd') },
+          data: {
+            controller: "smd-redirect",
+            smd_redirect_url_value: smd_redirect_path(smd_id: score.external_id),
+            action: "click->smd-redirect#go"
+          } do %>
         <span class="dl-label"><%= t('score.view_on_smd') %></span>
       <% end %>
       <p class="dl-hint"><%= t('score.smd_hint') %></p>

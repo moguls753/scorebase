@@ -70,6 +70,9 @@ class ApplicationController < ActionController::Base
     # Empty or suspiciously short user agents
     return true if user_agent.blank? || user_agent.length < 20
 
+    # Known bot/scripting user agents
+    return true if user_agent.include?("WindowsPowerShell")
+
     # Mozilla/5.0 without device info parentheses = spoofed
     return true if user_agent.match?(/^Mozilla\/5\.0 [^(]/)
 
