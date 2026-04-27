@@ -17,7 +17,9 @@ require "json"
 #   :groq     - Groq API (llama-3.1-8b) - DEFAULT, cheapest
 #   :openai   - OpenAI API (gpt-4o-mini) - best quality for complex tasks
 #   :gemini   - Google Gemini API
-#   :deepseek - DeepSeek API (deepseek-chat / deepseek-reasoner)
+#   :deepseek - DeepSeek API (deepseek-v4-flash / deepseek-v4-pro). The legacy
+#               aliases deepseek-chat and deepseek-reasoner are deprecated and
+#               retire 2026-07-24 — use the explicit v4 names.
 #   :lmstudio - Local LMStudio server (free, for testing/bulk)
 #
 class LlmClient
@@ -234,7 +236,7 @@ class LlmClient
   # ═══════════════════════════════════════════════════════════════════════════
 
   DEEPSEEK_ENDPOINT = "https://api.deepseek.com/chat/completions"
-  DEEPSEEK_DEFAULT_MODEL = "deepseek-chat"
+  DEEPSEEK_DEFAULT_MODEL = "deepseek-v4-flash"
 
   def send_deepseek_request(prompt, json_mode:, temperature:)
     uri = URI(DEEPSEEK_ENDPOINT)

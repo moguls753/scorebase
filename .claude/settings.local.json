@@ -53,7 +53,8 @@
       "WebFetch(domain:www.earlyromanticguitar.com)",
       "WebFetch(domain:en.wikipedia.org)",
       "WebFetch(domain:richterguitar.com)",
-      "WebFetch(domain:www.cglib.org)"
+      "WebFetch(domain:www.cglib.org)",
+      "WebFetch(domain:api-docs.deepseek.com)"
     ]
   }
 }

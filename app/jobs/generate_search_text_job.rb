@@ -6,18 +6,21 @@
 # Usage:
 #   GenerateSearchTextJob.perform_later
 #   GenerateSearchTextJob.perform_later(limit: 100, backend: :deepseek)
-#   GenerateSearchTextJob.perform_later(model: "deepseek-chat")
+#   GenerateSearchTextJob.perform_later(model: "deepseek-v4-flash")
 #   GenerateSearchTextJob.perform_later(scope: "priority")  # balanced instrument sampling
 #   GenerateSearchTextJob.perform_later(force: true)        # regenerate already-templated
 #
 class GenerateSearchTextJob < ApplicationJob
   queue_as :rag
 
-  # Default model: deepseek-chat (V3.2). Picked over Groq llama-4-scout and
-  # OpenAI gpt-4.1-mini after the verification harness — DeepSeek consistently
-  # adds piece-specific musical features (named tunes, dance movement names,
-  # work nicknames) that improve embedding distinctiveness for semantic search.
-  DEFAULT_MODEL = "deepseek-chat"
+  # Default model: deepseek-v4-flash (DeepSeek V4 Flash, non-thinking mode).
+  # Picked over Groq llama-4-scout and OpenAI gpt-4.1-mini after the harness —
+  # DeepSeek adds piece-specific musical features (named tunes, dance movement
+  # names, work nicknames) that improve embedding distinctiveness for semantic
+  # search. V4-Pro was tested 2026-04-27 — not decisively better, ~5x slower,
+  # ~3x cost; rejected. See docs/semantic-search-todo.md run log.
+  # Pinned to the explicit name (was "deepseek-chat" alias which retires 2026-07-24).
+  DEFAULT_MODEL = "deepseek-v4-flash"
 
   # Priority scope for testing - covers main user types with instrument diversity
   # Balanced sampling: LIMIT/4 from each category
