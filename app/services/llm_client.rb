@@ -17,10 +17,11 @@ require "json"
 #   :groq     - Groq API (llama-3.1-8b) - DEFAULT, cheapest
 #   :openai   - OpenAI API (gpt-4o-mini) - best quality for complex tasks
 #   :gemini   - Google Gemini API
+#   :deepseek - DeepSeek API (deepseek-chat / deepseek-reasoner)
 #   :lmstudio - Local LMStudio server (free, for testing/bulk)
 #
 class LlmClient
-  BACKENDS = %i[groq gemini openai lmstudio].freeze
+  BACKENDS = %i[groq gemini openai deepseek lmstudio].freeze
 
   # SSL certificate store for HTTPS requests
   # OpenSSL 3.6+ requires explicit configuration to work with modern APIs
@@ -103,6 +104,9 @@ class LlmClient
     when :openai
       api_key = Rails.application.credentials.dig(:openai, :api_key)
       raise ConfigurationError, "OpenAI API key not set in Rails credentials" if api_key.blank?
+    when :deepseek
+      api_key = Rails.application.credentials.dig(:deepseek, :api_key)
+      raise ConfigurationError, "DeepSeek API key not set in Rails credentials" if api_key.blank?
     when :lmstudio
       # LMStudio runs locally, no API key needed
       # Just verify the server URL is configured
@@ -116,6 +120,7 @@ class LlmClient
     when :groq    then send_groq_request(prompt, json_mode: json_mode, temperature: temperature)
     when :gemini  then send_gemini_request(prompt, json_mode: json_mode, temperature: temperature)
     when :openai  then send_openai_request(prompt, json_mode: json_mode, temperature: temperature)
+    when :deepseek then send_deepseek_request(prompt, json_mode: json_mode, temperature: temperature)
     when :lmstudio then send_lmstudio_request(prompt, json_mode: json_mode, temperature: temperature)
     end
   end
@@ -145,7 +150,7 @@ class LlmClient
 
   def extract_text(body)
     case @backend
-    when :groq, :openai, :lmstudio
+    when :groq, :openai, :deepseek, :lmstudio
       body.dig("choices", 0, "message", "content") || raise(Error, "No content in response")
     when :gemini
       body.dig("candidates", 0, "content", "parts", 0, "text") || raise(Error, "No content in response")
@@ -219,6 +224,27 @@ class LlmClient
     }
     # Some models (gpt-5-nano) don't support custom temperature
     payload[:temperature] = temperature unless OPENAI_NO_TEMPERATURE_MODELS.include?(model)
+    payload[:response_format] = { type: "json_object" } if json_mode
+
+    http_post(uri, payload, { "Authorization" => "Bearer #{api_key}" })
+  end
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # DeepSeek
+  # ═══════════════════════════════════════════════════════════════════════════
+
+  DEEPSEEK_ENDPOINT = "https://api.deepseek.com/chat/completions"
+  DEEPSEEK_DEFAULT_MODEL = "deepseek-chat"
+
+  def send_deepseek_request(prompt, json_mode:, temperature:)
+    uri = URI(DEEPSEEK_ENDPOINT)
+    api_key = Rails.application.credentials.dig(:deepseek, :api_key)
+
+    payload = {
+      model: @model || ENV.fetch("DEEPSEEK_MODEL", DEEPSEEK_DEFAULT_MODEL),
+      temperature: temperature,
+      messages: [{ role: "user", content: prompt }]
+    }
     payload[:response_format] = { type: "json_object" } if json_mode
 
     http_post(uri, payload, { "Authorization" => "Bearer #{api_key}" })

@@ -5,17 +5,19 @@
 #
 # Usage:
 #   GenerateSearchTextJob.perform_later
-#   GenerateSearchTextJob.perform_later(limit: 100, backend: :groq)
-#   GenerateSearchTextJob.perform_later(model: "llama-3.1-8b-instant")
+#   GenerateSearchTextJob.perform_later(limit: 100, backend: :deepseek)
+#   GenerateSearchTextJob.perform_later(model: "deepseek-chat")
 #   GenerateSearchTextJob.perform_later(scope: "priority")  # balanced instrument sampling
 #   GenerateSearchTextJob.perform_later(force: true)        # regenerate already-templated
 #
 class GenerateSearchTextJob < ApplicationJob
   queue_as :rag
 
-  # Default model: llama-4-scout produces better variety than llama-3.1-8b
-  # (less template repetition, better embedding differentiation for RAG)
-  DEFAULT_MODEL = "meta-llama/llama-4-scout-17b-16e-instruct"
+  # Default model: deepseek-chat (V3.2). Picked over Groq llama-4-scout and
+  # OpenAI gpt-4.1-mini after the verification harness — DeepSeek consistently
+  # adds piece-specific musical features (named tunes, dance movement names,
+  # work nicknames) that improve embedding distinctiveness for semantic search.
+  DEFAULT_MODEL = "deepseek-chat"
 
   # Priority scope for testing - covers main user types with instrument diversity
   # Balanced sampling: LIMIT/4 from each category
@@ -26,7 +28,7 @@ class GenerateSearchTextJob < ApplicationJob
     "(composer LIKE '%Bach%' OR composer LIKE '%Mozart%' OR composer LIKE '%Handel%')"
   ].freeze
 
-  def perform(limit: 100, backend: :groq, model: DEFAULT_MODEL, scope: nil, force: false)
+  def perform(limit: 100, backend: :deepseek, model: DEFAULT_MODEL, scope: nil, force: false)
     scores = eligible_scores(limit, scope: scope, force: force).to_a
 
     log_start(scores.size, backend, model, scope, force)
@@ -84,7 +86,7 @@ class GenerateSearchTextJob < ApplicationJob
 
   def log_start(count, backend, model, scope, force)
     mode = force ? "(force regenerate)" : "(new only)"
-    model_name = model.split("/").last  # "meta-llama/llama-4-scout..." → "llama-4-scout..."
+    model_name = model.split("/").last  # strips org prefix if present (e.g. "meta-llama/llama-4-scout..." → "llama-4-scout...")
     scope_info = scope.present? ? "[#{scope}] " : ""
     logger.info "[GenerateSearchText] #{scope_info}Processing #{count} scores with #{backend}/#{model_name} #{mode}"
   end

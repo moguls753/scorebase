@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 namespace :rag do
-  desc "Generate search_text for RAG. LIMIT=100, BACKEND=groq, MODEL=llama-4-scout, SCOPE=priority, FORCE=false"
+  desc "Generate search_text for RAG. LIMIT=100, BACKEND=deepseek, MODEL=deepseek-chat, SCOPE=priority, FORCE=false"
   task generate: :environment do
     limit = ENV.fetch("LIMIT", "100").to_i
-    backend = ENV.fetch("BACKEND", "groq").to_sym
-    model = ENV.fetch("MODEL", "meta-llama/llama-4-scout-17b-16e-instruct")
+    backend = ENV.fetch("BACKEND", "deepseek").to_sym
+    model = ENV.fetch("MODEL", "deepseek-chat")
     scope = ENV["SCOPE"]
     force = ENV["FORCE"] == "true"
 
