@@ -61,3 +61,12 @@ production:
       threads: 2
       processes: 1
       polling_interval: 0.5
+
+    # RAG: long-running search_text generation via external LLM (DeepSeek).
+    # I/O-bound HTTPS calls; single thread is enough — one bulk job processes
+    # scores serially internally and DeepSeek latency is the bottleneck (~3-5s/row).
+    - queues:
+        - rag
+      threads: 1
+      processes: 1
+      polling_interval: 1
