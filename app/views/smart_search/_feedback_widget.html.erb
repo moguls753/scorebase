@@ -1,21 +1,23 @@
-<div id="feedback-widget" class="mt-8 p-4 bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-lg">
-  <p class="text-sm text-[var(--color-text-secondary)] mb-3">
-    <%= t("smart_search.feedback.prompt") %>
-  </p>
-  <%= form_with url: feedback_smart_search_path, method: :post, class: "flex items-center gap-3", data: { turbo: true } do |f| %>
+<div id="feedback-widget" class="mm-card mt-6 p-3">
+  <%= form_with url: feedback_smart_search_path, method: :post, class: "flex flex-wrap items-center gap-3", data: { turbo: true } do |f| %>
     <%= hidden_field_tag :query_id, query_record.id %>
+    <span class="text-sm text-[var(--color-text-muted)]">
+      <%= t("smart_search.feedback.prompt") %>
+    </span>
     <button type="submit" name="verdict" value="good"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-[var(--color-accent)]/10 text-[var(--color-accent)] rounded-lg hover:bg-[var(--color-accent)]/20 transition-colors"
+            class="inline-flex items-center gap-1.5 rounded-sm border-2 border-[var(--color-border)] px-2.5 py-1 text-sm font-medium text-[var(--color-text-muted)] transition-all hover:border-[var(--color-accent)]/50 hover:bg-[var(--color-bg)] hover:text-[var(--color-text)]"
             data-turbo-submits-with="<%= t('smart_search.feedback.sending') %>">
-      👍 <%= t("smart_search.feedback.good") %>
+      <%= lucide_icon "thumbs-up", class: "w-3.5 h-3.5", "stroke-width": 2 %>
+      <%= t("smart_search.feedback.good") %>
     </button>
     <button type="submit" name="verdict" value="bad"
-            class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-[var(--color-bg)]/50 text-[var(--color-text-secondary)] rounded-lg hover:bg-[var(--color-bg)] transition-colors"
+            class="inline-flex items-center gap-1.5 rounded-sm border-2 border-[var(--color-border)] px-2.5 py-1 text-sm font-medium text-[var(--color-text-muted)] transition-all hover:border-red-500/60 hover:bg-[var(--color-bg)] hover:text-[var(--color-text)]"
             data-turbo-submits-with="<%= t('smart_search.feedback.sending') %>">
-      👎 <%= t("smart_search.feedback.bad") %>
+      <%= lucide_icon "thumbs-down", class: "w-3.5 h-3.5", "stroke-width": 2 %>
+      <%= t("smart_search.feedback.bad") %>
     </button>
     <input type="text" name="comment" maxlength="1000"
            placeholder="<%= t('smart_search.feedback.comment_placeholder') %>"
-           class="flex-1 px-3 py-1.5 text-sm bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)]" />
+           class="ml-auto h-8 flex-1 max-w-xs rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-3 text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:border-[var(--color-accent)] focus:outline-none">
   <% end %>
 </div>

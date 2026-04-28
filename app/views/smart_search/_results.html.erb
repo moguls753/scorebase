@@ -1,57 +1,56 @@
 <div id="results">
   <% if @query_record.present? %>
     <% if @rag_result.summary.present? %>
-      <section class="mb-8 sm:mb-10 flex items-start gap-4 sm:gap-5">
-        <div aria-hidden="true" class="flex-shrink-0 w-12 h-12 sm:w-14 sm:h-14 bg-[var(--color-accent)] border-2 border-[var(--color-border)] shadow-[3px_3px_0_var(--color-border)] flex items-center justify-center">
-          <%= lucide_icon "sparkles", class: "w-5 h-5 sm:w-6 sm:h-6 text-white", "stroke-width": 2 %>
+      <section class="mm-card mb-6 flex gap-4 p-4">
+        <div aria-hidden="true" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-accent)]/15 text-[var(--color-accent)] shadow-[2px_2px_0_var(--color-border)]">
+          <%= lucide_icon "sparkles", class: "w-5 h-5", "stroke-width": 2 %>
         </div>
-        <p class="pt-1 text-base sm:text-lg leading-relaxed text-[var(--color-text)]">
+        <p class="pt-2 text-sm sm:text-base leading-relaxed text-[var(--color-text-secondary)]">
           <%= @rag_result.summary %>
         </p>
       </section>
     <% end %>
 
     <% if @scores.any? %>
-      <ol class="list-none p-0 m-0 space-y-5">
+      <ol class="list-none p-0 m-0 space-y-3">
         <% @scores.each_with_index do |score, index| %>
-          <li class="mm-card animate-fade-in">
-            <div class="grid grid-cols-[112px_1fr] sm:grid-cols-[180px_1fr] gap-4 sm:gap-6 p-4 sm:p-6">
-              <%# Square thumbnail anchors the card visually (matches root browse cards) %>
-              <%= link_to score_path(score), class: "block self-start" do %>
-                <%= render "scores/thumbnail", score: score %>
+          <li>
+            <article class="mm-card group relative flex gap-5 p-4 transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0_var(--color-border)]">
+              <%# Subtle left accent stripe — quiet hierarchy signal %>
+              <div aria-hidden="true" class="absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--color-accent)]/70 transition-all group-hover:bg-[var(--color-accent)] group-hover:w-1"></div>
+
+              <%# Sheet-music thumbnail (3:2 portrait) with rank badge embedded in top-left corner %>
+              <%= link_to score_path(score), class: "relative h-36 w-24 shrink-0 overflow-hidden rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg)] block" do %>
+                <% if score.has_thumbnail? %>
+                  <%= image_tag score.thumbnail, alt: score.display_title, class: "w-full h-full object-cover object-top" %>
+                <% else %>
+                  <div class="w-full h-full flex items-center justify-center text-4xl text-[var(--color-border-subtle)]">♪</div>
+                <% end %>
+                <span aria-hidden="true" class="absolute -left-0.5 -top-0.5 flex h-6 w-6 items-center justify-center rounded-br-sm border-b-2 border-r-2 border-[var(--color-border)] bg-[var(--color-accent)] text-xs font-bold text-white">
+                  <%= index + 1 %>
+                </span>
               <% end %>
 
-              <div class="min-w-0 flex flex-col gap-3 sm:gap-4">
-                <%# Editorial rank numeral + title + composer %>
-                <div class="flex items-start gap-3 sm:gap-5">
-                  <span aria-hidden="true"
-                        class="flex-shrink-0 font-[var(--font-family-display)] font-black tabular-nums select-none leading-[0.85] text-[3.25rem] sm:text-[4.5rem] text-[var(--color-accent)] [text-shadow:3px_3px_0_var(--color-border)]">
-                    <%= index + 1 %>
-                  </span>
-                  <div class="min-w-0 pt-1.5 sm:pt-2.5">
+              <%# Content %>
+              <div class="flex min-w-0 flex-1 flex-col justify-between py-0.5">
+                <div class="space-y-2">
+                  <div>
                     <%= link_to score_path(score), class: "block hover:text-[var(--color-accent)] transition-colors" do %>
-                      <h2 class="text-lg sm:text-2xl font-[var(--font-family-display)] font-bold leading-tight text-[var(--color-text)]">
+                      <h3 class="text-base font-semibold leading-tight text-[var(--color-text)] text-balance">
                         <%= score.display_title.presence || "Untitled" %>
-                      </h2>
+                      </h3>
                     <% end %>
                     <% if score.composer.present? %>
-                      <p class="mt-1 text-sm italic text-[var(--color-text-muted)]">
-                        <%= score.composer %>
-                      </p>
+                      <p class="text-sm text-[var(--color-text-muted)]"><%= score.composer %></p>
                     <% end %>
                   </div>
+                  <% explanation = @rag_result.explanation_for(score.id) %>
+                  <% if explanation.present? %>
+                    <p class="text-sm leading-relaxed text-[var(--color-text-secondary)]"><%= explanation %></p>
+                  <% end %>
                 </div>
 
-                <% explanation = @rag_result.explanation_for(score.id) %>
-                <% if explanation.present? %>
-                  <div class="border-l-[3px] border-[var(--color-accent)] pl-4 py-0.5">
-                    <p class="text-sm sm:text-[15px] leading-relaxed text-[var(--color-text-secondary)]">
-                      <%= explanation %>
-                    </p>
-                  </div>
-                <% end %>
-
-                <div class="flex items-center gap-3 flex-wrap pt-1">
+                <div class="flex items-center gap-3 flex-wrap pt-3">
                   <% if score.primary_instrument.present? %>
                     <span class="mm-badge mm-badge--instrument">
                       <%= score.primary_instrument %>
@@ -62,13 +61,13 @@
                       <%= score.group_parts_count %> <%= t('score.parts_label') %>
                     </span>
                   <% end %>
-                  <%= link_to score_path(score), class: "mm-button mm-button-primary inline-flex items-center gap-2 ml-auto" do %>
+                  <%= link_to score_path(score), class: "mm-button mm-button-primary inline-flex items-center gap-1.5 ml-auto hover:gap-2 transition-[gap]" do %>
                     <%= t("smart_search.view_score") %>
-                    <%= lucide_icon "arrow-right", class: "w-4 h-4", "stroke-width": 2.5 %>
+                    <%= lucide_icon "arrow-right", class: "w-3.5 h-3.5", "stroke-width": 2.5 %>
                   <% end %>
                 </div>
               </div>
-            </div>
+            </article>
           </li>
         <% end %>
       </ol>
@@ -76,10 +75,10 @@
       <%= render "feedback_widget", query_record: @query_record %>
     <% else %>
       <div class="text-center py-14">
-        <div class="inline-flex items-center justify-center w-14 h-14 mb-4 bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border)] shadow-[3px_3px_0_var(--color-border)]">
+        <div class="inline-flex items-center justify-center w-14 h-14 mb-4 rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[3px_3px_0_var(--color-border)]">
           <%= lucide_icon "search-x", class: "w-6 h-6 text-[var(--color-text-muted)]", "stroke-width": 2 %>
         </div>
-        <h3 class="text-lg font-bold uppercase tracking-wide text-[var(--color-text)]">
+        <h3 class="text-base font-bold uppercase tracking-wide text-[var(--color-text)]">
           <%= t("smart_search.no_matches") %>
         </h3>
       </div>

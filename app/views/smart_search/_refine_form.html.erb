@@ -1,14 +1,14 @@
-<div id="refine-form" class="mt-6">
+<div id="refine-form" class="mm-card mt-3 p-3">
   <% if local_assigns[:blank_error] %>
-    <p class="mb-2 text-sm text-amber-300"><%= t("smart_search.refine.blank_error") %></p>
+    <p class="mb-2 text-xs text-amber-400"><%= t("smart_search.refine.blank_error") %></p>
   <% end %>
-  <%= form_with url: refine_smart_search_path, method: :post, class: "flex items-stretch gap-2", data: { turbo: true } do |f| %>
+  <%= form_with url: refine_smart_search_path, method: :post, class: "flex items-center gap-3", data: { turbo: true } do |f| %>
     <%= hidden_field_tag :parent_query_id, query_record.id %>
     <input type="text" name="refinement" maxlength="300"
            placeholder="<%= t('smart_search.refine.placeholder') %>"
-           class="flex-1 px-4 py-2 text-sm bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-lg text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)]" />
+           class="h-8 flex-1 rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-3 text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:border-[var(--color-accent)] focus:outline-none">
     <button type="submit"
-            class="px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-white rounded-lg hover:bg-[var(--color-accent)]/90 transition-colors"
+            class="mm-button mm-button-primary"
             data-turbo-submits-with="<%= t('smart_search.refine.refining') %>">
       <%= t("smart_search.refine.button") %>
     </button>
