@@ -40,10 +40,7 @@
                 class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-[var(--color-accent)] hover:text-[var(--color-primary)] transition-colors"
                 aria-label="<%= t('smart_search.search_button_label') %>"
                 data-turbo-submits-with='<svg class="smart-search-spinner" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9" stroke-opacity="0.2"/><path d="M12 3a9 9 0 0 1 9 9"/></svg>'>
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.3-4.3"></path>
-          </svg>
+          <%= lucide_icon "search", class: "w-6 h-6", "stroke-width": 2.5 %>
         </button>
       </div>
     <% end %>
