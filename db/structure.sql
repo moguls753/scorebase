@@ -185,7 +185,14 @@ CREATE INDEX "index_smart_search_queries_on_created_at" ON "smart_search_queries
 CREATE INDEX "index_smart_search_queries_on_ip_hash" ON "smart_search_queries" ("ip_hash");
 CREATE UNIQUE INDEX "idx_one_refinement_per_parent" ON "smart_search_queries" ("parent_query_id") WHERE query_type = 'refinement';
 CREATE INDEX "idx_normalized_query_created_at" ON "smart_search_queries" (LOWER(TRIM(query)), created_at);
+CREATE TABLE IF NOT EXISTS "smart_search_feedbacks" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "smart_search_query_id" integer NOT NULL, "ip_hash" varchar(64) NOT NULL, "verdict" varchar NOT NULL, "comment" text, "created_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_5f2a9b86f0"
+FOREIGN KEY ("smart_search_query_id")
+  REFERENCES "smart_search_queries" ("id")
+ ON DELETE CASCADE);
+CREATE INDEX "index_smart_search_feedbacks_on_smart_search_query_id" ON "smart_search_feedbacks" ("smart_search_query_id");
+CREATE UNIQUE INDEX "idx_one_feedback_per_query_per_visitor" ON "smart_search_feedbacks" ("smart_search_query_id", "ip_hash");
 INSERT INTO "schema_migrations" (version) VALUES
+('20260428102431'),
 ('20260428081717'),
 ('20260428064428'),
 ('20260205105535'),
