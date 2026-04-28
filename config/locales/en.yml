@@ -20,7 +20,7 @@ en:
     heading: "Smart Search"
     beta_badge: "Beta"
     tagline: "Describe what you're looking for in natural language"
-    beta_note_html: "Public beta. Free, limited to 20 searches across the whole site per day. Queries are logged so we can improve quality. Refinement explanations may appear in English even on the German site. Feedback welcome — %{mailto}"
+    beta_note_html: "Public beta. Free, limited to 20 searches across the whole site per day. Queries are logged so I can improve quality. Refinement explanations may appear in English even on the German site. Feedback welcome — %{mailto}"
     feedback_link: "send feedback"
     input_placeholder: "e.g. I need something for my piano student who's been playing for 2 years..."
     search_button_label: "Search"
@@ -40,7 +40,7 @@ en:
       regular_search_cta: "Use regular search"
     per_ip_limit_reached:
       heading: "You've used today's beta allowance"
-      body_html: "We're limiting smart-search to 5 queries per network per day during the beta. Please come back tomorrow — or use regular search in the meantime."
+      body_html: "I'm limiting smart-search to 5 queries per network per day during the beta. Please come back tomorrow — or use regular search in the meantime."
       regular_search_cta: "Use regular search"
     rag_error:
       heading: "Smart search is temporarily unavailable"
@@ -49,7 +49,7 @@ en:
       heading: "Your input is too long"
       body: "Please shorten your search and try again."
     refine:
-      placeholder: "Want to nudge the results? Tell us what to adjust."
+      placeholder: "Want to nudge the results? Tell me what to adjust."
       button: "Refine"
       refining: "Refining…"
       blank_error: "Please type a refinement first."
@@ -60,7 +60,7 @@ en:
       bad: "Bad"
       sending: "Sending…"
       thanks: "Thanks for the feedback!"
-      invalid: "Sorry — we couldn't save your feedback."
+      invalid: "Sorry — I couldn't save your feedback."
       comment_placeholder: "Optional comment"
 
   # Footer

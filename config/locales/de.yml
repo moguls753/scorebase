@@ -20,7 +20,7 @@ de:
     heading: "Smart Search"
     beta_badge: "Beta"
     tagline: "Beschreibe in natürlicher Sprache, was du suchst"
-    beta_note_html: "Öffentliche Beta. Kostenlos, begrenzt auf 20 Suchen pro Tag für die ganze Seite. Suchanfragen werden protokolliert, damit wir die Qualität verbessern können. Verfeinerte Erklärungen können auch auf der deutschen Seite auf Englisch erscheinen. Feedback willkommen — %{mailto}"
+    beta_note_html: "Öffentliche Beta. Kostenlos, begrenzt auf 20 Suchen pro Tag für die ganze Seite. Suchanfragen werden protokolliert, damit ich die Qualität verbessern kann. Verfeinerte Erklärungen können auch auf der deutschen Seite auf Englisch erscheinen. Feedback willkommen — %{mailto}"
     feedback_link: "Feedback geben"
     input_placeholder: "z.B. Ich suche etwas für meine Klavierschülerin, die seit 2 Jahren spielt..."
     search_button_label: "Suche"
@@ -40,7 +40,7 @@ de:
       regular_search_cta: "Reguläre Suche nutzen"
     per_ip_limit_reached:
       heading: "Dein Tageskontingent ist aufgebraucht"
-      body_html: "Während der Beta begrenzen wir Smart Search auf 5 Anfragen pro Netzwerk pro Tag. Bitte komm morgen wieder — oder nutze in der Zwischenzeit die reguläre Suche."
+      body_html: "Während der Beta begrenze ich Smart Search auf 5 Anfragen pro Netzwerk pro Tag. Bitte komm morgen wieder — oder nutze in der Zwischenzeit die reguläre Suche."
       regular_search_cta: "Reguläre Suche nutzen"
     rag_error:
       heading: "Smart Search ist gerade nicht verfügbar"
