@@ -1,11 +1,11 @@
 <div id="results">
   <% if @query_record.present? %>
     <% if @rag_result.summary.present? %>
-      <section class="mm-card mb-6 flex gap-4 p-4">
+      <section class="mm-card mb-6 flex items-center gap-4 p-4">
         <div aria-hidden="true" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-accent)]/15 text-[var(--color-accent)] shadow-[2px_2px_0_var(--color-border)]">
           <%= lucide_icon "sparkles", class: "w-5 h-5", "stroke-width": 2 %>
         </div>
-        <p class="pt-2 text-sm sm:text-base leading-relaxed text-[var(--color-text-secondary)]">
+        <p class="text-sm sm:text-base leading-relaxed text-[var(--color-text)]">
           <%= @rag_result.summary %>
         </p>
       </section>
