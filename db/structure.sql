@@ -174,7 +174,10 @@ CREATE TRIGGER scores_search_fts_au AFTER UPDATE ON scores
     WHERE NEW.deleted_at IS NULL;
   END;
 CREATE INDEX "index_scores_on_period_and_deleted_at" ON "scores" ("period", "deleted_at");
+CREATE TABLE IF NOT EXISTS "smart_search_usages" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date NOT NULL, "count" integer DEFAULT 0 NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
+CREATE UNIQUE INDEX "index_smart_search_usages_on_date" ON "smart_search_usages" ("date") /*application='Scorebase'*/;
 INSERT INTO "schema_migrations" (version) VALUES
+('20260428064428'),
 ('20260205105535'),
 ('20260201203016'),
 ('20260201090100'),

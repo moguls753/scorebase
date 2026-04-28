@@ -20,7 +20,7 @@ Sheet music search engine aggregating free public domain scores and commercial c
 
 ```bash
 bin/dev              # Start Rails
-bin/rspec            # Run tests
+bundle exec rspec    # Run tests
 bin/kamal deploy     # Deploy to production
 ```
 
