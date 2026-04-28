@@ -167,6 +167,27 @@ a.mm-card:active {
   box-shadow: 1px 1px 0 var(--color-border);
 }
 
+/* Compact button size — smaller padding/font, used for inline actions in result cards */
+.mm-button-sm {
+  padding: 4px 12px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+}
+
+/* Compact primary still uses mm-button-primary's color/border/shadow,
+   but with a tighter shadow to match the smaller size. */
+.mm-button-sm.mm-button-primary {
+  box-shadow: 2px 2px 0 var(--color-bg-deep);
+}
+
+.mm-button-sm.mm-button-primary:hover {
+  box-shadow: 3px 3px 0 var(--color-bg-deep);
+}
+
+.mm-button-sm.mm-button-primary:active {
+  box-shadow: 1px 1px 0 var(--color-bg-deep);
+}
+
 /* Inputs - Bold neubrutalist style */
 .mm-input {
   padding: 12px 16px;
