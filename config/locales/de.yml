@@ -15,6 +15,54 @@ de:
     name: "Smart Search"
     learn_more: "Mehr erfahren"
 
+  # Smart Search (öffentliche Beta)
+  smart_search:
+    heading: "Smart Search"
+    beta_badge: "Beta"
+    tagline: "Beschreibe in natürlicher Sprache, was du suchst"
+    beta_note_html: "Öffentliche Beta. Kostenlos, begrenzt auf 20 Suchen pro Tag für die ganze Seite. Suchanfragen werden protokolliert, damit wir die Qualität verbessern können. Verfeinerte Erklärungen können auch auf der deutschen Seite auf Englisch erscheinen. Feedback willkommen — %{mailto}"
+    feedback_link: "Feedback geben"
+    input_placeholder: "z.B. Ich suche etwas für meine Klavierschülerin, die seit 2 Jahren spielt..."
+    search_button_label: "Suche"
+    view_score: "Notenblatt ansehen"
+    no_matches: "Keine Treffer gefunden"
+    try_regular_html: "Nichts Passendes dabei? %{link}"
+    try_regular_link: "Reguläre Suche probieren"
+    suggestions_intro: "Versuch es zum Beispiel so:"
+    suggestions:
+      bach: "Einfacher Bach für Klavierschüler"
+      church: "Etwas Sanftes für einen Gottesdienst"
+      recital: "Dramatisches Stück für ein Konzert"
+      violin: "Violinsonate für Fortgeschrittene"
+    quota_exhausted:
+      heading: "Das heutige Beta-Kontingent ist aufgebraucht"
+      body_html: "ScoreBase Smart Search befindet sich in der öffentlichen Beta. Bitte komm morgen wieder! Die reguläre Suche funktioniert weiter."
+      regular_search_cta: "Reguläre Suche nutzen"
+    per_ip_limit_reached:
+      heading: "Dein Tageskontingent ist aufgebraucht"
+      body_html: "Während der Beta begrenzen wir Smart Search auf 5 Anfragen pro Netzwerk pro Tag. Bitte komm morgen wieder — oder nutze in der Zwischenzeit die reguläre Suche."
+      regular_search_cta: "Reguläre Suche nutzen"
+    rag_error:
+      heading: "Smart Search ist gerade nicht verfügbar"
+      body: "Bitte versuch es gleich noch einmal."
+    input_too_long:
+      heading: "Deine Eingabe ist zu lang"
+      body: "Bitte kürze die Suchanfrage und versuch es erneut."
+    refine:
+      placeholder: "Ergebnisse anpassen? Beschreibe, was geändert werden soll."
+      button: "Verfeinern"
+      refining: "Wird verfeinert…"
+      blank_error: "Bitte gib zuerst einen Hinweis ein."
+      invalid_generic: "Diese Suche konnte nicht verfeinert werden."
+    feedback:
+      prompt: "Wie war das Ergebnis?"
+      good: "Gut"
+      bad: "Schlecht"
+      sending: "Wird gesendet…"
+      thanks: "Danke für dein Feedback!"
+      invalid: "Dein Feedback konnte nicht gespeichert werden."
+      comment_placeholder: "Optionaler Kommentar"
+
   # Footer
   footer:
     tagline: "Notensuche"

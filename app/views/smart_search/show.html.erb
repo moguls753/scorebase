@@ -1,35 +1,45 @@
-<% content_for :title do %>Smart Search - ScoreBase<% end %>
+<% content_for :title do %>Smart Search — ScoreBase<% end %>
 
 <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
   <!-- Header -->
-  <div class="text-center mb-8">
+  <div class="text-center mb-4">
     <h1 class="text-2xl sm:text-3xl font-[var(--font-family-display)] font-black text-[var(--color-primary)] tracking-tight">
-      Smart Search
-      <span class="inline-flex items-center ml-2 px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-[var(--color-accent)] text-white rounded">Pro</span>
+      <%= t("smart_search.heading") %>
+      <span class="inline-flex items-center ml-2 px-2 py-0.5 text-xs font-bold uppercase tracking-wider bg-[var(--color-accent)] text-white rounded">
+        <%= t("smart_search.beta_badge") %>
+      </span>
     </h1>
     <p class="mt-2 text-sm text-[var(--color-text-muted)]">
-      Describe what you're looking for in natural language
+      <%= t("smart_search.tagline") %>
     </p>
   </div>
+
+  <!-- Beta note -->
+  <div class="mb-8 mx-auto max-w-2xl text-xs text-[var(--color-text-muted)] text-center leading-relaxed">
+    <%= t("smart_search.beta_note_html",
+          mailto: mail_to("eike@scorebase.org", t("smart_search.feedback_link"),
+                          class: "text-[var(--color-accent)] hover:underline")) %>
+  </div>
+
+  <!-- Flash -->
+  <% if flash[:alert].present? %>
+    <div class="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-sm text-red-300 text-center">
+      <%= flash[:alert] %>
+    </div>
+  <% end %>
 
   <!-- Search Form -->
   <div class="mb-8">
     <%= form_with url: smart_search_path, method: :get, local: true, class: "relative" do |f| %>
       <div class="relative">
-        <input
-          type="text"
-          name="q"
-          value="<%= @query %>"
-          placeholder="e.g., I need something for my piano student who's been playing for 2 years..."
-          class="w-full px-5 py-4 pr-14 text-base bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border)] rounded-xl text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
-          autofocus
-        >
-        <button
-          type="submit"
-          class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-[var(--color-accent)] hover:text-[var(--color-primary)] transition-colors"
-          aria-label="Search"
-          data-turbo-submits-with='<svg class="smart-search-spinner" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9" stroke-opacity="0.2"/><path d="M12 3a9 9 0 0 1 9 9"/></svg>'
-        >
+        <input type="text" name="q" value="<%= @query %>" maxlength="500"
+               placeholder="<%= t('smart_search.input_placeholder') %>"
+               class="w-full px-5 py-4 pr-14 text-base bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border)] rounded-xl text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:outline-none focus:border-[var(--color-accent)] focus:ring-2 focus:ring-[var(--color-accent)]/20 transition-all"
+               autofocus>
+        <button type="submit"
+                class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-[var(--color-accent)] hover:text-[var(--color-primary)] transition-colors"
+                aria-label="<%= t('smart_search.search_button_label') %>"
+                data-turbo-submits-with='<svg class="smart-search-spinner" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="9" stroke-opacity="0.2"/><path d="M12 3a9 9 0 0 1 9 9"/></svg>'>
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.3-4.3"></path>
@@ -41,21 +51,30 @@
 
   <% if @query.present? %>
     <%= render "results" %>
+
     <% if @query_record&.refinable? %>
       <%= render "refine_form", query_record: @query_record %>
     <% end %>
+
+    <div class="mt-8 text-center">
+      <p class="text-sm text-[var(--color-text-muted)]">
+        <%= t("smart_search.try_regular_html",
+              link: link_to(t("smart_search.try_regular_link"), scores_path(q: @query),
+                            class: "text-[var(--color-accent)] hover:underline font-medium")) %>
+      </p>
+    </div>
   <% else %>
-    <!-- Empty State - Suggestions -->
     <div class="text-center py-8">
-      <p class="text-sm text-[var(--color-text-muted)] mb-6">Try asking something like:</p>
+      <p class="text-sm text-[var(--color-text-muted)] mb-6"><%= t("smart_search.suggestions_intro") %></p>
       <div class="flex flex-wrap justify-center gap-2">
         <% [
-          "Easy Bach for piano students",
-          "Something gentle for a church service",
-          "Dramatic piece for a recital",
-          "Intermediate violin sonata"
+          t("smart_search.suggestions.bach"),
+          t("smart_search.suggestions.church"),
+          t("smart_search.suggestions.recital"),
+          t("smart_search.suggestions.violin")
         ].each do |suggestion| %>
-          <%= link_to smart_search_path(q: suggestion), class: "px-4 py-2 text-sm bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all" do %>
+          <%= link_to smart_search_path(q: suggestion),
+                      class: "px-4 py-2 text-sm bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all" do %>
             <%= suggestion %>
           <% end %>
         <% end %>
