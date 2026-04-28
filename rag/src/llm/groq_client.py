@@ -9,24 +9,35 @@ from dataclasses import dataclass
 
 @dataclass
 class GroqConfig:
-    """Configuration for Groq API."""
+    """Configuration for Groq API.
+
+    Defaults are quality-first for the rerank task: 70B as primary, 8B as fallback
+    when the primary errors (rate limit, server-side issue, etc.).
+    """
 
     api_key: str
-    primary_model: str = "llama-3.1-8b-instant"
-    fallback_model: str = "llama-3.3-70b-versatile"
+    primary_model: str = "llama-3.3-70b-versatile"
+    fallback_model: str = "llama-3.1-8b-instant"
     temperature: float = 0.7
     max_tokens: int = 1024
 
     @classmethod
     def from_env(cls) -> "GroqConfig":
-        """Create config from environment variable."""
+        """Create config from environment variables.
+
+        Reads GROQ_API_KEY (required), GROQ_MODEL (default: 70B), GROQ_FALLBACK_MODEL (default: 8B).
+        """
         api_key = os.environ.get("GROQ_API_KEY")
         if not api_key:
             raise ValueError(
                 "GROQ_API_KEY environment variable not set.\n"
                 "Get your key at https://console.groq.com/keys"
             )
-        return cls(api_key=api_key)
+        return cls(
+            api_key=api_key,
+            primary_model=os.environ.get("GROQ_MODEL", "llama-3.3-70b-versatile"),
+            fallback_model=os.environ.get("GROQ_FALLBACK_MODEL", "llama-3.1-8b-instant"),
+        )
 
 
 class GroqClient:

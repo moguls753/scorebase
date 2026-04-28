@@ -114,10 +114,12 @@ def smart_search(q: str, top_k: int = 15) -> SmartSearchResponse:
     Returns:
         3 recommendations with explanations and a summary
     """
-    if not os.environ.get("GROQ_API_KEY"):
+    from ..llm.factory import required_api_key_env_var
+    key_var = required_api_key_env_var()
+    if key_var and not os.environ.get(key_var):
         raise HTTPException(
             status_code=503,
-            detail="GROQ_API_KEY not configured for smart search."
+            detail=f"{key_var} not configured for smart search."
         )
 
     # Lazy import: keeps haystack / ML deps off the FastAPI app's import path so endpoint tests don't need them.
@@ -153,10 +155,12 @@ def smart_refine(req: SmartRefineRequest) -> SmartSearchResponse:
 
     Same response shape as /smart-search.
     """
-    if not os.environ.get("DEEPSEEK_API_KEY"):
+    from ..llm.factory import required_api_key_env_var
+    key_var = required_api_key_env_var()
+    if key_var and not os.environ.get(key_var):
         raise HTTPException(
             status_code=503,
-            detail="DEEPSEEK_API_KEY not configured for refinement."
+            detail=f"{key_var} not configured for refinement."
         )
 
     # Lazy import: keeps haystack / ML deps off the FastAPI app's import path so endpoint tests don't need them.

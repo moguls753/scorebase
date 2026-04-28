@@ -125,6 +125,45 @@ def smart_search(query: str, top_k: int = 15, num_recommendations: int = 3) -> d
     }
 
 
+def smart_refine(
+    *,
+    original_query: str,
+    refinement: str,
+    previous_summary: str,
+    previous_recommendations: list[dict],
+    top_k: int = 15,
+) -> dict:
+    """LLM-powered refinement: re-search with the enriched query, rerank with previous-turn context.
+
+    Same return shape as smart_search().
+    """
+    enriched_query = f"{original_query} {refinement}"
+    candidates = search(enriched_query, top_k=top_k)
+
+    selector = ResultSelector()
+    selection = selector.select_with_refinement(
+        original_query=original_query,
+        refinement=refinement,
+        previous_summary=previous_summary,
+        previous_recommendations=previous_recommendations,
+        search_results=candidates,
+    )
+
+    return {
+        "recommendations": [
+            {
+                "score_id": r.score_id,
+                "title": r.title,
+                "explanation": r.explanation,
+                "rank": r.rank,
+            }
+            for r in selection.recommendations
+        ],
+        "summary": selection.summary,
+        "success": selection.success,
+    }
+
+
 def main():
     """CLI entry point - test search."""
     import argparse
