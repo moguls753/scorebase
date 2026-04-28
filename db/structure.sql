@@ -176,7 +176,17 @@ CREATE TRIGGER scores_search_fts_au AFTER UPDATE ON scores
 CREATE INDEX "index_scores_on_period_and_deleted_at" ON "scores" ("period", "deleted_at");
 CREATE TABLE IF NOT EXISTS "smart_search_usages" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date NOT NULL, "count" integer DEFAULT 0 NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
 CREATE UNIQUE INDEX "index_smart_search_usages_on_date" ON "smart_search_usages" ("date") /*application='Scorebase'*/;
+CREATE TABLE IF NOT EXISTS "smart_search_queries" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "query" text NOT NULL, "query_type" varchar NOT NULL, "parent_query_id" integer, "ip_hash" varchar(64) NOT NULL, "result_count" integer DEFAULT 0 NOT NULL, "score_ids" text DEFAULT '[]' NOT NULL, "rag_summary" text, "rag_recommendations" text, "response_time_ms" integer, "error" text, "locale" varchar(2) NOT NULL, "created_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_661cf8e500"
+FOREIGN KEY ("parent_query_id")
+  REFERENCES "smart_search_queries" ("id")
+ ON DELETE SET NULL);
+CREATE INDEX "index_smart_search_queries_on_parent_query_id" ON "smart_search_queries" ("parent_query_id");
+CREATE INDEX "index_smart_search_queries_on_created_at" ON "smart_search_queries" ("created_at");
+CREATE INDEX "index_smart_search_queries_on_ip_hash" ON "smart_search_queries" ("ip_hash");
+CREATE UNIQUE INDEX "idx_one_refinement_per_parent" ON "smart_search_queries" ("parent_query_id") WHERE query_type = 'refinement';
+CREATE INDEX "idx_normalized_query_created_at" ON "smart_search_queries" (LOWER(TRIM(query)), created_at);
 INSERT INTO "schema_migrations" (version) VALUES
+('20260428081717'),
 ('20260428064428'),
 ('20260205105535'),
 ('20260201203016'),
