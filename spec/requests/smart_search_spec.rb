@@ -242,4 +242,86 @@ RSpec.describe "SmartSearch", type: :request do
       expect(JSON.parse(response.body)).to eq({ "ok" => false, "error" => "duplicate_vote" })
     end
   end
+
+  describe "POST /search/ai/refine" do
+    let(:parent) { create(:smart_search_query) }
+
+    let(:refined_payload) {
+      {
+        "recommendations" => [
+          { "score_id" => 999, "title" => "Notebook", "explanation" => "Genuinely beginner.", "rank" => 1 }
+        ],
+        "summary" => "Easier picks.", "success" => true
+      }
+    }
+
+    it "creates a refinement, returns Turbo Stream with replace+remove targets" do
+      allow(RagSearch).to receive(:smart_refine).and_return(RagSearch::Result.new(refined_payload))
+
+      expect {
+        post refine_smart_search_path,
+          params: { parent_query_id: parent.id, refinement: "for a 6-year-old" },
+          headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      }.to change { SmartSearchQuery.refinement.count }.by(1)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+      expect(response.body).to include('action="replace"')
+      expect(response.body).to include('target="results"')
+      expect(response.body).to include('action="remove"')
+      expect(response.body).to include('target="refine-form"')
+    end
+
+    it "rejects 422 when parent is itself a refinement" do
+      refinement_parent = create(:refinement_query, parent_query: parent)
+      post refine_smart_search_path,
+        params: { parent_query_id: refinement_parent.id, refinement: "again" }
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "rejects 422 when parent already has a refinement" do
+      create(:refinement_query, parent_query: parent)
+      post refine_smart_search_path,
+        params: { parent_query_id: parent.id, refinement: "second" }
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "rejects 422 when parent is not refinable (no rag_recommendations)" do
+      bad_parent = create(:smart_search_query, rag_recommendations: [], rag_summary: nil)
+      post refine_smart_search_path,
+        params: { parent_query_id: bad_parent.id, refinement: "x" }
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "returns 422 with no quota consumed for blank refinement" do
+      expect {
+        post refine_smart_search_path,
+          params: { parent_query_id: parent.id, refinement: "" },
+          headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      }.not_to change { SmartSearchUsage.where(date: SmartSearchUsage.utc_today).pick(:count).to_i }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "rejects refinement over 300 chars without consuming quota" do
+      expect {
+        post refine_smart_search_path,
+          params: { parent_query_id: parent.id, refinement: "x" * 301 }
+      }.not_to change { SmartSearchUsage.where(date: SmartSearchUsage.utc_today).pick(:count).to_i }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "refunds the slot when RagSearch.smart_refine raises" do
+      allow(RagSearch).to receive(:smart_refine).and_raise(StandardError, "boom")
+
+      expect {
+        post refine_smart_search_path,
+          params: { parent_query_id: parent.id, refinement: "real" }
+      }.not_to change { SmartSearchQuery.refinement.count }
+
+      expect(SmartSearchUsage.where(date: SmartSearchUsage.utc_today).pick(:count).to_i).to eq(0)
+      expect(response).to have_http_status(:service_unavailable)
+    end
+  end
 end

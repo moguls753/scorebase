@@ -1,0 +1,62 @@
+<div id="results">
+  <% if @query_record.present? %>
+    <% if @rag_result.summary.present? %>
+      <div class="mb-8 p-5 bg-gradient-to-br from-[var(--color-accent)]/5 to-[var(--color-primary)]/5 border border-[var(--color-accent)]/20 rounded-xl">
+        <div class="flex items-start gap-3">
+          <div class="flex-shrink-0 w-8 h-8 flex items-center justify-center rounded-lg bg-[var(--color-accent)]/10">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                 stroke="var(--color-accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93"></path>
+              <path d="M12 18a8 8 0 0 0 8-8 1 1 0 0 0-1.54-.84L12 14l-6.46-4.84A1 1 0 0 0 4 10a8 8 0 0 0 8 8Z"></path>
+            </svg>
+          </div>
+          <p class="text-[var(--color-text)] text-sm sm:text-base leading-relaxed">
+            <%= @rag_result.summary %>
+          </p>
+        </div>
+      </div>
+    <% end %>
+
+    <% if @scores.any? %>
+      <div class="space-y-4">
+        <% @scores.each_with_index do |score, index| %>
+          <div class="group relative bg-[var(--color-bg-elevated)] border-2 border-[var(--color-border)] rounded-xl p-5 hover:border-[var(--color-accent)]/50 transition-all">
+            <div class="absolute -left-3 -top-3 w-8 h-8 flex items-center justify-center bg-[var(--color-accent)] text-white text-sm font-bold rounded-lg shadow-md">
+              <%= index + 1 %>
+            </div>
+            <div class="ml-2">
+              <div class="mb-3">
+                <%= link_to score_path(score), class: "block group-hover:text-[var(--color-accent)] transition-colors" do %>
+                  <h2 class="text-lg sm:text-xl font-[var(--font-family-display)] font-bold text-[var(--color-text)] leading-tight">
+                    <%= score.display_title.presence || "Untitled" %>
+                  </h2>
+                <% end %>
+                <% if score.composer.present? %>
+                  <p class="mt-1 text-sm text-[var(--color-text-muted)]"><%= score.composer %></p>
+                <% end %>
+              </div>
+              <% explanation = @rag_result.explanation_for(score.id) %>
+              <% if explanation.present? %>
+                <div class="flex items-start gap-2 p-3 bg-[var(--color-bg)]/50 rounded-lg">
+                  <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed"><%= explanation %></p>
+                </div>
+              <% end %>
+              <div class="mt-4 flex items-center gap-3">
+                <%= link_to t("smart_search.view_score"), score_path(score),
+                            class: "inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-white rounded-lg hover:bg-[var(--color-accent)]/90 transition-colors" %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <%= render "feedback_widget", query_record: @query_record %>
+    <% else %>
+      <div class="text-center py-12">
+        <h3 class="text-lg font-semibold text-[var(--color-text)] mb-2">
+          <%= t("smart_search.no_matches") %>
+        </h3>
+      </div>
+    <% end %>
+  <% end %>
+</div>

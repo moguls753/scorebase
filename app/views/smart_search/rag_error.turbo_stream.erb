@@ -1,2 +1,12 @@
-<%# Task 14 fills this in %>
-<turbo-stream action="replace" target="results"><template>RAG error placeholder.</template></turbo-stream>
+<turbo-stream action="replace" target="results">
+  <template>
+    <div id="results" class="max-w-2xl mx-auto px-4 sm:px-6 py-12 text-center">
+      <h2 class="text-lg font-semibold text-[var(--color-text)] mb-2">
+        <%= t("smart_search.rag_error.heading") %>
+      </h2>
+      <p class="text-sm text-[var(--color-text-secondary)]">
+        <%= t("smart_search.rag_error.body") %>
+      </p>
+    </div>
+  </template>
+</turbo-stream>

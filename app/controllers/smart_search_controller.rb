@@ -3,7 +3,7 @@ class SmartSearchController < ApplicationController
 
   # Comment this line out when going public, uncomment to revert.
   before_action :authenticate, if: -> { Rails.env.production? }
-  before_action :validate_input_length, only: [:show] # Task 12: add :refine
+  before_action :validate_input_length, only: [:show, :refine]
 
   def show
     @query = params[:q].to_s.strip
@@ -51,6 +51,28 @@ class SmartSearchController < ApplicationController
       format.turbo_stream { render :feedback_invalid, status: :unprocessable_entity }
       format.json { render json: { ok: false, error: "duplicate_vote" }, status: :unprocessable_entity }
       format.html { head :unprocessable_entity }
+    end
+  end
+
+  def refine
+    @parent = SmartSearchQuery.find(params[:parent_query_id])
+    @query = @parent.query
+    return render_invalid("Refinements can only build on initial queries.")        unless @parent.initial?
+    return render_invalid("This search has already been refined.")                  if @parent.refinements.exists?
+    return render_invalid("This result is too old to refine. Run a fresh search.") unless @parent.refinable?
+
+    @refinement = params[:refinement].to_s.strip
+    return render_blank_refinement if @refinement.blank?
+
+    charged_date = SmartSearchUsage.try_consume!
+    return render_quota_exhausted unless charged_date
+
+    @query_record = perform_refine(@parent, @refinement, charged_date)
+    return unless @query_record
+    hydrate_view_from(@query_record)
+    respond_to do |format|
+      format.turbo_stream
+      format.html { render :show }
     end
   end
 
@@ -150,6 +172,60 @@ class SmartSearchController < ApplicationController
   rescue StandardError => e
     SmartSearchUsage.refund!(charged_date)
     Rails.logger.error("perform_initial_search failed: #{e.class} #{e.message}")
+    render_rag_error
+    nil
+  end
+
+  def render_invalid(message)
+    flash.now[:alert] = message
+    respond_to do |format|
+      format.turbo_stream { render :invalid, status: :unprocessable_entity }
+      format.html         { render :show,    status: :unprocessable_entity }
+      format.json         { render json: { ok: false, error: message }, status: :unprocessable_entity }
+    end
+  end
+
+  def render_blank_refinement
+    respond_to do |format|
+      format.turbo_stream { render :refine_blank, status: :unprocessable_entity }
+      format.html         { render :show,         status: :unprocessable_entity }
+    end
+  end
+
+  def perform_refine(parent, refinement, charged_date)
+    started = Time.current
+    rag_result = RagSearch.smart_refine(
+      original_query: parent.query,
+      refinement: refinement,
+      previous_summary: parent.rag_summary,
+      previous_recommendations: parent.rag_recommendations
+    )
+
+    unless rag_result.success
+      SmartSearchUsage.refund!(charged_date)
+      return render_rag_error
+    end
+
+    SmartSearchQuery.create!(
+      query: refinement,
+      query_type: :refinement,
+      parent_query_id: parent.id,
+      ip_hash: hashed_ip,
+      result_count: rag_result.score_ids.size,
+      score_ids: rag_result.score_ids,
+      rag_summary: rag_result.summary,
+      rag_recommendations: rag_result.recommendations,
+      response_time_ms: ((Time.current - started) * 1000).to_i,
+      locale: I18n.locale.to_s
+    )
+  rescue ActiveRecord::RecordInvalid, ActiveRecord::RecordNotUnique => e
+    SmartSearchUsage.refund!(charged_date)
+    Rails.logger.warn("refinement persist conflict: #{e.message}")
+    render_invalid("This search has already been refined.")
+    nil
+  rescue StandardError => e
+    SmartSearchUsage.refund!(charged_date)
+    Rails.logger.error("perform_refine failed: #{e.class} #{e.message}")
     render_rag_error
     nil
   end

@@ -33,6 +33,7 @@ Rails.application.routes.draw do
     # Smart Search Feature (actual tool - will be gated behind auth when ready)
     get "search/ai", to: "smart_search#show", as: :smart_search
     post "search/ai/feedback", to: "smart_search#feedback", as: :feedback_smart_search
+    post "search/ai/refine", to: "smart_search#refine", as: :refine_smart_search
 
     # Scores
     resources :scores, only: [:index, :show] do
