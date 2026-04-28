@@ -4,8 +4,6 @@ require "net/http"
 require "json"
 require "uri"
 
-# Service to call the Python RAG API for smart search.
-# Pro users get LLM-powered recommendations with explanations.
 class RagSearch
   RAG_API_URL = ENV.fetch("RAG_API_URL", "http://localhost:8001")
 
@@ -16,6 +14,14 @@ class RagSearch
       @recommendations = data["recommendations"] || []
       @summary = data["summary"] || "No results found."
       @success = data["success"] != false
+    end
+
+    def self.from_query_record(record)
+      new(
+        "recommendations" => record.rag_recommendations || [],
+        "summary"         => record.rag_summary.presence || "No results found.",
+        "success"         => true
+      )
     end
 
     def score_ids
@@ -43,11 +49,37 @@ class RagSearch
         Result.new(JSON.parse(response.body))
       else
         Rails.logger.error("RAG API error: #{response.code} - #{response.body}")
-        Result.new({ "summary" => "Smart search is temporarily unavailable." })
+        Result.new({ "summary" => "Smart search is temporarily unavailable.", "success" => false })
       end
     rescue StandardError => e
       Rails.logger.error("RAG API connection failed: #{e.message}")
-      Result.new({ "summary" => "Could not connect to search service." })
+      Result.new({ "summary" => "Could not connect to search service.", "success" => false })
+    end
+
+    def smart_refine(original_query:, refinement:, previous_summary:, previous_recommendations:)
+      uri = URI("#{RAG_API_URL}/smart-refine")
+      payload = {
+        original_query: original_query,
+        refinement: refinement,
+        previous_summary: previous_summary,
+        previous_recommendations: previous_recommendations
+      }.to_json
+
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.scheme == "https"
+      request = Net::HTTP::Post.new(uri.path, "Content-Type" => "application/json")
+      request.body = payload
+      response = http.request(request)
+
+      if response.is_a?(Net::HTTPSuccess)
+        Result.new(JSON.parse(response.body))
+      else
+        Rails.logger.error("RAG /smart-refine error: #{response.code} - #{response.body}")
+        Result.new({ "summary" => "Refinement is temporarily unavailable.", "success" => false })
+      end
+    rescue StandardError => e
+      Rails.logger.error("RAG /smart-refine connection failed: #{e.message}")
+      Result.new({ "summary" => "Could not connect to refinement service.", "success" => false })
     end
 
     def available?
