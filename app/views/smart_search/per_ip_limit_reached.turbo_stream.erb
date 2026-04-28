@@ -1,2 +1,15 @@
-<%# Task 7 fills this in %>
-<turbo-stream action="replace" target="results"><template>Per-IP limit placeholder.</template></turbo-stream>
+<turbo-stream action="replace" target="results">
+  <template>
+    <div id="results" class="max-w-2xl mx-auto px-4 sm:px-6 py-12 text-center">
+      <h2 class="text-xl font-[var(--font-family-display)] font-bold text-[var(--color-primary)] mb-3">
+        <%= t("smart_search.per_ip_limit_reached.heading") %>
+      </h2>
+      <p class="text-sm text-[var(--color-text-secondary)] mb-4">
+        <%= t("smart_search.per_ip_limit_reached.body_html") %>
+      </p>
+      <%= link_to t("smart_search.per_ip_limit_reached.regular_search_cta"), scores_path,
+                  class: "text-[var(--color-accent)] hover:underline font-medium" %>
+    </div>
+  </template>
+</turbo-stream>
+<turbo-stream action="remove" target="refine-form"></turbo-stream>
