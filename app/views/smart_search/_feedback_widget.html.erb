@@ -1,4 +1,4 @@
-<div id="feedback-widget" class="mm-card mt-6 p-3">
+<div id="feedback-widget" class="mm-card mt-8 p-3">
   <%= form_with url: feedback_smart_search_path, method: :post, class: "flex flex-wrap items-center gap-3", data: { turbo: true } do |f| %>
     <%= hidden_field_tag :query_id, query_record.id %>
     <span class="text-sm text-[var(--color-text-muted)]">
