@@ -52,9 +52,10 @@ class SmartSearchQuery < ApplicationRecord
 
   before_save :truncate_rag_fields
 
-  def self.recent_initial_for(query_text)
+  def self.recent_initial_for(query_text, locale: I18n.locale.to_s)
     initial
       .where("LOWER(TRIM(query)) = ?", query_text.to_s.strip.downcase)
+      .where(locale: locale)
       .where("created_at > ?", RECENT_QUERY_TTL.ago)
       .where(error: nil)
       .order(created_at: :desc)

@@ -130,6 +130,11 @@ RSpec.describe SmartSearchQuery, type: :model do
       create(:refinement_query, query: "child text", parent_query: parent)
       expect(SmartSearchQuery.recent_initial_for("child text")).to be_nil
     end
+
+    it "does not match a row from a different locale" do
+      create(:smart_search_query, query: "Easy Bach", locale: "en", created_at: 30.minutes.ago)
+      expect(SmartSearchQuery.recent_initial_for("Easy Bach", locale: "de")).to be_nil
+    end
   end
 
   describe "#refinable?" do
