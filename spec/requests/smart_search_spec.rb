@@ -172,4 +172,74 @@ RSpec.describe "SmartSearch", type: :request do
       end
     end
   end
+
+  describe "POST /search/ai/feedback" do
+    let(:query_record) { create(:smart_search_query) }
+
+    it "creates a feedback row and returns Turbo Stream by default" do
+      expect {
+        post feedback_smart_search_path,
+          params: { query_id: query_record.id, verdict: "good", comment: "nice" },
+          headers: { "Accept" => "text/vnd.turbo-stream.html" }
+      }.to change { SmartSearchFeedback.count }.by(1)
+
+      expect(response).to have_http_status(:ok)
+      expect(response.media_type).to eq("text/vnd.turbo-stream.html")
+    end
+
+    it "returns JSON when requested" do
+      post feedback_smart_search_path,
+        params: { query_id: query_record.id, verdict: "good" },
+        headers: { "Accept" => "application/json" }
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to eq({ "ok" => true })
+    end
+
+    it "rejects an invalid verdict" do
+      post feedback_smart_search_path,
+        params: { query_id: query_record.id, verdict: "weird" },
+        headers: { "Accept" => "application/json" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "rejects a duplicate vote from the same hash" do
+      create(:smart_search_feedback, smart_search_query: query_record,
+             ip_hash: (
+               salt = Digest::SHA256.hexdigest("smart_search_ip|#{Rails.application.secret_key_base}")
+               Digest::SHA256.hexdigest("#{salt}|127.0.0.1")
+             ))
+
+      post feedback_smart_search_path,
+        params: { query_id: query_record.id, verdict: "bad" },
+        headers: { "Accept" => "application/json" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "allows two different hashes to vote on the same query" do
+      other_hash = Digest::SHA256.hexdigest("other|9.9.9.9")
+      create(:smart_search_feedback, smart_search_query: query_record, ip_hash: other_hash)
+
+      expect {
+        post feedback_smart_search_path,
+          params: { query_id: query_record.id, verdict: "good" },
+          headers: { "Accept" => "application/json" }
+      }.to change { SmartSearchFeedback.count }.by(1)
+
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "handles a duplicate-feedback race as 422 instead of 500" do
+      allow_any_instance_of(SmartSearchFeedback).to receive(:save).and_raise(ActiveRecord::RecordNotUnique)
+
+      post feedback_smart_search_path,
+        params: { query_id: query_record.id, verdict: "good" },
+        headers: { "Accept" => "application/json" }
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)).to eq({ "ok" => false, "error" => "duplicate_vote" })
+    end
+  end
 end

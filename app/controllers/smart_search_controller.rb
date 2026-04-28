@@ -26,6 +26,34 @@ class SmartSearchController < ApplicationController
     render :show
   end
 
+  def feedback
+    @query_record = SmartSearchQuery.find(params[:query_id])
+    @feedback = @query_record.feedbacks.build(
+      verdict: params[:verdict],
+      comment: params[:comment],
+      ip_hash: hashed_ip
+    )
+    if @feedback.save
+      respond_to do |format|
+        format.turbo_stream
+        format.json { render json: { ok: true }, status: :ok }
+        format.html { redirect_back fallback_location: smart_search_path }
+      end
+    else
+      respond_to do |format|
+        format.turbo_stream { render :feedback_invalid, status: :unprocessable_entity }
+        format.json { render json: { ok: false, errors: @feedback.errors.full_messages }, status: :unprocessable_entity }
+        format.html { head :unprocessable_entity }
+      end
+    end
+  rescue ActiveRecord::RecordNotUnique
+    respond_to do |format|
+      format.turbo_stream { render :feedback_invalid, status: :unprocessable_entity }
+      format.json { render json: { ok: false, error: "duplicate_vote" }, status: :unprocessable_entity }
+      format.html { head :unprocessable_entity }
+    end
+  end
+
   private
 
   def authenticate
