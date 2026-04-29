@@ -1,10 +1,12 @@
 class ApplicationController < ActionController::Base
+  include Ahoy::Controller
+
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
 
   # Set locale from URL path or browser preference
   around_action :switch_locale
-  after_action :track_visit
+  after_action :track_pageview
 
   private
 
@@ -36,66 +38,17 @@ class ApplicationController < ActionController::Base
     { locale: I18n.locale == I18n.default_locale ? nil : I18n.locale }
   end
 
-  def track_visit
-    return if bot? || prefetch?
-    return if request.path.start_with?("/admin", "/jobs")
-    DailyStat.track_visit!(
-      user_agent: request.user_agent,
-      country: request.headers["CF-IPCountry"],
-      referer: request.referer,
-      path: request.path,
-      device: request.headers["CF-Device-Type"] || device_type_from_user_agent
-    )
+  def track_pageview
+    page = request.path.split("?").first.truncate(100, omission: "")
+    ahoy.track "$view", page: page
   end
 
-  def device_type_from_user_agent
-    ua = request.user_agent.to_s
-    case ua
-    when /Mobile|Android.*Mobile|iPhone|iPod|BlackBerry|IEMobile|Opera Mini/i
-      "mobile"
-    when /iPad|Android(?!.*Mobile)|Tablet/i
-      "tablet"
-    else
-      "desktop"
-    end
-  end
-
+  # Used by non-Ahoy callers (e.g. ScoresController view-counter increment).
+  # Ahoy itself does its own bot detection inside Ahoy::Tracker.
   def bot?
-    # Primary detection via crawler_detect gem (checks 11 HTTP headers, 1000s of bots)
-    return true if request.is_crawler?
-
-    # Fallback checks for edge cases the gem might miss
-    user_agent = request.user_agent.to_s
-
-    # Empty or suspiciously short user agents
-    return true if user_agent.blank? || user_agent.length < 20
-
-    # Known bot/scripting user agents
-    return true if user_agent.include?("WindowsPowerShell")
-
-    # Mozilla/5.0 without device info parentheses = spoofed
-    return true if user_agent.match?(/^Mozilla\/5\.0 [^(]/)
-
-    # DevTools mobile emulation signatures (ancient devices used for scraping)
-    return true if user_agent.match?(/
-      SM-G900P|                          # Galaxy S5 (2014)
-      Nexus\ 5\ Build\/MRA58N|           # Nexus 5 (2015)
-      Pixel\ 2\ Build\/OPD3|             # Pixel 2 DevTools emulation
-      iPhone\ OS\ 1[0-3]_|               # iOS 10-13 (2016-2019)
-      Android\ [45]\.0                   # Android 4.x-5.x (2013-2015)
-    /x)
-
-    # Old browser versions (bots using outdated but valid-looking signatures)
-    if (match = user_agent.match(/Chrome\/(\d+)\./))
-      return true if match[1].to_i < 130  # Chrome 130 = Oct 2024
-    end
-    if (match = user_agent.match(/Firefox\/(\d+)\./))
-      version = match[1].to_i
-      # Block < 115 (ancient) OR 116-127 (non-ESR gap between Tor's 115 and current ESR 128)
-      return true if version < 115 || (version > 115 && version < 128)
-    end
-
-    false
+    ua = request.user_agent
+    return true if ua.blank? || ua.length < 20
+    DeviceDetector.new(ua).bot?
   end
 
   def prefetch?
