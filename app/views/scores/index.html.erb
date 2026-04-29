@@ -1,3 +1,29 @@
+<% content_for :json_ld do %>
+  <script type="application/ld+json">
+  <%= {
+    "@context"       => "https://schema.org",
+    "@type"          => "WebSite",
+    "name"           => "ScoreBase",
+    "alternateName"  => "ScoreBase Sheet Music Search",
+    "url"            => request.base_url,
+    "description"    => t('meta.description'),
+    "inLanguage"     => ["en", "de"],
+    "publisher"      => {
+      "@type" => "Organization",
+      "name"  => "ScoreBase",
+      "url"   => request.base_url,
+      "logo"  => {
+        "@type" => "ImageObject",
+        "url"   => "#{request.base_url}/icon.png"
+      },
+      "sameAs" => [
+        "https://github.com/moguls753/scorebase"
+      ]
+    }
+  }.to_json.html_safe %>
+  </script>
+<% end %>
+
 <!-- Hero Section with Search -->
 <section class="hero-section py-8 sm:py-12 lg:py-16">
   <div class="max-w-7xl mx-auto px-4 sm:px-6">
