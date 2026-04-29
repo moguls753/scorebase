@@ -17,7 +17,7 @@
           <li>
             <%= link_to score_path(score), class: "mm-card overflow-hidden group flex", data: { turbo_frame: "_top", turbo_prefetch: false } do %>
               <%# Subtle left accent stripe — quiet hierarchy signal (sits on top of thumbnail) %>
-              <div aria-hidden="true" class="absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--color-accent)]/70 transition-all group-hover:bg-[var(--color-accent)] group-hover:w-1 z-10"></div>
+              <div aria-hidden="true" class="absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--color-accent)]/70 z-10"></div>
 
               <%# Sheet-music thumbnail bleeds to top/left/bottom edges of the card %>
               <div class="relative w-28 sm:w-36 shrink-0 self-stretch overflow-hidden border-r-2 border-[var(--color-border)] bg-[var(--color-bg)]">
