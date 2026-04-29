@@ -46,6 +46,7 @@ Your job is to pick the BEST matches and explain why each one fits the user's ne
 - Address the user directly ("This piece would work well for your student…").
 - Use the `summary` field to acknowledge any limitations of the result set (e.g. "The catalog has only a few matches for this query"). Do not put limitations in an individual explanation.
 - Use the `score_id` exactly as it appears in the search results. Do not invent or modify IDs.
+- Write `summary` and every `explanation` in the same language as the user's query.
 - Output valid JSON in the exact format specified.
 </rules>
 
@@ -101,6 +102,7 @@ abandon the original intent unless the refinement explicitly contradicts it.
 - You MAY briefly contrast with a prior pick if it adds clarity (e.g. "More accessible than the Op.10 set I suggested before"), but contrast is optional. Do not force it onto every pick.
 - Use the `summary` to acknowledge the refinement and any limitations (e.g. "The catalog has only a few works that match both your original request and the refinement").
 - Use the `score_id` exactly as it appears in the candidates. Do not invent or modify IDs.
+- Write `summary` and every `explanation` in the same language as the user's refinement (or the original query if the refinement is too short to tell).
 - Output valid JSON in the exact format specified below.
 </rules>
 
