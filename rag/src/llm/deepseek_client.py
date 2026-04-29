@@ -1,17 +1,24 @@
 """DeepSeek LLM client (OpenAI-compatible API)."""
 
+import logging
 import os
 from dataclasses import dataclass
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class DeepSeekConfig:
-    """Configuration for DeepSeek API."""
+    """Configuration for DeepSeek API.
+
+    Default temperature is 0.2 because the result-selector task is schema-bound
+    and rewards consistency over creativity.
+    """
 
     api_key: str
     model: str = "deepseek-chat"
     base_url: str = "https://api.deepseek.com/v1"
-    temperature: float = 0.7
+    temperature: float = 0.2
     max_tokens: int = 1024
 
     @classmethod
@@ -43,19 +50,46 @@ class DeepSeekClient:
         system_message: str | None = None,
         temperature: float | None = None,
         max_tokens: int | None = None,
+        response_format: dict | None = None,
     ) -> str:
+        """Send a chat completion request.
+
+        Args:
+            prompt: User message.
+            system_message: Optional system message.
+            temperature: Override default temperature.
+            max_tokens: Override default max tokens.
+            response_format: Optional dict, e.g. ``{"type": "json_object"}`` to
+                force valid JSON output. The prompt itself must also instruct
+                the model to output JSON for this to work reliably on DeepSeek.
+
+        Returns:
+            Model response text. Returns "" (not None) when DeepSeek returns
+            empty content so callers can treat this as a parse failure rather
+            than an exception.
+        """
         messages: list[dict] = []
         if system_message:
             messages.append({"role": "system", "content": system_message})
         messages.append({"role": "user", "content": prompt})
 
-        response = self._client.chat.completions.create(
-            model=self.config.model,
-            messages=messages,
-            temperature=temperature if temperature is not None else self.config.temperature,
-            max_tokens=max_tokens if max_tokens is not None else self.config.max_tokens,
-        )
-        content = response.choices[0].message.content
+        kwargs: dict = {
+            "model": self.config.model,
+            "messages": messages,
+            "temperature": temperature if temperature is not None else self.config.temperature,
+            "max_tokens": max_tokens if max_tokens is not None else self.config.max_tokens,
+        }
+        if response_format is not None:
+            kwargs["response_format"] = response_format
+
+        response = self._client.chat.completions.create(**kwargs)
+        choice = response.choices[0]
+        content = choice.message.content
         if content is None:
-            raise ValueError("DeepSeek returned empty content")
+            logger.warning(
+                "DeepSeek returned empty content (finish_reason=%s, model=%s)",
+                getattr(choice, "finish_reason", None),
+                self.config.model,
+            )
+            return ""
         return content

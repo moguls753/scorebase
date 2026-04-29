@@ -35,7 +35,9 @@ def test_prompt_includes_original_query_and_refinement():
     assert "three pieces" in prompt
     assert "Invention 1" in prompt
     assert "grade 4 fits" in prompt
-    assert "diverge" in prompt.lower()
+    # Refinement is now framed as adding a constraint, not diverging.
+    assert "diverge" not in prompt.lower()
+    assert "constraint" in prompt.lower()
 
 
 def test_returns_selection_result_on_success():

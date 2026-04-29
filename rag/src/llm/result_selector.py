@@ -35,18 +35,18 @@ class ResultSelector:
     PROMPT_TEMPLATE = """<role>
 You are a helpful music librarian assistant for ScoreBase, a sheet music catalog.
 A user is searching for sheet music, and you have {num_results} potential matches from the database.
-Your job is to pick the 3 BEST matches and explain why each one fits the user's needs.
+Your job is to pick the BEST matches and explain why each one fits the user's needs.
 </role>
 
 <rules>
-- Select exactly 3 scores that best match the user's query
-- If fewer than 3 are good matches, still pick the 3 closest (explain limitations)
-- Write a brief, friendly explanation for each (1-2 sentences)
-- Focus on WHY it matches: difficulty, style, instrumentation, duration, use case
-- Address the user directly ("This piece would work well for your student...")
-- Be honest if a match is imperfect ("While not exactly beginner-level, this...")
-- Write a 1-sentence summary at the end
-- Output valid JSON in the exact format specified
+- Return between 1 and 3 picks. Choose only candidates that genuinely fit the user's query. If only 1 or 2 fit, return only those — do not pad with weak alternatives.
+- Each `explanation` is final user-facing copy. Write it as a polished recommendation, not as deliberation. Never include words like "Wait", "However", "I should pick instead", "Let me re-evaluate", "I note this is not", or refer to picks you considered and rejected.
+- Each pick must reference a meaningfully distinct work — do not return three editions/versions of the same piece unless the user explicitly asked for editions.
+- Focus each explanation on WHY this score fits: difficulty, style, instrumentation, duration, use case.
+- Address the user directly ("This piece would work well for your student…").
+- Use the `summary` field to acknowledge any limitations of the result set (e.g. "The catalog has only a few matches for this query"). Do not put limitations in an individual explanation.
+- Use the `score_id` exactly as it appears in the search results. Do not invent or modify IDs.
+- Output valid JSON in the exact format specified.
 </rules>
 
 <user_query>
@@ -64,16 +64,6 @@ Your job is to pick the 3 BEST matches and explain why each one fits the user's 
       "score_id": <id>,
       "title": "<title from results>",
       "explanation": "<why this matches the query, 1-2 sentences>"
-    }},
-    {{
-      "score_id": <id>,
-      "title": "<title>",
-      "explanation": "<explanation>"
-    }},
-    {{
-      "score_id": <id>,
-      "title": "<title>",
-      "explanation": "<explanation>"
     }}
   ],
   "summary": "<1 sentence summary, e.g. 'I found 3 beginner-friendly Bach pieces perfect for piano students.'>"
@@ -81,9 +71,9 @@ Your job is to pick the 3 BEST matches and explain why each one fits the user's 
 </output_format>"""
 
     REFINEMENT_PROMPT_TEMPLATE = """<role>
-You are a music librarian assistant for ScoreBase. The user previously got 3 score
-recommendations and has now refined their request. Pick 3 BETTER matches from a fresh
-candidate pool that fit the refinement.
+You are a music librarian assistant for ScoreBase. The user previously got score
+recommendations and has now refined their request. Pick BETTER matches from a fresh
+candidate pool that satisfy both the original intent and the refinement.
 </role>
 
 <previous_turn>
@@ -99,17 +89,18 @@ And selected these scores with these explanations:
 <refinement>
 The user has now refined: "{refinement}"
 
-The refinement tells you which dimension of your previous picks was wrong (difficulty,
-instrumentation, period, style, length, etc.). Use it as a target to *diverge from*
-your previous reasoning — not to reinforce it.
+The refinement adds a constraint to the original request. Picks must satisfy BOTH the
+original intent (mood, character, style, instrument) AND the new constraint. Do not
+abandon the original intent unless the refinement explicitly contradicts it.
 </refinement>
 
 <rules>
-- Below are 15 fresh candidates from a new vector search using the enriched query.
-- Pick the 3 BEST matches that fit the original intent PLUS the refinement.
-- In each new explanation, briefly contrast with what you offered before so the user
-  sees you understood their correction. For example:
-  "Unlike the grade-4 Bach I suggested earlier, this Notebook minuet is genuinely beginner..."
+- Below are fresh candidates from a new vector search using the enriched query.
+- Return between 1 and 3 picks. Choose only candidates that genuinely fit BOTH the original intent and the refinement. If only 1 or 2 fit, return only those — do not pad with weak alternatives.
+- Each `explanation` is final user-facing copy. Write it as a polished recommendation, not as deliberation. Never include words like "Wait", "However", "I should pick instead", "Let me re-evaluate", "to strictly honor your refinement", or "I note this is not". Do not include picks you considered and rejected.
+- You MAY briefly contrast with a prior pick if it adds clarity (e.g. "More accessible than the Op.10 set I suggested before"), but contrast is optional. Do not force it onto every pick.
+- Use the `summary` to acknowledge the refinement and any limitations (e.g. "The catalog has only a few works that match both your original request and the refinement").
+- Use the `score_id` exactly as it appears in the candidates. Do not invent or modify IDs.
 - Output valid JSON in the exact format specified below.
 </rules>
 
@@ -120,13 +111,17 @@ your previous reasoning — not to reinforce it.
 <output_format>
 {{
   "recommendations": [
-    {{"score_id": <id>, "title": "<title>", "explanation": "<contrast-aware explanation>"}},
-    {{"score_id": <id>, "title": "<title>", "explanation": "<…>"}},
-    {{"score_id": <id>, "title": "<title>", "explanation": "<…>"}}
+    {{"score_id": <id>, "title": "<title>", "explanation": "<final user-facing reason>"}}
   ],
   "summary": "<1 sentence summary acknowledging the refinement>"
 }}
 </output_format>"""
+
+    _JSON_RESPONSE_FORMAT: dict = {"type": "json_object"}
+    _RETRY_HINT = (
+        "\n\nYour previous response was not valid JSON. "
+        "Output ONLY the JSON object specified above, with no surrounding text."
+    )
 
     def __init__(self, client=None):
         """Initialize with an LLM client; default uses LLM_PROVIDER env var (default 'deepseek')."""
@@ -156,6 +151,41 @@ your previous reasoning — not to reinforce it.
                 pass
 
         return None
+
+    def _chat_for_json(self, prompt: str) -> tuple[str, dict | None]:
+        """Call the LLM expecting a JSON object, with one retry on parse failure.
+
+        Tries with response_format=json_object first (DeepSeek/OpenAI-compatible).
+        If the client doesn't accept the kwarg, falls back to plain chat.
+        Returns ``(raw_response, parsed_or_None)``.
+        """
+        try:
+            response = self.client.chat(
+                prompt=prompt,
+                system_message=None,
+                response_format=self._JSON_RESPONSE_FORMAT,
+            )
+        except TypeError:
+            response = self.client.chat(prompt=prompt, system_message=None)
+
+        parsed = self._parse_response(response)
+        if isinstance(parsed, dict) and "recommendations" in parsed:
+            return response, parsed
+
+        # Retry once with explicit format hint
+        logger.warning("First-pass JSON parse failed; retrying with hint")
+        retry_prompt = prompt + self._RETRY_HINT
+        try:
+            response = self.client.chat(
+                prompt=retry_prompt,
+                system_message=None,
+                response_format=self._JSON_RESPONSE_FORMAT,
+            )
+        except TypeError:
+            response = self.client.chat(prompt=retry_prompt, system_message=None)
+
+        parsed = self._parse_response(response)
+        return response, parsed
 
     def select(
         self,
@@ -200,10 +230,9 @@ your previous reasoning — not to reinforce it.
                 results_json=results_json
             )
 
-            response = self.client.chat(prompt=prompt, system_message=None)
-            parsed = self._parse_response(response)
+            response, parsed = self._chat_for_json(prompt)
 
-            if not parsed or "recommendations" not in parsed:
+            if not isinstance(parsed, dict) or "recommendations" not in parsed:
                 logger.warning(f"Failed to parse selection response: {response[:200]}")
                 return SelectionResult(
                     recommendations=[],
@@ -212,15 +241,21 @@ your previous reasoning — not to reinforce it.
                     error="Parse error"
                 )
 
-            # Build recommendation objects
+            valid_ids = {r.get("score_id") for r in search_results if r.get("score_id") is not None}
             recommendations = []
-            for i, rec in enumerate(parsed.get("recommendations", [])[:num_recommendations], 1):
+            for rec in parsed.get("recommendations", []):
+                sid = rec.get("score_id")
+                if sid not in valid_ids:
+                    logger.warning(f"Dropping pick with non-candidate score_id={sid!r} for query: {query[:50]}")
+                    continue
                 recommendations.append(Recommendation(
-                    score_id=rec.get("score_id", 0),
-                    title=rec.get("title", "Untitled"),
+                    score_id=sid,
+                    title=rec.get("title") or "Untitled",
                     explanation=rec.get("explanation", ""),
-                    rank=i
+                    rank=len(recommendations) + 1,
                 ))
+                if len(recommendations) >= num_recommendations:
+                    break
 
             summary = parsed.get("summary", "Here are my recommendations.")
 
@@ -282,10 +317,9 @@ your previous reasoning — not to reinforce it.
                 refinement=refinement,
                 results_json=results_json,
             )
-            response = self.client.chat(prompt=prompt, system_message=None)
-            parsed = self._parse_response(response)
+            response, parsed = self._chat_for_json(prompt)
 
-            if not parsed or "recommendations" not in parsed:
+            if not isinstance(parsed, dict) or "recommendations" not in parsed:
                 logger.warning(f"Failed to parse refinement response: {response[:200]}")
                 return SelectionResult(
                     recommendations=[],
@@ -294,14 +328,21 @@ your previous reasoning — not to reinforce it.
                     error="Parse error",
                 )
 
+            valid_ids = {r.get("score_id") for r in search_results if r.get("score_id") is not None}
             recommendations = []
-            for i, rec in enumerate(parsed.get("recommendations", [])[:num_recommendations], 1):
+            for rec in parsed.get("recommendations", []):
+                sid = rec.get("score_id")
+                if sid not in valid_ids:
+                    logger.warning(f"Dropping refinement pick with non-candidate score_id={sid!r}")
+                    continue
                 recommendations.append(Recommendation(
-                    score_id=rec.get("score_id", 0),
-                    title=rec.get("title", "Untitled"),
+                    score_id=sid,
+                    title=rec.get("title") or "Untitled",
                     explanation=rec.get("explanation", ""),
-                    rank=i,
+                    rank=len(recommendations) + 1,
                 ))
+                if len(recommendations) >= num_recommendations:
+                    break
 
             return SelectionResult(
                 recommendations=recommendations,

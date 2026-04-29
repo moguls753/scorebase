@@ -1,5 +1,6 @@
 """Search pipeline using Haystack + LLM result selection."""
 
+import logging
 import os
 from haystack import Pipeline
 from haystack.components.embedders import SentenceTransformersTextEmbedder
@@ -8,6 +9,9 @@ from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRe
 
 from .. import config
 from ..llm import ResultSelector
+from .query_normalizer import normalize_for_embedding
+
+logger = logging.getLogger(__name__)
 
 # Cache the pipeline to avoid reloading on every search
 _pipeline = None
@@ -57,8 +61,12 @@ def search(query: str, top_k: int = 10) -> list[dict]:
     """
     pipeline = get_pipeline()
 
+    embed_query = normalize_for_embedding(query)
+    if embed_query != query:
+        logger.debug("Normalized query for embedding: %r -> %r", query, embed_query)
+
     result = pipeline.run({
-        "embedder": {"text": query},
+        "embedder": {"text": embed_query},
         "retriever": {"top_k": top_k}
     })
 
