@@ -11,15 +11,17 @@ logger = logging.getLogger(__name__)
 class DeepSeekConfig:
     """Configuration for DeepSeek API.
 
-    Default model is deepseek-reasoner. Override with DEEPSEEK_MODEL env var
-    (e.g. ``DEEPSEEK_MODEL=deepseek-chat`` for the faster non-reasoning model).
+    Default model is deepseek-chat. Reasoner was evaluated on 2026-04-29 and
+    rolled back: it produced 16% empty results (hallucinated score_ids that
+    the whitelist correctly dropped) and 40% refinement parse failures (no
+    response_format support). Chat is faster and more reliable for this task.
 
     Default temperature is 0.2 because the result-selector task is schema-bound
-    and rewards consistency over creativity. Reasoner ignores temperature.
+    and rewards consistency over creativity.
     """
 
     api_key: str
-    model: str = "deepseek-reasoner"
+    model: str = "deepseek-chat"
     base_url: str = "https://api.deepseek.com/v1"
     temperature: float = 0.2
     max_tokens: int = 1024
@@ -32,7 +34,7 @@ class DeepSeekConfig:
                 "DEEPSEEK_API_KEY environment variable not set.\n"
                 "Get your key at https://platform.deepseek.com/api_keys"
             )
-        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-reasoner")
+        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
         return cls(api_key=api_key, model=model)
 
 
