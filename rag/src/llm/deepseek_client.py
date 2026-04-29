@@ -11,12 +11,15 @@ logger = logging.getLogger(__name__)
 class DeepSeekConfig:
     """Configuration for DeepSeek API.
 
+    Default model is deepseek-reasoner. Override with DEEPSEEK_MODEL env var
+    (e.g. ``DEEPSEEK_MODEL=deepseek-chat`` for the faster non-reasoning model).
+
     Default temperature is 0.2 because the result-selector task is schema-bound
-    and rewards consistency over creativity.
+    and rewards consistency over creativity. Reasoner ignores temperature.
     """
 
     api_key: str
-    model: str = "deepseek-chat"
+    model: str = "deepseek-reasoner"
     base_url: str = "https://api.deepseek.com/v1"
     temperature: float = 0.2
     max_tokens: int = 1024
@@ -29,7 +32,7 @@ class DeepSeekConfig:
                 "DEEPSEEK_API_KEY environment variable not set.\n"
                 "Get your key at https://platform.deepseek.com/api_keys"
             )
-        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
+        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-reasoner")
         return cls(api_key=api_key, model=model)
 
 
@@ -79,7 +82,9 @@ class DeepSeekClient:
             "temperature": temperature if temperature is not None else self.config.temperature,
             "max_tokens": max_tokens if max_tokens is not None else self.config.max_tokens,
         }
-        if response_format is not None:
+        # deepseek-reasoner ignores response_format and (per DeepSeek's docs)
+        # may reject it; skip the kwarg for any reasoner model.
+        if response_format is not None and "reasoner" not in self.config.model:
             kwargs["response_format"] = response_format
 
         response = self._client.chat.completions.create(**kwargs)
