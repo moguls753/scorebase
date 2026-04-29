@@ -53,6 +53,10 @@
       <%= render "refine_form", query_record: @query_record %>
     <% end %>
 
+    <% if @query_record && @scores.any? %>
+      <%= render "feedback_widget", query_record: @query_record %>
+    <% end %>
+
     <div class="mt-8 text-center">
       <p class="text-sm text-[var(--color-text-muted)]">
         <%= t("smart_search.try_regular_html",

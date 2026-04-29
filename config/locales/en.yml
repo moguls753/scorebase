@@ -35,12 +35,12 @@ en:
       recital: "Dramatic piece for a recital"
       violin: "Intermediate violin sonata"
     quota_exhausted:
-      heading: "Today's beta quota is used up"
-      body_html: "ScoreBase Smart Search is in public beta. Please come back tomorrow! In the meantime, regular search still works."
+      heading: "Smart search is at today's site-wide limit"
+      body_html: "Smart Search has a daily site-wide cap during the public beta. The cap resets at midnight UTC. Regular keyword search is still available without limits."
       regular_search_cta: "Use regular search"
     per_ip_limit_reached:
-      heading: "You've used today's beta allowance"
-      body_html: "I'm limiting smart-search to 5 queries per network per day during the beta. Please come back tomorrow — or use regular search in the meantime."
+      heading: "Smart search is temporarily unavailable from this connection"
+      body_html: "To keep Smart Search available during the public beta, I'm limiting it to 5 queries per IP address within 24 hours. On shared connections, this limit can be reached sooner. Regular keyword search is still available without limits."
       regular_search_cta: "Use regular search"
     rag_error:
       heading: "Smart search is temporarily unavailable"
@@ -59,6 +59,7 @@ en:
       good: "Good"
       bad: "Bad"
       sending: "Sending…"
+      submit: "Send feedback"
       thanks: "Thanks for the feedback!"
       invalid: "Sorry — I couldn't save your feedback."
       comment_placeholder: "Optional comment"

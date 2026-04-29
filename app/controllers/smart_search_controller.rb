@@ -33,25 +33,16 @@ class SmartSearchController < ApplicationController
       comment: params[:comment],
       ip_hash: hashed_ip
     )
-    if @feedback.save
-      respond_to do |format|
-        format.turbo_stream
-        format.json { render json: { ok: true }, status: :ok }
-        format.html { redirect_back fallback_location: smart_search_path }
-      end
+    # Treat "already voted" as success — the user's prior vote is what they wanted to express,
+    # so the success state matches their intent. Avoids dead-end error after a re-submit.
+    if @feedback.save || already_voted?(@feedback)
+      render_feedback_success
     else
-      respond_to do |format|
-        format.turbo_stream { render :feedback_invalid, status: :unprocessable_entity }
-        format.json { render json: { ok: false, errors: @feedback.errors.full_messages }, status: :unprocessable_entity }
-        format.html { head :unprocessable_entity }
-      end
+      render_feedback_invalid
     end
   rescue ActiveRecord::RecordNotUnique
-    respond_to do |format|
-      format.turbo_stream { render :feedback_invalid, status: :unprocessable_entity }
-      format.json { render json: { ok: false, error: "duplicate_vote" }, status: :unprocessable_entity }
-      format.html { head :unprocessable_entity }
-    end
+    # Race-condition variant of the validation hit above; same idempotent UX.
+    render_feedback_success
   end
 
   def refine
@@ -234,5 +225,25 @@ class SmartSearchController < ApplicationController
     salt = Digest::SHA256.hexdigest("smart_search_ip|#{Rails.application.secret_key_base}")
     client_ip = request.headers["CF-Connecting-IP"].presence || request.remote_ip
     Digest::SHA256.hexdigest("#{salt}|#{client_ip}")
+  end
+
+  def already_voted?(feedback_record)
+    feedback_record.errors[:ip_hash].any? { |msg| msg.include?("already voted") }
+  end
+
+  def render_feedback_success
+    respond_to do |format|
+      format.turbo_stream { render :feedback }
+      format.json { render json: { ok: true }, status: :ok }
+      format.html { redirect_back fallback_location: smart_search_path }
+    end
+  end
+
+  def render_feedback_invalid
+    respond_to do |format|
+      format.turbo_stream { render :feedback_invalid, status: :unprocessable_entity }
+      format.json { render json: { ok: false, errors: @feedback.errors.full_messages }, status: :unprocessable_entity }
+      format.html { head :unprocessable_entity }
+    end
   end
 end

@@ -1,23 +1,56 @@
-<div id="feedback-widget" class="mm-card mt-8 p-3">
-  <%= form_with url: feedback_smart_search_path, method: :post, class: "flex flex-wrap items-center gap-3", data: { turbo: true } do |f| %>
+<div id="feedback-widget" class="mm-card mt-6 p-4 sm:p-5">
+  <%= form_with url: feedback_smart_search_path, method: :post, data: { turbo: true }, class: "space-y-4" do |f| %>
     <%= hidden_field_tag :query_id, query_record.id %>
-    <span class="text-sm text-[var(--color-text-muted)]">
-      <%= t("smart_search.feedback.prompt") %>
-    </span>
-    <button type="submit" name="verdict" value="good"
-            class="inline-flex items-center gap-1.5 rounded-sm border-2 border-[var(--color-border)] px-2.5 py-1 text-sm font-medium text-[var(--color-text-muted)] transition-all hover:border-[var(--color-accent)]/50 hover:bg-[var(--color-bg)] hover:text-[var(--color-text)]"
-            data-turbo-submits-with="<%= t('smart_search.feedback.sending') %>">
-      <%= lucide_icon "thumbs-up", class: "w-3.5 h-3.5", "stroke-width": 2 %>
-      <%= t("smart_search.feedback.good") %>
-    </button>
-    <button type="submit" name="verdict" value="bad"
-            class="inline-flex items-center gap-1.5 rounded-sm border-2 border-[var(--color-border)] px-2.5 py-1 text-sm font-medium text-[var(--color-text-muted)] transition-all hover:border-red-500/60 hover:bg-[var(--color-bg)] hover:text-[var(--color-text)]"
-            data-turbo-submits-with="<%= t('smart_search.feedback.sending') %>">
-      <%= lucide_icon "thumbs-down", class: "w-3.5 h-3.5", "stroke-width": 2 %>
-      <%= t("smart_search.feedback.bad") %>
-    </button>
-    <input type="text" name="comment" maxlength="1000"
-           placeholder="<%= t('smart_search.feedback.comment_placeholder') %>"
-           class="ml-auto h-8 flex-1 max-w-xs rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-3 text-sm text-[var(--color-text)] placeholder-[var(--color-text-muted)] focus:border-[var(--color-accent)] focus:outline-none">
+
+    <%# Verdict toggle group. Using role=group + aria-labelledby instead of
+        fieldset/legend because fieldset has well-known layout pitfalls
+        (legend positioning is browser-quirky); semantics are equivalent. %>
+    <div role="group" aria-labelledby="feedback-prompt-<%= query_record.id %>"
+         class="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:gap-3">
+      <span id="feedback-prompt-<%= query_record.id %>" class="text-sm font-semibold text-[var(--color-text)]">
+        <%= t("smart_search.feedback.prompt") %>
+      </span>
+
+      <div class="flex items-center gap-2">
+        <div>
+          <input type="radio" id="verdict-good-<%= query_record.id %>" name="verdict" value="good" class="peer sr-only" required>
+          <label for="verdict-good-<%= query_record.id %>"
+                 class="inline-flex cursor-pointer items-center gap-1.5 rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-[var(--color-text-muted)] transition-all hover:border-[var(--color-accent)]/60 hover:text-[var(--color-text)] peer-checked:border-[var(--color-accent)] peer-checked:bg-[var(--color-accent)]/[0.18] peer-checked:text-[var(--color-text)] peer-checked:shadow-[2px_2px_0_var(--color-accent)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--color-accent)]">
+            <%= lucide_icon "thumbs-up", class: "w-3.5 h-3.5", "stroke-width": 2 %>
+            <%= t("smart_search.feedback.good") %>
+          </label>
+        </div>
+
+        <div>
+          <input type="radio" id="verdict-bad-<%= query_record.id %>" name="verdict" value="bad" class="peer sr-only" required>
+          <label for="verdict-bad-<%= query_record.id %>"
+                 class="inline-flex cursor-pointer items-center gap-1.5 rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-[var(--color-text-muted)] transition-all hover:border-red-500/60 hover:text-[var(--color-text)] peer-checked:border-red-500 peer-checked:bg-red-500/[0.18] peer-checked:text-[var(--color-text)] peer-checked:shadow-[2px_2px_0_#ef4444] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-red-500">
+            <%= lucide_icon "thumbs-down", class: "w-3.5 h-3.5", "stroke-width": 2 %>
+            <%= t("smart_search.feedback.bad") %>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <%# Comment textarea — sr-only label retains the semantic association even though
+        sighted users see only the placeholder. Placeholder + group context make purpose
+        clear once focused. %>
+    <div>
+      <label for="feedback-comment-<%= query_record.id %>" class="sr-only">
+        <%= t("smart_search.feedback.comment_placeholder") %>
+      </label>
+      <textarea id="feedback-comment-<%= query_record.id %>" name="comment" rows="3" maxlength="1000"
+                placeholder="<%= t('smart_search.feedback.comment_placeholder') %>"
+                class="block w-full rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm leading-relaxed text-[var(--color-text)] placeholder-[var(--color-text-muted)] resize-y focus:border-[var(--color-accent)] focus:outline-none"></textarea>
+    </div>
+
+    <div class="flex justify-end">
+      <button type="submit"
+              class="mm-button mm-button-sm mm-button-primary inline-flex items-center gap-1.5"
+              data-turbo-submits-with="<%= t('smart_search.feedback.sending') %>">
+        <%= lucide_icon "send-horizontal", class: "w-3.5 h-3.5", "stroke-width": 2.5 %>
+        <%= t("smart_search.feedback.submit") %>
+      </button>
+    </div>
   <% end %>
 </div>

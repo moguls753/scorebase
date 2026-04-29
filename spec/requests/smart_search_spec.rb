@@ -204,18 +204,21 @@ RSpec.describe "SmartSearch", type: :request do
       expect(response).to have_http_status(:unprocessable_entity)
     end
 
-    it "rejects a duplicate vote from the same hash" do
+    it "treats a duplicate vote from the same hash as idempotent success" do
       create(:smart_search_feedback, smart_search_query: query_record,
              ip_hash: (
                salt = Digest::SHA256.hexdigest("smart_search_ip|#{Rails.application.secret_key_base}")
                Digest::SHA256.hexdigest("#{salt}|127.0.0.1")
              ))
 
-      post feedback_smart_search_path,
-        params: { query_id: query_record.id, verdict: "bad" },
-        headers: { "Accept" => "application/json" }
+      expect {
+        post feedback_smart_search_path,
+          params: { query_id: query_record.id, verdict: "bad" },
+          headers: { "Accept" => "application/json" }
+      }.not_to change { SmartSearchFeedback.count }
 
-      expect(response).to have_http_status(:unprocessable_entity)
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to eq({ "ok" => true })
     end
 
     it "allows two different hashes to vote on the same query" do
@@ -231,15 +234,15 @@ RSpec.describe "SmartSearch", type: :request do
       expect(response).to have_http_status(:ok)
     end
 
-    it "handles a duplicate-feedback race as 422 instead of 500" do
+    it "handles a duplicate-feedback race idempotently (no 500, success response)" do
       allow_any_instance_of(SmartSearchFeedback).to receive(:save).and_raise(ActiveRecord::RecordNotUnique)
 
       post feedback_smart_search_path,
         params: { query_id: query_record.id, verdict: "good" },
         headers: { "Accept" => "application/json" }
 
-      expect(response).to have_http_status(:unprocessable_entity)
-      expect(JSON.parse(response.body)).to eq({ "ok" => false, "error" => "duplicate_vote" })
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to eq({ "ok" => true })
     end
   end
 

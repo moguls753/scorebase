@@ -1,7 +1,9 @@
 <turbo-stream action="replace" target="feedback-widget">
   <template>
-    <div id="feedback-widget" class="mt-6 p-4 bg-[var(--color-bg-elevated)] border border-red-500/40 rounded-lg text-sm text-red-400 text-center">
-      <%= t("smart_search.feedback.invalid") %>
+    <div id="feedback-widget" class="mt-6 p-4 sm:p-5 rounded-sm border-2 border-red-500/60 bg-red-500/5 text-center" role="alert">
+      <p class="text-sm font-semibold text-red-400">
+        <%= t("smart_search.feedback.invalid") %>
+      </p>
     </div>
   </template>
 </turbo-stream>
