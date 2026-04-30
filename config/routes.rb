@@ -6,6 +6,11 @@ Rails.application.routes.draw do
 
   # Job queue dashboard (same auth as Avo admin)
   mount MissionControl::Jobs::Engine, at: "/jobs"
+
+  # Ahoy analytics endpoint mounted at a non-tracker-recognizable path so
+  # privacy-blockers (EasyPrivacy/uBlock/Brave) don't filter it. The gem also
+  # auto-mounts at /ahoy; that path stays as a dead endpoint (block via CF).
+  mount Ahoy::Engine => "/_internal", as: :ahoy_internal
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
