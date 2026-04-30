@@ -4,7 +4,19 @@ Simple: read search_text from SQLite, embed, store in ChromaDB.
 Rails generates search_text. Python just indexes it.
 """
 
+# Cap PyTorch / OpenMP thread count BEFORE importing torch / sentence-transformers.
+# Without this, PyTorch defaults to using all host vCPUs, which on the 2-vCPU
+# Hetzner box starves the Rails web role and causes Cloudflare 504s during
+# bulk indexing. Setting these env vars + torch.set_num_threads forces the
+# indexer to use a single core regardless of host capacity.
+import os
+os.environ.setdefault("OMP_NUM_THREADS", "1")
+os.environ.setdefault("MKL_NUM_THREADS", "1")
+
 import logging
+
+import torch
+torch.set_num_threads(1)
 
 from haystack import Document
 from haystack.components.embedders import SentenceTransformersDocumentEmbedder
