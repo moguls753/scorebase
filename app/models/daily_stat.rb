@@ -44,12 +44,12 @@ class DailyStat < ApplicationRecord
     range           = date.beginning_of_day..date.end_of_day
     all_visits      = Ahoy::Visit.where(started_at: range)
     external_visits = if INTERNAL_HOSTS.any?
-                        all_visits.where(
-                          "referring_domain IS NULL OR referring_domain NOT IN (?)", INTERNAL_HOSTS
-                        )
-                      else
-                        all_visits
-                      end
+      all_visits.where(
+        "referring_domain IS NULL OR referring_domain NOT IN (?)", INTERNAL_HOSTS
+      )
+    else
+      all_visits
+    end
     all_events      = Ahoy::Event.where(time: range)
     pageviews       = all_events.where(name: "$view")
     clicks          = all_events.where(name: "SMD click")
