@@ -11,17 +11,20 @@ logger = logging.getLogger(__name__)
 class DeepSeekConfig:
     """Configuration for DeepSeek API.
 
-    Default model is deepseek-chat. Reasoner was evaluated on 2026-04-29 and
-    rolled back: it produced 16% empty results (hallucinated score_ids that
-    the whitelist correctly dropped) and 40% refinement parse failures (no
-    response_format support). Chat is faster and more reliable for this task.
+    Default model is deepseek-v4-flash with thinking mode forced off in
+    chat() via extra_body. Thinking mode was evaluated on 2026-04-29 (then
+    via deepseek-reasoner) and rolled back: it produced 16% empty results
+    (hallucinated score_ids that the whitelist correctly dropped) and 40%
+    refinement parse failures. Non-thinking is faster and far more reliable
+    for the schema-bound rerank task. Legacy deepseek-chat retires on
+    2026-07-24; v4-flash non-thinking is the same backend.
 
     Default temperature is 0.2 because the result-selector task is schema-bound
     and rewards consistency over creativity.
     """
 
     api_key: str
-    model: str = "deepseek-chat"
+    model: str = "deepseek-v4-flash"
     base_url: str = "https://api.deepseek.com/v1"
     temperature: float = 0.2
     max_tokens: int = 1024
@@ -34,7 +37,7 @@ class DeepSeekConfig:
                 "DEEPSEEK_API_KEY environment variable not set.\n"
                 "Get your key at https://platform.deepseek.com/api_keys"
             )
-        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-chat")
+        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-flash")
         return cls(api_key=api_key, model=model)
 
 
@@ -83,6 +86,9 @@ class DeepSeekClient:
             "messages": messages,
             "temperature": temperature if temperature is not None else self.config.temperature,
             "max_tokens": max_tokens if max_tokens is not None else self.config.max_tokens,
+            # v4-flash defaults to thinking mode; force non-thinking. Harmless
+            # on legacy deepseek-chat. See DeepSeekConfig docstring for why.
+            "extra_body": {"thinking": {"type": "disabled"}},
         }
         # deepseek-reasoner ignores response_format and (per DeepSeek's docs)
         # may reject it; skip the kwarg for any reasoner model.

@@ -30,7 +30,7 @@
 
   <!-- Search Form -->
   <div class="mb-8">
-    <%= form_with url: smart_search_path, method: :get, local: true, class: "relative" do |f| %>
+    <%= form_with url: smart_search_path, method: :get, class: "relative" do |f| %>
       <div class="relative">
         <input type="text" name="q" value="<%= @query %>" maxlength="500"
                placeholder="<%= t('smart_search.input_placeholder') %>"
