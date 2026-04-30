@@ -96,7 +96,7 @@
                 <tr class="border-b border-gray-100 hover:bg-gray-50">
                   <td class="py-2 font-mono text-gray-500"><%= score.id %></td>
                   <td class="py-2">
-                    <%= link_to score.display_title.truncate(50), avo.resources_score_path(score), class: "text-blue-600 hover:underline" %>
+                    <%= link_to (score.display_title || "(untitled)").truncate(50), avo.resources_score_path(score), class: "text-blue-600 hover:underline" %>
                   </td>
                   <td class="py-2 text-gray-600"><%= score.composer.to_s.truncate(30) %></td>
                   <td class="py-2 text-right text-gray-500"><%= score.indexed_at&.strftime("%Y-%m-%d %H:%M") %></td>
@@ -129,7 +129,7 @@
                 <tr class="border-b border-gray-100 hover:bg-gray-50">
                   <td class="py-2 font-mono text-gray-500"><%= score.id %></td>
                   <td class="py-2">
-                    <%= link_to score.display_title.truncate(50), avo.resources_score_path(score), class: "text-blue-600 hover:underline" %>
+                    <%= link_to (score.display_title || "(untitled)").truncate(50), avo.resources_score_path(score), class: "text-blue-600 hover:underline" %>
                   </td>
                   <td class="py-2 text-gray-600"><%= score.source %></td>
                 </tr>
