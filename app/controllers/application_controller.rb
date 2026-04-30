@@ -6,7 +6,6 @@ class ApplicationController < ActionController::Base
 
   # Set locale from URL path or browser preference
   around_action :switch_locale
-  after_action :track_pageview
 
   private
 
@@ -36,11 +35,6 @@ class ApplicationController < ActionController::Base
 
   def default_url_options
     { locale: I18n.locale == I18n.default_locale ? nil : I18n.locale }
-  end
-
-  def track_pageview
-    page = request.path.split("?").first.truncate(100, omission: "")
-    ahoy.track "$view", page: page
   end
 
   # Used by non-Ahoy callers (e.g. ScoresController view-counter increment).

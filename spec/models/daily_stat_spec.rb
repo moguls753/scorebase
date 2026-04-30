@@ -45,7 +45,9 @@ RSpec.describe DailyStat, type: :model do
         described_class.aggregate_for!(date)
         ds = DailyStat.find_by!(date: date)
 
-        expect(ds.visits).to eq(3)
+        # `visits` counts external arrivals (visits = sessions), not pageviews.
+        # v1 (google.com) and v2 (direct) are both external → 2 visits.
+        expect(ds.visits).to eq(2)
         expect(ds.paths).to eq("/scores/1" => 2, "/search" => 1)
         expect(ds.countries).to eq("DE" => 1, "US" => 1)
         expect(ds.browsers).to eq("Chrome" => 1, "Firefox" => 1)
@@ -60,6 +62,37 @@ RSpec.describe DailyStat, type: :model do
         snapshot = DailyStat.find_by(date: date).attributes.except("updated_at")
         described_class.aggregate_for!(date)
         expect(DailyStat.find_by(date: date).attributes.except("updated_at")).to eq(snapshot)
+      end
+    end
+
+    context 'internal-referrer filtering' do
+      it 'excludes internal-referrer visits from visits/countries/devices/referrers but keeps their pageviews and SMD clicks' do
+        external = make_visit(country: "DE", browser: "Chrome", device_type: "desktop",
+                              referring_domain: "google.com", user_agent: "ext-ua")
+        internal_a = make_visit(country: "US", browser: "Firefox", device_type: "mobile",
+                                referring_domain: "scorebase.org", user_agent: "int-ua-a")
+        internal_b = make_visit(country: "FR", browser: "Safari", device_type: "tablet",
+                                referring_domain: "scorebase.org", user_agent: "int-ua-b")
+
+        Ahoy::Event.create!(visit: external,   name: "$view", properties: { "page" => "/scores" },     time: noon)
+        Ahoy::Event.create!(visit: internal_a, name: "$view", properties: { "page" => "/scores/123" }, time: noon)
+        Ahoy::Event.create!(visit: internal_b, name: "$view", properties: { "page" => "/scores/456" }, time: noon)
+        Ahoy::Event.create!(visit: internal_b, name: "SMD click", properties: { "score_id" => 7 },    time: noon)
+
+        described_class.aggregate_for!(date)
+        ds = DailyStat.find_by!(date: date)
+
+        # only the external visit counts
+        expect(ds.visits).to eq(1)
+        expect(ds.countries).to eq("DE" => 1)
+        expect(ds.browsers).to eq("Chrome" => 1)
+        expect(ds.devices).to eq("desktop" => 1)
+        expect(ds.referrers).to eq("google.com" => 1)
+        expect(ds.user_agents).to eq("ext-ua" => 1)
+
+        # but content engagement and revenue events stay unfiltered
+        expect(ds.paths).to eq("/scores" => 1, "/scores/123" => 1, "/scores/456" => 1)
+        expect(ds.smd_clicks_by_score).to eq("7" => 1)
       end
     end
 

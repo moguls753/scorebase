@@ -9,3 +9,6 @@ pin_all_from "app/javascript/controllers", under: "controllers"
 # Chartkick
 pin "chartkick", to: "chartkick.js"
 pin "Chart.bundle", to: "Chart.bundle.js"
+
+# Ahoy analytics (vendored by ahoy_matey gem)
+pin "ahoy", to: "ahoy.js"

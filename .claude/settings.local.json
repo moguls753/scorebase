@@ -54,7 +54,10 @@
       "WebFetch(domain:en.wikipedia.org)",
       "WebFetch(domain:richterguitar.com)",
       "WebFetch(domain:www.cglib.org)",
-      "WebFetch(domain:api-docs.deepseek.com)"
+      "WebFetch(domain:api-docs.deepseek.com)",
+      "Read(//home/era/.asdf/installs/ruby/3.4.1/lib/ruby/gems/3.4.0/gems/ahoy_matey-5.5.0/vendor/assets/**)",
+      "Read(//home/era/.asdf/installs/ruby/3.4.1/lib/ruby/gems/3.4.0/gems/ahoy_matey-5.5.0/**)",
+      "Bash(INTERNAL_ANALYTICS_HOSTS=\"something-else.example\" bundle exec rspec spec/models/daily_stat_spec.rb)"
     ]
   }
 }

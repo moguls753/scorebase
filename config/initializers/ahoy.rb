@@ -46,24 +46,31 @@ class Ahoy::Store < Ahoy::DatabaseStore
   end
 end
 
-# No JS tracking endpoint
-Ahoy.api = false
+# Pageviews are tracked from JavaScript via /ahoy/events to filter scrapers
+# that don't run JS. Server-side ahoy.track (e.g. SMD click during redirect)
+# still works: :when_needed creates the visit lazily for events that need one.
+Ahoy.api = true
+Ahoy.server_side_visits = :when_needed
 
 # No IP-based geocoding; we set country from Cloudflare's CF-IPCountry header in the Store.
 Ahoy.geocode = false
 
 # No cookies. Every request is its own anonymous visit. Keeps the privacy
-# stance ("no cookies beyond the Rails session") accurate.
+# stance ("no cookies beyond the Rails session") accurate. ahoy.js is also
+# configured with cookies: false on the JS side (see app/javascript).
 Ahoy.cookies = :none
 
 # Anonymise IPs at the framework level. The Store override also sets ip=nil,
 # so this is defense in depth in case a future code path bypasses the Store.
 Ahoy.mask_ips = true
 
-# Skip tracking for admin pages, the Solid Queue dashboard, and prefetch hits.
+# Skip tracking for admin pages, the Solid Queue dashboard, prefetch hits, and
+# the score-file download endpoints (those are content access, not user
+# behavior, and dominate the dashboard with bulk-harvest noise).
 # Bot detection (device_detector) is handled separately inside Ahoy::Tracker.
 Ahoy.exclude_method = lambda do |_controller, request|
   request.path.start_with?("/admin", "/jobs") ||
+    request.path.match?(%r{\A/(?:de/)?scores/\d+/file(?:/|\z)}) ||
     request.headers["Sec-Purpose"] == "prefetch" ||
     request.headers["Purpose"] == "prefetch"
 end
