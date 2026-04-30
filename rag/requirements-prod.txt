@@ -1,0 +1,11 @@
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.11.0+cpu
+haystack-ai>=2.22.0
+chroma-haystack>=1.0.0
+sentence-transformers>=3.0.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+groq>=0.4.0
+openai>=1.0.0
+pydantic>=2.0.0
+langdetect>=1.0.9

@@ -7,9 +7,7 @@ import logging
 import os
 
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-
-from ..pipeline import search as search_module
+from pydantic import BaseModel, Field
 
 logging.basicConfig(
     level=logging.INFO,
@@ -46,6 +44,20 @@ class SmartSearchResponse(BaseModel):
     success: bool
 
 
+class PreviousRecommendation(BaseModel):
+    score_id: int
+    title: str = Field(..., max_length=500)
+    explanation: str = Field(..., max_length=500)
+    rank: int | None = None
+
+
+class SmartRefineRequest(BaseModel):
+    original_query: str = Field(..., min_length=1, max_length=500)
+    refinement: str = Field(..., min_length=1, max_length=300)
+    previous_summary: str = Field(..., min_length=1, max_length=1000)
+    previous_recommendations: list[PreviousRecommendation] = Field(..., min_length=1, max_length=5)
+
+
 # Endpoints
 @app.get("/")
 def health():
@@ -64,6 +76,8 @@ def search(q: str, top_k: int = 10) -> SearchResponse:
     Returns:
         Matching scores with similarity scores
     """
+    # Lazy import: keeps haystack / ML deps off the FastAPI app's import path so endpoint tests don't need them.
+    from ..pipeline import search as search_module
     try:
         results = search_module.search(q, top_k=top_k)
     except Exception as e:
@@ -100,12 +114,16 @@ def smart_search(q: str, top_k: int = 15) -> SmartSearchResponse:
     Returns:
         3 recommendations with explanations and a summary
     """
-    if not os.environ.get("GROQ_API_KEY"):
+    from ..llm.factory import required_api_key_env_var
+    key_var = required_api_key_env_var()
+    if key_var and not os.environ.get(key_var):
         raise HTTPException(
             status_code=503,
-            detail="GROQ_API_KEY not configured for smart search."
+            detail=f"{key_var} not configured for smart search."
         )
 
+    # Lazy import: keeps haystack / ML deps off the FastAPI app's import path so endpoint tests don't need them.
+    from ..pipeline import search as search_module
     try:
         result = search_module.smart_search(q, top_k=top_k)
     except Exception as e:
@@ -117,6 +135,49 @@ def smart_search(q: str, top_k: int = 15) -> SmartSearchResponse:
 
     return SmartSearchResponse(
         query=q,
+        recommendations=[
+            Recommendation(
+                score_id=r["score_id"],
+                title=r["title"],
+                explanation=r["explanation"],
+                rank=r["rank"],
+            )
+            for r in result["recommendations"]
+        ],
+        summary=result["summary"],
+        success=result["success"],
+    )
+
+
+@app.post("/smart-refine")
+def smart_refine(req: SmartRefineRequest) -> SmartSearchResponse:
+    """LLM-powered refinement: takes a previous query + answer + correction, returns a new ranked list.
+
+    Same response shape as /smart-search.
+    """
+    from ..llm.factory import required_api_key_env_var
+    key_var = required_api_key_env_var()
+    if key_var and not os.environ.get(key_var):
+        raise HTTPException(
+            status_code=503,
+            detail=f"{key_var} not configured for refinement."
+        )
+
+    # Lazy import: keeps haystack / ML deps off the FastAPI app's import path so endpoint tests don't need them.
+    from ..pipeline import search as search_module
+    try:
+        result = search_module.smart_refine(
+            original_query=req.original_query,
+            refinement=req.refinement,
+            previous_summary=req.previous_summary,
+            previous_recommendations=[r.model_dump() for r in req.previous_recommendations],
+        )
+    except Exception as e:
+        logger.error(f"smart_refine failed: {e}")
+        raise HTTPException(status_code=503, detail="Refinement service failed.")
+
+    return SmartSearchResponse(
+        query=f"{req.original_query} + {req.refinement}",
         recommendations=[
             Recommendation(
                 score_id=r["score_id"],

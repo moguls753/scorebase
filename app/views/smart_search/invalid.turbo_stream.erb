@@ -1,0 +1,7 @@
+<turbo-stream action="replace" target="refine-form">
+  <template>
+    <div id="refine-form" class="mt-6 p-3 bg-[var(--color-bg-elevated)] border border-red-500/40 rounded-lg text-sm text-red-400">
+      <%= flash[:alert] || t("smart_search.refine.invalid_generic") %>
+    </div>
+  </template>
+</turbo-stream>

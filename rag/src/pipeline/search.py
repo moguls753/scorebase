@@ -1,5 +1,6 @@
 """Search pipeline using Haystack + LLM result selection."""
 
+import logging
 import os
 from haystack import Pipeline
 from haystack.components.embedders import SentenceTransformersTextEmbedder
@@ -8,6 +9,9 @@ from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRe
 
 from .. import config
 from ..llm import ResultSelector
+from .query_normalizer import normalize_for_embedding
+
+logger = logging.getLogger(__name__)
 
 # Cache the pipeline to avoid reloading on every search
 _pipeline = None
@@ -57,8 +61,12 @@ def search(query: str, top_k: int = 10) -> list[dict]:
     """
     pipeline = get_pipeline()
 
+    embed_query = normalize_for_embedding(query)
+    if embed_query != query:
+        logger.debug("Normalized query for embedding: %r -> %r", query, embed_query)
+
     result = pipeline.run({
-        "embedder": {"text": query},
+        "embedder": {"text": embed_query},
         "retriever": {"top_k": top_k}
     })
 
@@ -122,6 +130,45 @@ def smart_search(query: str, top_k: int = 15, num_recommendations: int = 3) -> d
         "summary": selection.summary,
         "success": selection.success,
         "raw_results": raw_results  # Include for debugging/fallback
+    }
+
+
+def smart_refine(
+    *,
+    original_query: str,
+    refinement: str,
+    previous_summary: str,
+    previous_recommendations: list[dict],
+    top_k: int = 15,
+) -> dict:
+    """LLM-powered refinement: re-search with the enriched query, rerank with previous-turn context.
+
+    Same return shape as smart_search().
+    """
+    enriched_query = f"{original_query} {refinement}"
+    candidates = search(enriched_query, top_k=top_k)
+
+    selector = ResultSelector()
+    selection = selector.select_with_refinement(
+        original_query=original_query,
+        refinement=refinement,
+        previous_summary=previous_summary,
+        previous_recommendations=previous_recommendations,
+        search_results=candidates,
+    )
+
+    return {
+        "recommendations": [
+            {
+                "score_id": r.score_id,
+                "title": r.title,
+                "explanation": r.explanation,
+                "rank": r.rank,
+            }
+            for r in selection.recommendations
+        ],
+        "summary": selection.summary,
+        "success": selection.success,
     }
 
 

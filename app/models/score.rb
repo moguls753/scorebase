@@ -737,9 +737,12 @@ class Score < ApplicationRecord
     source == "smd"
   end
 
-  # Returns clean_title for SMD scores, title otherwise
+  # Returns clean_title for SMD scores, title otherwise.
+  # Treats "NA"/"N/A" as missing — some indexed scores carry that literal placeholder.
   def display_title
-    smd? ? (clean_title.presence || title) : title
+    raw = smd? ? (clean_title.presence || title) : title
+    return nil if raw.blank? || raw.upcase.in?(%w[NA N/A])
+    raw
   end
 
   # SMD score with valid external_id (can link to purchase)

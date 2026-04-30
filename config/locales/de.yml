@@ -15,6 +15,55 @@ de:
     name: "Smart Search"
     learn_more: "Mehr erfahren"
 
+  # Smart Search (öffentliche Beta)
+  smart_search:
+    heading: "Smart Search"
+    beta_badge: "Beta"
+    tagline: "Beschreibe in natürlicher Sprache, was du suchst"
+    beta_note_html: "Öffentliche Beta — noch nicht alle Noten sind für die semantische Suche indexiert, und es gibt ein tägliches Suchlimit. Ich freu mich über Feedback — %{mailto}"
+    feedback_link: "schreib mir eine Mail"
+    input_placeholder: "z.B. Ich suche etwas für meine Klavierschülerin, die seit 2 Jahren spielt..."
+    search_button_label: "Suche"
+    view_score: "Notenblatt ansehen"
+    no_matches: "Keine Treffer gefunden"
+    try_regular_html: "Nichts Passendes dabei? %{link}"
+    try_regular_link: "Reguläre Suche probieren"
+    suggestions_intro: "Versuch es zum Beispiel so:"
+    suggestions:
+      bach: "Einfacher Bach für Klavierschüler"
+      church: "Etwas Sanftes für einen Gottesdienst"
+      recital: "Dramatisches Stück für ein Konzert"
+      violin: "Violinsonate für Fortgeschrittene"
+    quota_exhausted:
+      heading: "Smart Search hat das heutige Tageslimit erreicht"
+      body_html: "Smart Search hat während der öffentlichen Beta ein tägliches Limit für die ganze Seite. Das Limit wird täglich um Mitternacht UTC zurückgesetzt. Die reguläre Suche kannst du weiterhin ohne Limit nutzen."
+      regular_search_cta: "Reguläre Suche nutzen"
+    per_ip_limit_reached:
+      heading: "Smart Search ist über diese Verbindung vorübergehend nicht verfügbar"
+      body_html: "Damit Smart Search in der öffentlichen Beta verfügbar bleibt, ist sie auf 5 Anfragen je IP-Adresse innerhalb von 24 Stunden begrenzt. Bei gemeinsam genutzten Verbindungen kann dieses Limit früher erreicht werden. Die reguläre Suche kannst du weiterhin ohne Limit nutzen."
+      regular_search_cta: "Reguläre Suche nutzen"
+    rag_error:
+      heading: "Smart Search ist gerade nicht verfügbar"
+      body: "Bitte versuch es gleich noch einmal."
+    input_too_long:
+      heading: "Deine Eingabe ist zu lang"
+      body: "Bitte kürze die Suchanfrage und versuch es erneut."
+    refine:
+      placeholder: "Ergebnisse anpassen? Beschreibe, was geändert werden soll."
+      button: "Verfeinern"
+      refining: "Wird verfeinert…"
+      blank_error: "Bitte gib zuerst einen Hinweis ein."
+      invalid_generic: "Diese Suche konnte nicht verfeinert werden."
+    feedback:
+      prompt: "Wie war das Ergebnis?"
+      good: "Gut"
+      bad: "Schlecht"
+      sending: "Wird gesendet…"
+      submit: "Feedback senden"
+      thanks: "Danke für dein Feedback!"
+      invalid: "Dein Feedback konnte nicht gespeichert werden."
+      comment_placeholder: "Optionaler Kommentar"
+
   # Footer
   footer:
     tagline: "Notensuche"

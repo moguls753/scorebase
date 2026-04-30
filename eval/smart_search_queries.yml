@@ -1,0 +1,394 @@
+---
+# ScoreBase Smart Search — Evaluation Corpus (catalog-aware)
+#
+# Calibrated against the actual 14,109 indexed PDMX scores. Indexed catalog
+# is dominated by Scottish/Irish folk fiddle (Marshall/Skinner/Gow/O'Carolan),
+# Renaissance sacred vocal (Lasso/Palestrina/Susato/Dowland/Morley), Baroque
+# (Bach/Schütz/Handel), Classical (Mozart/Beethoven), some Romantic (Chopin),
+# and Toby Fox video game music. Difficulty grades when present skew Grade 5-8.
+#
+# Each entry: { query, language?, intent?, refinement?, pair_id?, scenario? }
+# Defaults: language=en, intent=focused.
+
+queries:
+  # ── Catalog-density categories (heavy in indexed set) ──────────────────────
+
+  folk_fiddle:
+    # Scottish/Irish traditional — ~1500+ indexed (top by count)
+    - { query: "Scottish strathspey", intent: broad }
+    - { query: "Irish reel", intent: broad }
+    - { query: "Scottish fiddle dance music", intent: broad }
+    - { query: "Niel Gow strathspey", intent: focused }
+    - { query: "William Marshall Scottish dances", intent: focused }
+    - { query: "J Scott Skinner fiddle", intent: focused }
+    - { query: "Irish jig", intent: broad }
+    - { query: "hornpipe traditional", intent: broad }
+    - { query: "Turlough O'Carolan harp tune", intent: focused }
+    - { query: "Celtic fiddle music", intent: broad }
+
+  renaissance_vocal:
+    # Motets, madrigals, lute songs — ~2500+ indexed (Lasso/Palestrina/etc.)
+    - { query: "Renaissance motet Latin text", intent: broad }
+    - { query: "English madrigal", intent: broad }
+    - { query: "Italian madrigal Marenzio", intent: focused }
+    - { query: "Lasso motet sacred", intent: focused }
+    - { query: "Susato Renaissance dance", intent: focused }
+    - { query: "Dowland lute song", intent: focused }
+    - { query: "Morley madrigal English", intent: focused }
+    - { query: "Palestrina sacred polyphony", intent: focused }
+    - { query: "Heinrich Schütz cantata", intent: focused }
+    - { query: "polyphonic motet a cappella", intent: broad }
+    - { query: "early music vocal ensemble", intent: broad }
+    - { query: "Renaissance anthem English", intent: broad }
+
+  choral_sacred:
+    # SATB sacred — ~2400+ indexed (Anthem 467, Hymn 435, Psalm 230)
+    - { query: "SATB hymn arrangement", intent: broad }
+    - { query: "anthem for mixed choir", intent: broad }
+    - { query: "psalm setting SATB", intent: focused }
+    - { query: "Easter anthem choir", intent: focused }
+    - { query: "communion anthem SATB", intent: focused }
+    - { query: "TTBB men's choir piece", intent: broad }
+    - { query: "SSA women's choir", intent: broad }
+    - { query: "evening service Anglican", intent: focused }
+
+  art_songs_lieder:
+    # Art Song genre — 826 indexed
+    - { query: "art song soprano piano", intent: broad }
+    - { query: "Italian art song", intent: broad }
+    - { query: "German lied solo voice piano", intent: broad }
+    - { query: "Schubert song cycle", intent: focused }
+    - { query: "song for tenor and piano", intent: broad }
+    - { query: "Brahms lied", intent: focused }
+
+  video_game:
+    # Toby Fox + Video Game genre — ~400+ indexed
+    - { query: "Undertale piano arrangement", intent: focused }
+    - { query: "DELTARUNE music", intent: focused }
+    - { query: "Toby Fox piano", intent: focused }
+    - { query: "video game music piano", intent: broad }
+
+  # ── Catalog-broad categories (calibrated counts) ───────────────────────────
+
+  composer:
+    # Indexed counts: Bach 513, Mozart 170, Beethoven 145, Chopin 66, Schütz 122,
+    # Handel 91, Schubert 46, Bartók 56, Tchaikovsky 55, Brahms 39, Debussy 33,
+    # Satie 26, Ravel 20. Drop very-low-count composers; broaden phrasing on others.
+    - { query: "Bach piano", intent: focused }
+    - { query: "Bach inventions", intent: focused }
+    - { query: "Bach prelude and fugue", intent: focused }
+    - { query: "Mozart piano sonatas", intent: focused }
+    - { query: "Mozart fantasias", intent: focused }
+    - { query: "Beethoven early sonatas", intent: focused }
+    - { query: "Beethoven bagatelles", intent: focused }
+    - { query: "Chopin nocturne", intent: broad }
+    - { query: "Chopin etude", intent: broad }
+    - { query: "Schubert lieder", intent: broad }
+    - { query: "Brahms intermezzo", intent: broad }
+    - { query: "Handel keyboard suite", intent: focused }
+    - { query: "Schütz sacred concerto", intent: focused }
+    - { query: "Debussy piano", intent: broad }
+    - { query: "Ravel piano", intent: broad }
+    - { query: "Satie piano", intent: focused }
+    - { query: "Bartók piano", intent: broad }
+    - { query: "Tchaikovsky childrens album", intent: focused }
+    - { query: "Vivaldi violin", intent: focused }
+    - { query: "Purcell vocal", intent: broad }
+
+  period_genre:
+    # Period counts: Classical 2247, Baroque 2177, Renaissance 1813, Romantic 1505
+    - { query: "Baroque keyboard music", intent: broad }
+    - { query: "Classical era piano", intent: broad }
+    - { query: "Romantic piano", intent: broad }
+    - { query: "Renaissance choral music", intent: broad }
+    - { query: "Baroque fugue", intent: broad }
+    - { query: "minuet", intent: broad }
+    - { query: "ballade piano", intent: broad }
+    - { query: "etude", intent: broad }
+    - { query: "fantasia", intent: broad }
+    - { query: "rondo classical", intent: broad }
+    - { query: "scherzo", intent: broad }
+    - { query: "prelude and fugue keyboard", intent: broad }
+    - { query: "sonata form classical", intent: broad }
+    - { query: "Baroque cantata", intent: broad }
+    - { query: "Romantic art song", intent: broad }
+
+  instrumentation:
+    # Counts: Piano 4992, SATB 1525, Solo S+Piano 648, Orchestra 324, Harp 208,
+    # Violin 198, Guitar 158, TTBB 156, Fiddle 142, Organ 85.
+    # Trim sparse: brass quintet, sax, oboe, viola, double bass, clarinet (low counts).
+    - { query: "piano solo intermediate", intent: broad }
+    - { query: "violin and piano", intent: broad }
+    - { query: "string quartet", intent: broad }
+    - { query: "solo violin", intent: broad }
+    - { query: "guitar music classical", intent: broad }
+    - { query: "harp solo", intent: broad }
+    - { query: "Celtic harp music", intent: focused }
+    - { query: "organ prelude", intent: broad }
+    - { query: "harpsichord music", intent: broad }
+    - { query: "vocal duet soprano alto", intent: focused }
+    - { query: "piano four hands", intent: broad }
+    - { query: "lute solo Renaissance", intent: focused }
+    - { query: "fiddle traditional", intent: broad }
+    - { query: "violin sonata", intent: broad }
+    - { query: "cello sonata", intent: broad }
+    - { query: "trumpet solo Baroque", intent: broad }
+
+  difficulty:
+    # Indexed graded scores skew Grade 5-8. Drop the very-easy queries (almost no Grade 1-3 indexed).
+    - { query: "intermediate piano grade 5", intent: focused }
+    - { query: "advanced piano grade 7", intent: focused }
+    - { query: "grade 6 piano repertoire", intent: focused }
+    - { query: "diploma-level piano concert piece", intent: focused }
+    - { query: "grade 5-6 piano", intent: broad }
+    - { query: "advanced piano repertoire", intent: broad }
+    - { query: "professional concert piece", intent: broad }
+    - { query: "easy SATB choir piece", intent: focused }
+    - { query: "intermediate violin", intent: broad }
+    - { query: "advanced violin showpiece", intent: broad }
+
+  use_case:
+    - { query: "wedding processional", intent: focused }
+    - { query: "first dance wedding piano", intent: focused }
+    - { query: "funeral hymn", intent: focused }
+    - { query: "Christmas service music", intent: broad }
+    - { query: "Easter cantata", intent: focused }
+    - { query: "graduation ceremony piece", intent: focused }
+    - { query: "recital opener piano", intent: broad }
+    - { query: "encore piece short", intent: broad }
+    - { query: "bedtime music for children", intent: broad }
+    - { query: "background music for dinner", intent: broad }
+
+  mood:
+    - { query: "sad and slow piano", intent: broad }
+    - { query: "joyful and uplifting", intent: broad }
+    - { query: "dramatic and powerful", intent: broad }
+    - { query: "contemplative meditation", intent: broad }
+    - { query: "melancholy piano", intent: broad }
+    - { query: "peaceful calm", intent: broad }
+    - { query: "dark and brooding", intent: broad }
+    - { query: "tender intimate", intent: broad }
+    - { query: "playful lively", intent: broad }
+    - { query: "noble grand ceremonial", intent: broad }
+
+  pedagogical:
+    - { query: "teaching legato technique", intent: focused }
+    - { query: "for left-hand strength piano", intent: focused }
+    - { query: "for sight-reading practice", intent: broad }
+    - { query: "for finger independence", intent: focused }
+    - { query: "for hand crossing technique", intent: focused }
+    - { query: "scales-based etudes", intent: focused }
+    - { query: "rhythm practice piece", intent: focused }
+    - { query: "for octave technique", intent: focused }
+    - { query: "musicality study slow movement", intent: focused }
+    - { query: "two-part counterpoint exercises", intent: focused }
+
+  specific_titles:
+    # Confirmed indexed (counts in parens). Removed deep-cuts not in catalog.
+    - { query: "Bach inventions", intent: focused } # 38 hits
+    - { query: "Pachelbel Canon in D", intent: focused } # 44 hits
+    - { query: "Air on the G String", intent: focused } # 146 hits
+    - { query: "Goldberg Variations", intent: focused } # 16 hits
+    - { query: "Toccata and Fugue in D minor", intent: focused } # 13 hits
+    - { query: "Für Elise", intent: focused } # 8 hits
+    - { query: "Moonlight Sonata", intent: focused } # 5 hits
+    - { query: "Mondscheinsonate", language: de, intent: focused }
+    - { query: "Greensleeves", intent: focused }
+    - { query: "Ave Maria", intent: focused } # multiple settings
+    - { query: "Wedding March", intent: focused } # 25 wedding hits
+    - { query: "Bach Brandenburg", intent: focused }
+    - { query: "Two-Part Invention", intent: focused }
+    - { query: "Well-Tempered Clavier", intent: focused }
+    - { query: "Mozart Twinkle variations", intent: focused }
+
+  narrative:
+    - { query: "something my piano student will love", intent: broad }
+    - { query: "good first recital piece", intent: broad }
+    - { query: "impressive but not too hard", intent: broad }
+    - { query: "something to play at a party", intent: broad }
+    - { query: "music for a quiet evening", intent: broad }
+    - { query: "a classic everyone knows", intent: broad }
+    - { query: "underrated piano gem", intent: broad }
+    - { query: "something fun and quick", intent: broad }
+    - { query: "feels like a movie soundtrack", intent: broad }
+    - { query: "music that sounds important", intent: broad }
+
+  german:
+    - { query: "einfache Klavierstücke für Anfänger", language: de, intent: broad }
+    - { query: "Bach für Anfänger", language: de, intent: focused }
+    - { query: "Hochzeitsmarsch", language: de, intent: focused }
+    - { query: "leichte Geigenstücke", language: de, intent: broad }
+    - { query: "romantische Klavierstücke", language: de, intent: broad }
+    - { query: "Mozart Sonaten", language: de, intent: broad }
+    - { query: "Weihnachtslieder Klavier", language: de, intent: broad }
+    - { query: "Trauermusik Beerdigung", language: de, intent: focused }
+    - { query: "Konzertstück", language: de, intent: broad }
+    - { query: "barocke Cembalostücke", language: de, intent: broad }
+    - { query: "Choräle für Orgel", language: de, intent: broad }
+    - { query: "Renaissance Motette", language: de, intent: focused }
+    - { query: "Walzer Chopin", language: de, intent: focused }
+    - { query: "Schütz Geistliche Konzerte", language: de, intent: focused }
+    - { query: "schottische Fiedelmusik", language: de, intent: broad }
+
+  bilingual_pairs:
+    # Same intent in EN+DE — paired by pair_id; analyzer compares within a pair
+    - { query: "easy piano for beginners", intent: broad, pair_id: 1 }
+    - { query: "einfache Klavierstücke für Anfänger", language: de, intent: broad, pair_id: 1 }
+    - { query: "Mozart sonatas", intent: broad, pair_id: 2 }
+    - { query: "Mozart Sonaten", language: de, intent: broad, pair_id: 2 }
+    - { query: "wedding march", intent: focused, pair_id: 3 }
+    - { query: "Hochzeitsmarsch", language: de, intent: focused, pair_id: 3 }
+    - { query: "intermediate violin", intent: broad, pair_id: 4 }
+    - { query: "Geige für Fortgeschrittene", language: de, intent: broad, pair_id: 4 }
+    - { query: "Christmas piano music", intent: broad, pair_id: 5 }
+    - { query: "Klaviermusik für Weihnachten", language: de, intent: broad, pair_id: 5 }
+    - { query: "fugue", intent: broad, pair_id: 6 }
+    - { query: "Fuge", language: de, intent: broad, pair_id: 6 }
+    - { query: "easy Bach", intent: focused, pair_id: 7 }
+    - { query: "leichter Bach", language: de, intent: focused, pair_id: 7 }
+    - { query: "advanced piano", intent: broad, pair_id: 8 }
+    - { query: "Klavier Fortgeschrittene", language: de, intent: broad, pair_id: 8 }
+    - { query: "string quartet", intent: broad, pair_id: 9 }
+    - { query: "Streichquartett", language: de, intent: broad, pair_id: 9 }
+    - { query: "funeral music", intent: focused, pair_id: 10 }
+    - { query: "Trauermusik", language: de, intent: focused, pair_id: 10 }
+    - { query: "violin sonata", intent: broad, pair_id: 11 }
+    - { query: "Violinsonate", language: de, intent: broad, pair_id: 11 }
+    - { query: "minuet", intent: broad, pair_id: 12 }
+    - { query: "Menuett", language: de, intent: broad, pair_id: 12 }
+    - { query: "wedding music", intent: focused, pair_id: 13 }
+    - { query: "Hochzeitsmusik", language: de, intent: focused, pair_id: 13 }
+    - { query: "renaissance choir", intent: broad, pair_id: 14 }
+    - { query: "Renaissance Chor", language: de, intent: broad, pair_id: 14 }
+    - { query: "etude", intent: broad, pair_id: 15 }
+    - { query: "Etüde", language: de, intent: broad, pair_id: 15 }
+    - { query: "soprano aria", intent: focused, pair_id: 16 }
+    - { query: "Sopran Arie", language: de, intent: focused, pair_id: 16 }
+    - { query: "Scottish fiddle music", intent: broad, pair_id: 17 }
+    - { query: "schottische Fiedelmusik", language: de, intent: broad, pair_id: 17 }
+    - { query: "concert piece for piano", intent: broad, pair_id: 18 }
+    - { query: "Konzertstück für Klavier", language: de, intent: broad, pair_id: 18 }
+    - { query: "renaissance motet", intent: focused, pair_id: 19 }
+    - { query: "Renaissance Motette", language: de, intent: focused, pair_id: 19 }
+    - { query: "organ chorale", intent: broad, pair_id: 20 }
+    - { query: "Orgelchoral", language: de, intent: broad, pair_id: 20 }
+
+  domain_attributes:
+    # Trimmed: low-coverage dimensions (sax, transposition specifics) replaced with
+    # better-supported attributes (voicing, sacred/secular, ensemble).
+    # Voicing/voice range
+    - { query: "soprano solo aria", intent: focused }
+    - { query: "tenor solo lieder", intent: focused }
+    - { query: "bass solo dramatic", intent: focused }
+    - { query: "alto solo low range", intent: focused }
+    - { query: "boy soprano sacred", intent: focused }
+    # Accompaniment type
+    - { query: "lieder with piano accompaniment", intent: focused }
+    - { query: "a cappella chorale", intent: focused }
+    - { query: "arias with continuo", intent: focused }
+    - { query: "vocal solo unaccompanied", intent: focused }
+    # Ensemble size
+    - { query: "small chamber ensemble 3 players", intent: focused }
+    - { query: "duo violin and cello", intent: focused }
+    - { query: "vocal trio sacred", intent: focused }
+    # Sacred/secular
+    - { query: "sacred motet Latin text", intent: focused }
+    - { query: "secular folk song arrangement", intent: broad }
+    - { query: "liturgical mass setting", intent: focused }
+    # Liturgical season
+    - { query: "Advent music sacred", intent: focused }
+    - { query: "Lent piece subdued", intent: focused }
+    - { query: "Easter morning hymn", intent: focused }
+    - { query: "Pentecost organ piece", intent: focused }
+    # Edition/source
+    - { query: "Bach urtext edition", intent: focused }
+    - { query: "Renaissance facsimile edition", intent: broad }
+    # Duration
+    - { query: "short piece under 2 minutes", intent: broad }
+    - { query: "long romantic sonata", intent: broad }
+    - { query: "encore length 1 minute", intent: broad }
+    # Occasion
+    - { query: "audition piece", intent: broad }
+    - { query: "ABRSM exam grade 5", intent: focused }
+    - { query: "competition repertoire piano", intent: broad }
+    - { query: "morning service prelude", intent: focused }
+    - { query: "Christmas Eve service", intent: focused }
+
+  refinement_pairs:
+    # Original + refinement chained. Eval calls smart-search then smart-refine
+    # using its output as prior turn. Calibrated to indexed catalog where possible.
+    - { query: "easy bach for piano students", refinement: "actually for a 6-year-old", intent: focused }
+    - { query: "Mozart sonatas", refinement: "the most famous one", intent: focused }
+    - { query: "Christmas piano music", refinement: "non-religious only", intent: broad }
+    - { query: "intermediate violin", refinement: "with piano accompaniment, not solo", intent: focused }
+    - { query: "Scottish fiddle music", refinement: "slower tunes only, not reels", intent: focused }
+    - { query: "wedding music", refinement: "without organ", intent: broad }
+    - { query: "intermediate piano pieces", refinement: "shorter than 2 minutes", intent: broad }
+    - { query: "chamber music", refinement: "without strings", intent: broad }
+    - { query: "Romantic piano", refinement: "by a female composer", intent: focused }
+    - { query: "Beethoven piano", refinement: "early period only", intent: focused }
+    - { query: "Bach", refinement: "fugues specifically", intent: focused }
+    - { query: "renaissance choral", refinement: "English-language texts only", intent: focused }
+    - { query: "Schubert", refinement: "songs not piano works", intent: focused }
+    - { query: "sad piece piano", refinement: "in major key", intent: focused }
+    - { query: "piano duet", refinement: "for adult students not children", intent: focused }
+
+  synthetic_refinement:
+    # Isolated refinement: skip /smart-search, send curated prior_turn directly to /smart-refine.
+    - scenario: "Bach grade 4 → grade 1 (difficulty shift)"
+      synthetic_prior_turn:
+        original_query: "easy Bach for piano"
+        summary: "I found 3 grade-4 Bach pieces for intermediate piano students."
+        recommendations:
+          - { score_id: 100, title: "Two-Part Invention No. 1 BWV 772", explanation: "Grade 4 difficulty fits an intermediate student.", rank: 1 }
+          - { score_id: 101, title: "Minuet in G BWV Anh. 114", explanation: "A staple of intermediate Bach repertoire.", rank: 2 }
+          - { score_id: 102, title: "Prelude in C BWV 846", explanation: "Approachable counterpoint at grade 4 level.", rank: 3 }
+      refinement: "actually for a 6-year-old just starting out"
+      intent: focused
+    - scenario: "Romantic → Baroque (era shift)"
+      synthetic_prior_turn:
+        original_query: "piano nocturne"
+        summary: "Three romantic-era nocturnes by Chopin and Field."
+        recommendations:
+          - { score_id: 200, title: "Nocturne Op 9 No 2 in E flat", explanation: "Iconic Chopin nocturne, Romantic period.", rank: 1 }
+          - { score_id: 201, title: "Nocturne Op 27 No 2", explanation: "Late Chopin nocturne with rich harmony.", rank: 2 }
+          - { score_id: 202, title: "Field Nocturne No 5", explanation: "John Field's nocturne, Chopin's predecessor.", rank: 3 }
+      refinement: "actually I want something Baroque era instead"
+      intent: focused
+    - scenario: "Solo → with accompaniment (instrumentation shift)"
+      synthetic_prior_turn:
+        original_query: "violin music"
+        summary: "Three solo violin pieces of varying difficulty."
+        recommendations:
+          - { score_id: 300, title: "Bach Partita No 2 BWV 1004", explanation: "Solo violin, grade 8+.", rank: 1 }
+          - { score_id: 301, title: "Paganini Caprice No 24", explanation: "Solo violin showpiece.", rank: 2 }
+          - { score_id: 302, title: "Telemann Fantasia in B flat", explanation: "Baroque solo violin work.", rank: 3 }
+      refinement: "with piano accompaniment, not solo"
+      intent: focused
+    - scenario: "Sacred → secular (mood/use shift)"
+      synthetic_prior_turn:
+        original_query: "Christmas music"
+        summary: "Three sacred Christmas hymns and carols."
+        recommendations:
+          - { score_id: 400, title: "Silent Night arrangement", explanation: "Classic sacred Christmas carol.", rank: 1 }
+          - { score_id: 401, title: "O Holy Night", explanation: "French sacred Christmas piece.", rank: 2 }
+          - { score_id: 402, title: "Adeste Fideles", explanation: "Latin Christmas hymn.", rank: 3 }
+      refinement: "non-religious Christmas music"
+      intent: broad
+    - scenario: "Long → short (duration shift)"
+      synthetic_prior_turn:
+        original_query: "concert piano piece"
+        summary: "Three substantial concert pieces, 15-25 minutes each."
+        recommendations:
+          - { score_id: 500, title: "Liszt Sonata in B minor", explanation: "30-minute concert sonata.", rank: 1 }
+          - { score_id: 501, title: "Beethoven Hammerklavier", explanation: "Massive 45-minute sonata.", rank: 2 }
+          - { score_id: 502, title: "Brahms Sonata No 3", explanation: "30-minute romantic sonata.", rank: 3 }
+      refinement: "encore length, under 3 minutes"
+      intent: focused
+
+  edge_cases:
+    - { query: "", intent: focused }
+    - { query: "x", intent: focused }
+    - { query: "asdfghjkl", intent: focused }
+    - { query: "!!!@@@###$$$", intent: focused }
+    - { query: "what is the meaning of life", intent: broad }

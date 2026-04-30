@@ -15,6 +15,55 @@ en:
     name: "Smart Search"
     learn_more: "Learn more"
 
+  # Smart Search (public beta)
+  smart_search:
+    heading: "Smart Search"
+    beta_badge: "Beta"
+    tagline: "Describe what you're looking for in natural language"
+    beta_note_html: "Public beta — not all scores are indexed for semantic search yet, and there's a daily search limit. Happy for any feedback — %{mailto}"
+    feedback_link: "send me a mail"
+    input_placeholder: "e.g. I need something for my piano student who's been playing for 2 years..."
+    search_button_label: "Search"
+    view_score: "View Score"
+    no_matches: "No matches found"
+    try_regular_html: "Not finding what you need? %{link}"
+    try_regular_link: "Try regular search"
+    suggestions_intro: "Try asking something like:"
+    suggestions:
+      bach: "Easy Bach for piano students"
+      church: "Something gentle for a church service"
+      recital: "Dramatic piece for a recital"
+      violin: "Intermediate violin sonata"
+    quota_exhausted:
+      heading: "Smart search is at today's site-wide limit"
+      body_html: "Smart Search has a daily site-wide cap during the public beta. The cap resets at midnight UTC. Regular keyword search is still available without limits."
+      regular_search_cta: "Use regular search"
+    per_ip_limit_reached:
+      heading: "Smart search is temporarily unavailable from this connection"
+      body_html: "To keep Smart Search available during the public beta, I'm limiting it to 5 queries per IP address within 24 hours. On shared connections, this limit can be reached sooner. Regular keyword search is still available without limits."
+      regular_search_cta: "Use regular search"
+    rag_error:
+      heading: "Smart search is temporarily unavailable"
+      body: "Please try again in a moment."
+    input_too_long:
+      heading: "Your input is too long"
+      body: "Please shorten your search and try again."
+    refine:
+      placeholder: "Want to nudge the results? Tell me what to adjust."
+      button: "Refine"
+      refining: "Refining…"
+      blank_error: "Please type a refinement first."
+      invalid_generic: "Sorry — couldn't refine this search."
+    feedback:
+      prompt: "How was this result?"
+      good: "Good"
+      bad: "Bad"
+      sending: "Sending…"
+      submit: "Send feedback"
+      thanks: "Thanks for the feedback!"
+      invalid: "Sorry — I couldn't save your feedback."
+      comment_placeholder: "Optional comment"
+
   # Footer
   footer:
     tagline: "Sheet Music Search"

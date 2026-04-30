@@ -1,0 +1,83 @@
+<div id="results">
+  <% if @query_record.present? %>
+    <% if @rag_result.summary.present? %>
+      <section class="mm-card mb-6 flex items-center gap-4 p-4">
+        <div aria-hidden="true" class="flex h-11 w-11 shrink-0 items-center justify-center rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-accent)]/15 text-[var(--color-accent)] shadow-[2px_2px_0_var(--color-border)]">
+          <%= lucide_icon "sparkles", class: "w-5 h-5", "stroke-width": 2 %>
+        </div>
+        <p class="text-sm sm:text-base leading-relaxed text-[var(--color-text)]">
+          <%= @rag_result.summary %>
+        </p>
+      </section>
+    <% end %>
+
+    <% if @scores.any? %>
+      <ol class="list-none p-0 m-0 space-y-5">
+        <% @scores.each_with_index do |score, index| %>
+          <li>
+            <%= link_to score_path(score), class: "mm-card overflow-hidden group flex", data: { turbo_frame: "_top", turbo_prefetch: false } do %>
+              <%# Subtle left accent stripe — quiet hierarchy signal (sits on top of thumbnail) %>
+              <div aria-hidden="true" class="absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--color-accent)]/70 z-10"></div>
+
+              <%# Sheet-music thumbnail bleeds to top/left/bottom edges of the card %>
+              <div class="relative w-28 sm:w-36 shrink-0 self-stretch overflow-hidden border-r-2 border-[var(--color-border)] bg-[var(--color-bg)]">
+                <% if score.has_thumbnail? %>
+                  <%= image_tag score.thumbnail, alt: score.display_title, class: "w-full h-full object-cover object-top" %>
+                <% else %>
+                  <div class="w-full h-full flex items-center justify-center text-5xl text-[var(--color-border-subtle)]">♪</div>
+                <% end %>
+                <span aria-hidden="true" class="absolute left-0 top-0 flex h-7 w-7 items-center justify-center border-b-2 border-r-2 border-[var(--color-border)] bg-[var(--color-accent)] text-sm font-bold text-white">
+                  <%= index + 1 %>
+                </span>
+              </div>
+
+              <%# Content with its own padding — gets the breathing room now %>
+              <div class="flex min-w-0 flex-1 flex-col justify-between gap-3 p-4 sm:p-5">
+                <div class="space-y-2">
+                  <div>
+                    <h3 class="text-base sm:text-lg font-[var(--font-family-display)] font-bold leading-tight text-balance text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors">
+                      <%= score.display_title.presence || "Untitled" %>
+                    </h3>
+                    <% if score.composer.present? %>
+                      <p class="text-sm font-medium text-[var(--color-text-muted)]"><%= score.composer %></p>
+                    <% end %>
+                  </div>
+                  <% explanation = @rag_result.explanation_for(score.id) %>
+                  <% if explanation.present? %>
+                    <p class="text-sm leading-relaxed text-[var(--color-text-secondary)]"><%= explanation %></p>
+                  <% end %>
+                </div>
+
+                <div class="flex items-center gap-2 flex-wrap">
+                  <% if score.primary_instrument.present? %>
+                    <span class="mm-badge mm-badge--instrument">
+                      <%= score.primary_instrument %>
+                    </span>
+                  <% end %>
+                  <% if score.has_grouped_parts? %>
+                    <span class="mm-badge mm-badge--parts">
+                      <%= score.group_parts_count %> <%= t('score.parts_label') %>
+                    </span>
+                  <% end %>
+                  <span class="mm-button mm-button-primary mm-button-sm ml-auto inline-flex items-center gap-1.5 group-hover:gap-2 transition-[gap]">
+                    <%= t("smart_search.view_score") %>
+                    <%= lucide_icon "arrow-right", class: "w-3 h-3", "stroke-width": 2.5 %>
+                  </span>
+                </div>
+              </div>
+            <% end %>
+          </li>
+        <% end %>
+      </ol>
+    <% else %>
+      <div class="text-center py-14">
+        <div class="inline-flex items-center justify-center w-14 h-14 mb-4 rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] shadow-[3px_3px_0_var(--color-border)]">
+          <%= lucide_icon "search-x", class: "w-6 h-6 text-[var(--color-text-muted)]", "stroke-width": 2 %>
+        </div>
+        <h3 class="text-base font-bold uppercase tracking-wide text-[var(--color-text)]">
+          <%= t("smart_search.no_matches") %>
+        </h3>
+      </div>
+    <% end %>
+  <% end %>
+</div>

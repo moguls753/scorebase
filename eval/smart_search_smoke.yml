@@ -1,0 +1,152 @@
+---
+# ScoreBase Smart Search — Smoke Test Corpus
+#
+# Compressed regression corpus targeting the specific failure modes from
+# run-20260429-070157 (full 265-query eval), plus regression checks.
+#
+# Run with:
+#   QUERIES=eval/smart_search_smoke.yml bin/rails smart_search:eval
+#
+# What each section validates:
+#
+#  - jsonfail_repro:    the 15 queries that hit the JSON-parse fallback last time.
+#                       With response_format=json_object + temp 0.2 + retry, these
+#                       should now return real picks.
+#  - padding_repro:     queries that triggered LLM padding ("Beethoven bagatelles"
+#                       returning Symphony No.5, "Schubert lieder" returning Mozart
+#                       sonatas). Should now return 1-2 honest picks instead of 3.
+#  - regression_check:  queries that already worked well (Bach piano, Chopin etude,
+#                       mood queries). Make sure prompt rewrite didn't regress them.
+#  - bilingual_repro:   the 8 EN/DE pairs that failed worst on cognates. With the
+#                       DE term map normalizing "Sonaten"→"sonatas" etc., DE picks
+#                       should now align with EN picks.
+#  - synthetic_refinement: all 5 synthetic refinement scenarios. Cleanest test of
+#                       refinement behavior — no upstream noise.
+#  - chained_refinement: 3 chained refinements that previously leaked self-correction
+#                       text ("though the composer is male...", "I note this is not...").
+#  - edge_cases:        empty / gibberish / off-topic; should fail-soft, not hallucinate.
+
+queries:
+
+  # JSON-format failures from prior run — these returned the parse-error fallback.
+  jsonfail_repro:
+    - { query: "Scottish fiddle dance music", intent: broad }
+    - { query: "Renaissance motet Latin text", intent: broad }
+    - { query: "Lasso motet sacred", intent: focused }
+    - { query: "Brahms intermezzo", intent: broad }
+    - { query: "sonata form classical", intent: broad }
+    - { query: "Baroque cantata", intent: broad }
+    - { query: "recital opener piano", intent: focused }
+    - { query: "sad and slow piano", intent: broad }
+    - { query: "something fun and quick", intent: broad }
+    - { query: "small chamber ensemble 3 players", intent: broad }
+    - { query: "duo violin and cello", intent: focused }
+
+  # Queries that previously got padded with bad picks. Watch for: 1-2 picks
+  # returned instead of 3, summary acknowledging limitation, no leaked thinking.
+  padding_repro:
+    - { query: "Beethoven bagatelles", intent: focused }
+    - { query: "Schubert lieder", intent: broad }
+    - { query: "Satie piano", intent: focused }
+    - { query: "Mozart fantasias", intent: focused }
+
+  # Queries that worked well in the prior run. Regression check.
+  regression_check:
+    - { query: "Bach piano", intent: focused }
+    - { query: "Bach inventions", intent: focused }
+    - { query: "Chopin nocturne", intent: broad }
+    - { query: "Chopin etude", intent: broad }
+    - { query: "Mozart piano sonatas", intent: focused }
+    - { query: "Tchaikovsky childrens album", intent: focused }
+    - { query: "peaceful calm", intent: broad }
+    - { query: "melancholy piano", intent: broad }
+    - { query: "Scottish strathspey", intent: broad }
+    - { query: "Renaissance motet", intent: focused, language: en, pair_id: 19 }
+
+  # Bilingual pairs that diverged 0/3 in prior run. With DE normalization the
+  # German query should now embed against the EN-indexed catalog correctly.
+  bilingual_repro:
+    - { query: "Mozart sonatas",                          intent: broad,   language: en, pair_id: 2 }
+    - { query: "Mozart Sonaten",                          intent: broad,   language: de, pair_id: 2 }
+    - { query: "string quartet",                          intent: broad,   language: en, pair_id: 9 }
+    - { query: "Streichquartett",                         intent: broad,   language: de, pair_id: 9 }
+    - { query: "intermediate violin",                     intent: broad,   language: en, pair_id: 4 }
+    - { query: "Geige für Fortgeschrittene",              intent: broad,   language: de, pair_id: 4 }
+    - { query: "etude",                                   intent: broad,   language: en, pair_id: 15 }
+    - { query: "Etüde",                                   intent: broad,   language: de, pair_id: 15 }
+    - { query: "violin sonata",                           intent: broad,   language: en, pair_id: 11 }
+    - { query: "Violinsonate",                            intent: broad,   language: de, pair_id: 11 }
+    - { query: "minuet",                                  intent: broad,   language: en, pair_id: 12 }
+    - { query: "Menuett",                                 intent: broad,   language: de, pair_id: 12 }
+    - { query: "funeral music",                           intent: focused, language: en, pair_id: 10 }
+    - { query: "Trauermusik",                             intent: focused, language: de, pair_id: 10 }
+    - { query: "organ chorale",                           intent: broad,   language: en, pair_id: 20 }
+    - { query: "Orgelchoral",                             intent: broad,   language: de, pair_id: 20 }
+
+  # Hand-crafted prior turns — isolates refinement quality from upstream errors.
+  synthetic_refinement:
+    - scenario: "Bach grade 4 → grade 1 (difficulty shift)"
+      refinement: "actually for a 6-year-old just starting out"
+      synthetic_prior_turn:
+        original_query: "easy Bach for piano"
+        summary: "I found 3 grade-4 Bach pieces for intermediate piano students."
+        recommendations:
+          - { score_id: 100, title: "Two-Part Invention No. 1 BWV 772", explanation: "Grade 4 difficulty fits an intermediate student.", rank: 1 }
+          - { score_id: 101, title: "Minuet in G BWV Anh. 114",         explanation: "A staple of intermediate Bach repertoire.",     rank: 2 }
+          - { score_id: 102, title: "Prelude in C BWV 846",              explanation: "Approachable counterpoint at grade 4 level.",   rank: 3 }
+
+    - scenario: "Romantic → Baroque (era shift)"
+      refinement: "actually I want something Baroque era instead"
+      synthetic_prior_turn:
+        original_query: "piano nocturne"
+        summary: "Three romantic-era nocturnes by Chopin and Field."
+        recommendations:
+          - { score_id: 200, title: "Nocturne Op 9 No 2 in E flat", explanation: "Iconic Chopin nocturne, Romantic period.", rank: 1 }
+          - { score_id: 201, title: "Nocturne Op 27 No 2",          explanation: "Late Chopin nocturne with rich harmony.",  rank: 2 }
+          - { score_id: 202, title: "Field Nocturne No 5",          explanation: "John Field's nocturne, Chopin's predecessor.", rank: 3 }
+
+    - scenario: "Solo → with accompaniment (instrumentation shift)"
+      refinement: "with piano accompaniment, not solo"
+      synthetic_prior_turn:
+        original_query: "violin music"
+        summary: "Three solo violin pieces of varying difficulty."
+        recommendations:
+          - { score_id: 300, title: "Bach Partita No 2 BWV 1004",  explanation: "Solo violin, grade 8+.",         rank: 1 }
+          - { score_id: 301, title: "Paganini Caprice No 24",      explanation: "Solo violin showpiece.",         rank: 2 }
+          - { score_id: 302, title: "Telemann Fantasia in B flat", explanation: "Baroque solo violin work.",      rank: 3 }
+
+    - scenario: "Sacred → secular (mood/use shift)"
+      refinement: "non-religious Christmas music"
+      synthetic_prior_turn:
+        original_query: "Christmas music"
+        summary: "Three sacred Christmas hymns and carols."
+        recommendations:
+          - { score_id: 400, title: "Silent Night arrangement", explanation: "Classic sacred Christmas carol.", rank: 1 }
+          - { score_id: 401, title: "O Holy Night",             explanation: "French sacred Christmas piece.",  rank: 2 }
+          - { score_id: 402, title: "Adeste Fideles",           explanation: "Latin Christmas hymn.",           rank: 3 }
+
+    - scenario: "Long → short (duration shift)"
+      refinement: "encore length, under 3 minutes"
+      synthetic_prior_turn:
+        original_query: "concert piano piece"
+        summary: "Three substantial concert pieces, 15-25 minutes each."
+        recommendations:
+          - { score_id: 500, title: "Liszt Sonata in B minor",  explanation: "30-minute concert sonata.",  rank: 1 }
+          - { score_id: 501, title: "Beethoven Hammerklavier",  explanation: "Massive 45-minute sonata.",  rank: 2 }
+          - { score_id: 502, title: "Brahms Sonata No 3",       explanation: "30-minute romantic sonata.", rank: 3 }
+
+  # Chained refinements where the prior run produced visible leaked-thinking.
+  # Same queries + refinements — should now produce clean explanations.
+  refinement_pairs:
+    - { query: "Romantic piano",     refinement: "by a female composer",     intent: focused }
+    - { query: "Schubert",           refinement: "songs not piano works",    intent: focused }
+    - { query: "chamber music",      refinement: "without strings",          intent: broad }
+    - { query: "renaissance choral", refinement: "English-language texts only", intent: focused }
+    - { query: "sad piece piano",    refinement: "in major key",             intent: focused }
+
+  # Edge cases.
+  edge_cases:
+    - { query: "" }
+    - { query: "x", intent: broad }
+    - { query: "asdfghjkl", intent: broad }
+    - { query: "what is the meaning of life", intent: broad }

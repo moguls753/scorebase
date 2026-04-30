@@ -19,9 +19,13 @@ class LMStudioConfig:
 
     @classmethod
     def from_env(cls) -> "LMStudioConfig":
-        """Create config from environment variables."""
+        """Create config from environment variables.
+
+        Reads LMSTUDIO_URL (default: localhost:1234) and LMSTUDIO_MODEL (default: qwen2.5-7b-instruct).
+        Names match the Rails-side `app/services/llm_client.rb` convention.
+        """
         return cls(
-            base_url=os.environ.get("LMSTUDIO_BASE_URL", "http://localhost:1234/v1"),
+            base_url=os.environ.get("LMSTUDIO_URL", "http://localhost:1234/v1"),
             model=os.environ.get("LMSTUDIO_MODEL", "qwen2.5-7b-instruct"),
         )
 
