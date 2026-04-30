@@ -143,6 +143,7 @@ accessories:
       - "scorebase_chroma:/data/chroma"
     options:
       memory: 1500m
+      cpus: "1"
 
 # accessories:
 #   db:
