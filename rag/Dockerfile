@@ -20,6 +20,14 @@ RUN mkdir -p "$HF_HOME" && \
 
 COPY --chown=rails:rails src/ ./src/
 
+# Pre-create the chroma persist path owned by the rails user.
+# Docker copies image contents (including ownership) into empty named volumes
+# on first mount, so this ensures `scorebase_chroma:/data/chroma` is writable
+# by UID 1000 from the moment the volume is created. Without this, Docker
+# would create the mount point as root:root and the rails user would get
+# EACCES when chromadb tries to create its sqlite metadata files.
+RUN mkdir -p /data/chroma && chown -R 1000:1000 /data
+
 USER 1000:1000
 ENV PYTHONUNBUFFERED=1
 EXPOSE 8001
