@@ -120,5 +120,7 @@ end
 # Charts
 gem "chartkick"
 
-# Bot/crawler detection [https://github.com/loadkpi/crawler_detect]
-gem "crawler_detect"
+# Server-side analytics (replaces hand-rolled DailyStat tracking)
+# device_detector is Ahoy's bot-detection + browser/device parsing backend
+gem "ahoy_matey"
+gem "device_detector"

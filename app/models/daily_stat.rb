@@ -20,91 +20,51 @@
 #  index_daily_stats_on_date  (date) UNIQUE
 #
 class DailyStat < ApplicationRecord
-  def self.track_visit!(user_agent: nil, country: nil, referer: nil, path: nil, device: nil)
-    daily_stat = find_or_create_by(date: Date.current)
-    daily_stat.increment!(:visits)
-
-    # Use a mutex to prevent race conditions on JSON updates
-    # For higher traffic, consider moving to Redis or a separate analytics table
-    daily_stat.with_lock do
-      daily_stat.reload
-
-      if user_agent.present?
-        # Track user agents (truncated)
-        agents = daily_stat.user_agents || {}
-        key = user_agent.truncate(100, omission: "")
-        agents[key] = (agents[key] || 0) + 1
-        daily_stat.user_agents = agents
-
-        # Parse browser from user agent
-        browser = parse_browser(user_agent)
-        browsers = daily_stat.browsers || {}
-        browsers[browser] = (browsers[browser] || 0) + 1
-        daily_stat.browsers = browsers
-      end
-
-      if country.present?
-        countries = daily_stat.countries || {}
-        countries[country.upcase] = (countries[country.upcase] || 0) + 1
-        daily_stat.countries = countries
-      end
-
-      # Track referrer (including "direct" for missing)
-      referrers = daily_stat.referrers || {}
-      domain = extract_referrer_domain(referer)
-      referrers[domain] = (referrers[domain] || 0) + 1
-      daily_stat.referrers = referrers
-
-      if path.present?
-        paths = daily_stat.paths || {}
-        # Only track route patterns, not individual IDs (to prevent explosion)
-        normalized = normalize_path(path)
-        paths[normalized] = (paths[normalized] || 0) + 1
-        daily_stat.paths = paths
-      end
-
-      if device.present?
-        devices = daily_stat.devices || {}
-        devices[device.downcase] = (devices[device.downcase] || 0) + 1
-        daily_stat.devices = devices
-      end
-
-      daily_stat.save!
-    end
-  end
-
-  def self.parse_browser(user_agent)
-    case user_agent
-    when /Edg\// then "Edge"
-    when /OPR|Opera/ then "Opera"
-    when /Chrome/ then "Chrome"
-    when /Safari/ then "Safari"
-    when /Firefox/ then "Firefox"
-    else "Other"
-    end
-  end
-
-  def self.extract_referrer_domain(referer)
-    return "direct" if referer.blank?
-    URI.parse(referer).host&.gsub(/^www\./, "") || "direct"
-  rescue URI::InvalidURIError
-    "invalid"
-  end
-
-  def self.normalize_path(path)
-    path.split("?").first.truncate(100, omission: "")
-  end
-
-  def self.track_smd_click!(score_id:)
-    return unless score_id.present?
-
-    daily_stat = find_or_create_by(date: Date.current)
-    clicks = daily_stat.smd_clicks_by_score || {}
-    clicks[score_id.to_s] = (clicks[score_id.to_s] || 0) + 1
-    daily_stat.update!(smd_clicks_by_score: clicks)
-  end
+  # Hosts that count as "internal" — a visit referred from one of these is
+  # someone navigating between pages on our own site, not a fresh arrival.
+  # Configurable via ENV so dev/staging/prod can each provide their own host
+  # list (e.g. "scorebase.org,localhost,staging.scorebase.org").
+  INTERNAL_HOSTS = ENV.fetch("INTERNAL_ANALYTICS_HOSTS", "scorebase.org")
+                      .split(",").map(&:strip).reject(&:empty?).freeze
 
   def total_smd_clicks
     (smd_clicks_by_score || {}).values.sum
+  end
+
+  # Roll up Ahoy data for `date` into a DailyStat row matching the dashboard's
+  # JSON-column contract. Idempotent. Skipped entirely on days with no Ahoy
+  # data so legacy/pre-cutover rows aren't clobbered with zeros.
+  #
+  # `visits` (and visit-derived breakdowns: countries, browsers, devices,
+  # user_agents, referrers) count *external arrivals only* — visits whose
+  # referring_domain is NULL (direct entry) or not one of INTERNAL_HOSTS.
+  # `paths` and `smd_clicks_by_score` stay unfiltered: per-page engagement
+  # and revenue events are meaningful regardless of how the user got there.
+  def self.aggregate_for!(date)
+    range           = date.beginning_of_day..date.end_of_day
+    all_visits      = Ahoy::Visit.where(started_at: range)
+    external_visits = if INTERNAL_HOSTS.any?
+      all_visits.where(
+        "referring_domain IS NULL OR referring_domain NOT IN (?)", INTERNAL_HOSTS
+      )
+    else
+      all_visits
+    end
+    all_events      = Ahoy::Event.where(time: range)
+    pageviews       = all_events.where(name: "$view")
+    clicks          = all_events.where(name: "SMD click")
+
+    return if pageviews.count.zero? && all_visits.count.zero?
+
+    find_or_create_by(date: date).update!(
+      visits:              external_visits.count,
+      countries:           external_visits.where.not(country: nil).group(:country).count,
+      referrers:           external_visits.group("COALESCE(NULLIF(referring_domain, ''), 'direct')").count,
+      paths:               pageviews.group("json_extract(properties, '$.page')").count,
+      devices:             external_visits.where.not(device_type: nil).group(:device_type).count,
+      browsers:            external_visits.where.not(browser: nil).group(:browser).count,
+      user_agents:         external_visits.where.not(user_agent: nil).group("substr(user_agent, 1, 100)").count,
+      smd_clicks_by_score: clicks.group("json_extract(properties, '$.score_id')").count
+    )
   end
 end
