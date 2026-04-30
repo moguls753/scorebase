@@ -13,13 +13,13 @@ servers:
     hosts:
       - 46.224.124.123
     options:
-      memory: 1536m
+      memory: 1g
   job:
     hosts:
       - 46.224.124.123
     cmd: bin/jobs
     options:
-      memory: 2g  # Increased for music21 extraction
+      memory: 1g
 
 # Enable SSL auto certification via Let's Encrypt and allow for multiple apps on a single web server.
 # If used with Cloudflare, set encryption mode in SSL/TLS setting to "Full" to enable CF-to-app encryption.
@@ -59,9 +59,12 @@ env:
     SMTP_USERNAME: resend
     MAILER_FROM: noreply@scorebase.org
 
-    # Puma: 2 workers × 3 threads = 6 concurrent requests
-    WEB_CONCURRENCY: 2
+    # Puma: 1 worker × 3 threads = 3 concurrent requests (1 GB cap; squeeze for RAG accessory)
+    WEB_CONCURRENCY: 1
     RAILS_MAX_THREADS: 3
+
+    # Smart Search RAG accessory endpoint (Kamal Docker network DNS)
+    RAG_API_URL: http://scorebase-rag:8001
 
     # Match this to any external database server to configure Active Record correctly
     # Use scorebase-db for a db accessory server on same machine via local kamal docker network.
@@ -78,6 +81,8 @@ aliases:
   logs: app logs -f
   dbc: app exec --interactive --reuse "bin/rails dbconsole --include-password"
   sitemap: app exec --reuse -r web "bin/rails sitemap:refresh:no_ping"
+  rag-stats: app exec --reuse -r web "bin/rails rag:stats"
+  rag-index: accessory exec rag "python -m src.pipeline.indexer 5000"
 
 # Use a persistent storage volume for sqlite database files and local Active Storage files.
 # Recommended to change this to a mounted volume path that is backed up off server.
@@ -121,6 +126,23 @@ accessories:
     image: ghcr.io/sarperavci/cloudflarebypassforscraping:latest
     host: 46.224.124.123
     port: "127.0.0.1:8000:8000"
+  rag:
+    image: ghcr.io/moguls753/scorebase-rag:latest
+    host: 46.224.124.123
+    port: "127.0.0.1:8001:8001"
+    env:
+      clear:
+        LLM_BACKEND: deepseek
+        DEEPSEEK_MODEL: deepseek-v4-flash
+        RAG_DB_PATH: /rails/storage/production.sqlite3
+        CHROMA_PATH: /data/chroma
+      secret:
+        - DEEPSEEK_API_KEY
+    volumes:
+      - "scorebase_storage:/rails/storage"
+      - "scorebase_chroma:/data/chroma"
+    options:
+      memory: 1500m
 
 # accessories:
 #   db:
