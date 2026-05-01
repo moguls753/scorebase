@@ -13,7 +13,7 @@ servers:
     hosts:
       - 46.224.124.123
     options:
-      memory: 1g
+      memory: 1500m
   job:
     hosts:
       - 46.224.124.123
@@ -59,8 +59,8 @@ env:
     SMTP_USERNAME: resend
     MAILER_FROM: noreply@scorebase.org
 
-    # Puma: 1 worker × 3 threads = 3 concurrent requests (1 GB cap; squeeze for RAG accessory)
-    WEB_CONCURRENCY: 1
+    # Puma: 2 workers × 3 threads = 6 concurrent requests (8 GB host, 1.5 GB web cap)
+    WEB_CONCURRENCY: 2
     RAILS_MAX_THREADS: 3
 
     # Smart Search RAG accessory endpoint (Kamal Docker network DNS)
@@ -142,7 +142,7 @@ accessories:
       - "scorebase_storage:/rails/storage"
       - "scorebase_chroma:/data/chroma"
     options:
-      memory: 1500m
+      memory: 2000m
       cpus: "1"
 
 # accessories:
