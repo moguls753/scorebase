@@ -124,8 +124,18 @@ namespace :rag do
     puts "RAG PIPELINE"
     puts "-" * 40
 
-    # Use Ruby for accurate count matching ready_for_rag? exactly
-    rag_ready_count = Score.rag_pending.count(&:ready_for_rag?)
+    # SQL form of ready_for_rag? — mirrors the predicate in rag:mark_ready.
+    # Pure SQL (no AR instantiation) so this stays cheap on 400k+ pending rows.
+    rag_ready_count = Score.rag_pending
+      .where(
+        "(voicing_status = 'normalized' AND voicing IS NOT NULL AND voicing != '') OR " \
+        "(instruments_status = 'normalized' AND instruments IS NOT NULL AND instruments != '')"
+      )
+      .where(
+        "(composer_status = 'normalized' AND composer IS NOT NULL AND composer != '' AND composer != 'NA') OR " \
+        "(genre_status = 'normalized' AND genre IS NOT NULL AND genre != '')"
+      )
+      .count
     rag_statuses = Score.group(:rag_status).count
 
     ready = rag_statuses["ready"] || 0
