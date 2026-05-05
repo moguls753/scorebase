@@ -15,7 +15,7 @@
         <div>
           <input type="radio" id="verdict-good-<%= query_record.id %>" name="verdict" value="good" class="peer sr-only" required>
           <label for="verdict-good-<%= query_record.id %>"
-                 class="inline-flex cursor-pointer items-center gap-1.5 rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-[var(--color-text-muted)] transition-all hover:border-[var(--color-accent)]/60 hover:text-[var(--color-text)] peer-checked:border-[var(--color-accent)] peer-checked:bg-[var(--color-accent)]/[0.18] peer-checked:text-[var(--color-text)] peer-checked:shadow-[2px_2px_0_var(--color-accent)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--color-accent)]">
+                 class="inline-flex cursor-pointer items-center gap-1.5 rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] min-h-[44px] sm:min-h-0 px-4 py-2.5 text-sm sm:px-3 sm:py-1.5 sm:text-xs font-bold uppercase tracking-wide text-[var(--color-text-muted)] transition-all hover:border-[var(--color-accent)]/60 hover:text-[var(--color-text)] peer-checked:border-[var(--color-accent)] peer-checked:bg-[var(--color-accent)]/[0.18] peer-checked:text-[var(--color-text)] peer-checked:shadow-[2px_2px_0_var(--color-accent)] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-[var(--color-accent)]">
             <%= lucide_icon "thumbs-up", class: "w-3.5 h-3.5", "stroke-width": 2 %>
             <%= t("smart_search.feedback.good") %>
           </label>
@@ -24,7 +24,7 @@
         <div>
           <input type="radio" id="verdict-bad-<%= query_record.id %>" name="verdict" value="bad" class="peer sr-only" required>
           <label for="verdict-bad-<%= query_record.id %>"
-                 class="inline-flex cursor-pointer items-center gap-1.5 rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-[var(--color-text-muted)] transition-all hover:border-red-500/60 hover:text-[var(--color-text)] peer-checked:border-red-500 peer-checked:bg-red-500/[0.18] peer-checked:text-[var(--color-text)] peer-checked:shadow-[2px_2px_0_#ef4444] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-red-500">
+                 class="inline-flex cursor-pointer items-center gap-1.5 rounded-sm border-2 border-[var(--color-border)] bg-[var(--color-bg-elevated)] min-h-[44px] sm:min-h-0 px-4 py-2.5 text-sm sm:px-3 sm:py-1.5 sm:text-xs font-bold uppercase tracking-wide text-[var(--color-text-muted)] transition-all hover:border-red-500/60 hover:text-[var(--color-text)] peer-checked:border-red-500 peer-checked:bg-red-500/[0.18] peer-checked:text-[var(--color-text)] peer-checked:shadow-[2px_2px_0_#ef4444] peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-red-500">
             <%= lucide_icon "thumbs-down", class: "w-3.5 h-3.5", "stroke-width": 2 %>
             <%= t("smart_search.feedback.bad") %>
           </label>
@@ -46,7 +46,7 @@
 
     <div class="flex justify-end">
       <button type="submit"
-              class="mm-button mm-button-sm mm-button-primary inline-flex items-center gap-1.5"
+              class="mm-button mm-button-sm mm-button-primary inline-flex items-center gap-1.5 min-h-[44px] sm:min-h-0 text-sm sm:text-xs"
               data-turbo-submits-with="<%= t('smart_search.feedback.sending') %>">
         <%= lucide_icon "send-horizontal", class: "w-3.5 h-3.5", "stroke-width": 2.5 %>
         <%= t("smart_search.feedback.submit") %>

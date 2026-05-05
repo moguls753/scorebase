@@ -38,13 +38,13 @@
         <%= t("smart_search.beta_badge") %>
       </span>
     </h1>
-    <p class="mt-2 text-sm text-[var(--color-text-muted)]">
+    <p class="mt-2 text-base text-[var(--color-text-muted)]">
       <%= t("smart_search.tagline") %>
     </p>
   </div>
 
   <!-- Beta note -->
-  <div class="mb-8 mx-auto max-w-2xl text-xs text-[var(--color-text-muted)] text-center leading-relaxed">
+  <div class="mb-8 mx-auto max-w-2xl text-sm text-[var(--color-text-muted)] text-center leading-relaxed">
     <%= t("smart_search.beta_note_html",
           indexed_pct: smart_search_indexed_corpus_percent,
           mailto: mail_to("eike@scorebase.org", t("smart_search.feedback_link"),
@@ -105,7 +105,7 @@
           t("smart_search.suggestions.student")
         ].each do |suggestion| %>
           <%= link_to smart_search_path(q: suggestion),
-                      class: "px-4 py-2 text-sm bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all" do %>
+                      class: "inline-flex items-center min-h-[44px] sm:min-h-0 px-4 py-2 text-sm bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all" do %>
             <%= suggestion %>
           <% end %>
         <% end %>
@@ -115,7 +115,7 @@
 
   <!-- Discreet Pro footer link -->
   <div class="mt-12 text-center">
-    <p class="text-xs text-[var(--color-text-muted)]">
+    <p class="text-sm text-[var(--color-text-muted)]">
       <%= t("smart_search.see_pro_html",
             link: link_to(t("smart_search.see_pro_link"), pro_landing_path,
                           class: "text-[var(--color-accent)] hover:underline font-medium")).html_safe %>
