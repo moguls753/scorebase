@@ -9,51 +9,50 @@
   margin-bottom: 0;
 }
 
+/* Inline-flex with align-items: center — every child's box centers on a
+   single cross-axis, so visual centers land on the same line regardless
+   of font-size differences. Replaces the prior baseline-aligned inline
+   layout, which left visual centers spread across ~2.6 px. */
 .smart-search-teaser-link {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
   font-family: var(--font-family-body);
   font-size: 15px;
   font-weight: 500;
-  line-height: 1.6;
+  line-height: 1;
   color: var(--color-text-muted);
   text-decoration: none;
   transition: color 0.2s ease;
-  word-spacing: 0.15em;
 }
 
-/* "Smart Search" - display font, accent color, the visual anchor of the line */
+/* "Smart Search" — display font, accent color, the visual anchor of the line */
 .teaser-name {
-  display: inline-block;
   font-family: var(--font-family-display);
   font-size: 19px;
   font-weight: 700;
   letter-spacing: -0.3px;
   color: var(--color-accent);
-  transition: all 0.5s ease;
-  position: relative;
-  top: 1px;
+  transition: color 0.3s ease;
 }
 
-/* "(beta)" - quiet typographic parenthetical, body font, lower-contrast.
-   No pill, no animation; reads as a magazine aside, not a status badge. */
+/* "(beta)" — quiet typographic parenthetical paired tightly with the
+   brand mark. No pill, no animation; reads as a magazine aside. */
 .teaser-mark {
-  display: inline-block;
   font-family: var(--font-family-body);
   font-size: 13px;
   font-weight: 500;
-  color: var(--color-text-subtle);
   letter-spacing: 0.01em;
+  color: var(--color-text-subtle);
   margin-left: 0.3em;
-  position: relative;
-  top: -1px;
 }
 
-/* Em-dash separator between name and prompt */
+/* Em-dash — symmetric breathing room handled via sibling margin-lefts so
+   the rhythm survives mobile (em-dash and prompt hidden, arrow's margin
+   then applies directly to (beta)). */
 .teaser-em {
-  display: inline-block;
   color: var(--color-text-subtle);
-  margin: 0 0.15em;
   font-weight: 400;
+  margin-left: 0.5em;
 }
 
 /* Prompt text — the invitation */
@@ -61,20 +60,16 @@
   font-size: 15px;
   font-weight: 500;
   color: var(--color-text-muted);
+  margin-left: 0.5em;
   transition: color 0.2s ease;
 }
 
-/* Arrow — the only directional accent.
-   Mirrors .teaser-mark's −1px optical lift so (beta) and → sit on
-   the same optical mid-line as a matched pair of muted markers. */
+/* Arrow — the only directional accent. */
 .teaser-arrow {
-  display: inline-block;
   font-size: 16px;
   color: var(--color-text-subtle);
+  margin-left: 0.5em;
   transition: color 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  margin-left: 0.3em;
-  position: relative;
-  top: -1px;
 }
 
 /* Hover — the line subtly shifts forward, arrow leans further right.

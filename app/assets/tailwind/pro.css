@@ -143,6 +143,17 @@
   transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
 }
 
+/* Arrow glyph rendered as a pseudo-element so it can be lifted to the
+   cap-height center of the uppercase button text. The Unicode → glyph
+   sits naturally at x-height/2 above baseline; uppercase visual center
+   is at cap-height/2, ~0.1em higher. */
+.cta-primary::after {
+  content: "→";
+  display: inline-block;
+  margin-left: 0.5em;
+  transform: translateY(-0.1em);
+}
+
 .cta-primary:hover {
   background: var(--color-accent-hover);
   transform: translate(-1px, -1px);

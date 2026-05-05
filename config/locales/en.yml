@@ -615,7 +615,7 @@ en:
     # Hero section
     hero_headline: "Find sheet music by describing it"
     hero_subhead: "Stop typing keywords. Start describing what you need. Smart Search is live in public beta — free during beta."
-    hero_cta_try: "Try Smart Search →"
+    hero_cta_try: "Try Smart Search"
 
     # Problem section
     problem_title: "Here's the problem"
