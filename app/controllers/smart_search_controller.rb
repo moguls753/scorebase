@@ -1,8 +1,7 @@
 class SmartSearchController < ApplicationController
   PER_IP_DAILY_LIMIT = 5
 
-  # Comment this line out when going public, uncomment to revert.
-  before_action :authenticate, if: -> { Rails.env.production? }
+  # before_action :authenticate, if: -> { Rails.env.production? }
   before_action :validate_input_length, only: [:show, :refine]
 
   def show
