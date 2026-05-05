@@ -87,7 +87,7 @@
   color: var(--color-text);
 }
 
-/* Responsive — slightly smaller on mobile + tablet to prevent wrapping */
+/* Tablet — slightly smaller to prevent wrapping */
 @media (max-width: 768px) {
   .smart-search-teaser-link {
     font-size: 14px;
@@ -103,6 +103,14 @@
 
   .teaser-prompt {
     font-size: 14px;
+  }
+}
+
+/* Mobile — drop the em-dash + prompt; keep only name + (beta) + arrow */
+@media (max-width: 640px) {
+  .teaser-em,
+  .teaser-prompt {
+    display: none;
   }
 }
 
