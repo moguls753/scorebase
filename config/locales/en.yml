@@ -20,7 +20,7 @@ en:
     heading: "Smart Search"
     beta_badge: "Beta"
     tagline: "Describe what you're looking for in natural language"
-    beta_note_html: "Public beta — not all scores are indexed for semantic search yet, and there's a daily search limit (5/day). Happy for any feedback — %{mailto}"
+    beta_note_html: "Public beta — Smart Search runs on AI; each query has real API costs. There's a 5/day per-IP cap plus a daily site-wide cap during the beta. About %{indexed_pct} of the free public-domain catalog is indexed so far (mostly classical and choral, growing). Feedback welcome — %{mailto}"
     feedback_link: "send me a mail"
     input_placeholder: "e.g. I need something for my piano student who's been playing for 2 years..."
     search_button_label: "Search"
