@@ -107,13 +107,13 @@
           <%= t('search.browse_genres') %>
         <% end %>
         </nav>
+      </div>
 
-        <!-- Smart Search Teaser - Desktop only, mobile users have Pro nav link -->
-        <div class="smart-search-teaser">
-          <%= link_to smart_search_path, class: "smart-search-teaser-link" do %>
-            <span class="teaser-name"><%= t('smart_search_teaser.name') %></span><span class="teaser-mark"><%= t('smart_search_teaser.mark') %></span> <span class="teaser-em">—</span> <span class="teaser-prompt"><%= t('smart_search_teaser.prompt') %></span> <span class="teaser-arrow">→</span>
-          <% end %>
-        </div>
+      <!-- Smart Search Teaser — entry to /smart-search from any viewport -->
+      <div class="smart-search-teaser">
+        <%= link_to smart_search_path, class: "smart-search-teaser-link" do %>
+          <span class="teaser-name"><%= t('smart_search_teaser.name') %></span><span class="teaser-mark"><%= t('smart_search_teaser.mark') %></span> <span class="teaser-em">—</span> <span class="teaser-prompt"><%= t('smart_search_teaser.prompt') %></span> <span class="teaser-arrow">→</span>
+        <% end %>
       </div>
     </div>
   </div>

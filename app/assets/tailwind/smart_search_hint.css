@@ -87,15 +87,8 @@
   color: var(--color-text);
 }
 
-/* Responsive */
-@media (max-width: 640px) {
-  .smart-search-teaser {
-    display: none;
-  }
-}
-
-/* Tablet - slightly smaller to prevent wrapping */
-@media (min-width: 641px) and (max-width: 768px) {
+/* Responsive — slightly smaller on mobile + tablet to prevent wrapping */
+@media (max-width: 768px) {
   .smart-search-teaser-link {
     font-size: 14px;
   }
