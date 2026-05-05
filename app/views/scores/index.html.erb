@@ -111,11 +111,7 @@
         <!-- Smart Search Teaser - Desktop only, mobile users have Pro nav link -->
         <div class="smart-search-teaser">
           <%= link_to smart_search_path, class: "smart-search-teaser-link" do %>
-            <span class="teaser-status-badge">
-              <span class="teaser-status-dot" aria-hidden="true"></span>
-              <%= t('smart_search_teaser.beta') %>
-            </span>
-            <span class="teaser-name"><%= t('smart_search_teaser.name') %></span> <span class="teaser-arrow">→</span> <span class="teaser-cta"><%= t('smart_search_teaser.try_now') %></span>
+            <span class="teaser-name"><%= t('smart_search_teaser.name') %></span><span class="teaser-mark"><%= t('smart_search_teaser.mark') %></span> <span class="teaser-em">—</span> <span class="teaser-prompt"><%= t('smart_search_teaser.prompt') %></span> <span class="teaser-arrow">→</span>
           <% end %>
         </div>
       </div>

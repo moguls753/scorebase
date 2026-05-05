@@ -11,9 +11,9 @@ de:
 
   # Smart Search Teaser
   smart_search_teaser:
-    beta: "BETA"
     name: "Smart Search"
-    try_now: "Jetzt testen"
+    mark: "(beta)"
+    prompt: "beschreib einfach, was du suchst"
 
   # Smart Search (öffentliche Beta)
   smart_search:

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["reveal", "waitlistForm", "waitlistMessage"]
+  static targets = ["reveal", "waitlistMessage"]
 
   connect() {
     this.setupScrollReveal()
