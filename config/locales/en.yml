@@ -775,6 +775,8 @@ en:
   waitlist_mailer:
     confirmation:
       subject: "You're on the ScoreBase Pro launch list"
+    beta_update:
+      subject: "Smart Search beta is live"
 
   # Waitlist form messages
   waitlist:
