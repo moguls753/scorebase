@@ -57,6 +57,7 @@ en:
     refine:
       placeholder: "Want to nudge the results? Tell me what to adjust."
       button: "Refine"
+      button_mobile: "Refine results"
       refining: "Refining…"
       blank_error: "Please type a refinement first."
       invalid_generic: "Sorry — couldn't refine this search."

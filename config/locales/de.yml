@@ -57,6 +57,7 @@ de:
     refine:
       placeholder: "Ergebnisse anpassen? Beschreibe, was geändert werden soll."
       button: "Verfeinern"
+      button_mobile: "Ergebnisse verfeinern"
       refining: "Wird verfeinert…"
       blank_error: "Bitte gib zuerst einen Hinweis ein."
       invalid_generic: "Diese Suche konnte nicht verfeinert werden."
