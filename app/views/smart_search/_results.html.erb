@@ -20,7 +20,7 @@
               <div aria-hidden="true" class="absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--color-accent)]/70 z-10"></div>
 
               <%# Sheet-music thumbnail bleeds to top/left/bottom edges of the card %>
-              <div class="relative w-full aspect-square sm:w-36 sm:h-auto sm:aspect-auto sm:self-stretch shrink-0 overflow-hidden border-b-2 sm:border-b-0 sm:border-r-2 border-[var(--color-border)] bg-[var(--color-bg)]">
+              <div class="relative w-full max-w-[200px] mx-auto mt-4 aspect-square sm:max-w-none sm:mx-0 sm:mt-0 sm:w-36 sm:h-auto sm:aspect-auto sm:self-stretch shrink-0 overflow-hidden sm:border-r-2 border-[var(--color-border)] bg-[var(--color-bg)]">
                 <% if score.has_thumbnail? %>
                   <%= image_tag score.thumbnail, alt: score.display_title, class: "w-full h-full object-cover object-top" %>
                 <% else %>
