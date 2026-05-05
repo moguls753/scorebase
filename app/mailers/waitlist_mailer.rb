@@ -1,4 +1,6 @@
 class WaitlistMailer < ApplicationMailer
+  default from: "Eike Rackwitz <eike@scorebase.org>"
+
   def confirmation(waitlist_signup)
     @waitlist_signup = waitlist_signup
     @score_count = Score.active.count
@@ -22,7 +24,6 @@ class WaitlistMailer < ApplicationMailer
     I18n.with_locale(locale.to_sym) do
       mail(
         to: waitlist_signup.email,
-        reply_to: "eike@scorebase.org",
         subject: I18n.t("waitlist_mailer.beta_update.subject")
       ) do |format|
         format.html { render template: "waitlist_mailer/beta_update_#{locale}" }
