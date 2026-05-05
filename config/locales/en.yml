@@ -39,13 +39,13 @@ en:
     quota_exhausted:
       heading: "Smart search is at today's site-wide limit"
       body_html: "Smart Search has a daily site-wide cap during the public beta. The cap resets at midnight UTC. Regular keyword search is still available without limits."
-      pro_pitch_html: "Want unlimited daily searches? %{link} — Pro tier (€2/mo, 100 searches/day) launches after BETA."
+      pro_pitch_html: "Want more daily searches? %{link} — Pro tier €2/mo for 100 searches/day, in the works."
       pro_pitch_link: "Get notified when Pro launches"
       regular_search_cta: "Use regular search"
     per_ip_limit_reached:
       heading: "Smart search is temporarily unavailable from this connection"
       body_html: "To keep Smart Search available during the public beta, I'm limiting it to 5 queries per IP address within 24 hours. On shared connections, this limit can be reached sooner. Regular keyword search is still available without limits."
-      pro_pitch_html: "Need more daily searches? %{link} — Pro tier (€2/mo, 100 searches/day) launches after BETA."
+      pro_pitch_html: "Need more daily searches? %{link} — Pro tier €2/mo for 100 searches/day, in the works."
       pro_pitch_link: "Get notified when Pro launches"
       regular_search_cta: "Use regular search"
     rag_error:
@@ -607,75 +607,55 @@ en:
 
   # Pro Landing Page
   pro:
-    meta_title: "AI Sheet Music Search — Find Scores by Description | ScoreBase"
-    meta_description: "AI-powered sheet music search, public BETA. Describe what you need: 'easy piano for beginners' or 'SATB choir piece for Easter'. Search %{count} scores by difficulty, vocal range, and mood."
-    og_description: "Find the right piece for your students, choir, or next recital. %{count} scores, searchable by what you actually need. Public BETA, free during beta."
-
-    # Status badge
-    status_beta_live: "Public BETA — Live"
+    meta_title: "Sheet Music Search by Description — ScoreBase Smart Search"
+    meta_description: "Search %{count} sheet music scores by describing what you need. Public beta — natural-language search by difficulty, vocal range, duration, style, and mood."
+    og_description: "Find the right piece for your students, choir, or next recital. %{count} scores, searchable by what you actually need. Public beta, free during beta."
 
     # Hero section
-    hero_headline: "AI-Powered Sheet Music Search"
-    hero_subhead: "Stop typing keywords. Start describing what you need. Smart Search is live in public BETA — free during beta. Pro tier €2/mo for 100 searches/day, launching after BETA."
-    hero_cta_try: "Try Smart Search Free →"
+    hero_headline: "Find sheet music by describing it"
+    hero_subhead: "Stop typing keywords. Start describing what you need. Smart Search is live in public beta — free during beta."
+    hero_cta_try: "Try Smart Search →"
 
     # Problem section
     problem_title: "Here's the problem"
     problem_p1: "You're a piano teacher looking for something appropriate for a student who's been playing for two years. Or a choir director who needs an SATB piece where the soprano doesn't go above G5. Or an amateur musician who wants to learn something new this weekend."
-    problem_p2: "Regular search can't help you. It only understands keywords: \"Bach\", \"piano\", \"SATB\". It doesn't understand difficulty, vocal ranges, duration, or context."
-
-    # Comparison
-    comparison_bad_title: "What doesn't work"
-    comparison_bad_query: "piano beginner Bach"
-    comparison_bad_desc: "Returns 47,000 results. Every Bach piano piece. No understanding of \"beginner.\""
-    comparison_good_title: "How Smart Search works"
-    comparison_good_query: "Easy Bach for piano students who've been playing 2 years"
-    comparison_good_desc: "Understands difficulty level, filters by suitable pieces, returns 12 relevant scores."
 
     # Solution section
     solution_title: "Smart Search understands what you mean"
     solution_intro: "It understands difficulty levels, vocal ranges, instrumentation, duration, style, occasion, and mood. You describe what you need in plain English. It finds what you're looking for."
 
-    # Use cases
-    use_case_teacher: "Piano Teacher"
-    use_case_teacher_query: "\"Piano duets for teacher and beginner student\""
+    # Use cases (concrete examples specific to the catalog)
     use_case_director: "Choir Director"
     use_case_director_query: "\"Easter motet, SATB, 3-4 minutes, soprano stays below G5\""
-    use_case_amateur: "Amateur Musician"
-    use_case_amateur_query: "\"Piano pieces I can learn in a weekend, sounds impressive but not too hard\""
     use_case_student: "Music Student"
     use_case_student_query: "\"Repertoire for my junior recital, romantic and 20th century, around 30 minutes total\""
 
-    # Pricing section
-    pricing_title: "Pricing"
-    pricing_free: "BETA: 5 searches/day"
-    pricing_free_desc: "Live now. Free during public beta. No account required."
-    pricing_then: "Pro:"
-    pricing_amount: "€2"
-    pricing_period: "/month"
-    pricing_desc: "100 searches/day. Launching after BETA."
+    # Pricing
+    pricing_free_label: "Free during beta:"
+    pricing_free_text: "5 searches/day, no account required."
+    pricing_pro_label: "Pro:"
+    pricing_pro_text: "€2/month for 100 searches/day."
 
     # Waitlist section
-    waitlist_title: "Pro launches soon"
-    waitlist_subtitle: "Get notified when the Pro tier launches."
+    waitlist_title: "Pro is in the works"
+    waitlist_subtitle: "Drop your email to hear when it's ready."
     waitlist_email_placeholder: "your@email.com"
     waitlist_button: "Notify Me"
     waitlist_sending: "Sending..."
-    waitlist_cta: "Notify me about Pro"
     waitlist_disclaimer: "I'll email you when Pro is ready. No spam."
 
-    # FAQ section
+    # FAQ section (kept for Schema.org FAQPage SEO)
     faq_title: "Questions"
     faq_1_q: "Is Smart Search available now?"
-    faq_1_a: "Yes — the public BETA is live. Free tier is 5 searches/day per IP, no account required. The Pro tier (€2/mo, 100 searches/day) launches after BETA."
+    faq_1_a: "Yes — the public beta is live. Free tier is 5 searches/day per IP, no account required. The Pro tier (€2/mo, 100 searches/day) is in the works."
     faq_2_q: "Can I try it for free?"
-    faq_2_a: "Yes. The public BETA is live with 5 free searches/day per IP. No account, no credit card. The full catalog with regular keyword search stays free forever."
+    faq_2_a: "Yes. The public beta is live with 5 free searches/day per IP. No account, no credit card. The full catalog with regular keyword search stays free forever."
     faq_3_q: "How is this different from IMSLP?"
     faq_3_a: "IMSLP is a score archive with keyword search. ScoreBase aggregates multiple sources (IMSLP, CPDL, OpenScore, and more) and adds Smart Search that understands musical context: difficulty, ranges, duration, style."
     faq_4_q: "Can I cancel anytime?"
     faq_4_a: "Yes. No long-term commitment. Cancel whenever you want."
     faq_5_q: "Why does Pro cost money?"
-    faq_5_a: "BETA is free with 5 searches/day per IP. Pro (€2/mo, 100 searches/day) covers the AI infrastructure costs while the free catalog stays open to everyone."
+    faq_5_a: "The beta is free with 5 searches/day per IP. Pro (€2/mo, 100 searches/day) covers the AI infrastructure costs while the free catalog stays open to everyone."
 
     # Footer
     back_to_catalog: "← Back to Free Catalog"

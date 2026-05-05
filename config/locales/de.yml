@@ -39,13 +39,13 @@ de:
     quota_exhausted:
       heading: "Smart Search hat das heutige Tageslimit erreicht"
       body_html: "Smart Search hat während der öffentlichen Beta ein tägliches Limit für die ganze Seite. Das Limit wird täglich um Mitternacht UTC zurückgesetzt. Die reguläre Suche kannst du weiterhin ohne Limit nutzen."
-      pro_pitch_html: "Mehr Suchen pro Tag? %{link} — Pro-Tarif (2 €/Monat, 100 Suchen/Tag) startet nach der BETA."
+      pro_pitch_html: "Mehr Suchen pro Tag? %{link} — Pro-Tarif 2 €/Monat für 100 Suchen/Tag, in Arbeit."
       pro_pitch_link: "Über Pro-Start informieren"
       regular_search_cta: "Reguläre Suche nutzen"
     per_ip_limit_reached:
       heading: "Smart Search ist über diese Verbindung vorübergehend nicht verfügbar"
       body_html: "Damit Smart Search in der öffentlichen Beta verfügbar bleibt, ist sie auf 5 Anfragen je IP-Adresse innerhalb von 24 Stunden begrenzt. Bei gemeinsam genutzten Verbindungen kann dieses Limit früher erreicht werden. Die reguläre Suche kannst du weiterhin ohne Limit nutzen."
-      pro_pitch_html: "Brauchst du mehr Suchen pro Tag? %{link} — Pro-Tarif (2 €/Monat, 100 Suchen/Tag) startet nach der BETA."
+      pro_pitch_html: "Brauchst du mehr Suchen pro Tag? %{link} — Pro-Tarif 2 €/Monat für 100 Suchen/Tag, in Arbeit."
       pro_pitch_link: "Über Pro-Start informieren"
       regular_search_cta: "Reguläre Suche nutzen"
     rag_error:
@@ -607,75 +607,55 @@ de:
 
   # Pro Landing Page
   pro:
-    meta_title: "KI-Notensuche — Noten per Beschreibung finden | ScoreBase"
-    meta_description: "KI-gestützte Notensuche, öffentliche BETA. Beschreibe was du suchst: 'leichtes Klavierstück für Anfänger' oder 'SATB-Chorstück für Ostern'. Durchsuche %{count} Noten nach Schwierigkeit, Stimmumfang und Stimmung."
-    og_description: "Finde das passende Stück für deine Schüler, deinen Chor oder dein nächstes Konzert. %{count} Noten, durchsuchbar nach dem, was du wirklich brauchst. Öffentliche BETA, in der BETA kostenlos."
-
-    # Status badge
-    status_beta_live: "Öffentliche BETA — Live"
+    meta_title: "Notensuche per Beschreibung — ScoreBase Smart Search"
+    meta_description: "Durchsuche %{count} Noten, indem du beschreibst, was du suchst. Öffentliche Beta — natürlichsprachige Suche nach Schwierigkeit, Stimmumfang, Dauer, Stil und Stimmung."
+    og_description: "Finde das passende Stück für deine Schüler, deinen Chor oder dein nächstes Konzert. %{count} Noten, durchsuchbar nach dem, was du wirklich brauchst. Öffentliche Beta, in der Beta kostenlos."
 
     # Hero section
-    hero_headline: "KI-gestützte Notensuche"
-    hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst. Smart Search läuft jetzt als öffentliche BETA – während der BETA kostenlos. Pro-Tarif für 2 €/Monat (100 Suchen/Tag) startet nach der BETA."
-    hero_cta_try: "Smart Search kostenlos testen →"
+    hero_headline: "Noten finden durch Beschreibung"
+    hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst. Smart Search läuft jetzt als öffentliche Beta — während der Beta kostenlos."
+    hero_cta_try: "Smart Search testen →"
 
     # Problem section
     problem_title: "Das Problem"
     problem_p1: "Du unterrichtest Klavier und suchst etwas Passendes für jemanden, der seit zwei Jahren spielt. Oder du leitest einen Chor und brauchst ein SATB-Stück, bei dem der Sopran nicht über g'' geht. Oder du machst Musik als Hobby und willst am Wochenende was Neues lernen."
-    problem_p2: "Normale Suche kann dir nicht helfen. Sie versteht nur Stichwörter: \"Bach\", \"Klavier\", \"SATB\". Sie versteht keine Schwierigkeitsgrade, Stimmumfänge, Dauer oder Kontext."
-
-    # Comparison
-    comparison_bad_title: "Normale Suche"
-    comparison_bad_query: "Klavier Anfänger Bach"
-    comparison_bad_desc: "47.000 Ergebnisse. Jedes Bach-Klavierstück. Kein Verständnis von \"Anfänger\"."
-    comparison_good_title: "So funktioniert Smart Search"
-    comparison_good_query: "Einfache Bach-Stücke für Klavierschüler nach 2 Jahren"
-    comparison_good_desc: "Versteht Schwierigkeitsgrad, filtert gezielt, zeigt passende Ergebnisse."
 
     # Solution section
     solution_title: "Smart Search versteht, was du meinst"
     solution_intro: "Es versteht Schwierigkeitsgrade, Stimmumfänge, Besetzung, Dauer, Stil, Anlass und Stimmung. Du beschreibst, was du brauchst, in einfachem Deutsch. Es findet, wonach du suchst."
 
-    # Use cases
-    use_case_teacher: "Klavierlehrer:in"
-    use_case_teacher_query: "\"Klavierduette für Lehrer und Anfänger\""
+    # Use cases (konkrete Beispiele aus dem Katalog)
     use_case_director: "Chorleiter:in"
     use_case_director_query: "\"Ostermotette, SATB, 3-4 Minuten, Sopran nicht über g''\""
-    use_case_amateur: "Hobbymusiker:in"
-    use_case_amateur_query: "\"Klavierstücke, die ich am Wochenende lernen kann und beeindruckend klingen\""
     use_case_student: "Musikstudent:in"
     use_case_student_query: "\"Repertoire für mein Abschlusskonzert, Romantik und 20. Jahrhundert, ca. 30 Minuten\""
 
-    # Pricing section
-    pricing_title: "Preis"
-    pricing_free: "BETA: 5 Suchen/Tag"
-    pricing_free_desc: "Live jetzt. Während der BETA kostenlos. Kein Account nötig."
-    pricing_then: "Pro:"
-    pricing_amount: "2 €"
-    pricing_period: "/Monat"
-    pricing_desc: "100 Suchen/Tag. Startet nach der BETA."
+    # Pricing
+    pricing_free_label: "In der Beta kostenlos:"
+    pricing_free_text: "5 Suchen pro Tag, kein Account nötig."
+    pricing_pro_label: "Pro:"
+    pricing_pro_text: "2 €/Monat für 100 Suchen pro Tag."
 
     # Waitlist section
-    waitlist_title: "Pro startet bald"
-    waitlist_subtitle: "Lass dich benachrichtigen, sobald der Pro-Tarif startet."
+    waitlist_title: "Pro ist in Arbeit"
+    waitlist_subtitle: "Trag deine E-Mail ein — ich melde mich, sobald es so weit ist."
     waitlist_email_placeholder: "deine@email.de"
     waitlist_button: "Benachrichtigen"
     waitlist_sending: "Wird gesendet..."
-    waitlist_cta: "Über Pro informieren"
     waitlist_disclaimer: "Ich schicke dir eine E-Mail, sobald Pro startet. Kein Spam."
 
-    # FAQ section
+    # FAQ section (für Schema.org FAQPage SEO)
     faq_title: "Fragen"
     faq_1_q: "Ist Smart Search schon verfügbar?"
-    faq_1_a: "Ja – die öffentliche BETA ist live. Free-Tarif: 5 Suchen pro Tag und IP, kein Account nötig. Der Pro-Tarif (2 €/Monat, 100 Suchen/Tag) startet nach der BETA."
+    faq_1_a: "Ja – die öffentliche Beta ist live. Free-Tarif: 5 Suchen pro Tag und IP, kein Account nötig. Der Pro-Tarif (2 €/Monat, 100 Suchen/Tag) ist in Arbeit."
     faq_2_q: "Kann ich es gratis testen?"
-    faq_2_a: "Ja. Die öffentliche BETA ist live mit 5 kostenlosen Suchen pro Tag und IP. Kein Account, keine Kreditkarte. Der volle Katalog mit normaler Stichwortsuche bleibt für immer kostenlos."
+    faq_2_a: "Ja. Die öffentliche Beta ist live mit 5 kostenlosen Suchen pro Tag und IP. Kein Account, keine Kreditkarte. Der volle Katalog mit normaler Stichwortsuche bleibt für immer kostenlos."
     faq_3_q: "Was ist der Unterschied zu IMSLP?"
     faq_3_a: "IMSLP ist ein Noten-Archiv mit Stichwortsuche. ScoreBase vereint mehrere Quellen (IMSLP, CPDL, OpenScore und mehr) und fügt Smart Search hinzu, die musikalischen Kontext versteht: Schwierigkeit, Stimmumfänge, Dauer, Stil."
     faq_4_q: "Kann ich jederzeit kündigen?"
     faq_4_a: "Ja. Keine Vertragsbindung. Kündige wann immer du willst."
     faq_5_q: "Warum kostet Pro Geld?"
-    faq_5_a: "Die BETA ist kostenlos mit 5 Suchen pro Tag und IP. Pro (2 €/Monat, 100 Suchen/Tag) deckt die KI-Infrastruktur, während der freie Katalog für alle offen bleibt."
+    faq_5_a: "Die Beta ist kostenlos mit 5 Suchen pro Tag und IP. Pro (2 €/Monat, 100 Suchen/Tag) deckt die KI-Infrastruktur, während der freie Katalog für alle offen bleibt."
 
     # Footer
     back_to_catalog: "← Zurück zum kostenlosen Katalog"

@@ -11,27 +11,16 @@
     "url": "<%= request.base_url %><%= pro_landing_path %>",
     "applicationCategory": "MusicApplication",
     "operatingSystem": "Web",
-    "offers": [
-      {
-        "@type": "Offer",
-        "name": "BETA",
-        "price": "0",
-        "priceCurrency": "EUR",
-        "availability": "https://schema.org/InStock",
-        "description": "5 searches per day during public BETA. No account required.",
-        "url": "<%= request.base_url %><%= smart_search_path %>"
-      },
-      {
-        "@type": "Offer",
-        "name": "Pro",
-        "price": "2",
-        "priceCurrency": "EUR",
-        "availability": "https://schema.org/PreOrder",
-        "description": "100 searches per day. Launching after BETA.",
-        "billingIncrement": "P1M"
-      }
-    ],
-    "description": "Search <%= number_with_delimiter(@total_count) %> sheet music scores by difficulty, vocal range, duration, style, and mood. Natural language search. Public BETA.",
+    "offers": {
+      "@type": "Offer",
+      "name": "Public Beta",
+      "price": "0",
+      "priceCurrency": "EUR",
+      "availability": "https://schema.org/InStock",
+      "description": "5 searches per day during public beta. No account required.",
+      "url": "<%= request.base_url %><%= smart_search_path %>"
+    },
+    "description": "Search <%= number_with_delimiter(@total_count) %> sheet music scores by describing what you need. Public beta — natural-language search by difficulty, vocal range, duration, style, and mood.",
     "creator": {
       "@type": "Organization",
       "name": "ScoreBase"
@@ -65,7 +54,7 @@
         "name": "<%= t('pro.faq_2_q') %>",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "<%= t('pro.faq_2_a', count: number_with_delimiter(@total_count)) %>"
+          "text": "<%= t('pro.faq_2_a') %>"
         }
       },
       {
@@ -100,11 +89,6 @@
 <div data-controller="pro-landing">
   <!-- Hero -->
   <div class="pro-hero">
-    <div class="status-badge">
-      <span class="status-dot"></span>
-      <%= t('pro.status_beta_live') %>
-    </div>
-
     <h1 class="pro-headline">
       <%= t('pro.hero_headline') %>
     </h1>
@@ -119,7 +103,7 @@
   </div>
 
   <!-- The Problem -->
-  <div class="pro-section">
+  <div class="pro-section pro-section-narrow">
     <h2 class="pro-section-title">
       <%= t('pro.problem_title') %>
     </h2>
@@ -127,42 +111,7 @@
     <p class="pro-section-text">
       <%= t('pro.problem_p1') %>
     </p>
-
-    <p class="pro-section-text">
-      <%= t('pro.problem_p2') %>
-    </p>
-
-    <div class="comparison-grid">
-      <div class="comparison-column comparison-bad">
-        <h3><%= t('pro.comparison_bad_title') %></h3>
-        <div class="query-example">
-          <div class="query-example-text"><%= t('pro.comparison_bad_query') %></div>
-        </div>
-        <p class="comparison-desc">
-          <%= t('pro.comparison_bad_desc') %>
-        </p>
-      </div>
-
-      <div class="comparison-column comparison-good">
-        <h3><%= t('pro.comparison_good_title') %></h3>
-        <div class="query-example">
-          <div class="query-example-text"><%= t('pro.comparison_good_query') %></div>
-        </div>
-        <p class="comparison-desc-good">
-          <%= t('pro.comparison_good_desc') %>
-        </p>
-      </div>
-    </div>
-
-    <!-- Secondary CTA after comparison -->
-    <div class="cta-container">
-      <a href="#waitlist" class="cta-secondary" data-action="click->pro-landing#scrollToWaitlist" aria-label="<%= t('pro.waitlist_cta') %>">
-        <%= t('pro.waitlist_cta') %>
-      </a>
-    </div>
   </div>
-
-  <div class="pro-divider"></div>
 
   <!-- The Solution -->
   <div class="pro-section pro-section-narrow">
@@ -174,22 +123,12 @@
       <%= t('pro.solution_intro') %>
     </p>
 
-    <div class="use-case" data-scroll-reveal data-pro-landing-target="reveal">
-      <div class="use-case-title"><%= t('pro.use_case_teacher') %></div>
-      <div class="use-case-query"><%= t('pro.use_case_teacher_query') %></div>
-    </div>
-
-    <div class="use-case" data-scroll-reveal data-pro-landing-target="reveal">
+    <div class="use-case">
       <div class="use-case-title"><%= t('pro.use_case_director') %></div>
       <div class="use-case-query"><%= t('pro.use_case_director_query') %></div>
     </div>
 
-    <div class="use-case" data-scroll-reveal data-pro-landing-target="reveal">
-      <div class="use-case-title"><%= t('pro.use_case_amateur') %></div>
-      <div class="use-case-query"><%= t('pro.use_case_amateur_query') %></div>
-    </div>
-
-    <div class="use-case" data-scroll-reveal data-pro-landing-target="reveal">
+    <div class="use-case">
       <div class="use-case-title"><%= t('pro.use_case_student') %></div>
       <div class="use-case-query"><%= t('pro.use_case_student_query') %></div>
     </div>
@@ -198,23 +137,10 @@
   <div class="pro-divider"></div>
 
   <!-- Pricing -->
-  <div class="pro-section pro-section-narrow pricing-section-centered">
-    <h2 class="pro-section-title-centered">
-      <%= t('pro.pricing_title') %>
-    </h2>
-
-    <div class="pricing-tiers">
-      <div class="pricing-tier pricing-tier-free">
-        <div class="pricing-tier-label"><%= t('pro.pricing_free') %></div>
-        <p class="pricing-tier-desc"><%= t('pro.pricing_free_desc') %></p>
-      </div>
-
-      <div class="pricing-tier-arrow" aria-hidden="true">↓</div>
-
-      <div class="pricing-tier pricing-tier-paid">
-        <div class="pricing-tier-label"><%= t('pro.pricing_then') %> <span class="pricing-amount-inline"><%= t('pro.pricing_amount') %></span> <%= t('pro.pricing_period') %></div>
-        <p class="pricing-tier-desc"><%= t('pro.pricing_desc') %></p>
-      </div>
+  <div class="pro-section pro-section-narrow">
+    <div class="pricing-summary">
+      <p><strong><%= t('pro.pricing_free_label') %></strong> <%= t('pro.pricing_free_text') %></p>
+      <p><strong><%= t('pro.pricing_pro_label') %></strong> <%= t('pro.pricing_pro_text') %></p>
     </div>
   </div>
 
@@ -265,7 +191,7 @@
       <%= t('pro.faq_title') %>
     </h2>
 
-    <div class="faq-item" data-scroll-reveal data-pro-landing-target="reveal" data-faq-accordion-target="item">
+    <div class="faq-item" data-faq-accordion-target="item">
       <button type="button" class="faq-q" data-action="click->faq-accordion#toggle" aria-expanded="false">
         <span><%= t('pro.faq_1_q') %></span>
         <span class="faq-toggle" aria-hidden="true">+</span>
@@ -273,15 +199,15 @@
       <div class="faq-a"><%= t('pro.faq_1_a') %></div>
     </div>
 
-    <div class="faq-item" data-scroll-reveal data-pro-landing-target="reveal" data-faq-accordion-target="item">
+    <div class="faq-item" data-faq-accordion-target="item">
       <button type="button" class="faq-q" data-action="click->faq-accordion#toggle" aria-expanded="false">
         <span><%= t('pro.faq_2_q') %></span>
         <span class="faq-toggle" aria-hidden="true">+</span>
       </button>
-      <div class="faq-a"><%= t('pro.faq_2_a', count: number_with_delimiter(@total_count)) %></div>
+      <div class="faq-a"><%= t('pro.faq_2_a') %></div>
     </div>
 
-    <div class="faq-item" data-scroll-reveal data-pro-landing-target="reveal" data-faq-accordion-target="item">
+    <div class="faq-item" data-faq-accordion-target="item">
       <button type="button" class="faq-q" data-action="click->faq-accordion#toggle" aria-expanded="false">
         <span><%= t('pro.faq_3_q') %></span>
         <span class="faq-toggle" aria-hidden="true">+</span>
@@ -289,7 +215,7 @@
       <div class="faq-a"><%= t('pro.faq_3_a') %></div>
     </div>
 
-    <div class="faq-item" data-scroll-reveal data-pro-landing-target="reveal" data-faq-accordion-target="item">
+    <div class="faq-item" data-faq-accordion-target="item">
       <button type="button" class="faq-q" data-action="click->faq-accordion#toggle" aria-expanded="false">
         <span><%= t('pro.faq_4_q') %></span>
         <span class="faq-toggle" aria-hidden="true">+</span>
@@ -297,7 +223,7 @@
       <div class="faq-a"><%= t('pro.faq_4_a') %></div>
     </div>
 
-    <div class="faq-item" data-scroll-reveal data-pro-landing-target="reveal" data-faq-accordion-target="item">
+    <div class="faq-item" data-faq-accordion-target="item">
       <button type="button" class="faq-q" data-action="click->faq-accordion#toggle" aria-expanded="false">
         <span><%= t('pro.faq_5_q') %></span>
         <span class="faq-toggle" aria-hidden="true">+</span>

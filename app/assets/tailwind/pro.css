@@ -1,6 +1,8 @@
 /* ========================================
    Pro Landing Page Styles
-   Dark Warm Neubrutalism - Bold, tactile design
+   Dark Warm Neubrutalism — restrained.
+   The waitlist box is the only loud tactile object;
+   everything else makes way for it.
    ======================================== */
 
 .pro-hero {
@@ -43,118 +45,123 @@
   max-width: 38rem;
 }
 
-/* Query examples - terminal/code aesthetic with neubrutalist style */
-.query-example {
-  background: var(--color-bg-elevated);
+.pro-section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  color: var(--color-text);
+}
+
+.pro-section-text {
+  font-size: 1.1rem;
+  line-height: 1.7;
+  color: var(--color-text-muted);
+  margin-bottom: 2rem;
+}
+
+.pro-divider {
+  height: var(--border-width);
+  background: var(--color-border);
+  margin: 4rem auto;
+  max-width: 48rem;
+}
+
+/* Use case cards — concrete query examples, mono font signals
+   "this is what you'd actually type." Subordinate to the waitlist box. */
+.use-case {
+  background: var(--color-bg-card);
   border: var(--border-width) solid var(--color-border);
   border-radius: var(--radius-sm);
   padding: 1.5rem;
-  margin: 1rem 0;
-  font-family: var(--font-family-mono);
-  font-size: 0.95rem;
-  line-height: 1.6;
-  color: var(--color-accent);
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
+  margin-bottom: 1.5rem;
   box-shadow: var(--shadow-card);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
-.query-example:hover {
-  transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0 var(--color-border);
+.use-case-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 0.75rem;
 }
 
-.query-example:active {
+.use-case-query {
+  font-family: var(--font-family-mono);
+  font-size: 0.9rem;
+  color: var(--color-accent);
+  background: var(--color-bg-surface);
+  padding: 0.75rem 1rem;
+  border-radius: var(--radius-sm);
+  border-left: 4px solid var(--color-accent);
+  margin-top: 0.5rem;
+}
+
+/* Pricing summary — two centered lines, accent labels.
+   Replaces the previous tier-card visualization. */
+.pricing-summary {
+  max-width: 32rem;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.pricing-summary p {
+  font-size: 1.05rem;
+  line-height: 1.65;
+  color: var(--color-text);
+  margin: 0 0 0.75rem 0;
+}
+
+.pricing-summary p:last-child {
+  margin-bottom: 0;
+}
+
+.pricing-summary strong {
+  color: var(--color-accent);
+  font-weight: 700;
+  margin-right: 0.25em;
+}
+
+/* Hero CTA wrapper */
+.pro-hero-cta {
+  margin-top: 2.5rem;
+}
+
+/* Primary CTA button — Neubrutalist, solid accent. */
+.cta-primary {
+  display: inline-block;
+  padding: 1.25rem 3rem;
+  background: var(--color-accent);
+  border: var(--border-width) solid var(--color-bg-deep);
+  border-radius: var(--radius-sm);
+  color: #FFFFFF;
+  font-family: var(--font-family-display);
+  font-weight: 800;
+  font-size: 1.0625rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 4px 4px 0 var(--color-bg-deep);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+
+.cta-primary:hover {
+  background: var(--color-accent-hover);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--color-bg-deep);
+}
+
+.cta-primary:active {
   transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-border);
+  box-shadow: 2px 2px 0 var(--color-bg-deep);
 }
 
-.query-example-text {
-  padding-left: 0;
-}
-
-/* Comparison layout */
-.comparison-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 2rem;
-  margin: 2rem 0 3rem;
-}
-
-@media (min-width: 768px) {
-  .comparison-grid {
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
+@media (max-width: 480px) {
+  .cta-primary {
+    padding: 1.125rem 2rem;
+    font-size: 1rem;
   }
 }
 
-.comparison-column {
-  position: relative;
-}
-
-.comparison-column h3 {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: var(--color-text-muted);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.comparison-column h3::before {
-  content: '';
-  display: inline-block;
-  width: 20px;
-  height: 20px;
-  flex-shrink: 0;
-}
-
-.comparison-bad h3 {
-  color: var(--color-text-subtle);
-}
-
-.comparison-bad h3::before {
-  content: '';
-  color: #DC2626;
-  font-size: 1.2rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.comparison-bad .query-example {
-  opacity: 0.75;
-  filter: grayscale(50%);
-  border-color: rgba(220, 38, 38, 0.2);
-  cursor: default;
-}
-
-.comparison-bad .query-example:hover {
-  transform: none;
-  box-shadow: none;
-}
-
-.comparison-good h3 {
-  color: var(--color-accent);
-}
-
-.comparison-good h3::before {
-  content: '';
-  color: var(--color-accent);
-  font-size: 1.2rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-/* Waitlist form - Neubrutalist style */
+/* Waitlist — the page's tactile centerpiece. */
 .waitlist-box {
   background: var(--color-bg-card);
   border: var(--border-width) solid var(--color-border);
@@ -163,6 +170,20 @@
   max-width: 32rem;
   margin: 3rem auto;
   box-shadow: var(--shadow-lg);
+}
+
+.waitlist-heading {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.waitlist-subtitle {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  text-align: center;
 }
 
 .waitlist-form {
@@ -232,84 +253,65 @@
   }
 }
 
-/* Use case cards - Static, no fake interactivity */
-.use-case {
-  background: var(--color-bg-card);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-card);
-}
-
-.use-case-title {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 0.75rem;
-}
-
-.use-case-query {
-  font-family: var(--font-family-mono);
-  font-size: 0.9rem;
-  color: var(--color-accent);
-  background: var(--color-bg-surface);
-  padding: 0.75rem 1rem;
-  border-radius: var(--radius-sm);
-  border-left: 4px solid var(--color-accent);
-  margin-top: 0.5rem;
-}
-
-/* Pricing tiers */
-.pricing-tiers {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  margin-top: 2rem;
-}
-
-.pricing-tier {
-  width: 100%;
-  max-width: 24rem;
-  padding: 1.5rem 2rem;
-  background: var(--color-bg-card);
-  border: var(--border-width) solid var(--color-border);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-card);
-}
-
-.pricing-tier-free {
-  border-color: var(--color-accent);
-  box-shadow: 4px 4px 0 var(--color-accent);
-}
-
-.pricing-tier-label {
-  font-size: 1.25rem;
-  font-weight: 700;
-  font-family: var(--font-family-display);
-  color: var(--color-text);
-  margin-bottom: 0.5rem;
-}
-
-.pricing-amount-inline {
-  color: var(--color-accent);
-  font-weight: 900;
-}
-
-.pricing-tier-desc {
-  font-size: 0.95rem;
-  color: var(--color-text-muted);
-  margin: 0;
-}
-
-.pricing-tier-arrow {
-  font-size: 1.5rem;
+.waitlist-disclaimer {
+  font-size: 0.85rem;
   color: var(--color-text-subtle);
-  line-height: 1;
+  margin-top: 1rem;
+  text-align: center;
 }
 
-/* FAQ - Clean, simple list without fake card interactivity */
+.waitlist-message {
+  margin-top: 1.25rem;
+  padding: 1rem 1.5rem;
+  border-radius: var(--radius-md);
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: center;
+  animation: slideIn 0.2s ease-out;
+}
+
+.waitlist-message-success {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34D399;
+  border: var(--border-width) solid rgba(16, 185, 129, 0.4);
+}
+
+.waitlist-message-error {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #F87171;
+  border: var(--border-width) solid rgba(239, 68, 68, 0.4);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Back to catalog */
+.back-to-browsing {
+  text-align: center;
+  padding-bottom: 6rem;
+}
+
+.back-to-browsing .mm-button {
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* FAQ — clean list. Mobile: collapsible accordion. Desktop: always open. */
+.pro-section-title-faq {
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  color: var(--color-text);
+}
+
 .faq-item {
   margin-bottom: 0;
   padding: 1.5rem 0;
@@ -390,284 +392,15 @@
   }
 }
 
-/* Status badge - Neubrutalist style */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--color-accent);
-  border: var(--border-width) solid var(--color-bg-deep);
-  border-radius: var(--radius-sm);
-  font-size: 0.85rem;
-  font-weight: 800;
-  color: #FFFFFF;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 2rem;
-  box-shadow: 2px 2px 0 var(--color-bg-deep);
-}
-
-.status-dot {
-  width: 8px;
-  height: 8px;
-  background: #FFFFFF;
-  border-radius: 50%;
-  animation: pulse 2s ease-in-out infinite;
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.6;
-    transform: scale(1.3);
-  }
-}
-
-/* Divider */
-.pro-divider {
-  height: var(--border-width);
-  background: var(--color-border);
-  margin: 4rem auto;
-  max-width: 48rem;
-}
-
-/* Scroll-triggered fade-in animations */
-[data-scroll-reveal] {
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
-}
-
-[data-scroll-reveal].visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* Hero CTA wrapper */
-.pro-hero-cta {
-  margin-top: 2.5rem;
-}
-
-/* Primary CTA button - Neubrutalist, solid accent */
-.cta-primary {
-  display: inline-block;
-  padding: 1.25rem 3rem;
-  background: var(--color-accent);
-  border: var(--border-width) solid var(--color-bg-deep);
-  border-radius: var(--radius-sm);
-  color: #FFFFFF;
-  font-family: var(--font-family-display);
-  font-weight: 800;
-  font-size: 1.0625rem;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 4px 4px 0 var(--color-bg-deep);
-  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
-}
-
-.cta-primary:hover {
-  background: var(--color-accent-hover);
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 var(--color-bg-deep);
-}
-
-.cta-primary:active {
-  transform: translate(2px, 2px);
-  box-shadow: 2px 2px 0 var(--color-bg-deep);
-}
-
-@media (max-width: 480px) {
-  .cta-primary {
-    padding: 1.125rem 2rem;
-    font-size: 1rem;
-  }
-}
-
-/* Secondary CTA button - Neubrutalist style */
-.cta-secondary {
-  display: inline-block;
-  padding: 1rem 2.5rem;
-  background: var(--color-bg-elevated);
-  border: var(--border-width) solid var(--color-accent);
-  border-radius: var(--radius-sm);
-  color: var(--color-accent);
-  font-family: var(--font-family-display);
-  font-weight: 800;
-  font-size: 1rem;
-  text-decoration: none;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  box-shadow: 3px 3px 0 var(--color-accent);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
-}
-
-.cta-secondary:hover {
-  background: var(--color-accent);
-  color: #FFFFFF;
-  transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--color-bg-deep);
-}
-
-.cta-secondary:active {
-  transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--color-bg-deep);
-}
-
-/* Section headings */
-.pro-section-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 1.5rem;
-  color: var(--color-text);
-}
-
-.pro-section-title-faq {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  color: var(--color-text);
-}
-
-.pro-section-title-centered {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: var(--color-text);
-}
-
-.waitlist-heading {
-  font-size: 1.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  color: var(--color-text);
-  text-align: center;
-}
-
-/* Section paragraphs */
-.pro-section-text {
-  font-size: 1.1rem;
-  line-height: 1.7;
-  color: var(--color-text-muted);
-  margin-bottom: 2rem;
-}
-
-.pro-section-text-centered {
-  font-size: 1rem;
-  line-height: 1.7;
-  color: var(--color-text-muted);
-  margin-top: 2rem;
-  max-width: 28rem;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.waitlist-subtitle {
-  font-size: 1rem;
-  color: var(--color-text-muted);
-  text-align: center;
-}
-
-.waitlist-disclaimer {
-  font-size: 0.85rem;
-  color: var(--color-text-subtle);
-  margin-top: 1rem;
-  text-align: center;
-}
-
-/* Pricing period text */
-.pricing-period {
-  font-size: 1.1rem;
-  color: var(--color-text-muted);
-  margin-top: 0.5rem;
-}
-
-/* Comparison descriptions */
-.comparison-desc {
-  font-size: 0.9rem;
-  color: var(--color-text-subtle);
-  line-height: 1.6;
-}
-
-.comparison-desc-good {
-  font-size: 0.9rem;
-  color: var(--color-text-muted);
-  line-height: 1.6;
-}
-
-/* CTA container */
-.cta-container {
-  text-align: center;
-  margin-top: 3rem;
-}
-
-/* Pricing section centered */
-.pricing-section-centered {
-  text-align: center;
-}
-
-/* Back to browsing section */
-.back-to-browsing {
-  text-align: center;
-  padding-bottom: 6rem;
-}
-
-.back-to-browsing .mm-button {
-  display: inline-block;
-  text-decoration: none;
-}
-
 /* Reduce motion for accessibility */
 @media (prefers-reduced-motion: reduce) {
-  [data-scroll-reveal],
-  .query-example,
-  .use-case,
+  .cta-primary,
   .waitlist-button,
-  .faq-item {
+  .waitlist-input,
+  .waitlist-message,
+  .faq-toggle,
+  .faq-a {
     transition: none;
     animation: none;
-  }
-
-  [data-scroll-reveal] {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* Waitlist message */
-.waitlist-message {
-  margin-top: 1.25rem;
-  padding: 1rem 1.5rem;
-  border-radius: var(--radius-md);
-  font-size: 0.95rem;
-  font-weight: 500;
-  text-align: center;
-  animation: slideIn 0.2s ease-out;
-}
-
-.waitlist-message-success {
-  background-color: rgba(16, 185, 129, 0.15);
-  color: #34D399;
-  border: var(--border-width) solid rgba(16, 185, 129, 0.4);
-}
-
-.waitlist-message-error {
-  background-color: rgba(239, 68, 68, 0.15);
-  color: #F87171;
-  border: var(--border-width) solid rgba(239, 68, 68, 0.4);
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
