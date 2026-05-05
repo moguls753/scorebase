@@ -22,7 +22,7 @@ de:
     tagline: "Beschreibe in natürlicher Sprache, was du suchst"
     beta_note_html: "Öffentliche Beta — Smart Search läuft auf KI; jede Anfrage verursacht API-Kosten. Es gibt ein Limit von 5 Suchen pro IP und Tag plus ein tägliches seitenweites Limit während der Beta. Aktuell sind etwa %{indexed_pct} der gemeinfreien Noten indexiert (Schwerpunkt Klassik und Chor, wird laufend ausgebaut). Feedback willkommen — %{mailto}"
     feedback_link: "schreib mir eine Mail"
-    input_placeholder: "z.B. Ich suche etwas für meine Klavierschülerin, die seit 2 Jahren spielt..."
+    input_placeholder: "z.B. einfach für meine Schülerin"
     search_button_label: "Suche"
     view_score: "Notenblatt ansehen"
     no_matches: "Keine Treffer gefunden"
@@ -55,7 +55,7 @@ de:
       heading: "Deine Eingabe ist zu lang"
       body: "Bitte kürze die Suchanfrage und versuch es erneut."
     refine:
-      placeholder: "Ergebnisse anpassen? Beschreibe, was geändert werden soll."
+      placeholder: "Was soll ich anpassen?"
       button: "Verfeinern"
       button_mobile: "Ergebnisse verfeinern"
       refining: "Wird verfeinert…"

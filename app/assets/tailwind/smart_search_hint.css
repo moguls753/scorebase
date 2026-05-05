@@ -64,27 +64,35 @@
   transition: color 0.2s ease;
 }
 
-/* Arrow — the only directional accent */
+/* Arrow — the only directional accent.
+   Mirrors .teaser-mark's −1px optical lift so (beta) and → sit on
+   the same optical mid-line as a matched pair of muted markers. */
 .teaser-arrow {
   display: inline-block;
   font-size: 16px;
   color: var(--color-text-subtle);
-  transition: color 0.2s ease, transform 0.2s ease;
+  transition: color 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   margin-left: 0.3em;
+  position: relative;
+  top: -1px;
 }
 
-/* Hover — the line subtly shifts forward, arrow leans further right */
-.smart-search-teaser-link:hover .teaser-name {
-  color: var(--color-accent-hover);
-}
+/* Hover — the line subtly shifts forward, arrow leans further right.
+   Gated to real pointers (mouse/trackpad); touch devices skip this
+   to avoid iOS sticky-:hover and meaningless tap-flicker. */
+@media (hover: hover) and (pointer: fine) {
+  .smart-search-teaser-link:hover .teaser-name {
+    color: var(--color-accent-hover);
+  }
 
-.smart-search-teaser-link:hover .teaser-arrow {
-  transform: translateX(2px);
-  color: var(--color-accent);
-}
+  .smart-search-teaser-link:hover .teaser-arrow {
+    transform: translateX(2px);
+    color: var(--color-accent);
+  }
 
-.smart-search-teaser-link:hover .teaser-prompt {
-  color: var(--color-text);
+  .smart-search-teaser-link:hover .teaser-prompt {
+    color: var(--color-text);
+  }
 }
 
 /* Tablet — slightly smaller to prevent wrapping */

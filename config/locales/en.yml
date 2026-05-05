@@ -22,7 +22,7 @@ en:
     tagline: "Describe what you're looking for in natural language"
     beta_note_html: "Public beta — Smart Search runs on AI; each query has real API costs. There's a 5/day per-IP cap plus a daily site-wide cap during the beta. About %{indexed_pct} of the free public-domain catalog is indexed so far (mostly classical and choral, growing). Feedback welcome — %{mailto}"
     feedback_link: "send me a mail"
-    input_placeholder: "e.g. I need something for my piano student who's been playing for 2 years..."
+    input_placeholder: "e.g. easy piano for my student"
     search_button_label: "Search"
     view_score: "View Score"
     no_matches: "No matches found"
@@ -55,7 +55,7 @@ en:
       heading: "Your input is too long"
       body: "Please shorten your search and try again."
     refine:
-      placeholder: "Want to nudge the results? Tell me what to adjust."
+      placeholder: "What should I tweak?"
       button: "Refine"
       button_mobile: "Refine results"
       refining: "Refining…"
