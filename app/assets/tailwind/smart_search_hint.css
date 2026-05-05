@@ -21,17 +21,44 @@
   word-spacing: 0.15em;
 }
 
-/* "Coming soon:" */
-.teaser-coming-soon {
-  display: inline-block;
+/* "BETA" status badge - small accent pill with pulsing dot */
+.teaser-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  padding: 0.2em 0.6em;
+  background: var(--color-accent);
+  color: #FFFFFF;
   font-family: var(--font-family-display);
-  font-size: 19px;
-  font-weight: 700;
-  letter-spacing: -0.3px;
-  color: var(--color-text-muted);
-  transition: color 0.2s ease;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 3px;
+  vertical-align: 1px;
   position: relative;
-  top: 1px;
+  top: -2px;
+  box-shadow: 2px 2px 0 var(--color-bg-deep);
+}
+
+.teaser-status-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  background: #FFFFFF;
+  border-radius: 50%;
+  animation: teaser-pulse 2s ease-in-out infinite;
+}
+
+@keyframes teaser-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.3);
+  }
 }
 
 /* "Smart Search" - accent color */
@@ -83,7 +110,6 @@
     font-size: 14px;
   }
 
-  .teaser-coming-soon,
   .teaser-name {
     font-size: 17px;
   }
@@ -96,11 +122,13 @@
 /* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   .smart-search-teaser-link,
-  .teaser-coming-soon,
+  .teaser-status-badge,
+  .teaser-status-dot,
   .teaser-name,
   .teaser-arrow,
   .teaser-cta {
     transition: none !important;
+    animation: none !important;
   }
 
   .smart-search-teaser-link:hover .teaser-name {

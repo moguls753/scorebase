@@ -7,20 +7,20 @@ de:
     toggle_menu: "Menü öffnen"
     menu: "Menü"
     close_menu: "Menü schließen"
-    pro_coming_soon: "Pro (Demnächst)"
+    pro: "Pro"
 
   # Smart Search Teaser
   smart_search_teaser:
-    coming_soon: "Demnächst:"
+    beta: "BETA"
     name: "Smart Search"
-    learn_more: "Mehr erfahren"
+    try_now: "Jetzt testen"
 
   # Smart Search (öffentliche Beta)
   smart_search:
     heading: "Smart Search"
     beta_badge: "Beta"
     tagline: "Beschreibe in natürlicher Sprache, was du suchst"
-    beta_note_html: "Öffentliche Beta — noch nicht alle Noten sind für die semantische Suche indexiert, und es gibt ein tägliches Suchlimit. Ich freu mich über Feedback — %{mailto}"
+    beta_note_html: "Öffentliche Beta — noch nicht alle Noten sind für die semantische Suche indexiert, und es gibt ein tägliches Suchlimit (5/Tag). Ich freu mich über Feedback — %{mailto}"
     feedback_link: "schreib mir eine Mail"
     input_placeholder: "z.B. Ich suche etwas für meine Klavierschülerin, die seit 2 Jahren spielt..."
     search_button_label: "Suche"
@@ -28,19 +28,25 @@ de:
     no_matches: "Keine Treffer gefunden"
     try_regular_html: "Nichts Passendes dabei? %{link}"
     try_regular_link: "Reguläre Suche probieren"
+    see_pro_html: "Mehr Suchen pro Tag? %{link}"
+    see_pro_link: "Pro ansehen →"
     suggestions_intro: "Versuch es zum Beispiel so:"
     suggestions:
-      bach: "Einfacher Bach für Klavierschüler"
-      church: "Etwas Sanftes für einen Gottesdienst"
-      recital: "Dramatisches Stück für ein Konzert"
-      violin: "Violinsonate für Fortgeschrittene"
+      teacher: "Klavierduette für Lehrer und Anfänger"
+      director: "Ostermotette, SATB, 3-4 Minuten, Sopran nicht über g''"
+      amateur: "Klavierstücke, die ich am Wochenende lernen kann und beeindruckend klingen"
+      student: "Repertoire für mein Abschlusskonzert, Romantik und 20. Jahrhundert, ca. 30 Minuten"
     quota_exhausted:
       heading: "Smart Search hat das heutige Tageslimit erreicht"
       body_html: "Smart Search hat während der öffentlichen Beta ein tägliches Limit für die ganze Seite. Das Limit wird täglich um Mitternacht UTC zurückgesetzt. Die reguläre Suche kannst du weiterhin ohne Limit nutzen."
+      pro_pitch_html: "Mehr Suchen pro Tag? %{link} — Pro-Tarif (2 €/Monat, 100 Suchen/Tag) startet nach der BETA."
+      pro_pitch_link: "Über Pro-Start informieren"
       regular_search_cta: "Reguläre Suche nutzen"
     per_ip_limit_reached:
       heading: "Smart Search ist über diese Verbindung vorübergehend nicht verfügbar"
       body_html: "Damit Smart Search in der öffentlichen Beta verfügbar bleibt, ist sie auf 5 Anfragen je IP-Adresse innerhalb von 24 Stunden begrenzt. Bei gemeinsam genutzten Verbindungen kann dieses Limit früher erreicht werden. Die reguläre Suche kannst du weiterhin ohne Limit nutzen."
+      pro_pitch_html: "Brauchst du mehr Suchen pro Tag? %{link} — Pro-Tarif (2 €/Monat, 100 Suchen/Tag) startet nach der BETA."
+      pro_pitch_link: "Über Pro-Start informieren"
       regular_search_cta: "Reguläre Suche nutzen"
     rag_error:
       heading: "Smart Search ist gerade nicht verfügbar"
@@ -306,8 +312,8 @@ de:
     feature_2_desc: "Sauberere, verlässlichere Daten. KI standardisiert Informationen über alle Quellen und ergänzt fehlende Details."
     feature_3_title: "Interaktive Galerie"
     feature_3_desc: "Durchblättere die komplette Partitur vor dem Download. Mit Navigation, Tastaturkürzeln und Vollbildmodus."
-    feature_4_title: "Intelligente Suche (Demnächst)"
-    feature_4_desc: "KI-gestützte Suche in natürlicher Sprache. Beschreibe einfach, was du suchst – etwa 'barocke Violinsonaten' oder 'einfache Klavierstücke in C-Dur'."
+    feature_4_title: "Intelligente Suche (Öffentliche BETA)"
+    feature_4_desc: "KI-gestützte Suche in natürlicher Sprache, live in öffentlicher BETA. Beschreibe einfach, was du suchst – etwa 'barocke Violinsonaten' oder 'einfache Klavierstücke in C-Dur'."
     back_to_search: "Zurück zur Suche"
     imslp_name: "International Music Score Library Project"
     imslp_description: "Auch bekannt als Petrucci-Musikbibliothek. Die größte Sammlung von Noten mit über 800.000 Partituren von mehr als 27.000 Komponisten."
@@ -602,15 +608,16 @@ de:
   # Pro Landing Page
   pro:
     meta_title: "KI-Notensuche — Noten per Beschreibung finden | ScoreBase"
-    meta_description: "KI-gestützte Notensuche. Beschreibe was du suchst: 'leichtes Klavierstück für Anfänger' oder 'SATB-Chorstück für Ostern'. Durchsuche %{count} Noten nach Schwierigkeit, Stimmumfang und Stimmung."
-    og_description: "Finde das passende Stück für deine Schüler, deinen Chor oder dein nächstes Konzert. %{count} Noten, durchsuchbar nach dem, was du wirklich brauchst."
+    meta_description: "KI-gestützte Notensuche, öffentliche BETA. Beschreibe was du suchst: 'leichtes Klavierstück für Anfänger' oder 'SATB-Chorstück für Ostern'. Durchsuche %{count} Noten nach Schwierigkeit, Stimmumfang und Stimmung."
+    og_description: "Finde das passende Stück für deine Schüler, deinen Chor oder dein nächstes Konzert. %{count} Noten, durchsuchbar nach dem, was du wirklich brauchst. Öffentliche BETA, in der BETA kostenlos."
 
     # Status badge
-    status_coming_soon: "Demnächst"
+    status_beta_live: "Öffentliche BETA — Live"
 
     # Hero section
     hero_headline: "KI-gestützte Notensuche"
-    hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst – in natürlicher Sprache."
+    hero_subhead: "Schluss mit Stichwörtern. Beschreibe einfach, was du brauchst. Smart Search läuft jetzt als öffentliche BETA – während der BETA kostenlos. Pro-Tarif für 2 €/Monat (100 Suchen/Tag) startet nach der BETA."
+    hero_cta_try: "Smart Search kostenlos testen →"
 
     # Problem section
     problem_title: "Das Problem"
@@ -621,7 +628,7 @@ de:
     comparison_bad_title: "Normale Suche"
     comparison_bad_query: "Klavier Anfänger Bach"
     comparison_bad_desc: "47.000 Ergebnisse. Jedes Bach-Klavierstück. Kein Verständnis von \"Anfänger\"."
-    comparison_good_title: "Smart Search"
+    comparison_good_title: "So funktioniert Smart Search"
     comparison_good_query: "Einfache Bach-Stücke für Klavierschüler nach 2 Jahren"
     comparison_good_desc: "Versteht Schwierigkeitsgrad, filtert gezielt, zeigt passende Ergebnisse."
 
@@ -641,34 +648,34 @@ de:
 
     # Pricing section
     pricing_title: "Preis"
-    pricing_free: "5 Suchen gratis"
-    pricing_free_desc: "Kostenloser Account. Keine Kreditkarte."
-    pricing_then: "Dann"
+    pricing_free: "BETA: 5 Suchen/Tag"
+    pricing_free_desc: "Live jetzt. Während der BETA kostenlos. Kein Account nötig."
+    pricing_then: "Pro:"
     pricing_amount: "2 €"
-    pricing_period: "im Monat"
-    pricing_desc: "Keine Bindung."
+    pricing_period: "/Monat"
+    pricing_desc: "100 Suchen/Tag. Startet nach der BETA."
 
     # Waitlist section
-    waitlist_title: "In Arbeit"
-    waitlist_subtitle: "Tritt der Warteliste bei. Ich schicke dir eine E-Mail, wenn es startet."
+    waitlist_title: "Pro startet bald"
+    waitlist_subtitle: "Lass dich benachrichtigen, sobald der Pro-Tarif startet."
     waitlist_email_placeholder: "deine@email.de"
-    waitlist_button: "Beitreten"
+    waitlist_button: "Benachrichtigen"
     waitlist_sending: "Wird gesendet..."
-    waitlist_cta: "Warteliste beitreten"
-    waitlist_disclaimer: "Ich schicke dir eine E-Mail, wenn es live geht. Kein Spam."
+    waitlist_cta: "Über Pro informieren"
+    waitlist_disclaimer: "Ich schicke dir eine E-Mail, sobald Pro startet. Kein Spam."
 
     # FAQ section
     faq_title: "Fragen"
-    faq_1_q: "Wann geht's los?"
-    faq_1_a: "Bald. Ich baue gerade das KI-Modell und die Such-Infrastruktur. Wenn du der Warteliste beitrittst, erfährst du es, sobald es startet."
+    faq_1_q: "Ist Smart Search schon verfügbar?"
+    faq_1_a: "Ja – die öffentliche BETA ist live. Free-Tarif: 5 Suchen pro Tag und IP, kein Account nötig. Der Pro-Tarif (2 €/Monat, 100 Suchen/Tag) startet nach der BETA."
     faq_2_q: "Kann ich es gratis testen?"
-    faq_2_a: "Ja. Leg dir einen Account an und du bekommst 5 Smart Searches. Keine Kreditkarte nötig. Der Katalog mit normaler Suche bleibt für immer kostenlos."
+    faq_2_a: "Ja. Die öffentliche BETA ist live mit 5 kostenlosen Suchen pro Tag und IP. Kein Account, keine Kreditkarte. Der volle Katalog mit normaler Stichwortsuche bleibt für immer kostenlos."
     faq_3_q: "Was ist der Unterschied zu IMSLP?"
     faq_3_a: "IMSLP ist ein Noten-Archiv mit Stichwortsuche. ScoreBase vereint mehrere Quellen (IMSLP, CPDL, OpenScore und mehr) und fügt Smart Search hinzu, die musikalischen Kontext versteht: Schwierigkeit, Stimmumfänge, Dauer, Stil."
     faq_4_q: "Kann ich jederzeit kündigen?"
     faq_4_a: "Ja. Keine Vertragsbindung. Kündige wann immer du willst."
-    faq_5_q: "Warum kostet es nach den Gratis-Suchen Geld?"
-    faq_5_a: "Jede Suche nutzt KI, um deine Anfrage zu verstehen und die besten Treffer zu finden. Das kostet mich echtes Geld. Deine 2 € decken die Infrastruktur, während der Katalog für alle kostenlos bleibt."
+    faq_5_q: "Warum kostet Pro Geld?"
+    faq_5_a: "Die BETA ist kostenlos mit 5 Suchen pro Tag und IP. Pro (2 €/Monat, 100 Suchen/Tag) deckt die KI-Infrastruktur, während der freie Katalog für alle offen bleibt."
 
     # Footer
     back_to_catalog: "← Zurück zum kostenlosen Katalog"
@@ -786,12 +793,12 @@ de:
   # Mailers
   waitlist_mailer:
     confirmation:
-      subject: "Du stehst auf der ScoreBase Pro Warteliste"
+      subject: "Du stehst auf der ScoreBase Pro Startliste"
 
   # Waitlist form messages
   waitlist:
     success: "Danke! Prüfe deine E-Mails für die Bestätigung."
     success_with_preview: "Danke! Prüfe deine E-Mails für die Bestätigung oder <a href=\"%{preview_url}\" target=\"_blank\" rel=\"noopener noreferrer\">sieh sie hier an</a>."
-    already_subscribed: "Du stehst bereits auf der Liste! Ich schicke dir eine E-Mail beim Start."
+    already_subscribed: "Du stehst bereits auf der Liste! Ich schicke dir eine E-Mail, sobald Pro startet."
     error: "Etwas ist schiefgelaufen. Bitte versuche es erneut."
     rate_limit: "Zu viele Anfragen. Bitte versuche es in einer Stunde erneut."

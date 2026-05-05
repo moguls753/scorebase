@@ -9,6 +9,11 @@
       </p>
       <%= link_to t("smart_search.per_ip_limit_reached.regular_search_cta"), scores_path,
                   class: "text-[var(--color-accent)] hover:underline font-medium" %>
+      <p class="mt-6 text-xs text-[var(--color-text-muted)] leading-relaxed">
+        <%= t("smart_search.per_ip_limit_reached.pro_pitch_html",
+              link: link_to(t("smart_search.per_ip_limit_reached.pro_pitch_link"), pro_landing_path(anchor: "waitlist"),
+                            class: "text-[var(--color-accent)] hover:underline font-medium")).html_safe %>
+      </p>
     </div>
   </template>
 </turbo-stream>

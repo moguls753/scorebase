@@ -66,9 +66,9 @@ For known repertoire, LLM-inferred pedagogical grades override algorithmic diffi
 | **AI** | LLM-powered normalization and reranking |
 | **Extraction** | Python, music21, FastAPI |
 
-## Pro
+## Smart Search
 
-Smart search with LLM reranking (coming soon). Pro subscription covers API costs.
+Natural language search with LLM reranking — live in public BETA at `/smart-search`. Free during beta with a 5-searches/day per-IP cap. A planned Pro tier (€2/month, 100 searches/day) launches after BETA stabilizes; pricing covers the AI infrastructure costs while the catalog stays free.
 
 ## Contributing
 

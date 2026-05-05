@@ -1,5 +1,34 @@
 <% content_for :title do %>Smart Search — ScoreBase<% end %>
 
+<% content_for :json_ld do %>
+  <script type="application/ld+json">
+  <%= {
+    "@context"          => "https://schema.org",
+    "@type"             => "WebApplication",
+    "@id"               => "#{request.base_url}#{smart_search_path}#tool",
+    "name"              => "ScoreBase Smart Search BETA",
+    "url"               => "#{request.base_url}#{smart_search_path}",
+    "applicationCategory" => "MusicApplication",
+    "operatingSystem"   => "Web",
+    "browserRequirements" => "Requires JavaScript enabled",
+    "description"       => "Natural language search for sheet music, public BETA. Describe difficulty, vocal range, duration, style, and mood. Free during beta with 5 searches/day.",
+    "inLanguage"        => ["en", "de"],
+    "offers"            => {
+      "@type"        => "Offer",
+      "name"         => "BETA",
+      "price"        => "0",
+      "priceCurrency" => "EUR",
+      "availability" => "https://schema.org/InStock"
+    },
+    "creator"           => {
+      "@type" => "Organization",
+      "name"  => "ScoreBase",
+      "url"   => request.base_url
+    }
+  }.to_json.html_safe %>
+  </script>
+<% end %>
+
 <div class="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
   <!-- Header -->
   <div class="text-center mb-4">
@@ -69,10 +98,10 @@
       <p class="text-sm text-[var(--color-text-muted)] mb-6"><%= t("smart_search.suggestions_intro") %></p>
       <div class="flex flex-wrap justify-center gap-2">
         <% [
-          t("smart_search.suggestions.bach"),
-          t("smart_search.suggestions.church"),
-          t("smart_search.suggestions.recital"),
-          t("smart_search.suggestions.violin")
+          t("smart_search.suggestions.teacher"),
+          t("smart_search.suggestions.director"),
+          t("smart_search.suggestions.amateur"),
+          t("smart_search.suggestions.student")
         ].each do |suggestion| %>
           <%= link_to smart_search_path(q: suggestion),
                       class: "px-4 py-2 text-sm bg-[var(--color-bg-elevated)] border border-[var(--color-border)] rounded-full text-[var(--color-text-secondary)] hover:border-[var(--color-accent)] hover:text-[var(--color-accent)] transition-all" do %>
@@ -82,4 +111,13 @@
       </div>
     </div>
   <% end %>
+
+  <!-- Discreet Pro footer link -->
+  <div class="mt-12 text-center">
+    <p class="text-xs text-[var(--color-text-muted)]">
+      <%= t("smart_search.see_pro_html",
+            link: link_to(t("smart_search.see_pro_link"), pro_landing_path,
+                          class: "text-[var(--color-accent)] hover:underline font-medium")).html_safe %>
+    </p>
+  </div>
 </div>

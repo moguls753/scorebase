@@ -6,20 +6,32 @@
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
+    "@id": "<%= request.base_url %><%= pro_landing_path %>#pro-product",
     "name": "ScoreBase Smart Search",
     "url": "<%= request.base_url %><%= pro_landing_path %>",
     "applicationCategory": "MusicApplication",
     "operatingSystem": "Web",
-    "offers": {
-      "@type": "Offer",
-      "price": "2.00",
-      "priceCurrency": "USD",
-      "availability": "https://schema.org/PreOrder",
-      "priceValidUntil": "2026-12-31",
-      "billingIncrement": "P1M",
-      "url": "<%= request.base_url %><%= pro_landing_path %>"
-    },
-    "description": "Search <%= number_with_delimiter(@total_count) %> sheet music scores by difficulty, vocal range, duration, style, and mood. Natural language search.",
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "BETA",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
+        "description": "5 searches per day during public BETA. No account required.",
+        "url": "<%= request.base_url %><%= smart_search_path %>"
+      },
+      {
+        "@type": "Offer",
+        "name": "Pro",
+        "price": "2",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/PreOrder",
+        "description": "100 searches per day. Launching after BETA.",
+        "billingIncrement": "P1M"
+      }
+    ],
+    "description": "Search <%= number_with_delimiter(@total_count) %> sheet music scores by difficulty, vocal range, duration, style, and mood. Natural language search. Public BETA.",
     "creator": {
       "@type": "Organization",
       "name": "ScoreBase"
@@ -90,7 +102,7 @@
   <div class="pro-hero">
     <div class="status-badge">
       <span class="status-dot"></span>
-      <%= t('pro.status_coming_soon') %>
+      <%= t('pro.status_beta_live') %>
     </div>
 
     <h1 class="pro-headline">
@@ -100,6 +112,10 @@
     <p class="pro-subhead">
       <%= t('pro.hero_subhead') %>
     </p>
+
+    <div class="pro-hero-cta">
+      <%= link_to t('pro.hero_cta_try'), smart_search_path, class: "cta-primary" %>
+    </div>
   </div>
 
   <!-- The Problem -->

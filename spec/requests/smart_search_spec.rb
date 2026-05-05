@@ -1,7 +1,7 @@
 require "rails_helper"
 
 RSpec.describe "SmartSearch", type: :request do
-  describe "GET /search/ai" do
+  describe "GET /smart-search" do
     let(:query) { "easy bach for piano" }
     let(:rag_payload) {
       {
@@ -173,7 +173,7 @@ RSpec.describe "SmartSearch", type: :request do
     end
   end
 
-  describe "POST /search/ai/feedback" do
+  describe "POST /smart-search/feedback" do
     let(:query_record) { create(:smart_search_query) }
 
     it "creates a feedback row and returns Turbo Stream by default" do
@@ -246,7 +246,7 @@ RSpec.describe "SmartSearch", type: :request do
     end
   end
 
-  describe "POST /search/ai/refine" do
+  describe "POST /smart-search/refine" do
     let(:parent) { create(:smart_search_query) }
 
     let(:refined_payload) {
@@ -325,6 +325,20 @@ RSpec.describe "SmartSearch", type: :request do
 
       expect(SmartSearchUsage.where(date: SmartSearchUsage.utc_today).pick(:count).to_i).to eq(0)
       expect(response).to have_http_status(:service_unavailable)
+    end
+  end
+
+  describe "GET /search/ai (legacy redirect)" do
+    it "permanently redirects to /smart-search" do
+      get "/search/ai"
+      expect(response).to have_http_status(:moved_permanently)
+      expect(response.headers["Location"]).to end_with("/smart-search")
+    end
+
+    it "preserves locale prefix on redirect" do
+      get "/de/search/ai"
+      expect(response).to have_http_status(:moved_permanently)
+      expect(response.headers["Location"]).to end_with("/de/smart-search")
     end
   end
 end

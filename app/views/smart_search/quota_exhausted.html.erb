@@ -19,4 +19,10 @@
 
   <%= link_to t("smart_search.quota_exhausted.regular_search_cta"), scores_path,
               class: "inline-flex items-center gap-1.5 px-5 py-2.5 text-sm font-medium bg-[var(--color-accent)] text-white rounded-lg hover:bg-[var(--color-accent)]/90 transition-colors" %>
+
+  <p class="mt-8 text-sm text-[var(--color-text-muted)] leading-relaxed">
+    <%= t("smart_search.quota_exhausted.pro_pitch_html",
+          link: link_to(t("smart_search.quota_exhausted.pro_pitch_link"), pro_landing_path(anchor: "waitlist"),
+                        class: "text-[var(--color-accent)] hover:underline font-medium")).html_safe %>
+  </p>
 </div>

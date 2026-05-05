@@ -26,19 +26,19 @@ Rails.application.routes.draw do
   get "/en", to: redirect("/", status: 301)
 
   scope "(:locale)", locale: /de/ do
-    # Pro Landing Page (waitlist) - canonical URL for SEO
-    get "smart-search", to: "pages#pro", as: :pro_landing
+    # Smart Search BETA — canonical URL for the tool
+    get "smart-search", to: "smart_search#show", as: :smart_search
+    post "smart-search/feedback", to: "smart_search#feedback", as: :feedback_smart_search
+    post "smart-search/refine", to: "smart_search#refine", as: :refine_smart_search
+
+    # Pricing / Pro landing page
+    get "pro", to: "pages#pro", as: :pro_landing
     post "waitlist", to: "waitlist_signups#create", as: :waitlist_signup
 
-    # Short redirect for branding
-    get "pro", to: redirect { |params, request|
+    # Old tool URL — 301 redirect for any external bookmarks
+    get "search/ai", to: redirect { |params, _req|
       params[:locale] ? "/#{params[:locale]}/smart-search" : "/smart-search"
-    }
-
-    # Smart Search Feature (actual tool - will be gated behind auth when ready)
-    get "search/ai", to: "smart_search#show", as: :smart_search
-    post "search/ai/feedback", to: "smart_search#feedback", as: :feedback_smart_search
-    post "search/ai/refine", to: "smart_search#refine", as: :refine_smart_search
+    }, status: 301
 
     # Scores
     resources :scores, only: [:index, :show] do

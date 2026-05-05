@@ -447,6 +447,47 @@
   transform: translateY(0);
 }
 
+/* Hero CTA wrapper */
+.pro-hero-cta {
+  margin-top: 2.5rem;
+}
+
+/* Primary CTA button - Neubrutalist, solid accent */
+.cta-primary {
+  display: inline-block;
+  padding: 1.25rem 3rem;
+  background: var(--color-accent);
+  border: var(--border-width) solid var(--color-bg-deep);
+  border-radius: var(--radius-sm);
+  color: #FFFFFF;
+  font-family: var(--font-family-display);
+  font-weight: 800;
+  font-size: 1.0625rem;
+  text-decoration: none;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  box-shadow: 4px 4px 0 var(--color-bg-deep);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, background 0.1s ease;
+}
+
+.cta-primary:hover {
+  background: var(--color-accent-hover);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--color-bg-deep);
+}
+
+.cta-primary:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 var(--color-bg-deep);
+}
+
+@media (max-width: 480px) {
+  .cta-primary {
+    padding: 1.125rem 2rem;
+    font-size: 1rem;
+  }
+}
+
 /* Secondary CTA button - Neubrutalist style */
 .cta-secondary {
   display: inline-block;
