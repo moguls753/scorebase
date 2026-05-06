@@ -50,7 +50,7 @@ class NormalizeVoicingJob < ApplicationJob
   def apply_result(score, result, stats, index)
     if result.found?
       score.update!(
-        voicing: result.voicing,
+        voicing: result.voicing&.delete(" "),
         instruments: result.instruments,
         voicing_status: :normalized,
         instruments_status: :normalized
