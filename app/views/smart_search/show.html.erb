@@ -1,4 +1,9 @@
-<% content_for :title do %>Smart Search — ScoreBase<% end %>
+<% content_for :title, t('smart_search.meta_title') %>
+<% content_for :meta_description, t('smart_search.meta_description') %>
+<% content_for :og_description, t('smart_search.og_description') %>
+<%# Query-result pages are dynamic and shouldn't be indexed.
+    Robots.txt blocks crawling, but external links could still surface them. %>
+<% content_for :robots, "noindex,follow" if @query.present? %>
 
 <% content_for :json_ld do %>
   <script type="application/ld+json">

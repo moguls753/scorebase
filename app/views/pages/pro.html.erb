@@ -6,21 +6,42 @@
   {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    "@id": "<%= request.base_url %><%= pro_landing_path %>#pro-product",
-    "name": "ScoreBase Smart Search",
+    "@id": "<%= request.base_url %><%= pro_landing_path %>#pro",
+    "name": "ScoreBase Pro",
     "url": "<%= request.base_url %><%= pro_landing_path %>",
     "applicationCategory": "MusicApplication",
     "operatingSystem": "Web",
-    "offers": {
-      "@type": "Offer",
-      "name": "Public Beta",
-      "price": "0",
-      "priceCurrency": "EUR",
-      "availability": "https://schema.org/InStock",
-      "description": "5 searches per day during public beta. No account required.",
-      "url": "<%= request.base_url %><%= smart_search_path %>"
-    },
-    "description": "Search <%= number_with_delimiter(@total_count) %> sheet music scores by describing what you need. Public beta — natural-language search by difficulty, vocal range, duration, style, and mood.",
+    "description": "Pro tier for ScoreBase Smart Search — natural-language sheet music search across <%= number_with_delimiter(@total_count) %> scores. €2/month for 100 searches per day. The public BETA is live now with 5 free searches per day.",
+    "offers": [
+      {
+        "@type": "Offer",
+        "name": "Pro",
+        "price": "2.00",
+        "priceCurrency": "EUR",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "2.00",
+          "priceCurrency": "EUR",
+          "referenceQuantity": {
+            "@type": "QuantitativeValue",
+            "value": "1",
+            "unitCode": "MON"
+          }
+        },
+        "availability": "https://schema.org/LimitedAvailability",
+        "description": "100 searches per day. Ad-free. In the works.",
+        "url": "<%= request.base_url %><%= pro_landing_path %>"
+      },
+      {
+        "@type": "Offer",
+        "name": "Public Beta",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
+        "description": "5 searches per day during public beta. No account required.",
+        "url": "<%= request.base_url %><%= smart_search_path %>"
+      }
+    ],
     "creator": {
       "@type": "Organization",
       "name": "ScoreBase"
@@ -30,8 +51,7 @@
       "Difficulty level filtering",
       "Vocal range filtering",
       "Duration-based search",
-      "Style and mood search",
-      "<%= number_with_delimiter(@total_count) %> scores"
+      "Style and mood search"
     ]
   }
   </script>

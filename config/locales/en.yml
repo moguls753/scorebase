@@ -17,6 +17,9 @@ en:
 
   # Smart Search (public beta)
   smart_search:
+    meta_title: "Smart Search BETA — ScoreBase"
+    meta_description: "Search sheet music by describing what you need. Difficulty, vocal range, duration, style, mood — natural language. Public BETA, free, 5 searches/day."
+    og_description: "Describe what you need — I'll find the score. Sheet music search by difficulty, vocal range, style, mood. BETA, free."
     heading: "Smart Search"
     beta_badge: "Beta"
     tagline: "Describe what you're looking for in natural language"
@@ -609,8 +612,8 @@ en:
   # Pro Landing Page
   pro:
     meta_title: "Sheet Music Search by Description — ScoreBase Smart Search"
-    meta_description: "Search %{count} sheet music scores by describing what you need. Public beta — natural-language search by difficulty, vocal range, duration, style, and mood."
-    og_description: "Find the right piece for your students, choir, or next recital. %{count} scores, searchable by what you actually need. Public beta, free during beta."
+    meta_description: "Search %{count} sheet music scores by describing what you need. Difficulty, vocal range, style, mood. BETA free (5/day); Pro €2/mo for 100/day, in the works."
+    og_description: "Find the right piece for your students, choir, or recital. %{count} scores searchable by description. BETA free now; Pro €2/mo coming."
 
     # Hero section
     hero_headline: "Find sheet music by describing it"

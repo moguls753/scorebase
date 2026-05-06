@@ -26,6 +26,13 @@
     <link rel="shortcut icon" href="/favicon.ico">
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
+    <!-- Robots — set per-view via content_for(:robots, "noindex,follow") on
+         dynamic query-result pages and beta-limit pages so they don't
+         pollute the index. Absent = default crawl/index behavior. -->
+    <% if content_for?(:robots) %>
+      <meta name="robots" content="<%= content_for(:robots) %>">
+    <% end %>
+
     <!-- Canonical URL -->
     <% if content_for?(:canonical_url) %>
       <link rel="canonical" href="<%= content_for(:canonical_url) %>">

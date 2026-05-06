@@ -17,6 +17,9 @@ de:
 
   # Smart Search (öffentliche Beta)
   smart_search:
+    meta_title: "Smart Search BETA — ScoreBase"
+    meta_description: "Noten suchen, indem du beschreibst, was du brauchst. Schwierigkeit, Stimmumfang, Dauer, Stil, Stimmung. Öffentliche BETA, gratis, 5 Suchen/Tag."
+    og_description: "Beschreibe, was du brauchst — ich finde die Noten. Suche nach Schwierigkeit, Stimmumfang, Stil, Stimmung. BETA, gratis."
     heading: "Smart Search"
     beta_badge: "Beta"
     tagline: "Beschreibe in natürlicher Sprache, was du suchst"
@@ -119,7 +122,7 @@ de:
     any_length: "Jede Länge"
     any_pricing: "Alle Preise"
     any_size: "Jede Besetzung"
-    all_voice_types: "Alle Stimmlagen"
+    all_voice_types: "Alle Stimmumfangn"
     all_languages: "Alle Sprachen"
     any: "Alle"
     genre: "Genre / Form"
@@ -609,8 +612,8 @@ de:
   # Pro Landing Page
   pro:
     meta_title: "Notensuche per Beschreibung — ScoreBase Smart Search"
-    meta_description: "Durchsuche %{count} Noten, indem du beschreibst, was du suchst. Öffentliche Beta — natürlichsprachige Suche nach Schwierigkeit, Stimmumfang, Dauer, Stil und Stimmung."
-    og_description: "Finde das passende Stück für deine Schüler, deinen Chor oder dein nächstes Konzert. %{count} Noten, durchsuchbar nach dem, was du wirklich brauchst. Öffentliche Beta, in der Beta kostenlos."
+    meta_description: "Durchsuche %{count} Noten — beschreibe, was du brauchst. Schwierigkeit, Stimmumfang, Stil, Stimmung. BETA gratis; Pro 2 €/Monat für 100/Tag, in Arbeit."
+    og_description: "Finde das passende Stück für deine Schüler, deinen Chor oder dein Konzert. %{count} Noten per Beschreibung. BETA gratis; Pro 2 €/Monat kommt."
 
     # Hero section
     hero_headline: "Noten finden durch Beschreibung"
