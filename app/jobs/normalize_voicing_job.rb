@@ -11,27 +11,31 @@ class NormalizeVoicingJob < ApplicationJob
   queue_as :default
 
   BATCH_SIZE = 3
+  DB_FETCH_SIZE = 500
 
   def perform(limit: 100, backend: :openai, model: nil, batch_size: BATCH_SIZE)
-    scores = eligible_scores(limit).to_a
-    return log_empty if scores.empty?
+    total = eligible_scores(limit).count
+    return log_empty if total.zero?
 
-    log_start(scores.count, backend, batch_size)
+    log_start(total, backend, batch_size)
 
     client = LlmClient.new(backend: backend, model: model)
     normalizer = VoicingNormalizer.new(client: client)
     stats = { normalized: 0, not_applicable: 0, failed: 0 }
+    index = 0
 
-    scores.each_slice(batch_size).with_index do |batch, batch_idx|
-      results = normalizer.normalize(batch)
+    eligible_scores(limit).find_in_batches(batch_size: DB_FETCH_SIZE) do |db_batch|
+      db_batch.each_slice(batch_size) do |llm_batch|
+        results = normalizer.normalize(llm_batch)
 
-      results.each_with_index do |result, i|
-        score = batch[i]
-        index = batch_idx * batch_size + i + 1
-        apply_result(score, result, stats, index)
+        results.each_with_index do |result, i|
+          score = llm_batch[i]
+          index += 1
+          apply_result(score, result, stats, index)
+        end
+
+        sleep 0.1 # Rate limiting (500 RPM allows ~8 req/s)
       end
-
-      sleep 0.1 # Rate limiting (500 RPM allows ~8 req/s)
     end
 
     log_complete(stats)
