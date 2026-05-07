@@ -50,6 +50,10 @@ class ApplicationController < ActionController::Base
       request.headers["Purpose"] == "prefetch"
   end
 
+  def client_ip
+    request.headers["CF-Connecting-IP"].presence || request.remote_ip
+  end
+
   # Protect production site during testing phase
   # Remove this once ready to launch publicly
   # Set password via: rails credentials:edit

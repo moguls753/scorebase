@@ -41,7 +41,6 @@ class WaitlistSignupsController < ApplicationController
   end
 
   def check_rate_limit
-    client_ip = request.headers["CF-Connecting-IP"].presence || request.remote_ip
     cache_key = "waitlist_signup:#{client_ip}"
     count = Rails.cache.read(cache_key) || 0
 

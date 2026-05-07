@@ -59,7 +59,10 @@
       "Read(//home/era/.asdf/installs/ruby/3.4.1/lib/ruby/gems/3.4.0/gems/ahoy_matey-5.5.0/**)",
       "Bash(INTERNAL_ANALYTICS_HOSTS=\"something-else.example\" bundle exec rspec spec/models/daily_stat_spec.rb)",
       "WebFetch(domain:docs.umami.is)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(awk '/^  about:/,/^  [a-z]/' /home/era/projects/scorebase/main/config/locales/en.yml)",
+      "Bash(awk '/^  pro:/,/^  [a-z]/' /home/era/projects/scorebase/main/config/locales/en.yml)",
+      "Skill(codex:rescue)"
     ]
   }
 }

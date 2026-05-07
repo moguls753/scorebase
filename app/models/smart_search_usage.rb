@@ -13,7 +13,7 @@
 #  index_smart_search_usages_on_date  (date) UNIQUE
 #
 class SmartSearchUsage < ApplicationRecord
-  DEFAULT_CAP = 20
+  DEFAULT_CAP = 50
 
   # Returns the charged date on success, nil at cap. Callers must hand the
   # returned date back to refund! — a request that straddles UTC midnight

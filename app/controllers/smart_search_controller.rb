@@ -1,6 +1,4 @@
 class SmartSearchController < ApplicationController
-  PER_IP_DAILY_LIMIT = 5
-
   # before_action :authenticate, if: -> { Rails.env.production? }
   before_action :validate_input_length, only: [:show, :refine]
 
@@ -14,15 +12,17 @@ class SmartSearchController < ApplicationController
       return render :show
     end
 
-    return render_per_ip_limit_reached if per_ip_limit_reached?
-
-    charged_date = SmartSearchUsage.try_consume!
-    return render_quota_exhausted unless charged_date
-
-    @query_record = perform_initial_search(charged_date)
-    return unless @query_record
-    hydrate_view_from(@query_record)
-    render :show
+    case SmartSearchQuota.try_consume!(ip_hash: hashed_ip)
+    in :per_ip_limit
+      render_per_ip_limit_reached
+    in :site_limit
+      render_quota_exhausted
+    in Date => charged_date
+      @query_record = perform_initial_search(charged_date)
+      return unless @query_record
+      hydrate_view_from(@query_record)
+      render :show
+    end
   end
 
   def feedback
@@ -106,10 +106,6 @@ class SmartSearchController < ApplicationController
     end
   end
 
-  def per_ip_limit_reached?
-    SmartSearchQuery.recent_ip_count(hashed_ip) >= PER_IP_DAILY_LIMIT
-  end
-
   def render_per_ip_limit_reached
     @rag_result ||= RagSearch::Result.new({})
     @scores ||= Score.none
@@ -144,7 +140,7 @@ class SmartSearchController < ApplicationController
     rag_result = RagSearch.smart_search(@query)
 
     unless rag_result.success
-      SmartSearchUsage.refund!(charged_date)
+      SmartSearchQuota.refund!(charged_date)
       return render_rag_error
     end
 
@@ -160,7 +156,7 @@ class SmartSearchController < ApplicationController
       locale: I18n.locale.to_s
     )
   rescue StandardError => e
-    SmartSearchUsage.refund!(charged_date)
+    SmartSearchQuota.refund!(charged_date)
     Rails.logger.error("perform_initial_search failed: #{e.class} #{e.message}")
     render_rag_error
     nil
@@ -221,9 +217,7 @@ class SmartSearchController < ApplicationController
   end
 
   def hashed_ip
-    salt = Digest::SHA256.hexdigest("smart_search_ip|#{Rails.application.secret_key_base}")
-    client_ip = request.headers["CF-Connecting-IP"].presence || request.remote_ip
-    Digest::SHA256.hexdigest("#{salt}|#{client_ip}")
+    @hashed_ip ||= HashedIp.from(client_ip)
   end
 
   def already_voted?(feedback_record)

@@ -14,7 +14,7 @@ RSpec.describe "SmartSearch", type: :request do
 
     context "with blank query" do
       it "renders the empty form without consuming quota" do
-        expect(SmartSearchUsage).not_to receive(:try_consume!)
+        expect(SmartSearchQuota).not_to receive(:try_consume!)
         get smart_search_path
         expect(response).to have_http_status(:ok)
       end
