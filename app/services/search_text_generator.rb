@@ -59,11 +59,11 @@ class SearchTextGenerator
       (3) CHARACTER (2-3 mood/style words: gentle, dramatic, contemplative, energetic, majestic, lyrical, playful, solemn, etc.)
       (4) BEST FOR (specific uses: sight-reading practice, student recitals, church services, exam repertoire, technique building, competitions, teaching specific skills)
       (5) MUSICAL FEATURES (texture, harmonic language, notable patterns like arpeggios, scales, counterpoint)
-      (6) KEY DETAILS (duration, instrumentation, key, period/style)
+      (6) KEY DETAILS (duration, instrumentation, key, period/style). If <data/> lists multiple instruments, NAME EVERY ONE in the description — do not collapse "Piano, Violin" to "a piano work" or describe a chamber piece by a single instrument.
       (7) SECTIONS: If "sections" field lists movement types (e.g., "allemande, courante, sarabande, gigue"), mention them - users search for these dance forms
     - Use words musicians actually search: "sight-reading", "recital piece", "exam repertoire", "church anthem", "teaching piece", "competition", "Baroque counterpoint", "lyrical melody", "chromatic passages", "syncopated rhythms".
     - NEVER use academic metric-compounds like "chromatic complexity", "vertical density", "melodic complexity", "rhythmic variety". The data uses searchable terms already - use them naturally in prose.
-    - STRICT: Only mention instruments, voicing, genre, and other details that appear in <data/>. Do not invent or assume facts not present in the data.
+    - STRICT: Only mention instruments, voicing, genre, and other details that appear in <data/>. Do not invent or assume facts not present in the data. Conversely, do not omit instruments that ARE in the data — every instrument listed under "instruments" must appear by name in the description.
     - CRITICAL: If difficulty_level is missing from the data, you MUST NOT mention difficulty. If difficulty_level is a neutral phrase (not a Grade), do NOT convert it to "beginner" or "easy" - use the exact phrase provided.
     - Do not produce a bullet point list.
     </rules>
