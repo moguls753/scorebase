@@ -66,7 +66,7 @@ RSpec.describe "SmartSearch", type: :request do
 
     context "when at the daily cap" do
       it "returns 429 and renders quota_exhausted" do
-        SmartSearchUsage.create!(date: SmartSearchUsage.utc_today, count: 20)
+        SmartSearchUsage.create!(date: SmartSearchUsage.utc_today, count: SmartSearchUsage::DEFAULT_CAP)
         get smart_search_path(q: query)
         expect(response).to have_http_status(:too_many_requests)
       end
@@ -129,8 +129,8 @@ RSpec.describe "SmartSearch", type: :request do
         Digest::SHA256.hexdigest("#{salt}|127.0.0.1")
       }
 
-      it "returns 429 and renders per_ip_limit_reached when 5 successful queries exist in last 24h" do
-        5.times do |i|
+      it "returns 429 and renders per_ip_limit_reached when prior successful queries fill the per-IP cap in last 24h" do
+        SmartSearchQuota::PER_IP_DAILY_LIMIT.times do |i|
           create(:smart_search_query,
                  query: "prev #{i}",
                  ip_hash: current_ip_hash,
@@ -145,7 +145,7 @@ RSpec.describe "SmartSearch", type: :request do
       end
 
       it "passes through when prior queries have error set" do
-        5.times do |i|
+        SmartSearchQuota::PER_IP_DAILY_LIMIT.times do |i|
           create(:smart_search_query,
                  query: "errored #{i}",
                  ip_hash: current_ip_hash,
