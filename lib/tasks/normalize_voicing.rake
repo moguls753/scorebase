@@ -42,6 +42,61 @@ namespace :normalize do
     puts "Marked #{count} scores as voicing_status=not_applicable (no part_names)"
   end
 
+  desc "Backfill voicing_status=normalized from raw CPDL scraper voicing field. " \
+       "Only touches rows the LLM voicing job won't process (no part_names). " \
+       "Strips CPDL wiki-template suffix (|add=...). " \
+       "ENV: DRY_RUN=true|false (default true), " \
+       "INCLUDE_LLM_ELIGIBLE=true|false (default false — set true to also backfill rows with part_names)"
+  task backfill_voicing: :environment do
+    dry_run = ENV.fetch("DRY_RUN", "true") != "false"
+    include_llm_eligible = ENV.fetch("INCLUDE_LLM_ELIGIBLE", "false") == "true"
+
+    scope = Score
+              .where(source: "cpdl")
+              .voicing_pending
+              .where.not(voicing: [nil, ""])
+              .where("substr(trim(voicing), 1, 1) != '|'")
+
+    scope = scope.where(part_names: [nil, ""]) unless include_llm_eligible
+
+    total = scope.count
+    needs_cleanup = scope.where("voicing LIKE ?", "%|%").count
+
+    puts "Voicing backfill plan (CPDL only)"
+    puts "  Total candidates:        #{total}"
+    puts "  Will strip '|...' tail:  #{needs_cleanup}"
+
+    if total.zero?
+      puts
+      puts "Nothing to do."
+      next
+    end
+
+    if dry_run
+      puts
+      puts "DRY_RUN=true — no changes written. Re-run with DRY_RUN=false to apply."
+      next
+    end
+
+    puts
+    puts "Applying..."
+
+    updated = scope.update_all(<<~SQL.squish)
+      voicing = trim(CASE
+                       WHEN voicing LIKE '%|%'
+                       THEN substr(voicing, 1, instr(voicing, '|') - 1)
+                       ELSE voicing
+                     END),
+      voicing_status = 'normalized'
+    SQL
+
+    puts "Updated #{updated} rows"
+    puts
+    puts "CPDL voicing after backfill:"
+    puts "  normalized: #{Score.where(source: 'cpdl', voicing_status: 'normalized').count}"
+    puts "  pending:    #{Score.where(source: 'cpdl', voicing_status: 'pending').count}"
+  end
+
   def print_voicing_stats
     puts
     puts "Voicing normalization:"
