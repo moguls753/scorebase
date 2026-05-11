@@ -44,7 +44,7 @@ namespace :normalize do
 
   desc "Backfill voicing_status=normalized from raw CPDL scraper voicing field. " \
        "Only touches rows the LLM voicing job won't process (no part_names). " \
-       "Strips CPDL wiki-template suffix (|add=...). " \
+       "Strips CPDL wiki-template suffix (|add=...) and alternative-edition comma form (',...'). " \
        "ENV: DRY_RUN=true|false (default true), " \
        "INCLUDE_LLM_ELIGIBLE=true|false (default false — set true to also backfill rows with part_names)"
   task backfill_voicing: :environment do
@@ -55,16 +55,18 @@ namespace :normalize do
               .where(source: "cpdl")
               .voicing_pending
               .where.not(voicing: [nil, ""])
-              .where("substr(trim(voicing), 1, 1) != '|'")
+              .where("substr(trim(voicing), 1, 1) NOT IN ('|', ',')")
 
     scope = scope.where(part_names: [nil, ""]) unless include_llm_eligible
 
     total = scope.count
-    needs_cleanup = scope.where("voicing LIKE ?", "%|%").count
+    with_pipe = scope.where("voicing LIKE ?", "%|%").count
+    with_comma = scope.where("voicing LIKE ?", "%,%").count
 
     puts "Voicing backfill plan (CPDL only)"
     puts "  Total candidates:        #{total}"
-    puts "  Will strip '|...' tail:  #{needs_cleanup}"
+    puts "  Will strip '|...' tail:  #{with_pipe}"
+    puts "  Will strip ',...' tail:  #{with_comma}"
 
     if total.zero?
       puts
@@ -81,16 +83,28 @@ namespace :normalize do
     puts
     puts "Applying..."
 
-    updated = scope.update_all(<<~SQL.squish)
-      voicing = trim(CASE
-                       WHEN voicing LIKE '%|%'
-                       THEN substr(voicing, 1, instr(voicing, '|') - 1)
-                       ELSE voicing
-                     END),
-      voicing_status = 'normalized'
-    SQL
+    # Map verified-deterministic raw forms to LLM-canonical "SoloX" form.
+    solo_map = {
+      "S" => "SoloS", "Solo S" => "SoloS", "Solo Soprano" => "SoloS",
+      "A" => "SoloA", "Solo A" => "SoloA", "Solo Alto"    => "SoloA",
+      "T" => "SoloT", "Solo T" => "SoloT", "Solo Tenor"   => "SoloT",
+      "B" => "SoloB", "Solo B" => "SoloB", "Solo Bass"    => "SoloB"
+    }.freeze
 
-    puts "Updated #{updated} rows"
+    updated = 0
+    canonicalized = 0
+    Score.transaction do
+      scope.find_each(batch_size: 1000) do |s|
+        raw = s.voicing.split(/[|,]/).first.to_s.strip
+        next if raw.empty?
+        cleaned = solo_map.fetch(raw, raw)
+        canonicalized += 1 if cleaned != raw
+        s.update_columns(voicing: cleaned, voicing_status: "normalized")
+        updated += 1
+      end
+    end
+
+    puts "Updated #{updated} rows (#{canonicalized} mapped to SoloX canonical form)"
     puts
     puts "CPDL voicing after backfill:"
     puts "  normalized: #{Score.where(source: 'cpdl', voicing_status: 'normalized').count}"
