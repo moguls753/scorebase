@@ -99,10 +99,11 @@ class LlmClient
   # provider drift.
   def chat_json_array(prompt, key: "results", temperature: 0.1)
     response = chat_json(prompt, temperature: temperature)
-    array = case response
-            when Array then response
-            when Hash  then response[key]
-            end
+    array =
+      case response
+      when Array then response
+      when Hash  then response[key]
+      end
     return array if array.is_a?(Array)
 
     Rails.logger.warn(

@@ -67,6 +67,18 @@ Copy that shape when adding new aliases for recurring operations.
 - Keep tests small and simple
 - Focus on behavior, not implementation details
 
+## Pre-push checks (run before `bin/kamal deploy`)
+
+CI runs these; failing locally first saves the round-trip:
+
+```bash
+bin/rubocop -f github     # style + lint; CI fails on any offense
+bundle exec rspec         # full test suite
+bundle audit              # gem CVE check
+```
+
+If you only touched a few files, scope rubocop to them (`bin/rubocop app/... spec/...`) — full repo run is slower.
+
 ## RAG Service
 
 Located in `rag/` directory:
