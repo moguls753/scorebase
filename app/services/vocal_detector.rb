@@ -106,8 +106,8 @@ class VocalDetector
   end
 
   def detect_batch(scores)
-    response = @client.chat_json(build_batch_prompt(scores))
-    parse_batch_response(response, scores.length)
+    results = @client.chat_json_array(build_batch_prompt(scores))
+    parse_batch_response(results, scores.length)
   rescue => e
     Array.new(scores.length) { error_result(e) }
   end
@@ -160,11 +160,10 @@ class VocalDetector
     "unknown"
   end
 
-  def parse_batch_response(response, count)
-    results = response["results"] || []
-
+  def parse_batch_response(results, count)
     Array.new(count) do |i|
-      result = results.find { |r| r["id"] == i + 1 } || results[i] || {}
+      result = results.find { |r| r.is_a?(Hash) && r["id"].to_i == i + 1 } || results[i]
+      result = {} unless result.is_a?(Hash)
       Result.new(
         has_vocal: result["has_vocal"],
         confidence: result["confidence"],

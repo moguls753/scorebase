@@ -29,12 +29,10 @@ RSpec.describe VocalDetector do
 
     it "processes multiple scores in batch" do
       scores = create_list(:score, 2)
-      allow(client).to receive(:chat_json).and_return({
-        "results" => [
-          { "id" => 1, "has_vocal" => true, "confidence" => "high" },
-          { "id" => 2, "has_vocal" => false, "confidence" => "high" }
-        ]
-      })
+      allow(client).to receive(:chat_json_array).and_return([
+        { "id" => 1, "has_vocal" => true, "confidence" => "high" },
+        { "id" => 2, "has_vocal" => false, "confidence" => "high" }
+      ])
 
       results = detector.detect(scores)
 

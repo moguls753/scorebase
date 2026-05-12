@@ -93,6 +93,25 @@ class LlmClient
     JSON.parse(text)
   end
 
+  # Convenience: request a JSON list under +key+, tolerating models that return
+  # a bare array instead of the wrapping object. Always returns an Array.
+  # Logs a warning when the response shape is unexpected so we can detect
+  # provider drift.
+  def chat_json_array(prompt, key: "results", temperature: 0.1)
+    response = chat_json(prompt, temperature: temperature)
+    array = case response
+            when Array then response
+            when Hash  then response[key]
+            end
+    return array if array.is_a?(Array)
+
+    Rails.logger.warn(
+      "[LlmClient] chat_json_array(key=#{key.inspect}) got unexpected shape " \
+      "(#{response.class}) from backend=#{@backend}: #{response.to_s.truncate(200)}"
+    )
+    []
+  end
+
   private
 
   def validate_configuration!

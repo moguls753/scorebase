@@ -36,12 +36,10 @@ RSpec.describe InstrumentInferrer do
 
     it "processes multiple scores in batch" do
       scores = create_list(:score, 2)
-      allow(client).to receive(:chat_json).and_return({
-        "results" => [
-          { "id" => 1, "instruments" => "Piano", "confidence" => "high" },
-          { "id" => 2, "instruments" => "Guitar", "confidence" => "high" }
-        ]
-      })
+      allow(client).to receive(:chat_json_array).and_return([
+        { "id" => 1, "instruments" => "Piano", "confidence" => "high" },
+        { "id" => 2, "instruments" => "Guitar", "confidence" => "high" }
+      ])
 
       results = inferrer.infer(scores)
 
