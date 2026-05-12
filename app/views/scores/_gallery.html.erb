@@ -32,6 +32,8 @@
            data-action="click->gallery#imageClick touchstart->gallery#touchStart touchend->gallery#touchEnd">
         <%= image_tag gallery_urls.first,
             alt: "#{score.display_title} - Page 1",
+            decoding: "async",
+            fetchpriority: "high",
             class: "gallery-image",
             data: { gallery_target: "image" } %>
       </div>
@@ -114,6 +116,8 @@
   <div class="mm-card overflow-hidden gallery-fixed-height">
     <%= image_tag score.preview_image_url,
         alt: score.display_title,
+        decoding: "async",
+        fetchpriority: "high",
         class: "w-full h-full object-contain bg-[var(--color-bg)]" %>
   </div>
 
@@ -122,6 +126,8 @@
   <div class="mm-card overflow-hidden gallery-fixed-height">
     <%= image_tag score.thumbnail_url_original,
         alt: score.display_title,
+        decoding: "async",
+        fetchpriority: "high",
         class: "w-full h-full object-contain bg-[var(--color-bg)]" %>
   </div>
 

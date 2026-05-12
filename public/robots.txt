@@ -12,6 +12,15 @@ Allow: /
 # Note: sort (?sort=) is NOT blocked - handled by canonical tags
 Disallow: /*?q=
 
+# Block file download endpoints — these are downloads, not pages; Googlebot
+# crawling them produced 22k+ 403s in GSC. Kept in the AI-bot blocks below
+# for explicitness even though the wildcard rule already covers them.
+Disallow: /scores/*/file/
+Disallow: /*/scores/*/file/
+
+# Block affiliate redirect endpoints — outbound SMD links, no content to index
+Disallow: /go/
+
 # Block internal/admin paths (if any exist in future)
 Disallow: /admin/
 Disallow: /rails/

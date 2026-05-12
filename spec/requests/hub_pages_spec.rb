@@ -29,6 +29,13 @@ RSpec.describe "HubPages" do
       get genre_path(slug: "nonexistent")
       expect(response).to have_http_status(:not_found)
     end
+
+    it "returns 404 when ?page=N is out of range" do
+      12.times { create(:score, genre: "Motet", genre_status: "normalized") }
+
+      get genre_path(slug: "motet", page: 99)
+      expect(response).to have_http_status(:not_found)
+    end
   end
 
   describe "GET /composers" do

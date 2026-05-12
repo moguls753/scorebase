@@ -294,14 +294,23 @@ class HubPagesController < ApplicationController
 
   def paginate(scope)
     sorted = apply_sorting(scope).deduplicate_arrangements
+    result = finalize_pagination(sorted.with_attached_thumbnail_image.page(params[:page]).without_count)
     @total_count = sorted.count
-    sorted.with_attached_thumbnail_image.page(params[:page]).without_count
+    result
   end
 
   # Paginate without setting @total_count (used when counts are set separately)
   def paginate_filtered(scope)
     sorted = apply_sorting(scope).deduplicate_arrangements
-    sorted.with_attached_thumbnail_image.page(params[:page]).without_count
+    finalize_pagination(sorted.with_attached_thumbnail_image.page(params[:page]).without_count)
+  end
+
+  # Force-load the paginated relation and 404 when ?page=N>1 returns no rows.
+  # Kaminari otherwise silently renders an empty 200, which Google flags as soft 404.
+  def finalize_pagination(relation)
+    relation.load
+    raise ActionController::RoutingError, "Page out of range" if params[:page].to_i > 1 && relation.empty?
+    relation
   end
 
   # Build filter options for composer page using efficient DISTINCT queries

@@ -37,13 +37,18 @@ class ScoresController < ApplicationController
 
     # Pagination: 24 for clean 4-column grid (hub pages use 30 for 5-column)
     @scores = @scores.with_attached_thumbnail_image.page(params[:page]).per(24).without_count
+    @scores.load
+    raise ActionController::RoutingError, "Page out of range" if params[:page].to_i > 1 && @scores.empty?
   end
 
   def show
-    @score = Score.active
+    @score = Score
       .with_attached_thumbnail_image
       .includes(score_pages: { image_attachment: :blob })
       .find(params[:id])
+
+    return head :gone if @score.deleted_at.present?
+
     @score.increment!(:views) unless bot? || prefetch?
   end
 

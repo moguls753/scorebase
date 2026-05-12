@@ -28,6 +28,27 @@ RSpec.describe 'Scores' do
       get scores_path(voicing: 'invalid_garbage_123')
       expect(response.body).not_to include('Some Piece')
     end
+
+    it 'returns 404 for out-of-range pagination' do
+      create(:score, title: 'Only Piece')
+
+      get scores_path(page: 9999)
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it 'emits noindex,follow on paginated pages (?page>=2)' do
+      30.times { |i| create(:score, title: "Piece #{i}") }
+
+      get scores_path(page: 2)
+      expect(response.body).to include('<meta name="robots" content="noindex,follow">')
+    end
+
+    it 'does not emit a robots meta tag on page 1' do
+      create(:score, title: 'Piece')
+
+      get scores_path
+      expect(response.body).not_to include('<meta name="robots"')
+    end
   end
 
   describe 'GET /scores/:id' do
@@ -58,6 +79,18 @@ RSpec.describe 'Scores' do
       expect(json_ld['timeRequired']).to eq('PT3M')
       expect(json_ld['numberOfPages']).to eq(8)
       expect(json_ld['genre']).to include('Sacred music', 'Baroque')
+    end
+
+    it 'returns 410 Gone for soft-deleted scores' do
+      score = create(:score, title: 'Dead Piece', deleted_at: Time.current)
+
+      get score_path(id: score.id)
+      expect(response).to have_http_status(:gone)
+    end
+
+    it 'returns 404 for non-existent scores' do
+      get score_path(id: 999_999_999)
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

@@ -28,9 +28,10 @@
 
     <!-- Robots — set per-view via content_for(:robots, "noindex,follow") on
          dynamic query-result pages and beta-limit pages so they don't
-         pollute the index. Absent = default crawl/index behavior. -->
-    <% if content_for?(:robots) %>
-      <meta name="robots" content="<%= content_for(:robots) %>">
+         pollute the index. Paginated pages (?page>=2) auto-noindex via
+         robots_meta_content so page 2+ doesn't compete with page 1. -->
+    <% if (robots_content = robots_meta_content) %>
+      <meta name="robots" content="<%= robots_content %>">
     <% end %>
 
     <!-- Canonical URL -->

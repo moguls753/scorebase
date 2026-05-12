@@ -7,6 +7,8 @@
   <% if score.has_thumbnail? %>
     <%= image_tag score.thumbnail,
         alt: score.display_title,
+        loading: "lazy",
+        decoding: "async",
         class: "w-full h-full object-cover object-top"
     %>
   <% else %>
