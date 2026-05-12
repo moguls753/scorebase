@@ -163,10 +163,12 @@ class VoicingNormalizer
   end
 
   def parse_batch_response(response, count)
-    results = response["results"] || []
+    results = response["results"]
+    results = [] unless results.is_a?(Array)
 
     Array.new(count) do |i|
-      result = results.find { |r| r["id"] == i + 1 } || results[i] || {}
+      result = results.find { |r| r.is_a?(Hash) && r["id"] == i + 1 } || results[i]
+      result = {} unless result.is_a?(Hash)
       Result.new(
         voicing: result["voicing"],
         instruments: result["instruments"],

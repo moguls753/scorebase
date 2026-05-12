@@ -54,11 +54,12 @@ production:
       processes: 1
       polling_interval: 0.5
 
-    # Default: batch orchestrators, imports, sitemap, cache
-    # Mostly I/O-bound or quick dispatch jobs
+    # Default: batch orchestrators, imports, sitemap, cache, normalize:* jobs
+    # Mostly I/O-bound or LLM-call-bound; threads bumped to allow parallel
+    # backfill jobs (NormalizeVoicingJob etc.) without starving web.
     - queues:
         - default
-      threads: 2
+      threads: 3
       processes: 1
       polling_interval: 0.5
 

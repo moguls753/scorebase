@@ -6,6 +6,7 @@
 # Usage:
 #   NormalizeVoicingJob.perform_later
 #   NormalizeVoicingJob.perform_later(limit: 1000, batch_size: 3)
+#   NormalizeVoicingJob.perform_later(limit: 10000, shard: 0, of: 3)  # parallel-safe slice
 #
 class NormalizeVoicingJob < ApplicationJob
   queue_as :default
@@ -13,18 +14,18 @@ class NormalizeVoicingJob < ApplicationJob
   BATCH_SIZE = 3
   DB_FETCH_SIZE = 500
 
-  def perform(limit: 100, backend: :openai, model: nil, batch_size: BATCH_SIZE)
-    total = eligible_scores(limit).count
+  def perform(limit: 100, backend: :openai, model: nil, batch_size: BATCH_SIZE, shard: nil, of: nil)
+    total = eligible_scores(limit, shard: shard, of: of).count
     return log_empty if total.zero?
 
-    log_start(total, backend, batch_size)
+    log_start(total, backend, batch_size, shard: shard, of: of)
 
     client = LlmClient.new(backend: backend, model: model)
     normalizer = VoicingNormalizer.new(client: client)
     stats = { normalized: 0, not_applicable: 0, failed: 0 }
     index = 0
 
-    eligible_scores(limit).find_in_batches(batch_size: DB_FETCH_SIZE) do |db_batch|
+    eligible_scores(limit, shard: shard, of: of).find_in_batches(batch_size: DB_FETCH_SIZE) do |db_batch|
       db_batch.each_slice(batch_size) do |llm_batch|
         results = normalizer.normalize(llm_batch)
 
@@ -43,12 +44,13 @@ class NormalizeVoicingJob < ApplicationJob
 
   private
 
-  def eligible_scores(limit)
-    Score.voicing_pending
-         .has_vocal_normalized
-         .where(has_vocal: true)
-         .where.not(part_names: [nil, ""])
-         .limit(limit)
+  def eligible_scores(limit, shard: nil, of: nil)
+    scope = Score.voicing_pending
+                 .has_vocal_normalized
+                 .where(has_vocal: true)
+                 .where.not(part_names: [nil, ""])
+    scope = scope.where("id % ? = ?", of, shard) if shard && of
+    scope.limit(limit)
   end
 
   def apply_result(score, result, stats, index)
@@ -76,8 +78,9 @@ class NormalizeVoicingJob < ApplicationJob
     logger.info "[NormalizeVoicing] No eligible scores to process"
   end
 
-  def log_start(count, backend, batch_size)
-    logger.info "[NormalizeVoicing] Processing #{count} scores with #{backend} (batch_size: #{batch_size})"
+  def log_start(count, backend, batch_size, shard: nil, of: nil)
+    shard_tag = (shard && of) ? " [shard #{shard}/#{of}]" : ""
+    logger.info "[NormalizeVoicing]#{shard_tag} Processing #{count} scores with #{backend} (batch_size: #{batch_size})"
   end
 
   def log_complete(stats)
