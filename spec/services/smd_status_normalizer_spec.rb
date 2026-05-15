@@ -57,6 +57,28 @@ RSpec.describe SmdStatusNormalizer do
     expect(score.reload.has_vocal).to be true
   end
 
+  describe "instruments backfill" do
+    it "derives instruments from arrangement_category when blank" do
+      score.update!(instruments: "", arrangement_category: "Choir")
+      described_class.new(score).call
+      score.reload
+      expect(score.instruments).to eq("Choir")
+      expect(score.instruments_status).to eq("normalized")
+    end
+
+    it "uses smd_category to disambiguate Band arrangements" do
+      score.update!(instruments: "", arrangement_category: "Band", smd_category: "Jazz Ensemble")
+      described_class.new(score).call
+      expect(score.reload.instruments).to eq("Jazz Ensemble")
+    end
+
+    it "preserves importer-set instruments rather than overwriting" do
+      score.update!(instruments: "Flute, Piano", arrangement_category: "Choir")
+      described_class.new(score).call
+      expect(score.reload.instruments).to eq("Flute, Piano")
+    end
+  end
+
   describe "voicing" do
     it "extracts canonical abbreviation from arrangement_category" do
       score.update!(arrangement_category: "Choir SATB", has_vocal: true)

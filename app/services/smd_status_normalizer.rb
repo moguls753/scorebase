@@ -59,6 +59,39 @@ class SmdStatusNormalizer
     [/\bSpiritual\b/i, "Spiritual"]
   ].freeze
 
+  ARRANGEMENT_INSTRUMENTS = {
+    "Choir"                  => "Choir",
+    "Orchestra"              => "Orchestra",
+    "Lead Sheet / Fake Book" => "Lead Sheet",
+    "Piano"                  => "Piano",
+    "Easy Piano"             => "Piano",
+    "Piano & Keyboard"       => "Piano",
+    "Guitar"                 => "Guitar",
+    "Guitar & Bass"          => "Guitar, Bass",
+    "Vocal"                  => "Voice, Piano",
+    "Vocal & Choral"         => "Voice, Choir",
+    "Flute"                  => "Flute",
+    "Clarinet"               => "Clarinet",
+    "Woodwind"               => "Woodwind",
+    "Sax"                    => "Saxophone",
+    "Ukulele"                => "Ukulele",
+    "Strings"                => "Strings",
+    "Other Strings"          => "Strings",
+    "Brass"                  => "Brass",
+    "Violin"                 => "Violin",
+    "Percussion"             => "Percussion",
+    "Folk Instrument"        => "Folk Instrument",
+    "Trumpet"                => "Trumpet",
+    "Brass, Strings, Woodwind" => "Brass, Strings, Woodwind"
+  }.freeze
+
+  BAND_INSTRUMENTS = {
+    "Concert Band"            => "Concert Band",
+    "Concert Band: Flex-Band" => "Concert Band",
+    "Jazz Ensemble"           => "Jazz Ensemble",
+    "Marching Band"           => "Marching Band"
+  }.freeze
+
   STATUS_FIELDS = %i[composer_status period_status instruments_status
                      has_vocal_status voicing_status grade_status
                      genre_status].freeze
@@ -111,7 +144,20 @@ class SmdStatusNormalizer
   end
 
   def determine_instruments_status
-    @updates[:instruments_status] = @score.instruments.present? ? "normalized" : "not_applicable"
+    if @score.instruments.blank?
+      derived = derive_instruments
+      @updates[:instruments] = derived if derived
+    end
+    effective = @updates[:instruments].presence || @score.instruments
+    @updates[:instruments_status] = effective.present? ? "normalized" : "not_applicable"
+  end
+
+  def derive_instruments
+    if @score.arrangement_category == "Band"
+      BAND_INSTRUMENTS[@score.smd_category]
+    else
+      ARRANGEMENT_INSTRUMENTS[@score.arrangement_category]
+    end
   end
 
   def determine_has_vocal
