@@ -68,7 +68,9 @@
       "Bash(openssl s_client -connect 13.71.248.88:443 -servername www.sheetmusicdirect.com)",
       "Bash(openssl x509 *)",
       "Bash(dig +short sheetmusic.direct A)",
-      "Bash(dig +short img.sheetmusic.direct A)"
+      "Bash(dig +short img.sheetmusic.direct A)",
+      "Read(//tmp/**)",
+      "Bash(bin/rubocop spec/services/smd_status_normalizer_spec.rb)"
     ]
   }
 }

@@ -364,7 +364,8 @@ class Score < ApplicationRecord
     pending: "pending",
     extracted: "extracted",
     failed: "failed",
-    no_musicxml: "no_musicxml"
+    no_musicxml: "no_musicxml",
+    vision_extracted: "vision_extracted"
   }, default: :pending, prefix: :extraction
 
   enum :rag_status, {

@@ -66,6 +66,11 @@ Copy that shape when adding new aliases for recurring operations.
 - Use RSpec for all tests
 - Keep tests small and simple
 - Focus on behavior, not implementation details
+- Aim for ~10-15 examples per service; pin contracts, not enumerations
+
+## Code comments
+
+Default to none. Trust well-named identifiers and types to carry the meaning. Only write a comment when the WHY is non-obvious — a hidden constraint, a workaround, a subtle invariant. Never narrate what the code does; never inline what an enum value means when the name already says it; never write multi-paragraph docstrings. If you're unsure, leave it out.
 
 ## Pre-push checks (run before `bin/kamal deploy`)
 
