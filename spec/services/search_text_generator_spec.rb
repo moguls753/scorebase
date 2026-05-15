@@ -3,7 +3,8 @@
 require "rails_helper"
 
 RSpec.describe SearchTextGenerator do
-  let(:generator) { described_class.new }
+  let(:client)    { instance_double(LlmClient) }
+  let(:generator) { described_class.new(client: client) }
 
   describe "#template_for" do
     it "uses RICH_PROMPT when music21 extraction succeeded" do
