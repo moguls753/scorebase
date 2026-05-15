@@ -7,7 +7,7 @@ from haystack.components.embedders import SentenceTransformersTextEmbedder
 from haystack_integrations.document_stores.chroma import ChromaDocumentStore
 from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRetriever
 
-from .. import config
+from .. import config, db
 from ..llm import ResultSelector
 from .query_normalizer import normalize_for_embedding
 
@@ -72,12 +72,16 @@ def search(query: str, top_k: int = 10) -> list[dict]:
 
     documents = result["retriever"]["documents"]
 
+    score_ids = [doc.meta.get("score_id") for doc in documents if doc.meta.get("score_id")]
+    metadata_by_id = db.get_score_metadata(score_ids)
+
     return [
         {
             "score_id": doc.meta.get("score_id"),
             "title": doc.meta.get("title", "Untitled"),
             "content": doc.content,
             "similarity": doc.score,
+            **metadata_by_id.get(doc.meta.get("score_id"), {"source": "unknown", "commercial": False}),
         }
         for doc in documents
     ]

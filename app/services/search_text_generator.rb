@@ -41,7 +41,7 @@ class SearchTextGenerator
     def success? = error.nil? && issues.empty?
   end
 
-  PROMPT = <<~PROMPT
+  RICH_PROMPT = <<~PROMPT
     <role>
     You write rich, searchable descriptions for a sheet music catalog used by music teachers, choir directors, church musicians, and university professors. Follow the <rules/> and the <steps/> to generate an answer. You can find some positive examples in the <examples/> section.
     </role>
@@ -94,6 +94,55 @@ class SearchTextGenerator
     </output_format>
   PROMPT
 
+  SPARSE_PROMPT = <<~PROMPT
+    <role>
+    You write concise, searchable descriptions for sheet music whose detailed
+    musical features (duration, syncopation, ornamentation, voice leading,
+    range, complexity scores) are NOT in the data. Stick strictly to what the
+    metadata provides. Used by music teachers, choir directors, church musicians.
+    </role>
+
+    <rules>
+    - Write 3-5 sentences (80-150 words). Shorter is better when data is sparse.
+    - START with the title and composer if provided ("The First Noel by David Chase is..."). If the title contains "arr. NAME", mention the arranger.
+    - Use ONLY these dimensions IF the data provides them. Omit otherwise:
+      (1) title and composer (always)
+      (2) voicing (SATB, TTBB, SSA, 2-Part) or instrumentation
+      (3) difficulty_level — use the exact phrase from the data (e.g. "Grade 2-3"). Do NOT invent "beginner" or "easy".
+      (4) key, time signature, or tempo_marking — only if explicitly provided
+      (5) period or genre or style tag (Christmas, Gospel, Pop, etc.)
+    - DO NOT mention any of the following — the data DOES NOT CONTAIN these facts:
+      duration ("about X minutes"), syncopation level, ornamentation, finger
+      independence, position shifts, melodic range, voice leading, technical
+      complexity, harmonic complexity, "moving inner voices", "stepwise melodic
+      motion", or any technique-specific claim. If you can't tell from the data,
+      DO NOT speculate.
+    - Use real search terms naturally: instrument names, voicings, genre words,
+      style words (Christmas, sacred, gospel, jazz, pop, folk, traditional).
+    - DO NOT pad with generic boilerplate. NO "Suitable for sight-reading practice",
+      "ideal for technique building", "About 2 minutes long" — unless the data
+      explicitly supports the claim.
+    - DO NOT echo marketing tails like "Digital Sheet Music" from the title.
+    - Do NOT produce a bullet list.
+    </rules>
+
+    <examples>
+    - "Rejoice! Christ Is Born! by Joseph M. Martin is an SATB choir piece in cut time, set in G major. The Christmas anthem suits church services and seasonal concerts. Marked 'cheerfully' at quarter = 92."
+    - "The First Noel by David Chase is an SATB choir arrangement of the traditional Christmas carol, set in D major. Marked moderato (quarter = ca. 104), dolce, simple and steady. Works well for carol services and seasonal programs."
+    - "Mama, I'm Coming Home (arr. Roger Holmes) by Ozzy Osbourne is a jazz ensemble arrangement of the rock ballad. Quasi-rock ballad feel; instrumentation includes drums, alto sax, tenor sax, baritone sax, trumpet, trombone, and rhythm section."
+    - "This Old Man (arr. Phillip Keveren) is a Grade 1 piano arrangement of the traditional nursery rhyme. The piece uses the familiar melody with straightforward harmonies for early-stage piano students. A teaching and first-recital piece."
+    - "Alone At The Drive-In Movie (from Grease) by Warren Casey is a slow ballad arranged for piano and voice, set in C major. Marked 'melancholy, slow ballad', this is a show-tune setting for vocal study or studio teaching."
+    </examples>
+
+    <data>
+    %{metadata_json}
+    </data>
+
+    <output_format>
+    Return valid JSON with this structure: {"description": "your description here"}
+    </output_format>
+  PROMPT
+
   # Traditional difficulty labels - used to detect hallucinated difficulty
   # when no difficulty_level was provided
   HALLUCINATION_WORDS = %w[beginner easy].freeze
@@ -121,17 +170,17 @@ class SearchTextGenerator
 
   def generate(score)
     metadata = build_metadata(score)
-    prompt = format(PROMPT, metadata_json: metadata.to_json)
+    prompt = format(template_for(score), metadata_json: metadata.to_json)
 
     response = @client.chat_json(prompt)
     description = response["description"].to_s.strip
 
     # Retry once if LLM hallucinated "beginner"/"easy" when we didn't provide those
     if metadata[:difficulty_level].nil? && hallucinated_difficulty?(description)
-      description = regenerate_without_difficulty(metadata)
+      description = regenerate_without_difficulty(score, metadata)
     end
 
-    issues = validate(description, expects_difficulty: metadata[:difficulty_level].present?)
+    issues = validate(description, expects_difficulty: metadata[:difficulty_level].present?, min_length: min_length_for(score))
 
     # Flag if retry still hallucinated difficulty
     if metadata[:difficulty_level].nil? && hallucinated_difficulty?(description)
@@ -148,10 +197,10 @@ class SearchTextGenerator
 
   private
 
-  def validate(description, expects_difficulty: true)
+  def validate(description, expects_difficulty: true, min_length: 200)
     issues = []
 
-    return ["too_short"] if description.blank? || description.length < 200
+    return ["too_short"] if description.blank? || description.length < min_length
     issues << "too_long" if description.length > 1500
 
     desc_lower = description.downcase
@@ -172,12 +221,20 @@ class SearchTextGenerator
     DIFFICULTY_INDICATORS.any? { |pattern| text.match?(pattern) }
   end
 
-  def regenerate_without_difficulty(metadata)
-    stronger_prompt = format(PROMPT, metadata_json: metadata.to_json)
+  def regenerate_without_difficulty(score, metadata)
+    stronger_prompt = format(template_for(score), metadata_json: metadata.to_json)
     stronger_prompt += "\n\nIMPORTANT: difficulty_level was NOT provided. Do NOT mention difficulty at all."
 
     response = @client.chat_json(stronger_prompt)
     response["description"].to_s.strip
+  end
+
+  def template_for(score)
+    score.extraction_extracted? ? RICH_PROMPT : SPARSE_PROMPT
+  end
+
+  def min_length_for(score)
+    score.extraction_extracted? ? 200 : 100
   end
 
   def build_metadata(score)
@@ -186,7 +243,7 @@ class SearchTextGenerator
     composer = nil if composer.present? && COMPOSER_PLACEHOLDERS.any? { |p| composer.casecmp?(p) }
 
     {
-      title: score.title,
+      title: score.clean_title.presence || score.title,
       composer: composer,
       period: score.period,
       genre: score.genre,

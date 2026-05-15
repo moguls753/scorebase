@@ -75,6 +75,36 @@ def get_scores_by_ids(ids: list[int]) -> list[dict]:
     return scores
 
 
+def get_score_metadata(ids: list[int]) -> dict[int, dict]:
+    """Return source + commercial flag per score, keyed by id.
+
+    Queried fresh at search time so price/source changes take effect
+    immediately without reindexing ChromaDB.
+    """
+    if not ids:
+        return {}
+
+    conn = get_connection()
+    conn.row_factory = sqlite3.Row
+    placeholders = ",".join("?" * len(ids))
+    cursor = conn.execute(f"""
+        SELECT id, source, price_usd
+        FROM scores
+        WHERE id IN ({placeholders})
+    """, ids)
+
+    result = {}
+    for row in cursor.fetchall():
+        price = row["price_usd"]
+        commercial = row["source"] == "smd" and price is not None and price > 0
+        result[row["id"]] = {
+            "source": row["source"] or "unknown",
+            "commercial": bool(commercial),
+        }
+    conn.close()
+    return result
+
+
 def mark_indexed(score_ids: list[int]) -> int:
     """Mark scores as indexed in Rails database.
 

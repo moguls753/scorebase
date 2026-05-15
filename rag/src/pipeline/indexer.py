@@ -85,13 +85,12 @@ def build_index(limit: int = 100, ids: list[int] | None = None):
         logger.info("No new scores to index.")
         return
 
-    # Create documents from search_text
     documents = []
     for score in scores:
         doc = Document(
             id=f"score_{score['id']}",
             content=score["search_text"],
-            meta={"score_id": score["id"], "title": score["title"] or "Untitled"}
+            meta={"score_id": score["id"], "title": score["title"] or "Untitled"},
         )
         documents.append(doc)
 

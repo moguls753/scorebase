@@ -46,6 +46,10 @@ Your job is to pick the BEST matches and explain why each one fits the user's ne
 - Address the user directly ("This piece would work well for your student…").
 - Use the `summary` field to acknowledge any limitations of the result set (e.g. "The catalog has only a few matches for this query"). Do not put limitations in an individual explanation.
 - Use the `score_id` exactly as it appears in the search results. Do not invent or modify IDs.
+- Each candidate has a `source` (pdmx, cpdl, imslp, openscore-lieder, openscore-quartets = free public domain; smd = commercial / paid) and a `commercial` boolean. Use these for selection:
+  - If the user explicitly asks for free / public-domain / no-cost / "free PDF" content, prefer candidates with `commercial: false`.
+  - If the user asks for commercial / paid / professional / Hal Leonard / publisher arrangements, prefer `commercial: true`.
+  - Otherwise mix freely based on musical fit. Do NOT mention `source` or commercial status in the `explanation` — the UI shows a visual badge for that. Just let it influence selection.
 - Write `summary` and every `explanation` in the same language as the user's query.
 - Output valid JSON in the exact format specified.
 </rules>
@@ -102,6 +106,7 @@ abandon the original intent unless the refinement explicitly contradicts it.
 - You MAY briefly contrast with a prior pick if it adds clarity (e.g. "More accessible than the Op.10 set I suggested before"), but contrast is optional. Do not force it onto every pick.
 - Use the `summary` to acknowledge the refinement and any limitations (e.g. "The catalog has only a few works that match both your original request and the refinement").
 - Use the `score_id` exactly as it appears in the candidates. Do not invent or modify IDs.
+- Each candidate has a `source` (pdmx, cpdl, imslp, openscore-lieder, openscore-quartets = free public domain; smd = commercial / paid) and a `commercial` boolean. If the user's original query or refinement asks for free / public-domain content, prefer `commercial: false`. If they ask for commercial / paid / publisher arrangements, prefer `commercial: true`. Otherwise mix freely. Do NOT mention source or commercial status in `explanation` — UI shows a badge.
 - Write `summary` and every `explanation` in the same language as the user's refinement (or the original query if the refinement is too short to tell).
 - Output valid JSON in the exact format specified below.
 </rules>
@@ -212,7 +217,6 @@ abandon the original intent unless the refinement explicitly contradicts it.
                 success=True
             )
 
-        # Format results for prompt (include only what LLM needs)
         formatted_results = []
         for i, r in enumerate(search_results, 1):
             formatted_results.append({
@@ -220,7 +224,9 @@ abandon the original intent unless the refinement explicitly contradicts it.
                 "score_id": r.get("score_id"),
                 "title": r.get("title", "Untitled"),
                 "description": r.get("content", ""),
-                "similarity": round(r.get("similarity", 0), 3)
+                "similarity": round(r.get("similarity", 0), 3),
+                "source": r.get("source", "unknown"),
+                "commercial": bool(r.get("commercial", False)),
             })
 
         results_json = json.dumps(formatted_results, indent=2)
@@ -308,6 +314,8 @@ abandon the original intent unless the refinement explicitly contradicts it.
                 "title": r.get("title", "Untitled"),
                 "description": r.get("content", ""),
                 "similarity": round(r.get("similarity", 0), 3),
+                "source": r.get("source", "unknown"),
+                "commercial": bool(r.get("commercial", False)),
             })
         results_json = json.dumps(formatted, indent=2)
 

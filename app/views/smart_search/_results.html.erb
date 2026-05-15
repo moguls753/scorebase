@@ -29,6 +29,10 @@
                 <span aria-hidden="true" class="absolute left-0 top-0 flex h-7 w-7 items-center justify-center border-b-2 border-r-2 border-[var(--color-border)] bg-[var(--color-accent)] text-sm font-bold text-white">
                   <%= index + 1 %>
                 </span>
+                <% badge = score_card_badge(score) %>
+                <% if badge %>
+                  <span class="score-card-badge score-card-badge--<%= badge[:type] %>"><%= badge[:text] %></span>
+                <% end %>
               </div>
 
               <%# Content with its own padding — gets the breathing room now %>
