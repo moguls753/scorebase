@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 
 def reset_smd():
     conn = sqlite3.connect(str(config.RAILS_DB_PATH))
-    smd_ids = [row[0] for row in conn.execute(
+    smd_ids = {row[0] for row in conn.execute(
         "SELECT id FROM scores WHERE source = ?", ("smd",)
-    )]
+    )}
     conn.close()
     logger.info(f"Found {len(smd_ids)} SMD scores in SQLite")
 
@@ -31,14 +31,23 @@ def reset_smd():
         return
 
     document_store = ChromaDocumentStore(persist_path=str(config.CHROMA_PATH))
-    doc_ids = [f"score_{sid}" for sid in smd_ids]
 
-    existing = set(document_store._collection.get(ids=doc_ids)["ids"])
-    logger.info(f"Found {len(existing)} SMD docs in ChromaDB to delete")
+    if document_store.count_documents() == 0:
+        logger.info("ChromaDB is empty; nothing to delete.")
+        return
 
-    if existing:
-        document_store._collection.delete(ids=list(existing))
-        logger.info(f"Deleted {len(existing)} SMD docs from ChromaDB")
+    collection = document_store._collection
+    all_indexed = collection.get(include=["metadatas"])
+
+    docs_to_delete = [
+        doc_id for doc_id, meta in zip(all_indexed["ids"], all_indexed["metadatas"])
+        if meta and meta.get("score_id") in smd_ids
+    ]
+    logger.info(f"Found {len(docs_to_delete)} SMD docs in ChromaDB to delete")
+
+    if docs_to_delete:
+        collection.delete(ids=docs_to_delete)
+        logger.info(f"Deleted {len(docs_to_delete)} SMD docs from ChromaDB")
     else:
         logger.info("No SMD docs in ChromaDB; nothing to delete.")
 
