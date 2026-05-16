@@ -70,7 +70,8 @@
       "Bash(dig +short sheetmusic.direct A)",
       "Bash(dig +short img.sheetmusic.direct A)",
       "Read(//tmp/**)",
-      "Bash(bin/rubocop spec/services/smd_status_normalizer_spec.rb)"
+      "Bash(bin/rubocop spec/services/smd_status_normalizer_spec.rb)",
+      "Bash(venv/bin/python -m py_compile src/pipeline/reset_smd.py)"
     ]
   }
 }
