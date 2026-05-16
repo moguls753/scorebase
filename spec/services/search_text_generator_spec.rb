@@ -23,19 +23,49 @@ RSpec.describe SearchTextGenerator do
     end
   end
 
-  describe "#build_metadata" do
+  describe "#build_sparse_metadata" do
     it "prefers clean_title when present (strips SMD marketing boilerplate)" do
       score = build(:score, :smd,
                     title: "Good Rockin' Tonight by Elvis Presley Guitar Tab Digital Sheet Music",
                     clean_title: "Good Rockin' Tonight")
-      metadata = generator.send(:build_metadata, score)
+      metadata = generator.send(:build_sparse_metadata, score)
       expect(metadata[:title]).to eq("Good Rockin' Tonight")
     end
 
+    it "includes SMD-specific catalog fields when present" do
+      score = build(:score, :smd,
+                    artist: "Elvis Presley",
+                    brand: "Hal Leonard",
+                    arrangement_category: "Guitar",
+                    smd_category: "Guitar Tab",
+                    tags: "Blues-Jazz-Pop")
+      metadata = generator.send(:build_sparse_metadata, score)
+      expect(metadata).to include(
+        artist: "Elvis Presley",
+        brand: "Hal Leonard",
+        arrangement_category: "Guitar",
+        smd_category: "Guitar Tab",
+        tags: "Blues-Jazz-Pop"
+      )
+    end
+  end
+
+  describe "#build_rich_metadata" do
     it "falls back to title when clean_title is blank" do
       score = build(:score, source: "pdmx", title: "Symphony No. 5", clean_title: nil)
-      metadata = generator.send(:build_metadata, score)
+      metadata = generator.send(:build_rich_metadata, score)
       expect(metadata[:title]).to eq("Symphony No. 5")
+    end
+
+    it "excludes SMD-specific catalog fields even when present on score" do
+      score = build(:score, source: "pdmx",
+                    artist: "Should Not Appear",
+                    brand: "Should Not Appear",
+                    arrangement_category: "Should Not Appear",
+                    smd_category: "Should Not Appear",
+                    tags: "Should-Not-Appear")
+      metadata = generator.send(:build_rich_metadata, score)
+      expect(metadata).not_to include(:artist, :brand, :arrangement_category, :smd_category, :tags)
     end
   end
 end

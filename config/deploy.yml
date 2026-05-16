@@ -83,6 +83,8 @@ aliases:
   sitemap: app exec --reuse -r web "bin/rails sitemap:refresh:no_ping"
   rag-stats: app exec --reuse -r web "bin/rails rag:stats"
   rag-index: accessory exec rag "python -m src.pipeline.indexer 5000"
+  rag-reset-smd-rails: app exec --reuse -r web "bin/rails rag:reset_smd"
+  rag-reset-smd-chroma: accessory exec rag "python -m src.pipeline.reset_smd"
 
 # Use a persistent storage volume for sqlite database files and local Active Storage files.
 # Recommended to change this to a mounted volume path that is backed up off server.

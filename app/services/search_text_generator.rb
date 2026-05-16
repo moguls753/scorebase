@@ -98,40 +98,56 @@ class SearchTextGenerator
     <role>
     You write concise, searchable descriptions for sheet music whose detailed
     musical features (duration, syncopation, ornamentation, voice leading,
-    range, complexity scores) are NOT in the data. Stick strictly to what the
-    metadata provides. Used by music teachers, choir directors, church musicians.
+    range, complexity scores) are NOT in the data. You DO have catalog metadata:
+    artist, publisher (brand), arrangement category, sub-category, and style
+    tags. Translate that catalog vocabulary into natural search-friendly prose.
+    Used by music teachers, choir directors, church musicians, and home learners.
     </role>
 
     <rules>
-    - Write 3-5 sentences (80-150 words). Shorter is better when data is sparse.
-    - START with the title and composer if provided ("The First Noel by David Chase is..."). If the title contains "arr. NAME", mention the arranger.
+    - Write 4-6 sentences (40-70 words, roughly 200-350 characters). Density beats length.
+    - FIRST sentence MUST include: title, artist or composer (if given), and arrangement type (guitar tab, easy piano arrangement, SATB choir, jazz ensemble, etc.). If the title contains "arr. NAME", mention the arranger.
+    - Translate catalog values into search-friendly natural language. Examples:
+        - "Easy Piano" → "easy piano arrangement for beginners"
+        - "Guitar Tab" → "guitar tablature with standard notation"
+        - "Big Note Piano" → "big-note piano edition for early-stage students"
+        - "Blues-Jazz-Pop" → "draws on blues, jazz, and pop styles"
+        - "Pop-Rock" → "pop-rock song"
+    - Pair proper nouns with descriptive anchors so they cluster well in retrieval:
+        - "Elvis Presley" alone is a weak anchor; "Elvis Presley's rockabilly classic" is searchable.
+        - When artist + tags are both available, use them together in one phrase.
+    - The `artist` field names the artist of the ORIGINAL song or recording, NOT a performer on this sheet music arrangement. The customer who buys the score is the performer. Do NOT say the artist "performs", "sings", "plays", or "features" on this edition. Phrase artist references as: "by [artist]", "[artist]'s song", "the [artist] classic", "made famous by [artist]", or similar attribution.
     - Use ONLY these dimensions IF the data provides them. Omit otherwise:
-      (1) title and composer (always)
-      (2) voicing (SATB, TTBB, SSA, 2-Part) or instrumentation
-      (3) difficulty_level — use the exact phrase from the data (e.g. "Grade 2-3"). Do NOT invent "beginner" or "easy".
-      (4) key, time signature, or tempo_marking — only if explicitly provided
-      (5) period or genre or style tag (Christmas, Gospel, Pop, etc.)
-    - DO NOT mention any of the following — the data DOES NOT CONTAIN these facts:
+      (1) title, artist, composer (always start here)
+      (2) arrangement_category + smd_category, rendered as natural prose (never paste verbatim)
+      (3) tags, translated into prose (never paste "X-Y-Z" verbatim)
+      (4) voicing (SATB, TTBB, SSA, 2-Part) or instrumentation
+      (5) difficulty_level — use the exact phrase from the data (e.g. "Grade 2-3"). Do NOT invent "beginner" or "easy".
+      (6) key, time signature, or tempo_marking — only if explicitly provided
+      (7) period, genre, or style words
+    - Mention the publisher (brand) AT MOST ONCE, briefly, near the end. It is fine to omit entirely. NEVER lead with the publisher.
+    - TRANSLATE, DO NOT EXTRAPOLATE. Render catalog values as natural search prose. DO NOT invent any of the following — the data DOES NOT contain these facts:
       duration ("about X minutes"), syncopation level, ornamentation, finger
       independence, position shifts, melodic range, voice leading, technical
       complexity, harmonic complexity, "moving inner voices", "stepwise melodic
       motion", or any technique-specific claim. If you can't tell from the data,
       DO NOT speculate.
     - Use real search terms naturally: instrument names, voicings, genre words,
-      style words (Christmas, sacred, gospel, jazz, pop, folk, traditional).
+      era words, use-case words ("for beginners", "for worship", "for school band").
     - DO NOT pad with generic boilerplate. NO "Suitable for sight-reading practice",
       "ideal for technique building", "About 2 minutes long" — unless the data
       explicitly supports the claim.
-    - DO NOT echo marketing tails like "Digital Sheet Music" from the title.
+    - DO NOT echo marketing tails like "Digital Sheet Music" or "Print and Download" from the title.
     - Do NOT produce a bullet list.
     </rules>
 
     <examples>
-    - "Rejoice! Christ Is Born! by Joseph M. Martin is an SATB choir piece in cut time, set in G major. The Christmas anthem suits church services and seasonal concerts. Marked 'cheerfully' at quarter = 92."
-    - "The First Noel by David Chase is an SATB choir arrangement of the traditional Christmas carol, set in D major. Marked moderato (quarter = ca. 104), dolce, simple and steady. Works well for carol services and seasonal programs."
-    - "Mama, I'm Coming Home (arr. Roger Holmes) by Ozzy Osbourne is a jazz ensemble arrangement of the rock ballad. Quasi-rock ballad feel; instrumentation includes drums, alto sax, tenor sax, baritone sax, trumpet, trombone, and rhythm section."
-    - "This Old Man (arr. Phillip Keveren) is a Grade 1 piano arrangement of the traditional nursery rhyme. The piece uses the familiar melody with straightforward harmonies for early-stage piano students. A teaching and first-recital piece."
-    - "Alone At The Drive-In Movie (from Grease) by Warren Casey is a slow ballad arranged for piano and voice, set in C major. Marked 'melancholy, slow ballad', this is a show-tune setting for vocal study or studio teaching."
+    - "Good Rockin' Tonight by Elvis Presley is a guitar tab arrangement of the rockabilly classic, drawing on blues, jazz, and pop influences. Suitable for intermediate guitarists exploring early rock and roll, the edition includes both standard notation and tablature. Published by Hal Leonard."
+    - "Boulevard Of Broken Dreams by Green Day is a Grade 1 easy piano arrangement of the punk-pop-rock song, set in G minor common time. Suitable for early-stage pianists working on contemporary repertoire, the simplified setting keeps the well-known melody approachable for beginning students."
+    - "Mama, I'm Coming Home (arr. Roger Holmes) by Ozzy Osbourne is a jazz ensemble arrangement of the rock ballad. The quasi-rock ballad feel suits high school and college big bands, with drums, alto sax, tenor sax, baritone sax, trumpet, trombone, and rhythm section."
+    - "Rejoice! Christ Is Born! by Joseph M. Martin is an SATB choir piece in cut time, set in G major. The Christmas anthem suits church services and seasonal concerts, marked 'cheerfully' at quarter = 92."
+    - "The First Noel arranged by David Chase is an SATB choir setting of the traditional Christmas carol in D major. Marked moderato (quarter ca. 104), dolce. Works well for carol services and seasonal worship programs."
+    - "This Old Man (arr. Phillip Keveren) is a Grade 1 easy piano arrangement of the traditional nursery rhyme. The familiar folk melody with straightforward harmonies works for early-stage piano students and first-recital pieces."
     </examples>
 
     <data>
@@ -238,21 +254,29 @@ class SearchTextGenerator
   end
 
   def build_metadata(score)
-    # Omit placeholder composers - score still has valuable metadata
-    composer = score.composer
-    composer = nil if composer.present? && COMPOSER_PLACEHOLDERS.any? { |p| composer.casecmp?(p) }
+    score.extraction_extracted? ? build_rich_metadata(score) : build_sparse_metadata(score)
+  end
 
+  def build_common_metadata(score)
     {
       title: score.clean_title.presence || score.title,
-      composer: composer,
+      composer: clean_composer(score.composer),
       period: score.period,
       genre: score.genre,
       voicing: score.voicing,
       instruments: score.instruments,
       key_signature: score.key_signature,
       time_signature: map_time_sig(score.time_signature),
-      clefs_used: map_clefs(score.clefs_used),
       difficulty_level: difficulty_label(score),
+      has_vocal: score.has_vocal,
+      is_instrumental: score.is_instrumental?,
+      tempo_marking: score.tempo_marking
+    }
+  end
+
+  def build_rich_metadata(score)
+    build_common_metadata(score).merge(
+      clefs_used: map_clefs(score.clefs_used),
       is_virtuoso: virtuoso?(score),
       duration_minutes: format_duration_minutes(score.effective_duration),
       num_parts: bucket(score.num_parts, [1, 2, 4, 8], %w[solo duo small_ensemble ensemble large_ensemble]),
@@ -264,11 +288,24 @@ class SearchTextGenerator
       has_dynamics: score.has_dynamics,
       has_articulations: score.has_articulations,
       has_ornaments: score.has_ornaments,
-      has_vocal: score.has_vocal,
-      is_instrumental: score.is_instrumental?,
-      sections: extract_sections(score.expression_markings),
-      tempo_marking: score.tempo_marking
-    }.compact
+      sections: extract_sections(score.expression_markings)
+    ).compact
+  end
+
+  def build_sparse_metadata(score)
+    build_common_metadata(score).merge(
+      artist: score.artist,
+      brand: score.brand,
+      arrangement_category: score.arrangement_category,
+      smd_category: score.smd_category,
+      tags: score.tags
+    ).compact
+  end
+
+  def clean_composer(composer)
+    return nil if composer.blank?
+    return nil if COMPOSER_PLACEHOLDERS.any? { |p| composer.casecmp?(p) }
+    composer
   end
 
   # Extract movement/section names from expression_markings.

@@ -18,6 +18,19 @@ namespace :rag do
     print_rag_stats
   end
 
+  desc "Reset SMD records for re-templating: clears search_text + sets rag_status=ready"
+  task reset_smd: :environment do
+    count = Score.where(source: "smd")
+      .where(rag_status: %w[indexed templated failed])
+      .update_all(
+        rag_status: "ready",
+        search_text: nil,
+        search_text_generated_at: nil
+      )
+    puts "Reset #{count} SMD scores to rag_status=ready"
+    puts "Next: delete Chroma entries via `bin/kamal accessory exec rag --reuse \"python -m src.pipeline.reset_smd\"`"
+  end
+
   desc "Reset search_text generation. SCOPE=failed|templated|all"
   task reset: :environment do
     scope = ENV.fetch("SCOPE", "failed")
