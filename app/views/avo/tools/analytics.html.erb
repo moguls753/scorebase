@@ -118,21 +118,6 @@
     .returning-color-90d  { color: #f59e0b; }
     .returning-color-180d { color: #8b5cf6; }
 
-    .returning-headline {
-      font-size: 2rem;
-      font-weight: 700;
-      line-height: 1.1;
-      font-variant-numeric: tabular-nums;
-    }
-    .returning-label {
-      font-size: 0.7rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #737373;
-      margin-top: 0.25rem;
-    }
-
     .device-icon {
       display: inline-flex;
       align-items: center;
@@ -190,19 +175,18 @@
       <div class="px-6 py-4 space-y-6">
         <% if @latest_returning_stat %>
           <%# Latest-day summary %>
-          <div class="flex items-end justify-between flex-wrap gap-4 pb-4 border-b border-gray-100">
-            <div class="flex gap-8 flex-wrap">
+          <div>
+            <div class="flex items-baseline justify-between mb-3">
+              <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wide">Latest values</h3>
+              <span class="text-xs text-gray-400 tabular-nums"><%= @latest_returning_stat.date.strftime("%b %-d, %Y") %></span>
+            </div>
+            <div class="analytics-grid analytics-grid-4">
               <% @latest_returning_stat.returning_rates.each do |window, rate| %>
-                <div>
-                  <div class="returning-headline returning-color-<%= window %>">
-                    <%= number_to_percentage(rate * 100, precision: 1) %>
-                  </div>
-                  <div class="returning-label">Returning <%= window %></div>
+                <div class="stat-card">
+                  <div class="stat-value returning-color-<%= window %>"><%= number_to_percentage(rate * 100, precision: 1) %></div>
+                  <div class="stat-label">Returning <%= window %></div>
                 </div>
               <% end %>
-            </div>
-            <div class="text-xs text-gray-400 self-end">
-              latest day: <%= @latest_returning_stat.date.strftime("%b %-d, %Y") %>
             </div>
           </div>
 
