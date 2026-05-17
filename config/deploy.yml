@@ -2,7 +2,9 @@
 service: scorebase
 
 # How long to wait for container to become ready (default 30 seconds)
-deploy_timeout: 90
+# Bumped from 90s to accommodate slow SQLite table-rewrite migrations on the
+# 315k-row scores table (e.g. remove_column took ~105s in dev).
+deploy_timeout: 300
 
 # Name of the container image (use your-user/app-name on external registries).
 image: moguls753/scorebase
