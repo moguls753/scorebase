@@ -272,15 +272,6 @@
             <span class="text-sm">Populates with each hourly aggregation; longer windows ramp up over weeks.</span>
           </p>
         <% end %>
-
-        <details class="text-sm text-gray-500 pt-2 border-t border-gray-100">
-          <summary class="cursor-pointer">About this metric</summary>
-          <div class="mt-2 space-y-2 text-xs leading-relaxed">
-            <p>For each day, what share of that day's distinct visitors also appeared in the prior 7 / 30 / 90 / 180 days.</p>
-            <p>Identifier is a one-way SHA-256 hash of IP + browser, rotated every 6 months on Jan 1 and Jul 1. No cookies, no third parties, IP never stored in clear.</p>
-            <p>After deploy, each window only becomes meaningful once that many days of data have accumulated (7d after 7 days, 180d after 180). A dual-hash scheme keeps values continuous across each subsequent rotation — no recurring resets.</p>
-          </div>
-        </details>
       </div>
     <% end %>
   <% end %>
