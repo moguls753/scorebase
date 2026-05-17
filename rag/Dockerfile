@@ -15,7 +15,7 @@ RUN pip install --no-cache-dir -r requirements-prod.txt
 ENV HF_HOME=/home/rails/.cache/huggingface
 RUN mkdir -p "$HF_HOME" && \
     python -c "from sentence_transformers import SentenceTransformer; \
-    SentenceTransformer('paraphrase-multilingual-MiniLM-L12-v2')" && \
+    SentenceTransformer('BAAI/bge-m3')" && \
     chown -R rails:rails "$HF_HOME"
 
 COPY --chown=rails:rails src/ ./src/

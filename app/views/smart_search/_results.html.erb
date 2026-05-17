@@ -22,7 +22,7 @@
               <%# Sheet-music thumbnail bleeds to top/left/bottom edges of the card %>
               <div class="relative w-full max-w-[200px] mx-auto mt-4 aspect-square sm:max-w-none sm:mx-0 sm:mt-0 sm:w-36 sm:h-auto sm:aspect-auto sm:self-stretch shrink-0 overflow-hidden sm:border-r-2 border-[var(--color-border)] bg-[var(--color-bg)]">
                 <% if score.has_thumbnail? %>
-                  <%= image_tag score.thumbnail, alt: score.display_title, class: "w-full h-full object-cover object-top" %>
+                  <%= image_tag score.thumbnail, alt: score.title, class: "w-full h-full object-cover object-top" %>
                 <% else %>
                   <div class="w-full h-full flex items-center justify-center text-5xl text-[var(--color-border-subtle)]">♪</div>
                 <% end %>
@@ -40,7 +40,7 @@
                 <div class="space-y-2">
                   <div>
                     <h3 class="text-base sm:text-lg font-[var(--font-family-display)] font-bold leading-tight text-balance text-[var(--color-primary)] group-hover:text-[var(--color-accent)] transition-colors">
-                      <%= score.display_title.presence || "Untitled" %>
+                      <%= score.title.presence || "Untitled" %>
                     </h3>
                     <% if score.composer.present? %>
                       <p class="text-sm font-medium text-[var(--color-text-muted)]"><%= score.composer %></p>

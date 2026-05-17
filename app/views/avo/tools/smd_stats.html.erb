@@ -84,7 +84,7 @@
               <% @top_clicked_scores.each do |score, clicks| %>
                 <tr class="border-b border-gray-100 hover:bg-gray-50">
                   <td class="py-2">
-                    <%= link_to score.display_title&.truncate(50) || "Untitled", main_app.score_path(id: score.id), target: "_blank", class: "text-teal-600 hover:underline" %>
+                    <%= link_to score.title&.truncate(50) || "Untitled", main_app.score_path(id: score.id), target: "_blank", class: "text-teal-600 hover:underline" %>
                   </td>
                   <td class="py-2 text-gray-500"><%= score.composer&.truncate(30) %></td>
                   <td class="py-2 text-right font-mono text-teal-600 font-bold"><%= clicks %></td>

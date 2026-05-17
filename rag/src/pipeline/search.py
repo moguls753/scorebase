@@ -33,7 +33,11 @@ def get_pipeline() -> Pipeline:
     # Text -> Embedding
     pipeline.add_component(
         "embedder",
-        SentenceTransformersTextEmbedder(model=config.EMBEDDING_MODEL, progress_bar=False)
+        SentenceTransformersTextEmbedder(
+            model=config.EMBEDDING_MODEL,
+            progress_bar=False,
+            tokenizer_kwargs={"model_max_length": 512},
+        )
     )
 
     # Embedding -> Similar documents

@@ -86,6 +86,8 @@ aliases:
   rag-reset-smd-rails: app exec --reuse -r web "bin/rails rag:reset_smd"
   rag-reset-smd-chroma: accessory exec rag --reuse "python -u -m src.pipeline.reset_smd"
   rag-reset-smd-check: accessory exec rag --reuse "python -u -m src.pipeline.reset_smd --check"
+  rag-wipe-chroma: accessory exec rag --reuse "python -u -m src.pipeline.wipe_chroma"
+  rag-wipe-chroma-check: accessory exec rag --reuse "python -u -m src.pipeline.wipe_chroma --check"
 
 # Use a persistent storage volume for sqlite database files and local Active Storage files.
 # Recommended to change this to a mounted volume path that is backed up off server.
@@ -145,7 +147,7 @@ accessories:
       - "scorebase_storage:/rails/storage"
       - "scorebase_chroma:/data/chroma"
     options:
-      memory: 2000m
+      memory: 3500m
       cpus: "1"
 
 # accessories:

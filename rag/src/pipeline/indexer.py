@@ -98,7 +98,10 @@ def build_index(limit: int = 100, ids: list[int] | None = None):
 
     # Embed
     logger.info(f"Loading embedding model: {config.EMBEDDING_MODEL}")
-    embedder = SentenceTransformersDocumentEmbedder(model=config.EMBEDDING_MODEL)
+    embedder = SentenceTransformersDocumentEmbedder(
+        model=config.EMBEDDING_MODEL,
+        tokenizer_kwargs={"model_max_length": 512},
+    )
     embedder.warm_up()
 
     logger.info("Embedding documents...")

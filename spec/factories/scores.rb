@@ -15,7 +15,6 @@
 #  chord_count                :integer
 #  chromatic_note_count       :integer
 #  chromatic_ratio            :float
-#  clean_title                :string
 #  clefs_used                 :text
 #  complexity                 :integer
 #  composer                   :string

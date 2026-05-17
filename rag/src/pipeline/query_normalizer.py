@@ -1,9 +1,10 @@
 """Query-side normalization for embedding lookup.
 
-The catalog is indexed with English-language descriptions, so the multilingual
-embedder ('paraphrase-multilingual-MiniLM-L12-v2') produces weak matches when a
-German query uses a cognate that maps to a different English word in the index
-(e.g. 'Streichquartett' embeds closer to 'choir motets' than to 'string quartet').
+The catalog is indexed with English-language descriptions, so a multilingual
+embedder still produces weak matches when a German query uses a cognate that
+maps to a different English word in the index (e.g. 'Streichquartett' embeds
+closer to 'choir motets' than to 'string quartet'). bge-m3 narrows this gap
+versus MiniLM but does not close it — the normalizer is still a useful safety net.
 
 We normalize embedder input only; the original query is still shown to the LLM
 so user intent is preserved in the conversational layer.

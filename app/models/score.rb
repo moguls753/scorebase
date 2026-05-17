@@ -15,7 +15,6 @@
 #  chord_count                :integer
 #  chromatic_note_count       :integer
 #  chromatic_ratio            :float
-#  clean_title                :string
 #  clefs_used                 :text
 #  complexity                 :integer
 #  composer                   :string
@@ -517,11 +516,11 @@ class Score < ApplicationRecord
             AND s2.deleted_at IS NULL
           ORDER BY
             CASE
-              WHEN s2.clean_title LIKE '%Full Score%' THEN 0
-              WHEN s2.clean_title LIKE '%Conductor%' THEN 1
+              WHEN s2.title LIKE '%Full Score%' THEN 0
+              WHEN s2.title LIKE '%Conductor%' THEN 1
               ELSE 2
             END,
-            s2.clean_title
+            s2.title
           LIMIT 1
         )
         FROM (
@@ -561,11 +560,11 @@ class Score < ApplicationRecord
   #
   # Note: Bundle products like "Title (arr. Someone)" without instrument suffix get their
   # group_key set via backfill task which checks if sibling parts exist with same thumbnail.
-  def self.derive_group_key(clean_title, thumbnail_url = nil)
-    return nil if clean_title.blank?
-    return nil unless clean_title.include?(" - ")
+  def self.derive_group_key(title, thumbnail_url = nil)
+    return nil if title.blank?
+    return nil unless title.include?(" - ")
 
-    before, _, after = clean_title.rpartition(" - ")
+    before, _, after = title.rpartition(" - ")
     return nil unless INSTRUMENT_PATTERNS.any? { |pattern| after.match?(pattern) }
 
     # Strip intermediate segments (Pt.X, Sample Solo) so all parts group together
@@ -584,16 +583,16 @@ class Score < ApplicationRecord
 
   # Derive group_key for bundle products (used by backfill task)
   # Only returns a key if the bundle's thumbnail matches existing grouped parts
-  def self.derive_bundle_group_key(clean_title, thumbnail_url)
-    return nil if clean_title.blank? || thumbnail_url.blank?
-    return nil if clean_title.include?(" - ") # Has instrument suffix, use derive_group_key instead
-    return nil unless clean_title.match?(/\(arr\.[^)]+\)\s*$/i) # Must have arranger
+  def self.derive_bundle_group_key(title, thumbnail_url)
+    return nil if title.blank? || thumbnail_url.blank?
+    return nil if title.include?(" - ") # Has instrument suffix, use derive_group_key instead
+    return nil unless title.match?(/\(arr\.[^)]+\)\s*$/i) # Must have arranger
 
     product_code = extract_product_code(thumbnail_url)
     return nil unless product_code
 
     # Check if parts with this product code exist
-    potential_key = "#{clean_title.downcase.strip}|#{product_code}"
+    potential_key = "#{title.downcase.strip}|#{product_code}"
     return potential_key if where(group_key: potential_key).exists?
 
     nil
@@ -619,7 +618,7 @@ class Score < ApplicationRecord
   # Get all other parts in this score's arrangement group
   def grouped_parts
     return Score.none if group_key.blank?
-    Score.where(group_key: group_key).where.not(id: id).order(:clean_title)
+    Score.where(group_key: group_key).where.not(id: id).order(:title)
   end
 
   # Check if this score has other parts in its group
@@ -633,11 +632,11 @@ class Score < ApplicationRecord
     Score.where(group_key: group_key).count
   end
 
-  # Extract the instrument/part name from clean_title
+  # Extract the instrument/part name from title
   # "Birds of a Feather (arr. Roger Holmes) - Trombone 2" -> "Trombone 2"
   def part_name
-    if clean_title&.include?(" - ")
-      clean_title.rpartition(" - ").last
+    if title&.include?(" - ")
+      title.rpartition(" - ").last
     elsif group_key.present?
       I18n.t("score.set_label", default: "Set")
     end
@@ -736,14 +735,6 @@ class Score < ApplicationRecord
 
   def smd?
     source == "smd"
-  end
-
-  # Returns clean_title for SMD scores, title otherwise.
-  # Treats "NA"/"N/A" as missing — some indexed scores carry that literal placeholder.
-  def display_title
-    raw = smd? ? (clean_title.presence || title) : title
-    return nil if raw.blank? || raw.upcase.in?(%w[NA N/A])
-    raw
   end
 
   # SMD score with valid external_id (can link to purchase)

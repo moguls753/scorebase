@@ -71,7 +71,9 @@
       "Bash(dig +short img.sheetmusic.direct A)",
       "Read(//tmp/**)",
       "Bash(bin/rubocop spec/services/smd_status_normalizer_spec.rb)",
-      "Bash(venv/bin/python -m py_compile src/pipeline/reset_smd.py)"
+      "Bash(venv/bin/python -m py_compile src/pipeline/reset_smd.py)",
+      "Bash(venv/bin/python -m py_compile src/pipeline/wipe_chroma.py src/pipeline/reset_smd.py src/config.py)",
+      "Bash(bin/rubocop config/deploy.yml lib/tasks/rag.rake)"
     ]
   }
 }

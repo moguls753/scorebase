@@ -13,7 +13,7 @@ namespace :scores do
     grouped = 0
 
     scope.find_each.with_index do |score, i|
-      group_key = Score.derive_group_key(score.clean_title, score.thumbnail_url)
+      group_key = Score.derive_group_key(score.title, score.thumbnail_url)
       if score.group_key != group_key
         score.update_column(:group_key, group_key)
         updated += 1
@@ -28,7 +28,7 @@ namespace :scores do
     bundles_updated = 0
 
     scope.where(group_key: nil).find_each do |score|
-      group_key = Score.derive_bundle_group_key(score.clean_title, score.thumbnail_url)
+      group_key = Score.derive_bundle_group_key(score.title, score.thumbnail_url)
       if group_key
         score.update_column(:group_key, group_key)
         bundles_updated += 1
@@ -53,11 +53,11 @@ namespace :scores do
             AND s2.deleted_at IS NULL
           ORDER BY
             CASE
-              WHEN s2.clean_title LIKE '%Full Score%' THEN 0
-              WHEN s2.clean_title LIKE '%Conductor%' THEN 1
+              WHEN s2.title LIKE '%Full Score%' THEN 0
+              WHEN s2.title LIKE '%Conductor%' THEN 1
               ELSE 2
             END,
-            s2.clean_title
+            s2.title
           LIMIT 1
         )
         FROM (SELECT DISTINCT group_key FROM scores WHERE group_key IS NOT NULL AND deleted_at IS NULL) groups

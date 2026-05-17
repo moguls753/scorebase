@@ -25,8 +25,12 @@ CHROMA_PATH = Path(
     os.environ.get("CHROMA_PATH", str(BASE_DIR / "data" / "chroma"))
 )
 
-# Embedding model (multilingual for German/French/Italian queries)
-EMBEDDING_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
+# Embedding model — bge-m3: 1024-dim, ~2.3 GB weights on disk, ~2.5 GB resident.
+# Stronger than MiniLM on proper nouns, short text, and multilingual queries.
+# Native multilingual (100+ languages), 8k context, no instruction prefixes required.
+# We cap tokenizer max_length to 512 at the embedder call site to prevent
+# pathological batch-padding OOMs (see indexer.py / search.py).
+EMBEDDING_MODEL = "BAAI/bge-m3"
 
 # Search defaults
 DEFAULT_TOP_K = 20

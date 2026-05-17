@@ -26,7 +26,7 @@ bin/kamal deploy     # Deploy to production
 
 ## Deployment Topology (Kamal)
 
-**Single host (`46.224.124.123`), two Rails roles + one RAG accessory** — all running on the same 4 GB machine:
+**Single Hetzner host (`46.224.124.123`)** — 4 vCPU, 8 GB RAM, 40 GB disk (~€16.65/month). Two Rails roles + one RAG accessory all share this host:
 
 | Container | Memory | Command | Purpose |
 |---|---|---|---|
@@ -34,7 +34,7 @@ bin/kamal deploy     # Deploy to production
 | `job` | 1 GB | `bin/jobs` | Solid Queue worker |
 | `scorebase-rag` accessory | 1.5 GB | `uvicorn src.api.main:app` | Python/FastAPI RAG service on :8001 |
 
-**Memory squeeze.** Total container budget is `1 + 1 + 1.5 = 3.5 GB`, leaving ~500 MB for OS / Docker / Kamal proxy / cloudflare-bypass. **Don't bump `job` back to 2 GB** — that allocation was for music21 extraction, which now runs locally on Eike's machine and never on prod. Don't restore `WEB_CONCURRENCY: 2` either; one Puma worker is required to fit in 1 GB.
+**Headroom budget.** Allocated containers consume `1 + 1 + 1.5 = 3.5 GB`. Remaining ~4.5 GB covers the OS / Docker daemon / Kamal proxy / cloudflare-bypass accessory and leaves room to grow individual containers if needed (e.g. bumping `scorebase-rag` to 3 GB for a heavier embedding model like bge-m3). Earlier 4 GB-host constraints — single Puma worker required, `job` capped at 1 GB — no longer bind; revisit those numbers when the workload demands it rather than treating them as fixed.
 
 **Important consequence:** `bin/kamal app exec --reuse "<cmd>"` (no role flag) runs the command on **both** containers. For read-only dry-runs that's harmless duplication. For mutations, migrations, cleanup tasks, or anything one-shot, **always scope to a single role**:
 

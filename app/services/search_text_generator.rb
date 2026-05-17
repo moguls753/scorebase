@@ -259,7 +259,7 @@ class SearchTextGenerator
 
   def build_common_metadata(score)
     {
-      title: score.clean_title.presence || score.title,
+      title: score.title,
       composer: clean_composer(score.composer),
       period: score.period,
       genre: score.genre,

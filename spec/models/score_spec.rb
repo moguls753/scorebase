@@ -83,24 +83,6 @@ RSpec.describe Score do
     end
   end
 
-  describe '#display_title' do
-    it 'returns the title for non-SMD scores' do
-      expect(build(:score, title: 'Prelude in C').display_title).to eq('Prelude in C')
-    end
-
-    it 'returns nil when title is blank, "NA", or "N/A"' do
-      expect(build(:score, title: nil).display_title).to be_nil
-      expect(build(:score, title: 'NA').display_title).to be_nil
-      expect(build(:score, title: 'n/a').display_title).to be_nil
-      expect(build(:score, title: 'N/A').display_title).to be_nil
-    end
-
-    it 'falls back to title when SMD clean_title is blank' do
-      score = build(:score, source: 'smd', title: 'Sonata K.545', clean_title: nil)
-      expect(score.display_title).to eq('Sonata K.545')
-    end
-  end
-
   describe '#primary_instrument' do
     it 'returns main_instrument for SMD scores, omitting bare "Other"' do
       expect(build(:score, source: 'smd', main_instrument: 'Guitar').primary_instrument).to eq('Guitar')
@@ -174,9 +156,9 @@ RSpec.describe Score do
   describe '.deduplicate_arrangements' do
     it 'shows one card per arrangement, preferring Full Score' do
       group_key = 'test arrangement'
-      full_score = create(:score, :smd, clean_title: 'Test - Full Score', group_key: group_key, is_group_representative: true)
-      create(:score, :smd, clean_title: 'Test - Trumpet 1', group_key: group_key, is_group_representative: false)
-      solo = create(:score, :smd, clean_title: 'Solo Product', group_key: nil)
+      full_score = create(:score, :smd, title: 'Test - Full Score', group_key: group_key, is_group_representative: true)
+      create(:score, :smd, title: 'Test - Trumpet 1', group_key: group_key, is_group_representative: false)
+      solo = create(:score, :smd, title: 'Solo Product', group_key: nil)
 
       result = Score.where(source: 'smd').deduplicate_arrangements
       expect(result).to include(full_score, solo)

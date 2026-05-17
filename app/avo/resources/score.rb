@@ -90,7 +90,6 @@ class Avo::Resources::Score < Avo::BaseResource
     field :posted_date, as: :date, hide_on: :index
 
     # SMD (Sheet Music Direct) fields
-    field :clean_title, as: :text, hide_on: :index, name: "SMD Clean Title"
     field :contributors, as: :code, hide_on: :index, language: :json, name: "SMD Contributors"
     field :main_instrument, as: :text, hide_on: :index, name: "SMD Main Instrument"
     field :arrangement_category, as: :text, hide_on: :index, name: "SMD Arrangement"
