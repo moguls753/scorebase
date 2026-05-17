@@ -38,6 +38,27 @@ RSpec.describe SmdCrawler::MetadataExtractor do
       expect(result[:external_id]).to eq("1924671")
     end
 
+    it "strips the marketing tail from the JSON-LD name" do
+      result = extractor.extract(html)
+
+      expect(result[:title]).to eq("For Her (from The Great Gatsby)")
+    end
+
+    it "preserves song titles containing ' by ' (rightmost-by anchor)" do
+      html_collision = <<~HTML
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <script type="application/ld+json">[{"@type":"Product","mpn":314672,"name":"Down by the Riverside by Greg Gilpin Choir Digital Sheet Music"}]</script>
+        </head>
+        </html>
+      HTML
+
+      result = extractor.extract(html_collision)
+
+      expect(result[:title]).to eq("Down by the Riverside")
+    end
+
     it "extracts composer from JS artists_contributors_list" do
       result = extractor.extract(html)
 

@@ -27,8 +27,7 @@ module SmdCrawler
       {
         # Core identifiers (smd_id → external_id in Score)
         external_id: json_ld["mpn"]&.to_s,
-        title: decode_html(json_ld["name"]),
-        clean_title: decode_html(js_vars["title"]),
+        title: strip_marketing_tail(decode_html(json_ld["name"])),
 
         # Artist/contributors
         # Klassik-tagged scores are classical → no artist (composer only)
@@ -102,7 +101,6 @@ module SmdCrawler
         # Double-quoted strings
         {
           "category_level_2" => /"category_level_2":\s*"([^"]+)"/,
-          "title" => /"title":\s*"([^"]+)"/,
           "main_instrument" => /"main_instrument":\s*"([^"]+)"/,
           "is_interactive" => /"is_interactive":\s*"([^"]+)"/,
           "is_arrangeme" => /"arrangeme":\s*"([^"]+)"/i
@@ -167,6 +165,16 @@ module SmdCrawler
 
       # Then decode HTML entities (&#39; → ')
       CGI.unescapeHTML(decoded)
+    end
+
+    # SMD's JSON-LD `name` appends a marketing tail: " by <composer> <category>
+    # [Digital Sheet Music|Ensemble]" or bare " by <composer>" for audio products.
+    # Rightmost lowercase " by " preserves song titles that legitimately contain
+    # " by " (e.g. "Down by the Riverside by Greg Gilpin" → "Down by the Riverside").
+    def strip_marketing_tail(raw)
+      return raw if raw.blank?
+      idx = raw.rindex(" by ")
+      idx ? raw[0...idx] : raw
     end
   end
 end
