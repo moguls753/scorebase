@@ -73,7 +73,14 @@
       "Bash(bin/rubocop spec/services/smd_status_normalizer_spec.rb)",
       "Bash(venv/bin/python -m py_compile src/pipeline/reset_smd.py)",
       "Bash(venv/bin/python -m py_compile src/pipeline/wipe_chroma.py src/pipeline/reset_smd.py src/config.py)",
-      "Bash(bin/rubocop config/deploy.yml lib/tasks/rag.rake)"
+      "Bash(bin/rubocop config/deploy.yml lib/tasks/rag.rake)",
+      "Skill(superpowers:subagent-driven-development)",
+      "Bash(bin/rubocop -f github app/models/visitor_hash.rb spec/models/visitor_hash_spec.rb)",
+      "Bash(bin/rubocop -f github spec/models/visitor_hash_spec.rb)",
+      "Bash(bin/rubocop *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(ruby --version)",
+      "Bash(bundle exec *)"
     ]
   }
 }

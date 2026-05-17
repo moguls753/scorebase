@@ -22,6 +22,12 @@ class Ahoy::Store < Ahoy::DatabaseStore
 
       cf_device = req.headers["CF-Device-Type"]
       data[:device_type] = cf_device if cf_device.present?
+
+      ip = req.headers["CF-Connecting-IP"].presence || req.remote_ip
+      ua = req.user_agent.to_s
+      today = Date.current
+      data[:visitor_hash]      = VisitorHash.from(ip: ip, user_agent: ua, date: today)
+      data[:visitor_hash_next] = VisitorHash.from_next(ip: ip, user_agent: ua, date: today)
     end
 
     # Privacy: don't store IPs at rest. mask_ips below is the belt; this is the braces.

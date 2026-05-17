@@ -113,6 +113,26 @@
     .range-btn:hover { color: #404040; background: #e5e5e5; }
     .range-btn.active { background: white; color: #171717; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
+    .returning-color-7d   { color: #6366f1; }
+    .returning-color-30d  { color: #10b981; }
+    .returning-color-90d  { color: #f59e0b; }
+    .returning-color-180d { color: #8b5cf6; }
+
+    .returning-headline {
+      font-size: 2rem;
+      font-weight: 700;
+      line-height: 1.1;
+      font-variant-numeric: tabular-nums;
+    }
+    .returning-label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #737373;
+      margin-top: 0.25rem;
+    }
+
     .device-icon {
       display: inline-flex;
       align-items: center;
@@ -163,6 +183,107 @@
       <div class="stat-label">Countries</div>
     </div>
   </div>
+
+  <%# Returning Visitors %>
+  <%= render Avo::PanelComponent.new(name: "Returning Visitors") do |c| %>
+    <% c.with_body do %>
+      <div class="px-6 py-4 space-y-6">
+        <% if @latest_returning_stat %>
+          <%# Latest-day summary %>
+          <div class="flex items-end justify-between flex-wrap gap-4 pb-4 border-b border-gray-100">
+            <div class="flex gap-8 flex-wrap">
+              <% @latest_returning_stat.returning_rates.each do |window, rate| %>
+                <div>
+                  <div class="returning-headline returning-color-<%= window %>">
+                    <%= number_to_percentage(rate * 100, precision: 1) %>
+                  </div>
+                  <div class="returning-label">Returning <%= window %></div>
+                </div>
+              <% end %>
+            </div>
+            <div class="text-xs text-gray-400 self-end">
+              latest day: <%= @latest_returning_stat.date.strftime("%b %-d, %Y") %>
+            </div>
+          </div>
+
+          <%# Trend chart over selected range %>
+          <div>
+            <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+              Trend (last <%= @range_days %>d)
+            </div>
+            <%= line_chart @returning_series,
+              colors: %w[#6366f1 #10b981 #f59e0b #8b5cf6],
+              suffix: "%",
+              library: {
+                scales: {
+                  y: { beginAtZero: true, grid: { color: "#f5f5f5" } },
+                  x: { grid: { display: false } }
+                },
+                plugins: {
+                  legend: { display: true, position: "bottom", labels: { boxWidth: 12, padding: 16, font: { size: 11 } } }
+                },
+                elements: {
+                  line: { tension: 0.4, borderWidth: 2 },
+                  point: { radius: 0, hoverRadius: 5 }
+                }
+              },
+              height: "260px" %>
+          </div>
+
+          <%# Per-day table %>
+          <div>
+            <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
+              Daily values
+            </div>
+            <div class="overflow-x-auto max-h-80">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <% DailyStat::RETURNING_WINDOWS.keys.each do |window| %>
+                      <th class="right">Returning <%= window %></th>
+                    <% end %>
+                  </tr>
+                </thead>
+                <tbody>
+                  <% @stats.reverse.each do |stat| %>
+                    <tr>
+                      <td class="font-medium">
+                        <%= stat.date.strftime("%a, %b %-d") %>
+                        <% if stat.date == Date.current %>
+                          <span class="pill pill-green ml-2">Today</span>
+                        <% end %>
+                      </td>
+                      <% DailyStat::RETURNING_WINDOWS.keys.each do |window| %>
+                        <% rate = stat.returning_rates&.dig(window) %>
+                        <td class="right tabular-nums <%= rate ? "text-gray-700" : "text-gray-300" %>">
+                          <%= rate ? number_to_percentage(rate * 100, precision: 1) : "—" %>
+                        </td>
+                      <% end %>
+                    </tr>
+                  <% end %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        <% else %>
+          <p class="text-gray-400 text-center py-12">
+            No returning-visitor data in this range yet.<br>
+            <span class="text-sm">Populates with each hourly aggregation; longer windows ramp up over weeks.</span>
+          </p>
+        <% end %>
+
+        <details class="text-sm text-gray-500 pt-2 border-t border-gray-100">
+          <summary class="cursor-pointer">About this metric</summary>
+          <div class="mt-2 space-y-2 text-xs leading-relaxed">
+            <p>For each day, what share of that day's distinct visitors also appeared in the prior 7 / 30 / 90 / 180 days.</p>
+            <p>Identifier is a one-way SHA-256 hash of IP + browser, rotated every 6 months on Jan 1 and Jul 1. No cookies, no third parties, IP never stored in clear.</p>
+            <p>After deploy, each window only becomes meaningful once that many days of data have accumulated (7d after 7 days, 180d after 180). A dual-hash scheme keeps values continuous across each subsequent rotation — no recurring resets.</p>
+          </div>
+        </details>
+      </div>
+    <% end %>
+  <% end %>
 
   <%# Visits Chart %>
   <%= render Avo::PanelComponent.new(name: "Visits Over Time") do |c| %>

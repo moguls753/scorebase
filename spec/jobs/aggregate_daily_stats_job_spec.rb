@@ -27,17 +27,17 @@ RSpec.describe AggregateDailyStatsJob, type: :job do
     end
 
     it 'prunes Ahoy data older than the retention window' do
-      old_visit     = make_visit(35.days.ago)
-      recent_visit  = make_visit(20.days.ago)
-      add_pageview(old_visit,    35.days.ago)
-      add_pageview(recent_visit, 20.days.ago)
+      old_visit     = make_visit(220.days.ago)
+      recent_visit  = make_visit(100.days.ago)
+      add_pageview(old_visit,    220.days.ago)
+      add_pageview(recent_visit, 100.days.ago)
 
       expect { described_class.new.perform }
         .to change { Ahoy::Visit.count }.from(2).to(1)
         .and change { Ahoy::Event.count }.from(2).to(1)
 
       expect(Ahoy::Visit.exists?(recent_visit.id)).to be true
-      expect(Ahoy::Event.where(time: 20.days.ago.beginning_of_day..20.days.ago.end_of_day).count).to eq(1)
+      expect(Ahoy::Event.where(time: 100.days.ago.beginning_of_day..100.days.ago.end_of_day).count).to eq(1)
     end
   end
 end

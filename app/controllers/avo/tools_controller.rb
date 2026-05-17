@@ -21,6 +21,8 @@ class Avo::ToolsController < Avo::ApplicationController
     @total_visits = @stats.sum(:visits)
     @avg_daily_visits = @stats.any? ? (@total_visits.to_f / @stats.count).round : 0
     @today = DailyStat.find_by(date: Date.current)
+    @latest_returning_stat = @stats.where.not(returning_rates: nil).order(date: :desc).first
+    @returning_series = build_returning_series(@stats)
 
     @countries = aggregate_json_field(:countries)
     @referrers = aggregate_json_field(:referrers)
@@ -87,5 +89,19 @@ class Avo::ToolsController < Avo::ApplicationController
     @stats.pluck(field).compact.each_with_object(Hash.new(0)) do |day_data, totals|
       day_data.each { |key, count| totals[key] += count }
     end.sort_by { |_, v| -v }.to_h
+  end
+
+  def build_returning_series(stats)
+    DailyStat::RETURNING_WINDOWS.keys.map do |window|
+      {
+        name: window,
+        data: stats.map { |s| [s.date.strftime("%b %-d"), returning_chart_value(s, window)] }
+      }
+    end
+  end
+
+  def returning_chart_value(stat, window)
+    rate = stat.returning_rates&.dig(window)
+    rate.present? ? (rate * 100).round(1) : nil
   end
 end

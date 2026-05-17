@@ -122,4 +122,79 @@ RSpec.describe DailyStat, type: :model do
       expect(DailyStat.new(smd_clicks_by_score: nil).total_smd_clicks).to eq(0)
     end
   end
+
+  describe ".returning_rates_for" do
+    let(:today) { Date.new(2026, 5, 15) }
+
+    def make_visit(date:, visitor_hash:, visitor_hash_next: nil)
+      Ahoy::Visit.create!(
+        started_at:        date.in_time_zone.beginning_of_day + 12.hours,
+        visit_token:       SecureRandom.uuid,
+        visitor_token:     SecureRandom.uuid,
+        visitor_hash:      visitor_hash,
+        visitor_hash_next: visitor_hash_next
+      )
+    end
+
+    it "returns all zeros when no visits exist on the date" do
+      expect(DailyStat.returning_rates_for(today))
+        .to eq("7d" => 0.0, "30d" => 0.0, "90d" => 0.0, "180d" => 0.0)
+    end
+
+    it "computes the share of today's distinct visitors that also appeared in the window" do
+      make_visit(date: today, visitor_hash: "a")
+      make_visit(date: today, visitor_hash: "a")
+      make_visit(date: today, visitor_hash: "b")
+      make_visit(date: today, visitor_hash: "c")
+      make_visit(date: today - 5.days, visitor_hash: "a")
+
+      rates = DailyStat.returning_rates_for(today)
+      expect(rates["7d"]).to  be_within(0.001).of(1.0 / 3)
+      expect(rates["30d"]).to be_within(0.001).of(1.0 / 3)
+    end
+
+    it "matches across the salt rotation boundary via visitor_hash_next" do
+      jul5  = Date.new(2026, 7, 5)
+      jun30 = Date.new(2026, 6, 30)
+      h2 = "shared_h2_hash"
+      h1 = "shared_h1_hash"
+
+      make_visit(date: jul5,  visitor_hash: h2, visitor_hash_next: "future")
+      make_visit(date: jun30, visitor_hash: h1, visitor_hash_next: h2)
+
+      expect(DailyStat.returning_rates_for(jul5)["7d"]).to eq(1.0)
+    end
+
+    it "excludes visits with nil visitor_hash from numerator and denominator" do
+      make_visit(date: today,           visitor_hash: nil)
+      make_visit(date: today,           visitor_hash: "a")
+      make_visit(date: today - 3.days,  visitor_hash: "a")
+
+      expect(DailyStat.returning_rates_for(today)["7d"]).to eq(1.0)
+    end
+  end
+
+  describe ".aggregate_for! with returning_rates" do
+    it "writes returning_rates JSON alongside existing fields" do
+      Ahoy::Visit.create!(
+        started_at:        12.hours.ago,
+        visit_token:       SecureRandom.uuid,
+        visitor_token:     SecureRandom.uuid,
+        visitor_hash:      "today_hash"
+      )
+      Ahoy::Event.create!(
+        name:       "$view",
+        time:       12.hours.ago,
+        properties: { "page" => "/" },
+        visit_id:   Ahoy::Visit.last.id
+      )
+
+      DailyStat.aggregate_for!(Date.current)
+
+      stat = DailyStat.find_by(date: Date.current)
+      expect(stat).to be_present
+      expect(stat.returning_rates).to be_a(Hash)
+      expect(stat.returning_rates.keys).to contain_exactly("7d", "30d", "90d", "180d")
+    end
+  end
 end

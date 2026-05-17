@@ -9,6 +9,7 @@
 #  devices             :json
 #  paths               :json
 #  referrers           :json
+#  returning_rates     :json
 #  smd_clicks_by_score :json
 #  user_agents         :json
 #  visits              :integer          default(0)

@@ -16,8 +16,8 @@ FOREIGN KEY ("score_id")
  ON DELETE CASCADE);
 CREATE TABLE IF NOT EXISTS "waitlist_signups" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "email" varchar NOT NULL, "locale" varchar DEFAULT 'en' NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
 CREATE TABLE IF NOT EXISTS "score_page_deletion_logs" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "score_page_id" integer NOT NULL, "score_id" integer NOT NULL, "page_number" integer NOT NULL, "deleted_at" datetime(6) NOT NULL, "source" varchar, "context" text);
-CREATE TABLE IF NOT EXISTS "daily_stats" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date, "visits" integer DEFAULT 0, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "smd_clicks_by_score" json DEFAULT '{}', "user_agents" json, "countries" json, "referrers" json, "paths" json, "devices" json, "browsers" json);
-CREATE TABLE IF NOT EXISTS "ahoy_visits" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "visit_token" varchar, "visitor_token" varchar, "ip" varchar, "user_agent" text, "referrer" text, "referring_domain" varchar, "landing_page" text, "browser" varchar, "os" varchar, "device_type" varchar, "country" varchar, "region" varchar, "city" varchar, "latitude" float, "longitude" float, "utm_source" varchar, "utm_medium" varchar, "utm_term" varchar, "utm_content" varchar, "utm_campaign" varchar, "app_version" varchar, "os_version" varchar, "platform" varchar, "started_at" datetime(6));
+CREATE TABLE IF NOT EXISTS "daily_stats" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date, "visits" integer DEFAULT 0, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "smd_clicks_by_score" json DEFAULT '{}', "user_agents" json, "countries" json, "referrers" json, "paths" json, "devices" json, "browsers" json, "returning_rates" json);
+CREATE TABLE IF NOT EXISTS "ahoy_visits" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "visit_token" varchar, "visitor_token" varchar, "ip" varchar, "user_agent" text, "referrer" text, "referring_domain" varchar, "landing_page" text, "browser" varchar, "os" varchar, "device_type" varchar, "country" varchar, "region" varchar, "city" varchar, "latitude" float, "longitude" float, "utm_source" varchar, "utm_medium" varchar, "utm_term" varchar, "utm_content" varchar, "utm_campaign" varchar, "app_version" varchar, "os_version" varchar, "platform" varchar, "started_at" datetime(6), "visitor_hash" varchar(64), "visitor_hash_next" varchar(64));
 CREATE TABLE IF NOT EXISTS "ahoy_events" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "visit_id" integer, "name" varchar, "properties" text, "time" datetime(6));
 CREATE TABLE IF NOT EXISTS "smart_search_usages" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date NOT NULL, "count" integer DEFAULT 0 NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
 CREATE TABLE IF NOT EXISTS "smart_search_queries" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "query" text NOT NULL, "query_type" varchar NOT NULL, "parent_query_id" integer, "ip_hash" varchar(64) NOT NULL, "result_count" integer DEFAULT 0 NOT NULL, "score_ids" text DEFAULT '[]' NOT NULL, "rag_summary" text, "rag_recommendations" text, "response_time_ms" integer, "error" text, "locale" varchar(2) NOT NULL, "created_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_661cf8e500"
@@ -192,6 +192,8 @@ BEGIN
     AND NEW.deleted_at IS NULL;
 END;
 INSERT INTO "schema_migrations" (version) VALUES
+('20260517180718'),
+('20260517180654'),
 ('20260517143000'),
 ('20260429153719'),
 ('20260428102431'),

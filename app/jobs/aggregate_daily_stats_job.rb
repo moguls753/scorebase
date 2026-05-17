@@ -1,7 +1,7 @@
 class AggregateDailyStatsJob < ApplicationJob
   queue_as :default
 
-  RETENTION_DAYS = 30
+  RETENTION_DAYS = 200
 
   def perform
     DailyStat.aggregate_for!(Date.current)

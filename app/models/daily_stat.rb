@@ -9,6 +9,7 @@
 #  devices             :json
 #  paths               :json
 #  referrers           :json
+#  returning_rates     :json
 #  smd_clicks_by_score :json
 #  user_agents         :json
 #  visits              :integer          default(0)
@@ -26,6 +27,8 @@ class DailyStat < ApplicationRecord
   # list (e.g. "scorebase.org,localhost,staging.scorebase.org").
   INTERNAL_HOSTS = ENV.fetch("INTERNAL_ANALYTICS_HOSTS", "scorebase.org")
                       .split(",").map(&:strip).reject(&:empty?).freeze
+
+  RETURNING_WINDOWS = { "7d" => 7, "30d" => 30, "90d" => 90, "180d" => 180 }.freeze
 
   def total_smd_clicks
     (smd_clicks_by_score || {}).values.sum
@@ -64,7 +67,33 @@ class DailyStat < ApplicationRecord
       devices:             external_visits.where.not(device_type: nil).group(:device_type).count,
       browsers:            external_visits.where.not(browser: nil).group(:browser).count,
       user_agents:         external_visits.where.not(user_agent: nil).group("substr(user_agent, 1, 100)").count,
-      smd_clicks_by_score: clicks.group("json_extract(properties, '$.score_id')").count
+      smd_clicks_by_score: clicks.group("json_extract(properties, '$.score_id')").count,
+      returning_rates:     returning_rates_for(date)
     )
+  end
+
+  def self.returning_rates_for(date)
+    today_hashes = Ahoy::Visit
+                     .where(started_at: date.all_day)
+                     .where.not(visitor_hash: nil)
+                     .distinct.pluck(:visitor_hash)
+    return RETURNING_WINDOWS.transform_values { 0.0 } if today_hashes.empty?
+
+    today_set = today_hashes.to_set
+    total     = today_set.size
+
+    RETURNING_WINDOWS.transform_values do |window_days|
+      prior_range = (date - window_days.days).beginning_of_day...date.beginning_of_day
+      prior_pairs = Ahoy::Visit.where(started_at: prior_range)
+                               .pluck(:visitor_hash, :visitor_hash_next)
+
+      prior_set = Set.new
+      prior_pairs.each do |h, hn|
+        prior_set << h  if h.present?
+        prior_set << hn if hn.present?
+      end
+
+      (today_set & prior_set).size.to_f / total
+    end
   end
 end
