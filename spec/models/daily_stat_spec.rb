@@ -176,17 +176,18 @@ RSpec.describe DailyStat, type: :model do
 
   describe ".aggregate_for! with returning_rates" do
     it "writes returning_rates JSON alongside existing fields" do
-      Ahoy::Visit.create!(
-        started_at:        12.hours.ago,
+      midday_today = Date.current.in_time_zone.beginning_of_day + 12.hours
+      visit = Ahoy::Visit.create!(
+        started_at:        midday_today,
         visit_token:       SecureRandom.uuid,
         visitor_token:     SecureRandom.uuid,
         visitor_hash:      "today_hash"
       )
       Ahoy::Event.create!(
+        visit:      visit,
         name:       "$view",
-        time:       12.hours.ago,
-        properties: { "page" => "/" },
-        visit_id:   Ahoy::Visit.last.id
+        time:       midday_today,
+        properties: { "page" => "/" }
       )
 
       DailyStat.aggregate_for!(Date.current)

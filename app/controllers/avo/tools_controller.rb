@@ -21,7 +21,7 @@ class Avo::ToolsController < Avo::ApplicationController
     @total_visits = @stats.sum(:visits)
     @avg_daily_visits = @stats.any? ? (@total_visits.to_f / @stats.count).round : 0
     @today = DailyStat.find_by(date: Date.current)
-    @latest_returning_stat = @stats.where.not(returning_rates: nil).last
+    @latest_returning_stat = @stats.where.not(returning_rates: nil).reorder(date: :desc).first
     @returning_series = build_returning_series(@stats)
 
     @countries = aggregate_json_field(:countries)
