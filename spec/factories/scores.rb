@@ -121,6 +121,7 @@
 #  predominant_rhythm         :string
 #  preview_image_url          :string
 #  price_usd                  :decimal(8, 2)
+#  rag_failure_reason         :string
 #  rag_status                 :string           default("pending"), not null
 #  rating                     :decimal(3, 2)
 #  repeats_count              :integer
@@ -210,6 +211,7 @@
 #  index_scores_on_period_and_deleted_at         (period,deleted_at)
 #  index_scores_on_period_status                 (period_status)
 #  index_scores_on_price_usd                     (price_usd)
+#  index_scores_on_rag_failure_reason_partial    (rag_failure_reason) WHERE rag_failure_reason IS NOT NULL
 #  index_scores_on_rag_status                    (rag_status)
 #  index_scores_on_rating                        (rating)
 #  index_scores_on_source                        (source)

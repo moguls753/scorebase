@@ -12,8 +12,10 @@ class CpdlImporter
 
   class RateLimitError < StandardError; end
 
-  def initialize(limit: nil)
+  def initialize(limit: nil, base_url: BASE_URL, http_client: nil)
     @limit = limit
+    @base_url = base_url
+    @http_client = http_client
     @imported_count = 0
     @skipped_count = 0
     @errors = []
@@ -111,13 +113,13 @@ class CpdlImporter
     score_pages
   end
 
+  NON_SCORE_PAREN_SUFFIX = /\((disambiguation|composer|publisher|publication|category|book)\)$/i
+
   def score_page?(title)
-    # CPDL score titles typically follow pattern: "Title (Composer)"
-    # Skip special pages, categories, templates, etc.
     return false if title.start_with?("Category:", "Template:", "Help:", "CPDL:", "File:")
     return false if title.include?("(page does not exist)")
+    return false if title.match?(NON_SCORE_PAREN_SUFFIX)
 
-    # Most score pages have composer in parentheses
     title.match?(/\(.+\)$/)
   end
 
@@ -151,10 +153,11 @@ class CpdlImporter
       return
     end
 
+    canonical = metadata.delete(:canonical_title) || title
     Score.create!(metadata.merge(
       source: "cpdl",
       external_id: page_id.to_s,
-      external_url: "https://www.cpdl.org/wiki/index.php/#{URI.encode_www_form_component(title)}"
+      external_url: "https://www.cpdl.org/wiki/index.php/#{URI.encode_www_form_component(canonical)}"
     ))
     @imported_count += 1
   end
@@ -164,6 +167,7 @@ class CpdlImporter
       action: "parse",
       page: title,
       prop: "wikitext|categories",
+      redirects: 1,
       format: "json"
     }
 
@@ -173,15 +177,25 @@ class CpdlImporter
     response["parse"]
   end
 
+  CONTENT_GATE_RE = /\[\[(?:File|Media):|\{\{(?:Voicing|Instruments|Editions|CPDLno)\s*\|/i
+
+  def has_score_content?(wikitext)
+    return false if wikitext.blank?
+    wikitext.match?(CONTENT_GATE_RE)
+  end
+
   def parse_score_metadata(title, page_data)
     wikitext = page_data.dig("wikitext", "*") || ""
+    return nil unless has_score_content?(wikitext)
+
+    canonical_title = page_data["title"] || title
     categories = (page_data["categories"] || []).map { |c| c["*"] }
 
     # Extract composer from title (usually in parentheses)
-    composer = extract_composer_from_title(title)
+    composer = extract_composer_from_title(canonical_title)
 
     # Extract clean title
-    clean_title = title.gsub(/\s*\([^)]+\)\s*$/, "").strip
+    clean_title = canonical_title.gsub(/\s*\([^)]+\)\s*$/, "").strip
 
     # Parse infobox/template data from wikitext
     infobox = parse_infobox(wikitext)
@@ -203,6 +217,7 @@ class CpdlImporter
 
     {
       title: clean_title,
+      canonical_title: canonical_title,
       composer: infobox["composer"] || composer,
       key_signature: infobox["key"],
       time_signature: nil,  # CPDL doesn't consistently have this
@@ -224,7 +239,7 @@ class CpdlImporter
       views: 0,
       favorites: 0,
       thumbnail_url: nil,
-      data_path: "cpdl:#{title}",  # Use as unique identifier
+      data_path: "cpdl:#{canonical_title}",
       pdf_path: files[:pdf],
       mid_path: files[:midi],
       mxl_path: files[:musicxml]
@@ -246,11 +261,9 @@ class CpdlImporter
       info["composer"] = clean_wiki_value(match[1])
     end
 
-    # Extract voicing: {{Voicing|num_parts|voicing_name}}
-    if match = wikitext.match(/\{\{Voicing\|(\d+)\|([^}]+)\}\}/i)
-      info["num_parts"] = match[1].to_i
-      info["voicing"] = clean_wiki_value(match[2])
-    end
+    voicing_result = CpdlImporter::VoicingTemplate.parse(wikitext)
+    info["num_parts"] = voicing_result.num_parts if voicing_result.num_parts
+    info["voicing"]   = voicing_result.voicing   if voicing_result.voicing
 
     # Extract genre: {{Genre|Sacred|Motets}} - take most specific (last) value
     if match = wikitext.match(/\{\{Genre\|([^}]+)\}\}/i)
@@ -412,10 +425,12 @@ class CpdlImporter
   def api_request(params, retry_count: 0)
     sleep(API_CALL_DELAY)
 
-    uri = URI(BASE_URL)
+    uri = URI(@base_url)
     uri.query = URI.encode_www_form(params)
 
-    response = if @flaresolverr
+    response = if @http_client
+      @http_client.get(uri.to_s)
+    elsif @flaresolverr
       @flaresolverr.get(uri.to_s)
     else
       direct_request(uri)

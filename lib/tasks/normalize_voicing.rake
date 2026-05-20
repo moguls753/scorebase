@@ -83,22 +83,13 @@ namespace :normalize do
     puts
     puts "Applying..."
 
-    # Map verified-deterministic raw forms to LLM-canonical "SoloX" form.
-    solo_map = {
-      "S" => "SoloS", "Solo S" => "SoloS", "Solo Soprano" => "SoloS",
-      "A" => "SoloA", "Solo A" => "SoloA", "Solo Alto"    => "SoloA",
-      "T" => "SoloT", "Solo T" => "SoloT", "Solo Tenor"   => "SoloT",
-      "B" => "SoloB", "Solo B" => "SoloB", "Solo Bass"    => "SoloB"
-    }.freeze
-
     updated = 0
     canonicalized = 0
     Score.transaction do
       scope.find_each(batch_size: 1000) do |s|
-        raw = s.voicing.split(/[|,]/).first.to_s.strip
-        next if raw.empty?
-        cleaned = solo_map.fetch(raw, raw)
-        canonicalized += 1 if cleaned != raw
+        cleaned = CpdlImporter::VoicingTemplate.canonicalize(s.voicing)
+        next unless cleaned
+        canonicalized += 1 if cleaned != s.voicing
         s.update_columns(voicing: cleaned, voicing_status: "normalized")
         updated += 1
       end

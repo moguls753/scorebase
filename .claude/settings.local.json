@@ -80,7 +80,9 @@
       "Bash(bin/rubocop *)",
       "Bash(echo \"exit=$?\")",
       "Bash(ruby --version)",
-      "Bash(bundle exec *)"
+      "Bash(bundle exec *)",
+      "Skill(superpowers:writing-plans)",
+      "Bash(bundle audit *)"
     ]
   }
 }
