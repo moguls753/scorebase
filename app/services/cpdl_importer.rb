@@ -83,6 +83,7 @@ class CpdlImporter
         list: "allpages",
         apnamespace: 0,  # Main namespace
         aplimit: 500,    # Max allowed
+        apfilterredir: "nonredirects",  # skip redirect pages; importing them creates duplicate rows
         format: "json"
       }
       params[:apcontinue] = continue_token if continue_token

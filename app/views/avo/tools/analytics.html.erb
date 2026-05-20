@@ -146,6 +146,7 @@
       <%= link_to "14D", avo.analytics_path(days: 14), class: "range-btn #{@range_days == 14 ? 'active' : ''}" %>
       <%= link_to "30D", avo.analytics_path(days: 30), class: "range-btn #{@range_days == 30 ? 'active' : ''}" %>
       <%= link_to "90D", avo.analytics_path(days: 90), class: "range-btn #{@range_days == 90 ? 'active' : ''}" %>
+      <%= link_to "180D", avo.analytics_path(days: 180), class: "range-btn #{@range_days == 180 ? 'active' : ''}" %>
     </div>
   </div>
 
@@ -173,6 +174,15 @@
   <%= render Avo::PanelComponent.new(name: "Returning Visitors") do |c| %>
     <% c.with_body do %>
       <div class="px-6 py-4 space-y-6">
+        <%# Returning-visitor count — follows the range selector %>
+        <div class="flex items-center gap-4 pb-5 border-b border-gray-100">
+          <span class="text-5xl font-bold tabular-nums text-indigo-600 leading-none"><%= number_with_delimiter(@returning_visitors_total) %></span>
+          <span class="text-sm leading-snug">
+            <span class="text-gray-600">distinct <%= "visitor".pluralize(@returning_visitors_total) %> returned</span><br>
+            <span class="text-gray-400">in the last <%= @returning_window_days %> days</span>
+          </span>
+        </div>
+
         <% if @latest_returning_stat %>
           <%# Latest-day summary %>
           <div>

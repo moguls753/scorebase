@@ -15,7 +15,7 @@ class Avo::ToolsController < Avo::ApplicationController
     @page_title = "Analytics Dashboard"
     add_breadcrumb "Analytics"
 
-    @range_days = (params[:days] || 14).to_i.clamp(1, 90)
+    @range_days = (params[:days] || 14).to_i.clamp(1, 180)
     @stats = DailyStat.where(date: @range_days.days.ago..Date.current).order(date: :asc)
 
     @total_visits = @stats.sum(:visits)
@@ -23,6 +23,13 @@ class Avo::ToolsController < Avo::ApplicationController
     @today = DailyStat.find_by(date: Date.current)
     @latest_returning_stat = @stats.where.not(returning_rates: nil).reorder(date: :desc).first
     @returning_series = build_returning_series(@stats)
+    @returning_window_days = [@range_days, 2].max
+    @returning_visitors_total = Ahoy::Visit
+      .where.not(visitor_hash: nil)
+      .where(started_at: @returning_window_days.days.ago..)
+      .group(:visitor_hash)
+      .having("COUNT(DISTINCT date(started_at)) > 1")
+      .count.size
 
     @countries = aggregate_json_field(:countries)
     @referrers = aggregate_json_field(:referrers)
