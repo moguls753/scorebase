@@ -415,10 +415,14 @@ class CpdlImporter
     response = @http_client.get(uri.to_s)
 
     unless response_success?(response)
-      raise RateLimitError, "CPDL API returned HTTP 403 (blocked by Cloudflare)" if response.code == "403"
-      return retry_request(params, retry_count, "server error 500") if response.code == "500" && retry_count < RETRY_WAITS.size
+      code = response.code
+      raise RateLimitError, "CPDL API returned HTTP 403 (blocked by Cloudflare)" if code == "403"
 
-      puts "  API error: #{response.code}"
+      if code.start_with?("5") && retry_count < RETRY_WAITS.size
+        return retry_request(params, retry_count, "server error #{code}")
+      end
+
+      puts "  API error: #{code}"
       return nil
     end
 
