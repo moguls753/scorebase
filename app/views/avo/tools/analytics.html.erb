@@ -178,8 +178,8 @@
         <div class="flex items-center gap-4 pb-5 border-b border-gray-100">
           <span class="text-5xl font-bold tabular-nums text-indigo-600 leading-none"><%= number_with_delimiter(@returning_visitors_total) %></span>
           <span class="text-sm leading-snug">
-            <span class="text-gray-600">distinct <%= "visitor".pluralize(@returning_visitors_total) %> returned</span><br>
-            <span class="text-gray-400">in the last <%= @returning_window_days %> days</span>
+            <span class="text-gray-600">returning <%= "visitor".pluralize(@returning_visitors_total) %></span><br>
+            <span class="text-gray-400">visited on 2+ separate days, last <%= @returning_window_days %> days</span>
           </span>
         </div>
 

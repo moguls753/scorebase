@@ -127,6 +127,70 @@ CREATE INDEX "index_scores_on_artist" ON "scores" ("artist") /*application='Scor
 CREATE INDEX "index_scores_on_group_key" ON "scores" ("group_key") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_is_group_representative" ON "scores" ("is_group_representative") WHERE is_group_representative = 1 /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_period_and_deleted_at" ON "scores" ("period", "deleted_at") /*application='Scorebase'*/;
+CREATE TRIGGER scores_search_fts_ai AFTER INSERT ON scores
+      WHEN NEW.deleted_at IS NULL
+      BEGIN
+        INSERT INTO scores_search_fts(rowid, title, composer, genre)
+        VALUES (
+          NEW.id,
+          COALESCE(LOWER(NEW.title_normalized), ''),
+          COALESCE(LOWER(NEW.composer_normalized), ''),
+          COALESCE(LOWER(NEW.genre), '')
+        );
+      END;
+CREATE TRIGGER scores_search_fts_ad AFTER DELETE ON scores
+      BEGIN
+        INSERT INTO scores_search_fts(scores_search_fts, rowid, title, composer, genre)
+        VALUES (
+          'delete',
+          OLD.id,
+          COALESCE(LOWER(OLD.title_normalized), ''),
+          COALESCE(LOWER(OLD.composer_normalized), ''),
+          COALESCE(LOWER(OLD.genre), '')
+        );
+      END;
+CREATE TRIGGER scores_search_fts_au AFTER UPDATE ON scores
+      BEGIN
+        INSERT INTO scores_search_fts(scores_search_fts, rowid, title, composer, genre)
+        SELECT 'delete', OLD.id,
+               COALESCE(LOWER(OLD.title_normalized), ''),
+               COALESCE(LOWER(OLD.composer_normalized), ''),
+               COALESCE(LOWER(OLD.genre), '')
+        WHERE OLD.deleted_at IS NULL;
+
+        INSERT INTO scores_search_fts(rowid, title, composer, genre)
+        SELECT NEW.id,
+               COALESCE(LOWER(NEW.title_normalized), ''),
+               COALESCE(LOWER(NEW.composer_normalized), ''),
+               COALESCE(LOWER(NEW.genre), '')
+        WHERE NEW.deleted_at IS NULL;
+      END;
+CREATE TRIGGER scores_instruments_fts_ai AFTER INSERT ON scores
+      WHEN NEW.instruments IS NOT NULL AND NEW.instruments != '' AND NEW.deleted_at IS NULL
+      BEGIN
+        INSERT INTO scores_instruments_fts(rowid, instruments)
+        VALUES (NEW.id, LOWER(NEW.instruments));
+      END;
+CREATE TRIGGER scores_instruments_fts_ad AFTER DELETE ON scores
+      WHEN OLD.instruments IS NOT NULL AND OLD.instruments != ''
+      BEGIN
+        INSERT INTO scores_instruments_fts(scores_instruments_fts, rowid, instruments)
+        VALUES ('delete', OLD.id, LOWER(OLD.instruments));
+      END;
+CREATE TRIGGER scores_instruments_fts_au AFTER UPDATE ON scores
+      BEGIN
+        INSERT INTO scores_instruments_fts(scores_instruments_fts, rowid, instruments)
+        SELECT 'delete', OLD.id, LOWER(OLD.instruments)
+        WHERE OLD.instruments IS NOT NULL
+          AND OLD.instruments != ''
+          AND OLD.deleted_at IS NULL;
+
+        INSERT INTO scores_instruments_fts(rowid, instruments)
+        SELECT NEW.id, LOWER(NEW.instruments)
+        WHERE NEW.instruments IS NOT NULL
+          AND NEW.instruments != ''
+          AND NEW.deleted_at IS NULL;
+      END;
 INSERT INTO "schema_migrations" (version) VALUES
 ('20260520104043'),
 ('20260519141638'),
