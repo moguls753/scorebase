@@ -1,19 +1,9 @@
 namespace :cpdl do
-  desc "Sync all scores from CPDL (runs synchronously). Existing scores are never overwritten. " \
-       "ENV: BASE_URL=<api-url> syncs from a mirror (e.g. https://www1.cpdl.org/wiki/api.php) " \
-       "and routes through CloudflareBypass."
+  desc "Sync all CPDL scores via CloudflareBypass (existing scores are never overwritten). " \
+       "ENV: BASE_URL overrides the source, e.g. https://www1.cpdl.org/wiki/api.php for a mirror."
   task sync: :environment do
-    base_url = ENV["BASE_URL"].presence
-    puts "Starting CPDL sync..."
-    puts "Source: #{base_url || CpdlImporter::BASE_URL}"
-    puts ""
-
-    importer = if base_url
-      CpdlImporter.new(base_url: base_url, http_client: CloudflareBypassClient.new)
-    else
-      CpdlImporter.new
-    end
-    importer.import!
+    base_url = ENV["BASE_URL"].presence || CpdlImporter::BASE_URL
+    CpdlImporter.new(base_url: base_url).import!
   end
 
   desc "Sync a sample of CPDL scores (100 by default)."

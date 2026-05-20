@@ -6,29 +6,24 @@ class CpdlImporter
   BASE_URL = "https://www.cpdl.org/wiki/api.php"
   BATCH_SIZE = 20  # Process 20 scores per batch
   API_CALL_DELAY = 1.5  # 1.5 seconds between API calls (~40 requests/min, within MediaWiki etiquette)
-
-  # Required by MediaWiki API etiquette - see https://www.mediawiki.org/wiki/API:Etiquette
-  USER_AGENT = "ScorebaseBot/1.0 (https://github.com/scorebase; contact@scorebase.app) Ruby/#{RUBY_VERSION}"
+  RETRY_WAITS = [30, 60, 120].freeze
 
   class RateLimitError < StandardError; end
 
   def initialize(limit: nil, base_url: BASE_URL, http_client: nil)
     @limit = limit
     @base_url = base_url
-    @http_client = http_client
+    @http_client = http_client || CloudflareBypassClient.new
     @imported_count = 0
     @skipped_count = 0
     @errors = []
-    @flaresolverr = nil
   end
 
   def import!
     puts "Starting CPDL import..."
     puts "Limit: #{@limit || 'none'}"
     puts "(Existing scores are always skipped - safe to re-run)"
-
-    # Initialize FlareSolverr if available (preferred for API requests)
-    init_flaresolverr!
+    puts "Source: #{@base_url} (via CloudflareBypass)"
 
     # Get all score pages from CPDL
     pages = fetch_all_score_pages
@@ -412,40 +407,17 @@ class CpdlImporter
     urls
   end
 
-  def init_flaresolverr!
-    client = FlaresolverrClient.new
-    if client.available?
-      @flaresolverr = client
-      puts "FlareSolverr available - API requests will be proxied (60s timeout)"
-    else
-      puts "FlareSolverr not available, falling back to direct HTTP"
-      puts "  Start with: docker run -p 8191:8191 ghcr.io/flaresolverr/flaresolverr"
-    end
-  end
-
   def api_request(params, retry_count: 0)
     sleep(API_CALL_DELAY)
 
     uri = URI(@base_url)
     uri.query = URI.encode_www_form(params)
-
-    response = if @http_client
-      @http_client.get(uri.to_s)
-    elsif @flaresolverr
-      @flaresolverr.get(uri.to_s)
-    else
-      direct_request(uri)
-    end
+    response = @http_client.get(uri.to_s)
 
     unless response_success?(response)
-      if response.code == "403"
-        raise RateLimitError, "CPDL API returned 403. Start FlareSolverr container."
-      elsif response.code == "500" && retry_count < 3
-        wait_time = [30, 60, 120][retry_count]
-        puts "  Server error (500). Retrying in #{wait_time}s..."
-        sleep(wait_time)
-        return api_request(params, retry_count: retry_count + 1)
-      end
+      raise RateLimitError, "CPDL API returned HTTP 403 (blocked by Cloudflare)" if response.code == "403"
+      return retry_request(params, retry_count, "server error 500") if response.code == "500" && retry_count < RETRY_WAITS.size
+
       puts "  API error: #{response.code}"
       return nil
     end
@@ -453,34 +425,24 @@ class CpdlImporter
     JSON.parse(response.body)
   rescue RateLimitError
     raise
-  rescue FlaresolverrClient::Error => e
-    puts "  FlareSolverr error: #{e.message}"
-    if retry_count < 3
-      wait_time = [30, 60, 120][retry_count]
-      puts "  Retrying in #{wait_time}s..."
-      sleep(wait_time)
-      return api_request(params, retry_count: retry_count + 1)
-    end
-    nil
   rescue JSON::ParserError => e
     puts "  JSON parse error: #{e.message}"
     nil
   rescue StandardError => e
+    return retry_request(params, retry_count, e.message) if retry_count < RETRY_WAITS.size
+
     puts "  Request failed: #{e.message}"
     nil
   end
 
-  def response_success?(response)
-    return response.success? if response.respond_to?(:success?)
-    response.is_a?(Net::HTTPSuccess)
+  def retry_request(params, retry_count, reason)
+    wait = RETRY_WAITS[retry_count]
+    puts "  #{reason}, retrying in #{wait}s..."
+    sleep(wait)
+    api_request(params, retry_count: retry_count + 1)
   end
 
-  def direct_request(uri)
-    Net::HTTP.start(uri.host, uri.port, use_ssl: true, open_timeout: 10, read_timeout: 30) do |http|
-      request = Net::HTTP::Get.new(uri)
-      request["User-Agent"] = USER_AGENT
-      request["Accept"] = "application/json"
-      http.request(request)
-    end
+  def response_success?(response)
+    response.is_a?(Net::HTTPSuccess)
   end
 end

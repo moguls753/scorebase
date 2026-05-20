@@ -1,20 +1,6 @@
 services:
-  # FlareSolverr: For CPDL API requests (configurable timeout)
-  # Used by CpdlImporter for MediaWiki API calls
-  flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr:latest
-    container_name: flaresolverr
-    ports:
-      - "8191:8191"
-    environment:
-      - LOG_LEVEL=info
-      - BROWSER_TIMEOUT=60000  # 60 seconds - good for VPN connections
-      - TZ=Europe/Berlin
-    restart: unless-stopped
-
-  # CloudflareBypassForScraping: For PDF/file downloads
-  # Used by HttpDownloadable for binary file downloads
-  # Note: 10s hardcoded timeout, but works well for cached cookies
+  # CloudflareBypassForScraping: solves Cloudflare for all scraping.
+  # Used by CpdlImporter (CPDL MediaWiki API) and HttpDownloadable (file downloads).
   cloudflare-bypass:
     image: ghcr.io/sarperavci/cloudflarebypassforscraping:latest
     container_name: cloudflare-bypass
