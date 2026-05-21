@@ -12,6 +12,7 @@ class ImslpImporter
   BATCH_DELAY = 5.0         # 5 seconds between batches
   API_CALL_DELAY = 0.5      # 500ms between individual API calls
   WORKLIST_PAGE_SIZE = 1000 # IMSLP returns 1000 per page
+  PRIORITY_PROGRESS_KEY = "imslp_priority_progress"
 
   # Required by MediaWiki API etiquette - see https://www.mediawiki.org/wiki/API:Etiquette
   USER_AGENT = "ScorebaseBot/1.0 (https://github.com/scorebase; contact@scorebase.app) Ruby/#{RUBY_VERSION}"
@@ -342,26 +343,31 @@ class ImslpImporter
     puts "Starting IMSLP priority import (#{PRIORITY_COMPOSERS.size} composers)..."
 
     existing_ids = Score.where(source: "imslp").pluck(:external_id).to_set
+    start_index = Rails.cache.read(PRIORITY_PROGRESS_KEY) || 0
+    puts "Resuming from composer ##{start_index + 1}" if start_index.positive?
 
     PRIORITY_COMPOSERS.each_with_index do |composer, idx|
-      puts "\n[#{idx + 1}/#{PRIORITY_COMPOSERS.size}] #{composer.tr('_', ' ')}"
+      next if idx < start_index
 
+      puts "\n[#{idx + 1}/#{PRIORITY_COMPOSERS.size}] #{composer.tr('_', ' ')}"
       works = fetch_composer_works(composer)
       puts "  Found #{works.size} works"
 
       new_works = works.reject { |w| existing_ids.include?(w.dig("intvals", "pageid").to_s) }
       puts "  New: #{new_works.size}"
 
-      next if new_works.empty?
-
-      total_batches = (new_works.size.to_f / BATCH_SIZE).ceil
-      new_works.each_slice(BATCH_SIZE).with_index do |batch, i|
-        process_batch(batch, existing_ids)
-        sleep(BATCH_DELAY) unless i == total_batches - 1
+      unless new_works.empty?
+        total_batches = (new_works.size.to_f / BATCH_SIZE).ceil
+        new_works.each_slice(BATCH_SIZE).with_index do |batch, i|
+          process_batch(batch, existing_ids)
+          sleep(BATCH_DELAY) unless i == total_batches - 1
+        end
       end
+
+      Rails.cache.write(PRIORITY_PROGRESS_KEY, idx + 1, expires_in: 30.days)
     end
 
-    if @imported_count > 0
+    if @imported_count.positive?
       puts "\nNormalizing composers..."
       normalize_composers_batch!
     end
@@ -393,7 +399,8 @@ class ImslpImporter
         }
       end
 
-      cmcontinue = response.dig("continue", "cmcontinue")
+      cmcontinue = response.dig("continue", "cmcontinue") ||
+                   response.dig("query-continue", "categorymembers", "cmcontinue")
       break unless cmcontinue
     end
 
@@ -476,6 +483,8 @@ class ImslpImporter
 
         # Mark as processed immediately to prevent duplicates
         existing_ids&.add(page_id)
+      rescue RateLimitError
+        raise
       rescue => e
         work_id = work.dig("intvals", "pageid") || work["id"]
         @errors << "#{work_id}: #{e.message}"
@@ -492,15 +501,6 @@ class ImslpImporter
     # Extract page title from permlink
     page_title = extract_page_title(permlink)
     return if page_title.blank?
-
-    # Skip if in resume mode and already exists
-    if @resume
-      existing = Score.find_by(source: "imslp", external_id: page_id)
-      if existing
-        @skipped_count += 1
-        return
-      end
-    end
 
     # Fetch detailed metadata
     puts "  Processing: #{intvals['worktitle'] || page_title}"
@@ -521,6 +521,12 @@ class ImslpImporter
 
     # Skip if missing required fields
     if attributes[:title].blank? || attributes[:data_path].blank?
+      @skipped_count += 1
+      return
+    end
+
+    # Quality gate: a work with no downloadable file is a dead-end record
+    if attributes[:pdf_path].blank? && attributes[:mxl_path].blank? && attributes[:mid_path].blank?
       @skipped_count += 1
       return
     end

@@ -60,6 +60,19 @@ namespace :imslp do
     puts "Progress reset. Next import will start from offset 0."
   end
 
+  desc "Show IMSLP priority-import progress"
+  task priority_progress: :environment do
+    done = Rails.cache.read(ImslpImporter::PRIORITY_PROGRESS_KEY) || 0
+    total = ImslpImporter::PRIORITY_COMPOSERS.size
+    puts "IMSLP priority import: #{done} / #{total} composers done"
+  end
+
+  desc "Reset IMSLP priority-import progress (next run starts from composer 1)"
+  task reset_priority_progress: :environment do
+    Rails.cache.delete(ImslpImporter::PRIORITY_PROGRESS_KEY)
+    puts "Priority-import progress reset."
+  end
+
   desc "Clear all IMSLP scores from database"
   task clear: :environment do
     count = Score.from_imslp.count

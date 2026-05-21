@@ -6,6 +6,19 @@ Open source sheet music search engine. Deploys to scorebase.org.
 
 Sheet music search engine aggregating free public domain scores and commercial catalogs (Sheet Music Direct). Browse, search, download free PDFs or purchase commercial arrangements.
 
+## Data Sources & Importers
+
+ScoreBase aggregates from several sources; importers live in `app/services/`:
+
+- **PDMX** and **OpenScore** (lieder + quartets) — carry music21-derived features (MXL available).
+- **CPDL** — `CpdlImporter`, via the MediaWiki API. CPDL is Cloudflare-gated, so requests route through the **CloudflareBypass** accessory. Hardened May 2026: a content gate + post-parse thin-page filter (rejects collection/index pages), `apfilterredir=nonredirects` (no redirect-duplicates), and 5xx retry. Fully deleted-and-re-synced — clean, ~55k rows.
+- **IMSLP** — `ImslpImporter`, via IMSLP's worklist API + MediaWiki API over plain HTTP (not Cloudflare-gated). Being extended for composer-prioritized catalog completion — see `docs/superpowers/specs/2026-05-21-imslp-import-design.md`.
+- **SMD** (Sheet Music Direct) — commercial catalog.
+
+**CloudflareBypass accessory** (`scorebase-cloudflare-bypass`, port 8000, env `CLOUDFLARE_BYPASS_URL`) solves Cloudflare for scraping — used by `CpdlImporter` and `HttpDownloadable`. FlareSolverr was removed May 2026; CloudflareBypass is the sole bypass.
+
+**SQLite FTS gotcha:** the `scores` table has 6 FTS sync triggers. `remove_column` — or any rewrite-forcing column op — on `scores` silently drops them, breaking search. Every `scores` column migration must drop & recreate the 6 triggers (pattern: `db/migrate/20260517143000_remove_clean_title_from_scores.rb`).
+
 ## Tech Stack
 
 - Rails 8
