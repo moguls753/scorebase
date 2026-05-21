@@ -44,6 +44,12 @@ RSpec.describe CpdlImporter do
       expect(importer.send(:parse_score_metadata, "Foo (Bar)", page_data)).to be_nil
     end
 
+    it "returns nil for a collection page that trips the gate but yields no piece" do
+      page_data = { "wikitext" => { "*" => "{{Editions|1|First work}}" },
+                    "categories" => [], "title" => "Cathedral Music (Samuel Arnold)" }
+      expect(importer.send(:parse_score_metadata, "Cathedral Music (Samuel Arnold)", page_data)).to be_nil
+    end
+
     it "produces metadata when wikitext has a File: reference" do
       wikitext = "[[File:Bach-AveMaria.pdf]]"
       page_data = { "wikitext" => { "*" => wikitext }, "categories" => [], "title" => "Ave Maria (Bach)" }
@@ -61,6 +67,15 @@ RSpec.describe CpdlImporter do
       expect(result).not_to be_nil
       expect(result[:voicing]).to eq("SATB")
       expect(result[:num_parts]).to eq(4)
+    end
+
+    it "produces metadata when wikitext has a {{CPDLno}} template only" do
+      page_data = { "wikitext" => { "*" => "{{CPDLno|12345}}" },
+                    "categories" => [], "title" => "Foo (Bar)" }
+      allow(importer).to receive(:fetch_file_urls).and_return(pdf: nil, midi: nil, musicxml: nil)
+      result = importer.send(:parse_score_metadata, "Foo (Bar)", page_data)
+      expect(result).not_to be_nil
+      expect(result[:cpdl_number]).to eq("12345")
     end
   end
 

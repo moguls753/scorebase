@@ -205,11 +205,16 @@ class CpdlImporter
     # Get file names from wikitext
     file_names = extract_file_info(wikitext)
 
-    # Fetch actual URLs from MediaWiki API
-    files = fetch_file_urls(file_names)
-
     # Need at least a title to be valid
     return nil if clean_title.blank?
+
+    # Skip collection/index pages: they pass the content gate via a cover image
+    # or {{Editions}} block but describe no piece of their own.
+    signals = file_names.values + infobox.values_at("voicing", "num_parts", "cpdl_number", "instruments")
+    return nil if signals.all?(&:blank?)
+
+    # Fetch actual URLs from MediaWiki API
+    files = fetch_file_urls(file_names)
 
     {
       title: clean_title,
