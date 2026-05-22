@@ -17,9 +17,9 @@
 <%# IMSLP/CPDL host the file themselves — label the buttons so. %>
 <% external = score.external? %>
 <% source_name = score.source.to_s.upcase %>
-<% pdf_label  = external ? t("score.download_on_source", format: "PDF", source: source_name) : t("score.download_pdf") %>
-<% midi_label = external ? t("score.download_on_source", format: "MIDI", source: source_name) : t("score.download_midi") %>
-<% mxl_label  = external ? t("score.download_on_source", format: "MXL", source: source_name) : t("score.download_mxl") %>
+<% pdf_label  = external ? t("score.download_on_source", file_format: "PDF", source: source_name) : t("score.download_pdf") %>
+<% midi_label = external ? t("score.download_on_source", file_format: "MIDI", source: source_name) : t("score.download_midi") %>
+<% mxl_label  = external ? t("score.download_on_source", file_format: "MXL", source: source_name) : t("score.download_mxl") %>
 
 <% if variant == :mobile %>
   <%# Mobile: Compact single-row layout %>

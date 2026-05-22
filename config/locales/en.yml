@@ -239,7 +239,7 @@ en:
     download_pdf: "Download PDF"
     download_midi: "Download MIDI"
     view_on_source: "View on %{source}"
-    download_on_source: "Download %{format} on %{source}"
+    download_on_source: "Download %{file_format} on %{source}"
     unknown_composer: "Unknown Composer"
     details: "Details"
     key: "Key"

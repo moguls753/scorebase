@@ -239,7 +239,7 @@ de:
     download_pdf: "PDF herunterladen"
     download_midi: "MIDI herunterladen"
     view_on_source: "Auf %{source} ansehen"
-    download_on_source: "%{format} von %{source} herunterladen"
+    download_on_source: "%{file_format} von %{source} herunterladen"
     unknown_composer: "Unbekannter Komponist"
     details: "Details"
     key: "Tonart"
