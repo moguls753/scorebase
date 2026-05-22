@@ -54,7 +54,7 @@ def prune_deleted(
         return 0
 
     collection = document_store._collection
-    indexed = _indexed_doc_ids(collection)
+    indexed = indexed_doc_ids(collection)
     logger.info(f"ChromaDB holds {len(indexed)} vectors")
 
     active_ids = db.get_active_score_ids()
@@ -86,16 +86,25 @@ def prune_deleted(
     return len(orphans)
 
 
-def _indexed_doc_ids(collection) -> dict[int, str]:
-    """Map score_id -> Chroma document id for every vector that carries a score_id."""
-    result = collection.get(include=["metadatas"])
-    ids = result.get("ids") or []
-    metadatas = result.get("metadatas") or []
+def indexed_doc_ids(collection) -> dict[int, str]:
+    """Map score_id -> Chroma document id for every vector that carries a score_id.
 
+    Pages with limit/offset: an unbounded `collection.get` builds a query whose
+    SQL-variable count scales with collection size and trips SQLite's
+    SQLITE_LIMIT_VARIABLE_NUMBER once the index is large.
+    """
     indexed: dict[int, str] = {}
-    for doc_id, meta in zip(ids, metadatas):
-        if meta and "score_id" in meta:
-            indexed[meta["score_id"]] = doc_id
+    offset = 0
+    while True:
+        result = collection.get(include=["metadatas"], limit=BATCH_SIZE, offset=offset)
+        ids = result.get("ids") or []
+        if not ids:
+            break
+        metadatas = result.get("metadatas") or []
+        for doc_id, meta in zip(ids, metadatas):
+            if meta and "score_id" in meta:
+                indexed[meta["score_id"]] = doc_id
+        offset += len(ids)
     return indexed
 
 

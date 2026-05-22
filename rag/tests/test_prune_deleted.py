@@ -5,13 +5,17 @@ from unittest.mock import MagicMock
 import pytest
 
 from src import db
-from src.pipeline.prune_deleted import _indexed_doc_ids, _orphans, prune_deleted
+from src.pipeline.prune_deleted import _orphans, indexed_doc_ids, prune_deleted
 
 
 def _fake_store(*, doc_count, ids, metadatas):
     store = MagicMock()
     store.count_documents.return_value = doc_count
-    store._collection.get.return_value = {"ids": ids, "metadatas": metadatas}
+    # indexed_doc_ids() pages until an empty result — hand back one page, then empty.
+    store._collection.get.side_effect = [
+        {"ids": ids, "metadatas": metadatas},
+        {"ids": [], "metadatas": []},
+    ]
     return store
 
 
@@ -25,22 +29,26 @@ def test_orphans_flags_everything_when_keep_set_empty():
     assert _orphans({1: "score_1"}, set()) == ["score_1"]
 
 
-def test_indexed_doc_ids_maps_score_id_to_doc_id():
+def test_indexed_doc_ids_pages_until_empty_and_maps():
     collection = MagicMock()
-    collection.get.return_value = {
-        "ids": ["score_1", "score_2"],
-        "metadatas": [{"score_id": 1}, {"score_id": 2}],
-    }
-    assert _indexed_doc_ids(collection) == {1: "score_1", 2: "score_2"}
+    collection.get.side_effect = [
+        {"ids": ["score_1", "score_2"], "metadatas": [{"score_id": 1}, {"score_id": 2}]},
+        {"ids": ["score_3"], "metadatas": [{"score_id": 3}]},
+        {"ids": [], "metadatas": []},
+    ]
+
+    assert indexed_doc_ids(collection) == {1: "score_1", 2: "score_2", 3: "score_3"}
+    assert collection.get.call_count == 3  # two data pages + the empty terminator
+    assert [c.kwargs["offset"] for c in collection.get.call_args_list] == [0, 2, 3]
 
 
 def test_indexed_doc_ids_skips_vectors_without_score_id():
     collection = MagicMock()
-    collection.get.return_value = {
-        "ids": ["score_1", "no_meta"],
-        "metadatas": [{"score_id": 1}, None],
-    }
-    assert _indexed_doc_ids(collection) == {1: "score_1"}
+    collection.get.side_effect = [
+        {"ids": ["score_1", "no_meta"], "metadatas": [{"score_id": 1}, None]},
+        {"ids": [], "metadatas": []},
+    ]
+    assert indexed_doc_ids(collection) == {1: "score_1"}
 
 
 def test_prune_deleted_removes_orphans(monkeypatch):
@@ -107,3 +115,50 @@ def test_prune_deleted_refuses_to_wipe_on_empty_keep_set(monkeypatch):
         prune_deleted(document_store=store)
 
     store._collection.delete.assert_not_called()
+
+
+# --- real ChromaDB integration (skipped if chromadb is not installed) -------
+# Mocks can't catch a ChromaDB API mismatch -- these exercise the real client,
+# with more than BATCH_SIZE vectors so pagination genuinely pages.
+
+def _real_collection(tmp_path, n):
+    """A real on-disk ChromaDB collection holding n score vectors."""
+    chromadb = pytest.importorskip("chromadb")
+    client = chromadb.PersistentClient(path=str(tmp_path / "chroma"))
+    collection = client.create_collection("scores")
+    for start in range(0, n, 200):
+        batch = range(start + 1, min(start + 200, n) + 1)
+        collection.add(
+            ids=[f"score_{i}" for i in batch],
+            embeddings=[[0.1, 0.2, 0.3] for _ in batch],
+            metadatas=[{"score_id": i} for i in batch],
+        )
+    return collection
+
+
+def test_real_chromadb_indexed_doc_ids_paginates_whole_collection(tmp_path):
+    n = 1100  # > BATCH_SIZE (500): forces real multi-page pagination
+    collection = _real_collection(tmp_path, n)
+
+    assert indexed_doc_ids(collection) == {i: f"score_{i}" for i in range(1, n + 1)}
+
+
+def test_real_chromadb_prune_deleted_end_to_end(tmp_path, monkeypatch):
+    n = 1100
+    collection = _real_collection(tmp_path, n)
+
+    class _Store:
+        _collection = collection
+
+        def count_documents(self):
+            return collection.count()
+
+    orphan_ids = {500, 999, 1100}
+    keep = set(range(1, n + 1)) - orphan_ids
+    monkeypatch.setattr(db, "get_active_score_ids", lambda: keep)
+
+    removed = prune_deleted(document_store=_Store())
+
+    assert removed == len(orphan_ids)
+    assert collection.count() == n - len(orphan_ids)
+    assert set(indexed_doc_ids(collection)) == keep

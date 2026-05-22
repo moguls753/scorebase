@@ -23,7 +23,7 @@ from haystack.components.embedders import SentenceTransformersDocumentEmbedder
 from haystack_integrations.document_stores.chroma import ChromaDocumentStore
 
 from .. import config, db
-from .prune_deleted import prune_deleted
+from .prune_deleted import indexed_doc_ids, prune_deleted
 
 logging.basicConfig(
     level=logging.INFO,
@@ -38,14 +38,7 @@ def get_indexed_score_ids(document_store: ChromaDocumentStore) -> set[int]:
         if document_store.count_documents() == 0:
             return set()
 
-        collection = document_store._collection
-        results = collection.get(include=["metadatas"])
-
-        return {
-            meta["score_id"]
-            for meta in results.get("metadatas", [])
-            if meta and "score_id" in meta
-        }
+        return set(indexed_doc_ids(document_store._collection))
     except Exception as e:
         logger.warning(f"Could not fetch existing IDs: {e}")
         return set()
