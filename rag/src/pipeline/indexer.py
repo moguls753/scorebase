@@ -23,6 +23,7 @@ from haystack.components.embedders import SentenceTransformersDocumentEmbedder
 from haystack_integrations.document_stores.chroma import ChromaDocumentStore
 
 from .. import config, db
+from .prune_deleted import prune_deleted
 
 logging.basicConfig(
     level=logging.INFO,
@@ -60,6 +61,13 @@ def build_index(limit: int = 100, ids: list[int] | None = None):
     # Setup ChromaDB
     config.CHROMA_PATH.mkdir(parents=True, exist_ok=True)
     document_store = ChromaDocumentStore(persist_path=str(config.CHROMA_PATH))
+
+    # Reconcile first: drop vectors for scores that have been deleted, so the
+    # index self-heals on every run. A prune failure must not block indexing.
+    try:
+        prune_deleted(document_store=document_store)
+    except Exception as e:
+        logger.error(f"Prune step failed, continuing with indexing: {e}", exc_info=True)
 
     # Get already indexed
     existing_ids = get_indexed_score_ids(document_store)

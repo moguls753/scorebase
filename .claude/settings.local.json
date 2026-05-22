@@ -82,7 +82,9 @@
       "Bash(ruby --version)",
       "Bash(bundle exec *)",
       "Skill(superpowers:writing-plans)",
-      "Bash(bundle audit *)"
+      "Bash(bundle audit *)",
+      "Bash(rag/venv/bin/python -c \"import chromadb; print\\('chromadb', chromadb.__version__\\)\")",
+      "Bash(rag/venv/bin/python -c \"import haystack_integrations.document_stores.chroma as m; print\\('chroma-haystack OK'\\)\")"
     ]
   }
 }

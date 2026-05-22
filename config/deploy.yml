@@ -90,6 +90,8 @@ aliases:
   rag-reset-smd-check: accessory exec rag --reuse "python -u -m src.pipeline.reset_smd --check"
   rag-wipe-chroma: accessory exec rag --reuse "python -u -m src.pipeline.wipe_chroma"
   rag-wipe-chroma-check: accessory exec rag --reuse "python -u -m src.pipeline.wipe_chroma --check"
+  rag-prune: accessory exec rag --reuse "python -u -m src.pipeline.prune_deleted"
+  rag-prune-check: accessory exec rag --reuse "python -u -m src.pipeline.prune_deleted --check"
 
 # Use a persistent storage volume for sqlite database files and local Active Storage files.
 # Recommended to change this to a mounted volume path that is backed up off server.

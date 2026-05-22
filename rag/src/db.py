@@ -26,6 +26,7 @@ def get_templated_scores(limit: int = 100) -> list[dict]:
             SELECT id, title, search_text
             FROM scores
             WHERE rag_status = 'templated'
+            AND deleted_at IS NULL
             AND search_text IS NOT NULL
             AND search_text != ''
             ORDER BY id
@@ -36,6 +37,7 @@ def get_templated_scores(limit: int = 100) -> list[dict]:
             SELECT id, title, search_text
             FROM scores
             WHERE rag_status = 'templated'
+            AND deleted_at IS NULL
             AND search_text IS NOT NULL
             AND search_text != ''
             ORDER BY id
@@ -66,6 +68,7 @@ def get_scores_by_ids(ids: list[int]) -> list[dict]:
         SELECT id, title, search_text
         FROM scores
         WHERE id IN ({placeholders})
+        AND deleted_at IS NULL
         AND search_text IS NOT NULL
         ORDER BY id
     """, ids)
@@ -73,6 +76,19 @@ def get_scores_by_ids(ids: list[int]) -> list[dict]:
     scores = [dict(row) for row in cursor.fetchall()]
     conn.close()
     return scores
+
+
+def get_active_score_ids() -> set[int]:
+    """All score IDs that are not soft-deleted -- the keep-set for ChromaDB reconcile.
+
+    Any indexed vector whose score_id is absent from this set is an orphan: the
+    score was soft-deleted, or its row was removed entirely.
+    """
+    conn = get_connection()
+    cursor = conn.execute("SELECT id FROM scores WHERE deleted_at IS NULL")
+    ids = {row[0] for row in cursor.fetchall()}
+    conn.close()
+    return ids
 
 
 def get_score_metadata(ids: list[int]) -> dict[int, dict]:
@@ -138,6 +154,7 @@ def get_stats() -> dict:
     cursor = conn.execute("""
         SELECT rag_status, COUNT(*) as count
         FROM scores
+        WHERE deleted_at IS NULL
         GROUP BY rag_status
     """)
     for row in cursor.fetchall():

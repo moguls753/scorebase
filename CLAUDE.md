@@ -133,6 +133,8 @@ bin/kamal rag-index                                              # one batch (50
 
 The indexer's resume logic (`get_indexed_score_ids` in `rag/src/pipeline/indexer.py`) skips already-indexed rows, so partial progress is safe to retry. If a batch OOMs the 1.5 GB accessory cgroup, drop the alias's batch size from 5000 to 2000 in `config/deploy.yml`.
 
+**Pruning deleted scores.** Every indexer run first reconciles ChromaDB against the live catalogue — vectors whose score was soft-deleted or purged are dropped (keep-set diff, `rag/src/pipeline/prune_deleted.py`). Run `bin/kamal rag-prune` (preview: `bin/kamal rag-prune-check`) to reconcile without indexing — e.g. right after a bulk delete. Both are safe to run while the RAG service is live; Chroma tolerates the concurrent reader.
+
 **Rebuilding the RAG image.**
 
 ```bash
