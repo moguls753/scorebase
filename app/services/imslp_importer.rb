@@ -233,6 +233,56 @@ class ImslpImporter
     Cano,_Antonio
     Pratten,_Catharina_Josepha
     Tansman,_Alexandre
+    Strauss_Jr.,_Johann
+    Strauss_Sr.,_Johann
+    Strauss,_Josef
+    Foster,_Stephen
+    Sousa,_John_Philip
+    Sullivan,_Arthur
+    Albinoni,_Tomaso
+    Bruch,_Max
+    Delibes,_Léo
+    Joplin,_Scott
+    Sarasate,_Pablo_de
+    Reger,_Max
+    Rheinberger,_Josef_Gabriel
+    Gottschalk,_Louis_Moreau
+    MacDowell,_Edward
+    Schumann,_Clara
+    Hensel,_Fanny
+    Beach,_Amy_Marcy
+    Farrenc,_Louise
+    Hildegard
+    Zelenka,_Jan_Dismas
+    Bach,_Johann_Christian
+    Coleridge-Taylor,_Samuel
+    Adam,_Adolphe
+    Glinka,_Mikhail
+    Kreutzer,_Rodolphe
+    Rode,_Pierre
+    Mazas,_Jacques_Féréol
+    Dont,_Jakob
+    Kayser,_Heinrich_Ernst
+    Wohlfahrt,_Franz
+    Ševčík,_Otakar
+    Bériot,_Charles-Auguste_de
+    David,_Ferdinand
+    Ysaÿe,_Eugène
+    Ernst,_Heinrich_Wilhelm
+    Biber,_Heinrich_Ignaz_Franz_von
+    Wieniawski,_Henri
+    Joachim,_Joseph
+    Bochsa,_Nicholas_Charles
+    Godefroid,_Félix
+    Oberthür,_Charles
+    Parish-Alvars,_Elias
+    Naderman,_François-Joseph
+    Hasselmans,_Alphonse
+    Dotzauer,_Friedrich
+    Popper,_David
+    Lee,_Sebastian
+    Andersen,_Joachim
+    Köhler,_Ernesto
   ].freeze
 
   class RateLimitError < StandardError; end
