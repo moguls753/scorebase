@@ -3,7 +3,8 @@ require "json"
 require "uri"
 
 class CpdlImporter
-  BASE_URL = "https://www.cpdl.org/wiki/api.php"
+  # www.cpdl.org is in maintenance; www1 is the live mirror.
+  BASE_URL = "https://www1.cpdl.org/wiki/api.php"
   BATCH_SIZE = 20  # Process 20 scores per batch
   API_CALL_DELAY = 1.5  # 1.5 seconds between API calls (~40 requests/min, within MediaWiki etiquette)
   RETRY_WAITS = [30, 60, 120].freeze
@@ -153,7 +154,7 @@ class CpdlImporter
     Score.create!(metadata.merge(
       source: "cpdl",
       external_id: page_id.to_s,
-      external_url: "https://www.cpdl.org/wiki/index.php/#{URI.encode_www_form_component(canonical)}"
+      external_url: "https://www1.cpdl.org/wiki/index.php/#{URI.encode_www_form_component(canonical)}"
     ))
     @imported_count += 1
   end
@@ -393,7 +394,7 @@ class CpdlImporter
     pages.each do |_page_id, page|
       next unless page["imageinfo"]
 
-      url = page.dig("imageinfo", 0, "url")
+      url = page.dig("imageinfo", 0, "url")&.sub(%r{//www\.cpdl\.org}, "//www1.cpdl.org")
       title = page["title"].gsub("File:", "")
 
       # Normalize both for comparison (MediaWiki converts _ to spaces)

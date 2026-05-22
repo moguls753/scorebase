@@ -1,6 +1,6 @@
 namespace :cpdl do
   desc "Sync all CPDL scores via CloudflareBypass (existing scores are never overwritten). " \
-       "ENV: BASE_URL overrides the source, e.g. https://www1.cpdl.org/wiki/api.php for a mirror."
+       "ENV: BASE_URL overrides the CPDL API endpoint."
   task sync: :environment do
     base_url = ENV["BASE_URL"].presence || CpdlImporter::BASE_URL
     CpdlImporter.new(base_url: base_url).import!

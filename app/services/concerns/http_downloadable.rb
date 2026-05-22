@@ -10,7 +10,7 @@ module HttpDownloadable
   MAX_RETRIES = 3
   RETRY_DELAY = 2  # seconds, doubles each retry
   IMSLP_RATE_LIMIT = 3  # seconds between IMSLP requests to avoid IP bans
-  CLOUDFLARE_PROTECTED_HOSTS = %w[cpdl.org www.cpdl.org].freeze
+  CLOUDFLARE_PROTECTED_HOSTS = %w[cpdl.org www.cpdl.org www1.cpdl.org].freeze
 
   private
 

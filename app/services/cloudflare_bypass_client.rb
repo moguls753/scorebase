@@ -7,7 +7,7 @@ require "net/http"
 #
 # Usage:
 #   client = CloudflareBypassClient.new
-#   response = client.get("https://www.cpdl.org/wiki/api.php?action=query")
+#   response = client.get("https://www1.cpdl.org/wiki/api.php?action=query")
 #   response.body  # => JSON or binary data
 #
 # Configure via ENV:

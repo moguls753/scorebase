@@ -14,6 +14,13 @@
 <% variant ||= :sidebar %>
 <% return unless score.has_downloads? || score.smd_purchasable? %>
 
+<%# IMSLP/CPDL host the file themselves — label the buttons so. %>
+<% external = score.external? %>
+<% source_name = score.source.to_s.upcase %>
+<% pdf_label  = external ? t("score.download_on_source", format: "PDF", source: source_name) : t("score.download_pdf") %>
+<% midi_label = external ? t("score.download_on_source", format: "MIDI", source: source_name) : t("score.download_midi") %>
+<% mxl_label  = external ? t("score.download_on_source", format: "MXL", source: source_name) : t("score.download_mxl") %>
+
 <% if variant == :mobile %>
   <%# Mobile: Compact single-row layout %>
   <div class="dl-row">
@@ -35,31 +42,31 @@
       <% if score.has_pdf? %>
         <%= link_to file_score_path(score, 'pdf', download: true),
             class: "dl-btn dl-btn--primary",
-            aria: { label: t('score.download_pdf') } do %>
+            aria: { label: pdf_label } do %>
           <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
           </svg>
-          <span class="dl-label">PDF</span>
+          <span class="dl-label">PDF<%= " ↗" if external %></span>
         <% end %>
       <% end %>
       <% if score.has_midi? %>
         <%= link_to file_score_path(score, 'mid', download: true),
             class: "dl-btn dl-btn--secondary",
-            aria: { label: t('score.download_midi') } do %>
+            aria: { label: midi_label } do %>
           <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
           </svg>
-          <span class="dl-label">MIDI</span>
+          <span class="dl-label">MIDI<%= " ↗" if external %></span>
         <% end %>
       <% end %>
       <% if score.has_mxl? %>
         <%= link_to file_score_path(score, 'mxl', download: true),
             class: "dl-btn dl-btn--secondary",
-            aria: { label: t('score.download_mxl') } do %>
+            aria: { label: mxl_label } do %>
           <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
           </svg>
-          <span class="dl-label">MXL</span>
+          <span class="dl-label">MXL<%= " ↗" if external %></span>
         <% end %>
       <% end %>
     <% end %>
@@ -87,22 +94,22 @@
       <% if score.has_pdf? %>
         <%= link_to file_score_path(score, 'pdf', download: true),
             class: "dl-btn dl-btn--primary dl-btn--full",
-            aria: { label: t('score.download_pdf') } do %>
+            aria: { label: pdf_label } do %>
           <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
           </svg>
-          <span class="dl-label"><%= t('score.download_pdf') %></span>
+          <span class="dl-label"><%= pdf_label %><%= " ↗" if external %></span>
         <% end %>
       <% end %>
 
       <% if score.has_midi? %>
         <%= link_to file_score_path(score, 'mid', download: true),
             class: "dl-btn dl-btn--secondary dl-btn--full",
-            aria: { label: t('score.download_midi') } do %>
+            aria: { label: midi_label } do %>
           <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
           </svg>
-          <span class="dl-label"><%= t('score.download_midi') %></span>
+          <span class="dl-label"><%= midi_label %><%= " ↗" if external %></span>
         <% end %>
       <% end %>
 
@@ -110,11 +117,11 @@
         <div class="mm-tooltip-wrap">
           <%= link_to file_score_path(score, 'mxl', download: true),
               class: "dl-btn dl-btn--secondary dl-btn--full",
-              aria: { label: t('score.download_mxl') } do %>
+              aria: { label: mxl_label } do %>
             <svg class="dl-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" aria-hidden="true">
               <path stroke-linecap="square" stroke-width="2" d="M8 2v9m0 0l-3-3m3 3l3-3M3 13h10"/>
             </svg>
-            <span class="dl-label"><%= t('score.download_mxl') %></span>
+            <span class="dl-label"><%= mxl_label %><%= " ↗" if external %></span>
           <% end %>
           <span class="mm-tooltip"><%= t('score.mxl_hint') %></span>
         </div>
