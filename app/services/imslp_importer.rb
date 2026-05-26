@@ -283,6 +283,24 @@ class ImslpImporter
     Lee,_Sebastian
     Andersen,_Joachim
     Köhler,_Ernesto
+    Akimenko,_Theodore
+    Bendel,_Franz
+    Blumenfeld,_Felix
+    Concone,_Giuseppe
+    Cui,_César
+    Gambardella,_Salvatore
+    Kiel,_Friedrich
+    Kirchner,_Theodor
+    Mayer,_Charles
+    Müller,_August_Eberhard
+    Niemann,_Walter
+    Sapelnikov,_Vasily
+    Schütt,_Eduard
+    Stöhr,_Richard
+    Taubert,_Wilhelm
+    Volkmann,_Robert
+    Woelfl,_Joseph
+    Wolff,_Édouard
   ].freeze
 
   class RateLimitError < StandardError; end
