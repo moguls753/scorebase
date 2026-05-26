@@ -7,11 +7,11 @@
 # - Processes eligible scores in batches
 # - Retries "unknown" results once with single query (reduces batch noise)
 #
-# Scope: All scores with known composer (~51K scores)
+# Scope: non-SMD scores with known composer (SMD grade comes from SmdStatusNormalizer)
 # - composer_status: normalized
 # - Has title
 #
-# Model: Groq Llama 4 Maverick (90% accuracy, ~$2.63 for full run)
+# Model: Groq Llama 4 Maverick (90% accuracy, ~$3 for full run)
 #
 # Usage:
 #   NormalizePedagogicalGradeJob.perform_later
@@ -58,7 +58,8 @@ class NormalizePedagogicalGradeJob < ApplicationJob
   # - Known composer (composer_status: normalized)
   # - Has title (for LLM to identify the piece)
   def eligible_scores(limit)
-    Score.grade_pending
+    Score.exclude_smd
+         .grade_pending
          .where(composer_status: :normalized)
          .where.not(title: [nil, ""])
          .order(prioritized_order)
@@ -131,7 +132,8 @@ class NormalizePedagogicalGradeJob < ApplicationJob
   # Propagate upstream failures: if composer normalization failed,
   # grade normalization can't succeed (no way to identify the piece)
   def propagate_upstream_failures
-    count = Score.where(composer_status: :failed, grade_status: :pending)
+    count = Score.exclude_smd
+                 .where(composer_status: :failed, grade_status: :pending)
                  .update_all(grade_status: :not_applicable, grade_source: "no_composer")
     logger.info "[NormalizePedagogicalGrade] Propagated #{count} composer failures" if count > 0
   end

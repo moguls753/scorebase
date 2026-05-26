@@ -290,6 +290,7 @@ class Score < ApplicationRecord
   scope :from_pdmx, -> { where(source: "pdmx") }
   scope :from_cpdl, -> { where(source: "cpdl") }
   scope :from_imslp, -> { where(source: "imslp") }
+  scope :exclude_smd, -> { where.not(source: "smd") }
   scope :by_source, ->(source) { where(source: source) if source.present? }
 
   # Soft delete scopes - use Score.active in public-facing code
