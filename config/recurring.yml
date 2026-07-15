@@ -34,6 +34,11 @@ production:
     queue: default
     schedule: every sunday at 3am
 
+  backfill_group_keys:
+    class: BackfillGroupKeysJob
+    queue: default
+    schedule: every day at 2am
+
   # extract_pending_scores:
   #   class: ExtractPendingScoresJob
   #   queue: extractions
