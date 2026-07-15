@@ -15,6 +15,22 @@ class Ahoy::Store < Ahoy::DatabaseStore
     "tablet"         => "tablet"
   ).freeze
 
+  HOSTNAME = /\A[a-z0-9]([a-z0-9\-.]{0,251}[a-z0-9])?\z/i
+
+  # ahoy.js runs with cookies:false, which short-circuits its createVisit() — the
+  # visits endpoint is never hit, and in api mode Ahoy::VisitProperties reads
+  # params["referrer"] instead of request.referer. So the browser sends the
+  # referrer's hostname (never the URL) as an event property and we lift it onto
+  # the visit here, then drop it so traffic source lives in exactly one column.
+  def track_event(data)
+    props = data[:properties]
+    if props.is_a?(Hash)
+      @js_referring_domain = props.delete("referring_domain") || props.delete(:referring_domain)
+    end
+
+    super
+  end
+
   def track_visit(data)
     if (req = request)
       cf_country = req.headers["CF-IPCountry"]
@@ -35,11 +51,11 @@ class Ahoy::Store < Ahoy::DatabaseStore
 
     data[:device_type] = bucket_device(data[:device_type])
 
-    # Normalise www-prefixed referring domains so the dashboard doesn't split
-    # `www.google.com` and `google.com` into separate rows.
-    if data[:referring_domain].is_a?(String) && data[:referring_domain].start_with?("www.")
-      data[:referring_domain] = data[:referring_domain].sub(/\Awww\./, "")
-    end
+    data[:referring_domain] = normalize_domain(@js_referring_domain || data[:referring_domain])
+
+    # Privacy: a full Referer can carry search queries, private URLs and tokens.
+    # The hostname above is the only traffic-source data we keep.
+    data[:referrer] = nil
 
     super
   end
@@ -49,6 +65,17 @@ class Ahoy::Store < Ahoy::DatabaseStore
   def bucket_device(value)
     return nil if value.blank?
     DEVICE_BUCKETS[value.to_s.downcase]
+  end
+
+  # Also normalises www-prefixed domains so the dashboard doesn't split
+  # `www.google.com` and `google.com` into separate rows.
+  def normalize_domain(value)
+    return nil unless value.is_a?(String)
+
+    host = value.strip.downcase
+    return nil unless host.match?(HOSTNAME)
+
+    host.delete_prefix("www.").presence
   end
 end
 
@@ -61,9 +88,8 @@ Ahoy.server_side_visits = :when_needed
 # No IP-based geocoding; we set country from Cloudflare's CF-IPCountry header in the Store.
 Ahoy.geocode = false
 
-# No cookies. Every request is its own anonymous visit. Keeps the privacy
-# stance ("no cookies beyond the Rails session") accurate. ahoy.js is also
-# configured with cookies: false on the JS side (see app/javascript).
+# No cookies, no device storage — this is what lets us run without a consent
+# banner. ahoy.js is also configured with cookies: false (see app/javascript).
 Ahoy.cookies = :none
 
 # Anonymise IPs at the framework level. The Store override also sets ip=nil,

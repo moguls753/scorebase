@@ -15,6 +15,19 @@ window.ahoy.configure({
   eventsUrl: "/_internal/events"
 })
 
+// Only the hostname, never the full referrer URL — a Referer can carry search
+// queries, private forum/webmail paths and tokens, so the URL never leaves here.
+function referringDomain() {
+  try {
+    const referrer = document.referrer
+    if (!referrer) return null
+    return new URL(referrer).hostname || null
+  } catch (e) {
+    return null
+  }
+}
+
 document.addEventListener("turbo:load", () => {
-  window.ahoy.trackView()
+  const domain = referringDomain()
+  window.ahoy.trackView(domain ? { referring_domain: domain } : {})
 })
