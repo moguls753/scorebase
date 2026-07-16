@@ -489,13 +489,27 @@ class Score < ApplicationRecord
   # Unison: single melodic line
   scope :unison_voices, -> { where("LOWER(voicing) LIKE '%unison%' OR num_parts = 1") }
 
+  # Shared by BackfillGroupKeysJob#assign_representatives and the search scope's
+  # inline subquery (both alias scores as s2) — if the two rankings drift, search
+  # picks a row that deduplicate_arrangements hides and the arrangement vanishes.
+  GROUP_REPRESENTATIVE_ORDER_SQL = <<~SQL.squish.freeze
+    CASE
+      WHEN s2.title NOT LIKE '% - %' THEN 0
+      WHEN s2.title LIKE '%Full Score%' THEN 1
+      WHEN s2.title LIKE '%Conductor%' THEN 2
+      ELSE 3
+    END,
+    s2.price_usd DESC,
+    s2.id
+  SQL
+
   # Search scope using normalized columns for accent-insensitive search
   # "Etudes" matches "Études", "Dvorak" matches "Dvořák"
   # Uses FTS5 trigram index for fast substring matching across title, composer, genre
   # AND matching: all words must appear (in any order)
   #
   # Group-aware: when a part matches (e.g., "Birds of a Feather - Bass"), returns
-  # the group representative (Full Score) instead. This ensures search results show
+  # the group representative instead. This ensures search results show
   # one card per arrangement, not 20 cards for each part.
   scope :search, ->(query) {
     return all if query.blank?
@@ -515,13 +529,7 @@ class Score < ApplicationRecord
           SELECT s2.id FROM scores s2
           WHERE s2.group_key = matched_groups.group_key
             AND s2.deleted_at IS NULL
-          ORDER BY
-            CASE
-              WHEN s2.title LIKE '%Full Score%' THEN 0
-              WHEN s2.title LIKE '%Conductor%' THEN 1
-              ELSE 2
-            END,
-            s2.title
+          ORDER BY #{GROUP_REPRESENTATIVE_ORDER_SQL}
           LIMIT 1
         )
         FROM (
@@ -599,6 +607,20 @@ class Score < ApplicationRecord
     nil
   end
 
+  # A title+code match alone is unsafe — shared HL folio codes also link distinct
+  # SKUs (choir vocal scores, audio tracks). Callers must gate on category match
+  # and candidate uniqueness, see BackfillGroupKeysJob#assign_parent_keys.
+  def self.derive_parent_group_key(title, thumbnail_url)
+    return nil if title.blank? || thumbnail_url.blank?
+    return nil if title.include?(" - ")
+
+    product_code = extract_product_code(thumbnail_url)
+    return nil unless product_code
+
+    potential_key = "#{title.downcase.strip}|#{product_code}"
+    where(group_key: potential_key).exists? ? potential_key : nil
+  end
+
   # Extract HL product code from SMD thumbnail URL
   # "https://img.sheetmusic.direct/catalogue/product/hl-07013386-md.jpg" -> "hl-07013386"
   def self.extract_product_code(thumbnail_url)
@@ -619,7 +641,7 @@ class Score < ApplicationRecord
   # Get all other parts in this score's arrangement group
   def grouped_parts
     return Score.none if group_key.blank?
-    Score.where(group_key: group_key).where.not(id: id).order(:title)
+    Score.active.where(group_key: group_key).where.not(id: id).order(:title)
   end
 
   # Check if this score has other parts in its group
@@ -627,10 +649,10 @@ class Score < ApplicationRecord
     group_key.present? && grouped_parts.exists?
   end
 
-  # Total parts count including this score
+  # Instrument-suffixed titles only, so a set listing doesn't count itself
   def group_parts_count
     return 1 if group_key.blank?
-    Score.where(group_key: group_key).count
+    Score.active.where(group_key: group_key).where("title LIKE '% - %'").count
   end
 
   # Extract the instrument/part name from title

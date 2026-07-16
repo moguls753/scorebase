@@ -6,6 +6,7 @@ namespace :scores do
     stats = BackfillGroupKeysJob.new.perform
     puts "Backfill done: #{stats[:part_keys]} part keys updated, " \
          "#{stats[:bundle_keys]} bundle keys updated, " \
+         "#{stats[:parent_keys]} set listings absorbed, " \
          "#{stats[:representatives]} representatives marked."
   end
 end
