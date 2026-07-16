@@ -45,8 +45,11 @@ class ApplicationController < ActionController::Base
     DeviceDetector.new(ua).bot?
   end
 
+  # X-Sec-Purpose is Turbo 8's hover-prefetch header — without it every hover
+  # counts as a view/visit
   def prefetch?
     request.headers["Sec-Purpose"] == "prefetch" ||
+      request.headers["X-Sec-Purpose"] == "prefetch" ||
       request.headers["Purpose"] == "prefetch"
   end
 

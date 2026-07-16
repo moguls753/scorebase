@@ -655,6 +655,19 @@ class Score < ApplicationRecord
     Score.active.where(group_key: group_key).where("title LIKE '% - %'").count
   end
 
+  # Unscoped so dependent cleanup removes suppressed rows too (purge contract)
+  has_many :smd_match_links, class_name: "ScoreSmdMatch", dependent: :delete_all
+  has_many :smd_match_targets, class_name: "ScoreSmdMatch", foreign_key: :smd_score_id,
+           dependent: :delete_all, inverse_of: :smd_score
+
+  # Professional SMD editions of this free score (BackfillSmdMatchesJob)
+  def professional_editions
+    Score.active
+         .joins("INNER JOIN score_smd_matches ON score_smd_matches.smd_score_id = scores.id")
+         .where(score_smd_matches: { score_id: id, suppressed: false })
+         .order("score_smd_matches.rank")
+  end
+
   # Extract the instrument/part name from title
   # "Birds of a Feather (arr. Roger Holmes) - Trombone 2" -> "Trombone 2"
   def part_name

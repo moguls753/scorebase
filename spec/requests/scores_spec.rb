@@ -92,5 +92,62 @@ RSpec.describe 'Scores' do
       get score_path(id: 999_999_999)
       expect(response).to have_http_status(:not_found)
     end
+
+    describe 'professional editions cross-links' do
+      let(:browser_headers) do
+        { 'HTTP_USER_AGENT' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36' }
+      end
+      let(:free) { create(:score, title: 'Locus Iste', composer: 'Bruckner, Anton') }
+      let(:edition) { create(:score, :smd, title: 'Locus Iste', composer: 'Anton Bruckner') }
+
+      it 'renders the section with an xlink-tagged link when a match exists' do
+        ScoreSmdMatch.create!(score: free, smd_score: edition, rank: 1)
+
+        get score_path(id: free.id)
+
+        expect(response.body).to include('Professional Editions')
+        expect(response.body).to include(score_path(id: edition.id, src: 'xlink'))
+      end
+
+      it 'omits the section without matches' do
+        get score_path(id: free.id)
+
+        expect(response.body).not_to include('Professional Editions')
+      end
+
+      it 'omits the section on SMD score pages even when match rows point at them' do
+        other = create(:score, :smd, title: 'Locus Iste - Full Score')
+        ScoreSmdMatch.create!(score: edition, smd_score: other, rank: 1)
+
+        get score_path(id: edition.id)
+
+        expect(response.body).not_to include('Professional Editions')
+      end
+
+      it 'tracks an xlink visit for real browsers only' do
+        expect {
+          get score_path(id: edition.id, src: 'xlink'), headers: browser_headers
+        }.to change { Ahoy::Event.where(name: 'Cross-link visit').count }.by(1)
+        expect(Ahoy::Event.last.properties).to eq('score_id' => edition.id)
+
+        expect {
+          get score_path(id: edition.id, src: 'xlink')
+        }.not_to change { Ahoy::Event.count }
+      end
+
+      it 'never tracks without the xlink param or on non-SMD targets' do
+        expect {
+          get score_path(id: edition.id), headers: browser_headers
+          get score_path(id: free.id, src: 'xlink'), headers: browser_headers
+        }.not_to change { Ahoy::Event.where(name: 'Cross-link visit').count }
+      end
+
+      it 'ignores Turbo hover-prefetch requests' do
+        expect {
+          get score_path(id: edition.id, src: 'xlink'),
+              headers: browser_headers.merge('HTTP_X_SEC_PURPOSE' => 'prefetch')
+        }.not_to change { Ahoy::Event.count }
+      end
+    end
   end
 end

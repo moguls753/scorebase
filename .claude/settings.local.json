@@ -86,7 +86,11 @@
       "Bash(rag/venv/bin/python -c \"import chromadb; print\\('chromadb', chromadb.__version__\\)\")",
       "Bash(rag/venv/bin/python -c \"import haystack_integrations.document_stores.chroma as m; print\\('chroma-haystack OK'\\)\")",
       "Bash(rag/venv/bin/python -m pytest rag/tests/ -q --continue-on-collection-errors)",
-      "Bash(rag/venv/bin/ruff check *)"
+      "Bash(rag/venv/bin/ruff check *)",
+      "WebFetch(domain:cracking-ai-engineering.com)",
+      "Bash(node *)",
+      "Bash(kill -0 4079154)",
+      "Read(//home/eike/.claude/plugins/data/codex-openai-codex/state/main-bdb5dda1a31c9e55/jobs/**)"
     ]
   }
 }

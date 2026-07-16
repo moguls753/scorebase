@@ -69,7 +69,12 @@
           </div>
         <% end %>
 
-        <%# 1b. GROUPED PARTS - Other parts in this arrangement (SMD only) %>
+        <%# 1b. PROFESSIONAL EDITIONS - SMD matches for free scores %>
+        <% unless @score.smd? %>
+          <%= render "scores/professional_editions", score: @score %>
+        <% end %>
+
+        <%# 1c. GROUPED PARTS - Other parts in this arrangement (SMD only) %>
         <% if @score.has_grouped_parts? %>
           <%= render "scores/grouped_parts", score: @score %>
         <% end %>

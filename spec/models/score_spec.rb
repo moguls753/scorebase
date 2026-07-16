@@ -165,4 +165,30 @@ RSpec.describe Score do
       expect(result.count).to eq(2)
     end
   end
+
+  describe '#professional_editions' do
+    let(:free) { create(:score, title: 'Locus Iste', composer: 'Bruckner, Anton') }
+
+    it 'orders by rank and hides soft-deleted and suppressed targets' do
+      visible = create(:score, :smd)
+      deleted = create(:score, :smd, deleted_at: Time.current)
+      suppressed = create(:score, :smd)
+      later = create(:score, :smd)
+      ScoreSmdMatch.create!(score: free, smd_score: later, rank: 2)
+      ScoreSmdMatch.create!(score: free, smd_score: visible, rank: 1)
+      ScoreSmdMatch.create!(score: free, smd_score: deleted, rank: 3)
+      ScoreSmdMatch.create!(score: free, smd_score: suppressed, rank: 3, suppressed: true)
+
+      expect(free.professional_editions).to eq([ visible, later ])
+    end
+
+    it 'deletes match rows in both directions when a score is destroyed' do
+      target = create(:score, :smd)
+      ScoreSmdMatch.create!(score: free, smd_score: target, rank: 1)
+
+      target.destroy!
+
+      expect(ScoreSmdMatch.count).to eq(0)
+    end
+  end
 end

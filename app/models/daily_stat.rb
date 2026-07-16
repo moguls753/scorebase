@@ -2,19 +2,20 @@
 #
 # Table name: daily_stats
 #
-#  id                  :integer          not null, primary key
-#  browsers            :json
-#  countries           :json
-#  date                :date
-#  devices             :json
-#  paths               :json
-#  referrers           :json
-#  returning_rates     :json
-#  smd_clicks_by_score :json
-#  user_agents         :json
-#  visits              :integer          default(0)
-#  created_at          :datetime         not null
-#  updated_at          :datetime         not null
+#  id                         :integer          not null, primary key
+#  browsers                   :json
+#  countries                  :json
+#  cross_link_visits_by_score :json
+#  date                       :date
+#  devices                    :json
+#  paths                      :json
+#  referrers                  :json
+#  returning_rates            :json
+#  smd_clicks_by_score        :json
+#  user_agents                :json
+#  visits                     :integer          default(0)
+#  created_at                 :datetime         not null
+#  updated_at                 :datetime         not null
 #
 # Indexes
 #
@@ -56,6 +57,7 @@ class DailyStat < ApplicationRecord
     all_events      = Ahoy::Event.where(time: range)
     pageviews       = all_events.where(name: "$view")
     clicks          = all_events.where(name: "SMD click")
+    cross_links     = all_events.where(name: "Cross-link visit")
 
     return if pageviews.count.zero? && all_visits.count.zero?
 
@@ -68,6 +70,7 @@ class DailyStat < ApplicationRecord
       browsers:            external_visits.where.not(browser: nil).group(:browser).count,
       user_agents:         external_visits.where.not(user_agent: nil).group("substr(user_agent, 1, 100)").count,
       smd_clicks_by_score: clicks.group("json_extract(properties, '$.score_id')").count,
+      cross_link_visits_by_score: cross_links.group("json_extract(properties, '$.score_id')").count,
       returning_rates:     returning_rates_for(date)
     )
   end

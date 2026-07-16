@@ -39,6 +39,8 @@ RSpec.describe DailyStat, type: :model do
         Ahoy::Event.create!(visit: v1, name: "SMD click", properties: { "score_id" => 42 }, time: noon)
         Ahoy::Event.create!(visit: v1, name: "SMD click", properties: { "score_id" => 42 }, time: noon)
         Ahoy::Event.create!(visit: v2, name: "SMD click", properties: { "score_id" => 99 }, time: noon)
+        Ahoy::Event.create!(visit: v1, name: "Cross-link visit", properties: { "score_id" => 42 }, time: noon)
+        Ahoy::Event.create!(visit: v2, name: "Cross-link visit", properties: { "score_id" => 42 }, time: noon)
       end
 
       it 'aggregates into the dashboard JSON shape' do
@@ -55,6 +57,7 @@ RSpec.describe DailyStat, type: :model do
         expect(ds.referrers).to eq("google.com" => 1, "direct" => 1)
         expect(ds.user_agents).to eq("UA-1" => 1, "UA-2" => 1)
         expect(ds.smd_clicks_by_score).to eq("42" => 2, "99" => 1)
+        expect(ds.cross_link_visits_by_score).to eq("42" => 2)
       end
 
       it 'is idempotent on repeat invocation' do

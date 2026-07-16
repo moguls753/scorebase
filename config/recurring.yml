@@ -39,6 +39,13 @@ production:
     queue: default
     schedule: every day at 2am
 
+  # Safety net only — the primary trigger is the documented post-import
+  # `scores:backfill_smd_matches` run (catalogs change only on manual imports)
+  backfill_smd_matches:
+    class: BackfillSmdMatchesJob
+    queue: default
+    schedule: every sunday at 5am
+
   # extract_pending_scores:
   #   class: ExtractPendingScoresJob
   #   queue: extractions

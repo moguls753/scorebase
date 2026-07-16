@@ -1,0 +1,27 @@
+<%# Professional SMD editions of a free score — quiet, subordinate to the free download %>
+
+<% editions = score.professional_editions.to_a %>
+<% return if editions.empty? %>
+
+<div class="mm-card p-3 sm:p-4">
+  <h3 class="grouped-parts__header">
+    <span class="grouped-parts__icon">♪</span>
+    <%= t('score.professional_editions') %>
+  </h3>
+
+  <div class="space-y-1">
+    <% editions.each do |edition| %>
+      <%= link_to score_path(edition, src: "xlink"),
+            class: "group flex items-baseline justify-between gap-2 py-1.5",
+            data: { turbo_prefetch: false } do %>
+        <span class="min-w-0">
+          <span class="block truncate text-sm text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors"><%= edition.title %></span>
+          <span class="block truncate text-xs text-[var(--color-text-muted)]"><%= edition.smd_category.presence || edition.composer.presence || edition.artist %></span>
+        </span>
+        <% if (price = format_smd_price(edition)) %>
+          <span class="shrink-0 text-sm font-medium text-[var(--color-text)]"><%= price %></span>
+        <% end %>
+      <% end %>
+    <% end %>
+  </div>
+</div>
