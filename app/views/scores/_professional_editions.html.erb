@@ -1,6 +1,6 @@
-<%# Professional SMD editions of a free score — quiet, subordinate to the free download %>
+<%# Professional SMD editions of a free score — enticing but subordinate to the free download %>
 
-<% editions = score.professional_editions.to_a %>
+<% editions = score.professional_editions.with_attached_thumbnail_image.to_a %>
 <% return if editions.empty? %>
 
 <div class="mm-card p-3 sm:p-4">
@@ -9,18 +9,22 @@
     <%= t('score.professional_editions') %>
   </h3>
 
-  <div class="space-y-1">
+  <div class="flex flex-col gap-1">
     <% editions.each do |edition| %>
       <%= link_to score_path(edition, src: "xlink"),
-            class: "group flex items-baseline justify-between gap-2 py-1.5",
+            class: "pro-editions__item",
             data: { turbo_prefetch: false } do %>
-        <span class="min-w-0">
-          <span class="block truncate text-sm text-[var(--color-text)] group-hover:text-[var(--color-accent)] transition-colors"><%= edition.title %></span>
-          <span class="block truncate text-xs text-[var(--color-text-muted)]"><%= edition.smd_category.presence || edition.composer.presence || edition.artist %></span>
-        </span>
-        <% if (price = format_smd_price(edition)) %>
-          <span class="shrink-0 text-sm font-medium text-[var(--color-text)]"><%= price %></span>
+        <% if edition.has_thumbnail? %>
+          <%= image_tag edition.thumbnail, alt: edition.title, loading: "lazy", decoding: "async",
+                class: "pro-editions__thumb" %>
+        <% else %>
+          <span class="pro-editions__thumb pro-editions__thumb--empty">♪</span>
         <% end %>
+        <span class="min-w-0 flex-1">
+          <span class="pro-editions__title"><%= edition.title %></span>
+          <span class="pro-editions__category"><%= edition.smd_category.presence || edition.composer.presence || edition.artist %></span>
+        </span>
+        <span class="pro-editions__price"><%= format_smd_price(edition) %></span>
       <% end %>
     <% end %>
   </div>

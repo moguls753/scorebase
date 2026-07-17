@@ -35,6 +35,10 @@ class DailyStat < ApplicationRecord
     (smd_clicks_by_score || {}).values.sum
   end
 
+  def total_cross_link_visits
+    (cross_link_visits_by_score || {}).values.sum
+  end
+
   # Roll up Ahoy data for `date` into a DailyStat row matching the dashboard's
   # JSON-column contract. Idempotent. Skipped entirely on days with no Ahoy
   # data so legacy/pre-cutover rows aren't clobbered with zeros.
