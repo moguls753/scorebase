@@ -119,5 +119,17 @@ RSpec.describe "Sitemap generation" do
       expect(reps).to include(rep)
       expect(reps).not_to include(member, ungrouped, free)
     end
+
+    # Runs the real config/sitemap.rb end-to-end. Regression guard: a positional
+    # score_path(score) binds to the optional (:locale) route segment, not :id.
+    it "emits each representative's URL in both locales" do
+      rep = create(:score, :smd, is_group_representative: true, title: "Sitemap Rep")
+
+      expect { SitemapGenerator::Interpreter.run(verbose: false) }.not_to raise_error
+
+      xml = Zlib::GzipReader.open(Rails.root.join("storage/sitemaps/sitemap.xml.gz"), &:read)
+      expect(xml).to include("/scores/#{rep.id}</loc>")
+      expect(xml).to include("/de/scores/#{rep.id}</loc>")
+    end
   end
 end

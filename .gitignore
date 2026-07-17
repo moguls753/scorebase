@@ -42,3 +42,6 @@
 
 # Internal documentation (keep locally, not in public repo)
 /docs/
+
+# Generated sitemap (symlinked from storage/ at runtime; test suite regenerates it)
+/public/sitemap*.xml.gz

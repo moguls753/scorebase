@@ -18,12 +18,6 @@ Rails.application.configure do
   # Cache assets for far-future expiry since they are all digest stamped.
   config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.year.to_i}" }
 
-  # Override that 1-year header for sitemap files only, so weekly regenerations
-  # aren't pinned at the Cloudflare edge for a year (digest-stamped assets keep theirs).
-  # require'd explicitly: the middleware stack is built before autoloading is active.
-  require Rails.root.join("lib/middleware/sitemap_cache_control")
-  config.middleware.insert_before ActionDispatch::Static, SitemapCacheControl
-
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
 

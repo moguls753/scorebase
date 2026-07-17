@@ -207,8 +207,10 @@ SitemapGenerator::Sitemap.create do
   # imported/updated reps. Scope is representatives ONLY — hidden members
   # are canonicalized to their rep, and ungrouped standalone SMD products
   # are intentionally excluded (doorway-page risk).
+  # Keyword id: (not positional) — the optional (:locale) route scope otherwise
+  # binds a positional arg to :locale, raising "missing required keys: [:id]".
   Score.active.smd_group_representatives.find_each do |score|
-    add score_path(score), lastmod: score.updated_at, changefreq: "monthly", priority: 0.6
-    add score_path(score, locale: :de), lastmod: score.updated_at, changefreq: "monthly", priority: 0.6
+    add score_path(id: score.id), lastmod: score.updated_at, changefreq: "monthly", priority: 0.6
+    add score_path(id: score.id, locale: :de), lastmod: score.updated_at, changefreq: "monthly", priority: 0.6
   end
 end
