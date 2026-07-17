@@ -41,10 +41,14 @@
       <link rel="canonical" href="<%= request.base_url %><%= request.path %>">
     <% end %>
 
-    <!-- Alternate language versions (hreflang) -->
-    <link rel="alternate" hreflang="en" href="<%= request.base_url %><%= request.path.gsub(%r{^/de(/|$)}, '/') %>">
-    <link rel="alternate" hreflang="de" href="<%= request.base_url %>/de<%= request.path.gsub(%r{^/de}, '') %>">
-    <link rel="alternate" hreflang="x-default" href="<%= request.base_url %><%= request.path.gsub(%r{^/de(/|$)}, '/') %>">
+    <%# Suppress self-hreflang on pages canonicalized elsewhere (hidden arrangement
+        members) — their language cluster belongs to the representative, not them. %>
+    <% unless content_for?(:canonical_url) %>
+      <!-- Alternate language versions (hreflang) -->
+      <link rel="alternate" hreflang="en" href="<%= request.base_url %><%= request.path.gsub(%r{^/de(/|$)}, '/') %>">
+      <link rel="alternate" hreflang="de" href="<%= request.base_url %>/de<%= request.path.gsub(%r{^/de}, '') %>">
+      <link rel="alternate" hreflang="x-default" href="<%= request.base_url %><%= request.path.gsub(%r{^/de(/|$)}, '/') %>">
+    <% end %>
 
     <!-- Open Graph / Social Sharing -->
     <meta property="og:type" content="<%= content_for(:og_type) || 'website' %>">

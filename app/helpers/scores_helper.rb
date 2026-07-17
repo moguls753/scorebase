@@ -522,12 +522,17 @@ module ScoresHelper
   # Generate JSON-LD structured data for a music composition
   # Returns HTML-safe JSON (safe because .to_json escapes all user input for JSON context)
   def score_json_ld(score)
+    # Commercial SMD pages are Products carrying a price Offer (earns price rich
+    # results for buy-intent searches); free scores stay public-domain
+    # MusicCompositions. Never emit review/aggregateRating — there is no real
+    # review data and fabricating it risks a site-wide structured-data penalty.
+    commercial = score.smd? && score.price_usd.to_f.positive?
+
     data = {
       "@context" => "https://schema.org",
-      "@type" => "MusicComposition",
+      "@type" => commercial ? "Product" : "MusicComposition",
       "name" => score.title,
       "url" => request.original_url,
-      "isAccessibleForFree" => true,
       "inLanguage" => score.language.presence || "en",
       "provider" => {
         "@type" => "Organization",
@@ -535,6 +540,18 @@ module ScoresHelper
         "url" => request.base_url
       }
     }
+    data["isAccessibleForFree"] = true unless commercial
+
+    if commercial
+      data["image"] = score.thumbnail if score.thumbnail.present?
+      data["offers"] = {
+        "@type" => "Offer",
+        "price" => format("%.2f", score.price_usd),
+        "priceCurrency" => "USD",
+        "availability" => "https://schema.org/InStock",
+        "url" => request.original_url
+      }
+    end
 
     # Composer
     data["composer"] = {

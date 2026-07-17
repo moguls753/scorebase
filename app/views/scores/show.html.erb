@@ -1,4 +1,10 @@
 <%# SEO Meta Tags %>
+<%# Point hidden SMD arrangement members at their group representative (buy page)
+    so Google consolidates crawl signals onto one URL instead of rejecting each
+    thin near-duplicate. score_url is locale-correct via default_url_options. %>
+<% if (rep = @score.group_representative) %>
+  <% content_for :canonical_url, score_url(rep) %>
+<% end %>
 <% content_for :title do %><%= @score.title %><%= " - #{@score.composer}" if @score.composer.present? %> | ScoreBase<% end %>
 <% content_for :meta_description do %><%= score_meta_description(@score) %><% end %>
 <% content_for :og_type, 'music.song' %>

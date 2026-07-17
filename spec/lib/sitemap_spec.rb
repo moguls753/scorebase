@@ -106,4 +106,18 @@ RSpec.describe "Sitemap generation" do
       expect(instrument_for_genre["cello"]).to eq(threshold)
     end
   end
+
+  describe "SMD representative pages" do
+    it "includes representatives and excludes members, ungrouped, and free scores" do
+      rep = create(:score, :smd, group_key: "g", is_group_representative: true)
+      member = create(:score, :smd, group_key: "g", is_group_representative: false)
+      ungrouped = create(:score, :smd, group_key: nil)
+      free = create(:score, source: "pdmx")
+
+      reps = Score.active.smd_group_representatives
+
+      expect(reps).to include(rep)
+      expect(reps).not_to include(member, ungrouped, free)
+    end
+  end
 end

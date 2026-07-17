@@ -201,15 +201,14 @@ SitemapGenerator::Sitemap.create do
   end
 
   # ===========================================
-  # INDIVIDUAL SCORES - Not in sitemap by design
+  # SMD GROUP REPRESENTATIVES (commercial buy pages)
   # ===========================================
-  # Individual scores are discoverable through:
-  # 1. Artist hub pages (Taylor Swift, Hans Zimmer, etc.)
-  # 2. Genre hub pages (Video Game, Musical Theater, etc.)
-  # 3. Composer hub pages (Bach, Mozart, etc.)
-  # 4. Natural crawling from hub page internal links
-  #
-  # Analysis showed 94-96% of SMD scores (Film/TV, Broadway, Disney)
-  # are already discoverable via artist hubs. Adding them to sitemap
-  # would be bloat without clear SEO benefit.
+  # Live DB query so the weekly SitemapRefreshJob auto-picks-up newly
+  # imported/updated reps. Scope is representatives ONLY — hidden members
+  # are canonicalized to their rep, and ungrouped standalone SMD products
+  # are intentionally excluded (doorway-page risk).
+  Score.active.smd_group_representatives.find_each do |score|
+    add score_path(score), lastmod: score.updated_at, changefreq: "monthly", priority: 0.6
+    add score_path(score, locale: :de), lastmod: score.updated_at, changefreq: "monthly", priority: 0.6
+  end
 end

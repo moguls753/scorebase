@@ -93,6 +93,105 @@ RSpec.describe 'Scores' do
       expect(response).to have_http_status(:not_found)
     end
 
+    describe 'canonical link (near-dupe consolidation)' do
+      def canonical_href(body)
+        body[%r{<link rel="canonical" href="([^"]+)">}, 1]
+      end
+
+      let(:group_key) { 'crazy train|hl-123' }
+      let!(:rep) do
+        create(:score, :smd, title: 'Crazy Train - Full Score', group_key: group_key, is_group_representative: true)
+      end
+      let!(:member) do
+        create(:score, :smd, title: 'Crazy Train - Trombone 2', group_key: group_key, is_group_representative: false)
+      end
+
+      it 'points a hidden member at the representative url (en), not at itself' do
+        get score_path(id: member.id)
+
+        href = canonical_href(response.body)
+        expect(href).to end_with("/scores/#{rep.id}")
+        expect(href).not_to include("/scores/#{member.id}")
+      end
+
+      it 'points a hidden member at the representative url in the same locale (de)' do
+        get score_path(id: member.id, locale: 'de')
+
+        href = canonical_href(response.body)
+        expect(href).to end_with("/de/scores/#{rep.id}")
+        expect(href).not_to include("/scores/#{member.id}")
+      end
+
+      it 'leaves the representative self-canonical' do
+        get score_path(id: rep.id)
+
+        expect(canonical_href(response.body)).to end_with("/scores/#{rep.id}")
+      end
+
+      it 'leaves a free score self-canonical' do
+        free = create(:score, title: 'Locus Iste')
+
+        get score_path(id: free.id)
+
+        expect(canonical_href(response.body)).to end_with("/scores/#{free.id}")
+      end
+
+      it 'leaves an SMD ungrouped score self-canonical' do
+        ungrouped = create(:score, :smd, title: 'Solo Product', group_key: nil)
+
+        get score_path(id: ungrouped.id)
+
+        expect(canonical_href(response.body)).to end_with("/scores/#{ungrouped.id}")
+      end
+
+      it 'suppresses self-hreflang on a canonicalized-away member but keeps it on the representative' do
+        get score_path(id: member.id)
+        expect(response.body).not_to include('hreflang')
+
+        get score_path(id: rep.id)
+        expect(response.body).to include('hreflang="en"')
+      end
+    end
+
+    describe 'JSON-LD by pricing (Product vs MusicComposition)' do
+      def json_ld(body)
+        m = body.match(%r{<script type="application/ld\+json">\s*(.+?)\s*</script>}m)
+        JSON.parse(m[1])
+      end
+
+      it 'emits Product + Offer with the price for a commercial SMD score' do
+        smd = create(:score, :smd, title: 'Crazy Train', price_usd: 79.49)
+
+        get score_path(id: smd.id)
+        data = json_ld(response.body)
+
+        expect(data['@type']).to eq('Product')
+        expect(data['offers']).to include('price' => '79.49', 'priceCurrency' => 'USD')
+        expect(data['offers']['availability']).to eq('https://schema.org/InStock')
+        expect(data).not_to have_key('isAccessibleForFree')
+        expect(data).not_to have_key('review')
+        expect(data).not_to have_key('aggregateRating')
+      end
+
+      it 'keeps a free score as an accessible MusicComposition' do
+        free = create(:score, title: 'Locus Iste', composer: 'Bruckner')
+
+        get score_path(id: free.id)
+        data = json_ld(response.body)
+
+        expect(data['@type']).to eq('MusicComposition')
+        expect(data['isAccessibleForFree']).to be true
+      end
+
+      it 'falls back to MusicComposition for a priceless SMD score' do
+        smd = create(:score, :smd, title: 'No Price', price_usd: 0)
+
+        get score_path(id: smd.id)
+
+        expect(json_ld(response.body)['@type']).to eq('MusicComposition')
+      end
+    end
+
     describe 'professional editions cross-links' do
       let(:browser_headers) do
         { 'HTTP_USER_AGENT' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36' }

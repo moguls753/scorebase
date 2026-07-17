@@ -638,6 +638,10 @@ class Score < ApplicationRecord
     where(group_key: nil).or(where(is_group_representative: true))
   }
 
+  # SMD arrangement representatives = the commercial buy pages listed in the sitemap.
+  # Shared by config/sitemap.rb and its spec so the scoping can't drift.
+  scope :smd_group_representatives, -> { where(source: "smd", is_group_representative: true) }
+
   # Get all other parts in this score's arrangement group
   def grouped_parts
     return Score.none if group_key.blank?
@@ -653,6 +657,15 @@ class Score < ApplicationRecord
   def group_parts_count
     return 1 if group_key.blank?
     Score.active.where(group_key: group_key).where("title LIKE '% - %'").count
+  end
+
+  # The active representative (buy page) this hidden member should canonicalize to,
+  # so Google consolidates crawl signals onto the rep instead of indexing thin
+  # near-duplicate part pages. Returns nil for non-members and when no active rep
+  # exists, so callers fall back to the self-canonical rather than emit a broken one.
+  def group_representative
+    return nil if group_key.blank? || is_group_representative
+    Score.active.find_by(group_key: group_key, is_group_representative: true)
   end
 
   # Unscoped so dependent cleanup removes suppressed rows too (purge contract)

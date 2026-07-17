@@ -166,6 +166,50 @@ RSpec.describe Score do
     end
   end
 
+  describe '#group_representative' do
+    let(:group_key) { 'crazy train|hl-123' }
+
+    it 'returns the active representative for a hidden member' do
+      rep = create(:score, :smd, title: 'Crazy Train - Full Score', group_key: group_key, is_group_representative: true)
+      member = create(:score, :smd, title: 'Crazy Train - Trombone 2', group_key: group_key, is_group_representative: false)
+
+      expect(member.group_representative).to eq(rep)
+    end
+
+    it 'treats a NULL is_group_representative as a hidden member' do
+      rep = create(:score, :smd, title: 'Crazy Train - Full Score', group_key: group_key, is_group_representative: true)
+      member = create(:score, :smd, title: 'Crazy Train - Bass', group_key: group_key, is_group_representative: nil)
+
+      expect(member.group_representative).to eq(rep)
+    end
+
+    it 'returns nil for the representative itself' do
+      rep = create(:score, :smd, title: 'Crazy Train - Full Score', group_key: group_key, is_group_representative: true)
+
+      expect(rep.group_representative).to be_nil
+    end
+
+    it 'returns nil for an SMD ungrouped score' do
+      ungrouped = create(:score, :smd, title: 'Solo Product', group_key: nil)
+
+      expect(ungrouped.group_representative).to be_nil
+    end
+
+    it 'returns nil for a free (non-SMD) score' do
+      free = create(:score, title: 'Locus Iste')
+
+      expect(free.group_representative).to be_nil
+    end
+
+    it 'returns nil when no active representative exists (deleted rep)' do
+      create(:score, :smd, title: 'Crazy Train - Full Score', group_key: group_key,
+             is_group_representative: true, deleted_at: Time.current)
+      member = create(:score, :smd, title: 'Crazy Train - Trombone 2', group_key: group_key, is_group_representative: false)
+
+      expect(member.group_representative).to be_nil
+    end
+  end
+
   describe '#professional_editions' do
     let(:free) { create(:score, title: 'Locus Iste', composer: 'Bruckner, Anton') }
 
