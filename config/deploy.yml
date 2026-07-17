@@ -45,7 +45,6 @@ registry:
 env:
   secret:
     - RAILS_MASTER_KEY
-    - APPSIGNAL_PUSH_API_KEY
   clear:
     CLOUDFLARE_BYPASS_URL: http://scorebase-cloudflare-bypass:8000
     PDMX_DATA_PATH: /opt/pdmx

@@ -88,9 +88,6 @@ GEM
     annotaterb (4.20.0)
       activerecord (>= 6.0.0)
       activesupport (>= 6.0.0)
-    appsignal (4.8.1)
-      logger
-      rack (>= 2.0.0)
     ast (2.4.3)
     avo (3.32.1)
       actionview (>= 6.1)
@@ -550,7 +547,6 @@ PLATFORMS
 DEPENDENCIES
   ahoy_matey
   annotaterb
-  appsignal
   avo (>= 3.32.1, < 4)
   aws-sdk-s3
   bootsnap
@@ -611,7 +607,6 @@ CHECKSUMS
   addressable (2.9.0) sha256=7fdf6ac3660f7f4e867a0838be3f6cf722ace541dd97767fa42bc6cfa980c7af
   ahoy_matey (5.5.0) sha256=84280579c1e690233bd0bffa2bdde601b3c4cb0e0cc31684238ef37f1e8cdbc6
   annotaterb (4.20.0) sha256=871b2e898d1d60c23bdc59b72a5b840678a56355bf5f6fdeb8c79d317ff98bf7
-  appsignal (4.8.1) sha256=69e1db8019ce216aff36a716a0dc9317d4ccebfe5be27db11dbd85de1273cb1e
   ast (2.4.3) sha256=954615157c1d6a382bc27d690d973195e79db7f55e9765ac7c481c60bdb4d383
   avo (3.32.1) sha256=0cbc80204734585769fdc68c2721c749b754cd3f8139d4da0667b4c4b22fe849
   avo-icons (0.1.6) sha256=6f1c985aca238d81446e517cee4924752e7ada1604971f6bb59913472e123f4c
