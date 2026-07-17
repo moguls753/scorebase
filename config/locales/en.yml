@@ -1,6 +1,7 @@
 en:
   # Navigation & Layout
   nav:
+    home: "Home"
     about: "About"
     impressum: "Impressum"
     toggle_language: "Toggle language"
@@ -291,6 +292,7 @@ en:
     badge_fermatas: "Fermatas"
     # SMD (commercial) scores
     view_on_smd: "View on SMD"
+    buy_on_smd: "Buy on SMD — %{price}"
     smd_hint: "Professional arrangement from Sheet Music Direct"
     brand: "Publisher"
     arrangement: "Arrangement"

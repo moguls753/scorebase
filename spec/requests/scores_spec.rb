@@ -192,6 +192,59 @@ RSpec.describe 'Scores' do
       end
     end
 
+    describe 'Phase 2a CTR lifts (buy-intent title, priced CTA, breadcrumbs)' do
+      def breadcrumb_json_ld(body)
+        script = body.scan(%r{<script type="application/ld\+json">\s*(.+?)\s*</script>}m)
+                     .map { |m| JSON.parse(m[0]) }
+                     .find { |d| d['@type'] == 'BreadcrumbList' }
+        script
+      end
+
+      it 'gives an SMD category score a buy-intent title, priced CTA, and a breadcrumb' do
+        smd = create(:score, :smd, title: 'Crazy Train', smd_category: 'Jazz Ensemble', price_usd: 64.79)
+
+        get score_path(id: smd.id)
+
+        expect(response.body).to include('<title>Crazy Train for Jazz Ensemble — Sheet Music | ScoreBase</title>')
+        expect(response.body).to include('Buy on SMD — $64.79')
+
+        crumbs = breadcrumb_json_ld(response.body)
+        expect(crumbs).to be_present
+        # Positions sequential (hub crumb present only if the hub meets threshold,
+        # which it won't in a fresh test DB — so 2 or 3 items, always ending at the score)
+        positions = crumbs['itemListElement'].map { |i| i['position'] }
+        expect(positions).to eq((1..positions.size).to_a)
+        expect(crumbs['itemListElement'].last['name']).to eq('Crazy Train')
+      end
+
+      it 'includes the SMD category in the meta description' do
+        smd = create(:score, :smd, title: 'Fanfare', smd_category: 'Concert Band', instruments: 'Trumpet')
+
+        get score_path(id: smd.id)
+
+        expect(response.body).to match(/<meta name="description"[^>]*Concert Band/)
+      end
+
+      it 'leaves a free score title plain and its buy area unchanged' do
+        free = create(:score, :pdmx, title: 'Test Piece', composer: 'Test Composer')
+
+        get score_path(id: free.id)
+
+        expect(response.body).to include('<title>Test Piece - Test Composer | ScoreBase</title>')
+        expect(response.body).to include('Download PDF') # the free download button really renders
+        expect(response.body).not_to include('Buy on SMD')
+        expect(response.body).not_to include('View on SMD')
+      end
+
+      it 'renders the German priced CTA on the /de SMD page' do
+        smd = create(:score, :smd, title: 'Crazy Train', price_usd: 64.79)
+
+        get score_path(id: smd.id, locale: 'de')
+
+        expect(response.body).to include('Bei SMD kaufen — $64.79')
+      end
+    end
+
     describe 'professional editions cross-links' do
       let(:browser_headers) do
         { 'HTTP_USER_AGENT' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36' }

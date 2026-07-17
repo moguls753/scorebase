@@ -5,7 +5,7 @@
 <% if (rep = @score.group_representative) %>
   <% content_for :canonical_url, score_url(rep) %>
 <% end %>
-<% content_for :title do %><%= @score.title %><%= " - #{@score.composer}" if @score.composer.present? %> | ScoreBase<% end %>
+<% content_for :title do %><%= score_page_title(@score) %> | ScoreBase<% end %>
 <% content_for :meta_description do %><%= score_meta_description(@score) %><% end %>
 <% content_for :og_type, 'music.song' %>
 <% content_for :og_image, @score.thumbnail if @score.has_thumbnail? %>
@@ -13,6 +13,9 @@
 <%# JSON-LD Structured Data for MusicComposition %>
 <% content_for :json_ld do %>
   <%= render "scores/json_ld", score: @score %>
+  <script type="application/ld+json">
+  <%= breadcrumb_json_ld(@score) %>
+  </script>
 <% end %>
 
 <div class="score-show-container">

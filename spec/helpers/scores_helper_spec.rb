@@ -40,6 +40,96 @@ RSpec.describe ScoresHelper, type: :helper do
     end
   end
 
+  describe '#score_page_title' do
+    it 'uses a buy-intent form for an SMD score with a category' do
+      score = build(:score, :smd, title: 'Crazy Train', smd_category: 'Jazz Ensemble')
+      expect(helper.score_page_title(score)).to eq('Crazy Train for Jazz Ensemble — Sheet Music')
+    end
+
+    it 'keeps the plain "Title - Composer" form for a free score' do
+      score = build(:score, title: 'Locus Iste', composer: 'Bruckner')
+      expect(helper.score_page_title(score)).to eq('Locus Iste - Bruckner')
+    end
+
+    it 'keeps the plain form for an SMD score without a category' do
+      score = build(:score, :smd_klassik, title: 'Air', composer: 'Bach')
+      expect(helper.score_page_title(score)).to eq('Air - Bach')
+    end
+  end
+
+  describe '#smd_cta_label' do
+    it 'shows the price when one is known' do
+      score = build(:score, :smd)
+      expect(helper.smd_cta_label(score)).to eq('Buy on SMD — $7.19')
+    end
+
+    it 'falls back to the plain view label when no price is known' do
+      score = build(:score, :smd, price_usd: nil)
+      expect(helper.smd_cta_label(score)).to eq('View on SMD')
+    end
+  end
+
+  describe '#breadcrumb_json_ld' do
+    def crumbs(score)
+      JSON.parse(helper.breadcrumb_json_ld(score))
+    end
+
+    # find_by_slug is stubbed so the gate logic is tested independent of hub
+    # cache/threshold state: a name means the hub exists, nil means it does not.
+    it 'emits a valid BreadcrumbList with sequential positions and absolute URLs' do
+      allow(HubDataBuilder).to receive(:find_by_slug).and_return('Bruckner')
+      score = create(:score, title: 'Locus Iste', composer: 'Bruckner')
+      data = crumbs(score)
+
+      expect(data['@context']).to eq('https://schema.org')
+      expect(data['@type']).to eq('BreadcrumbList')
+
+      items = data['itemListElement']
+      expect(items.map { |i| i['position'] }).to eq([1, 2, 3])
+      expect(items).to all(include('@type' => 'ListItem'))
+      expect(items).to all(satisfy { |i| i['item'].start_with?('http') })
+      expect(items[0]['name']).to eq('Home')
+      expect(items[2]['name']).to eq('Locus Iste')
+      expect(items[2]['item']).to end_with("/scores/#{score.id}")
+    end
+
+    it 'points the parent crumb at the composer hub for a free score' do
+      allow(HubDataBuilder).to receive(:find_by_slug).with(:composers, 'bruckner-anton').and_return('Bruckner, Anton')
+      score = create(:score, title: 'Locus Iste', composer: 'Bruckner, Anton')
+      parent = crumbs(score)['itemListElement'][1]
+
+      expect(parent['name']).to eq('Bruckner, Anton')
+      expect(parent['item']).to end_with('/composers/bruckner-anton')
+    end
+
+    it 'prefers the artist hub over the composer hub for an SMD score' do
+      allow(HubDataBuilder).to receive(:find_by_slug).with(:artists, 'ozzy-osbourne').and_return('Ozzy Osbourne')
+      score = create(:score, :smd, title: 'Crazy Train', artist: 'Ozzy Osbourne', composer: 'Osbourne, Ozzy')
+      parent = crumbs(score)['itemListElement'][1]
+
+      expect(parent['name']).to eq('Ozzy Osbourne')
+      expect(parent['item']).to end_with('/artists/ozzy-osbourne')
+    end
+
+    it 'falls back to Home -> score when the hub does not exist (below threshold)' do
+      allow(HubDataBuilder).to receive(:find_by_slug).and_return(nil)
+      score = create(:score, title: 'Obscure Piece', composer: 'Nobody, Really')
+      items = crumbs(score)['itemListElement']
+
+      expect(items.map { |i| i['position'] }).to eq([1, 2])
+      expect(items.last['name']).to eq('Obscure Piece')
+    end
+
+    it 'emits only Home -> score (no exception) when composer and artist are absent' do
+      score = create(:score, title: 'Anon', composer: nil, artist: nil)
+      items = crumbs(score)['itemListElement']
+
+      expect(items.map { |i| i['position'] }).to eq([1, 2])
+      expect(items[0]['name']).to eq('Home')
+      expect(items[1]['name']).to eq('Anon')
+    end
+  end
+
   describe '#score_card_badge' do
     it 'returns nil for non-SMD scores (free scores have no badge)' do
       score = build(:score)

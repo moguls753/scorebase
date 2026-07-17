@@ -46,6 +46,12 @@ module ScoresHelper
     "$#{'%.2f' % score.price_usd}"
   end
 
+  # Buy CTA label: price-qualified when known, plain "view" otherwise.
+  def smd_cta_label(score)
+    price = format_smd_price(score)
+    price ? t("score.buy_on_smd", price: price) : t("score.view_on_smd")
+  end
+
   # Check if score has a sale price (original > current)
   def smd_on_sale?(score)
     score.original_price_usd.present? &&
@@ -92,6 +98,17 @@ module ScoresHelper
     "Klassik" => "Classical"
   }.freeze
 
+  # Buy-intent <title> for SMD category pages; unchanged plain form otherwise.
+  def score_page_title(score)
+    if score.smd? && score.smd_category.present?
+      "#{score.title} for #{score.smd_category} — Sheet Music"
+    else
+      title = score.title.to_s
+      title += " - #{score.composer}" if score.composer.present?
+      title
+    end
+  end
+
   # Generate SEO-optimized meta description for a score page
   # Target: under 155 chars, includes searchable attributes
   # Example: "Moonlight Sonata by Beethoven — C# minor, Piano, Intermediate. Free PDF sheet music."
@@ -113,6 +130,12 @@ module ScoresHelper
 
     if (level = score_difficulty_level(score))
       attrs << translate_difficulty_label(level)
+    end
+
+    # Add SMD ensemble category (Jazz Ensemble, Concert Band, etc.);
+    # skip when it merely repeats the instruments string already added.
+    if score.smd? && score.smd_category.present? && !attrs.include?(score.smd_category)
+      attrs << score.smd_category
     end
 
     # Add genre context for SMD (Video Game, Film/TV, Broadway, etc.)
@@ -616,7 +639,55 @@ module ScoresHelper
     data.to_json.html_safe
   end
 
+  # BreadcrumbList JSON-LD: Home → parent hub → this score. The parent hub is the
+  # composer/artist collection page (SMD prefers the artist hub when present).
+  # Uses route _url helpers so it is testable in helper specs (no request object)
+  # and locale-correct via default_url_options.
+  def breadcrumb_json_ld(score)
+    items = [
+      breadcrumb_item(1, t("nav.home"), root_url)
+    ]
+
+    hub = breadcrumb_parent_hub(score)
+    items << breadcrumb_item(items.size + 1, hub[:name], hub[:url]) if hub
+
+    items << breadcrumb_item(items.size + 1, score.title, score_url(id: score.id))
+
+    {
+      "@context" => "https://schema.org",
+      "@type" => "BreadcrumbList",
+      "itemListElement" => items
+    }.to_json.html_safe
+  end
+
   private
+
+  def breadcrumb_item(position, name, url)
+    {
+      "@type" => "ListItem",
+      "position" => position,
+      "name" => name,
+      "item" => url
+    }
+  end
+
+  # SMD scores hang off the artist hub (falls back to composer); free scores off
+  # the composer hub. Returns nil when no hub name applies (no exception on nil).
+  # Only emit a parent crumb when the hub actually exists (>= THRESHOLD scores);
+  # otherwise the BreadcrumbList would point at a 404. find_by_slug is cache-backed.
+  def breadcrumb_parent_hub(score)
+    if score.smd? && score.artist.present?
+      slug = score.artist.parameterize
+      name = HubDataBuilder.find_by_slug(:artists, slug)
+      return { name: name, url: artist_url(slug: slug) } if name
+    end
+    if score.composer.present?
+      slug = score.composer.parameterize
+      name = HubDataBuilder.find_by_slug(:composers, slug)
+      return { name: name, url: composer_url(slug: slug) } if name
+    end
+    nil
+  end
 
   # Extract user-friendly genre label from SMD tags
   # Tags are hyphen-delimited: "Pop-Video Game-Rock" → "Video Game"

@@ -29,13 +29,13 @@
       <%# JS-based redirect: href="#" so bots can't follow, Stimulus handles the click %>
       <%= link_to "#",
           class: "dl-btn dl-btn--primary dl-btn--buy",
-          aria: { label: t('score.view_on_smd') },
+          aria: { label: smd_cta_label(score) },
           data: {
             controller: "smd-redirect",
             smd_redirect_url_value: smd_redirect_path(smd_id: score.external_id),
             action: "click->smd-redirect#go"
           } do %>
-        <span class="dl-label"><%= t('score.view_on_smd') %></span>
+        <span class="dl-label"><%= smd_cta_label(score) %></span>
       <% end %>
     <% else %>
       <%# Free: Download buttons %>
@@ -80,13 +80,13 @@
       <%# JS-based redirect: href="#" so bots can't follow, Stimulus handles the click %>
       <%= link_to "#",
           class: "dl-btn dl-btn--primary dl-btn--buy dl-btn--full",
-          aria: { label: t('score.view_on_smd') },
+          aria: { label: smd_cta_label(score) },
           data: {
             controller: "smd-redirect",
             smd_redirect_url_value: smd_redirect_path(smd_id: score.external_id),
             action: "click->smd-redirect#go"
           } do %>
-        <span class="dl-label"><%= t('score.view_on_smd') %></span>
+        <span class="dl-label"><%= smd_cta_label(score) %></span>
       <% end %>
       <p class="dl-hint"><%= t('score.smd_hint') %></p>
     <% else %>
