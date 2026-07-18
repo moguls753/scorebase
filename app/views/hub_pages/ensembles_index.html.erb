@@ -26,56 +26,36 @@
   </div>
 </section>
 
-<!-- Grouped Ensemble Sections -->
-<div class="max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+<!-- Grouped ensemble cards — compact style shared with the genre/instrument index -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
   <% if @ensembles.any? %>
+    <% global_index = 0 %>
     <% [[:instrumental, t('hub.ensembles_instrumental')], [:choral, t('hub.ensembles_choral')]].each do |group_key, group_label| %>
       <% items = @ensemble_groups[group_key] %>
       <% next if items.blank? %>
-      <section class="mb-10 sm:mb-14 last:mb-0">
-        <div class="flex items-center gap-3 mb-5 sm:mb-6">
-          <div class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-[var(--color-bg)] border-2 border-[var(--color-border)]">
-            <%= navigation_svg_icon(:ensembles, size: 22) %>
-          </div>
-          <h2 class="text-xl sm:text-2xl font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight">
+      <section class="mb-8 sm:mb-10 last:mb-0">
+        <div class="flex items-baseline gap-3 mb-4">
+          <h2 class="text-xs sm:text-sm font-[var(--font-family-display)] font-bold uppercase tracking-wide text-[var(--color-text-muted)]">
             <%= group_label %>
           </h2>
+          <span class="text-xs text-[var(--color-border-subtle)] font-semibold"><%= items.size %></span>
+          <div class="flex-1 border-t border-[var(--color-border)]"></div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          <% items.each_with_index do |ensemble, i| %>
-            <%= link_to ensemble_path(slug: ensemble[:slug]),
-                class: "hub-card mm-card p-5 sm:p-6 group flex items-center gap-4",
-                style: "animation-delay: #{i * 30}ms" do %>
-              <!-- Ensemble Icon -->
-              <div class="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-[var(--color-bg)] border-2 border-[var(--color-border)]">
-                <%= navigation_svg_icon(:ensembles, size: 32) %>
-              </div>
-
-              <div class="flex-1 min-w-0">
-                <h3 class="text-lg sm:text-xl font-[var(--font-family-display)] text-[var(--color-primary)] font-bold mb-1 group-hover:text-[var(--color-accent)] transition-colors">
-                  <%= ensemble[:name] %>
-                </h3>
-                <p class="text-sm text-[var(--color-text-muted)] font-semibold">
-                  <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(ensemble[:count]) %></span>
-                  <%= t('search.results_count').downcase %>
-                </p>
-              </div>
-
-              <!-- Arrow -->
-              <div class="text-[var(--color-border-subtle)] group-hover:text-[var(--color-accent)] group-hover:translate-x-1 transition-all">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                </svg>
-              </div>
-            <% end %>
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
+          <% items.each do |ensemble| %>
+            <%= render "hub_pages/hub_card_simple",
+                item: ensemble,
+                path: ensemble_path(slug: ensemble[:slug]),
+                search_attribute: "ensembleName",
+                index: global_index %>
+            <% global_index += 1 %>
           <% end %>
         </div>
       </section>
     <% end %>
   <% else %>
     <div class="mm-card p-8 sm:p-12 text-center">
-      <div class="text-6xl mb-4 text-[var(--color-border-subtle)]">🎼</div>
       <p class="text-[var(--color-text-muted)] font-medium"><%= t('hub.no_scores_found') %></p>
     </div>
   <% end %>

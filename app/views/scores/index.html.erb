@@ -66,9 +66,6 @@
               <%= link_to instruments_path, class: "block px-4 py-3 text-xs font-semibold uppercase hover:bg-[var(--color-bg-hover)] border-b border-[var(--color-border)]" do %>
                 <%= t('search.browse_instruments') %>
               <% end %>
-              <%= link_to periods_path, class: "block px-4 py-3 text-xs font-semibold uppercase hover:bg-[var(--color-bg-hover)] border-b border-[var(--color-border)]" do %>
-                <%= t('search.browse_periods') %>
-              <% end %>
               <%= link_to genres_path, class: "block px-4 py-3 text-xs font-semibold uppercase hover:bg-[var(--color-bg-hover)] border-b border-[var(--color-border)]" do %>
                 <%= t('search.browse_genres') %>
               <% end %>
@@ -100,10 +97,6 @@
         <%= link_to instruments_path, class: "browse-link" do %>
           <%= navigation_svg_icon(:instruments, size: 20, html_class: "browse-link-icon") %>
           <%= t('search.browse_instruments') %>
-        <% end %>
-        <%= link_to periods_path, class: "browse-link" do %>
-          <%= navigation_svg_icon(:periods, size: 20, html_class: "browse-link-icon") %>
-          <%= t('search.browse_periods') %>
         <% end %>
         <%= link_to genres_path, class: "browse-link" do %>
           <%= navigation_svg_icon(:genres, size: 20, html_class: "browse-link-icon") %>
