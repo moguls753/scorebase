@@ -59,6 +59,8 @@ Rails.application.routes.draw do
     get "instruments/:slug", to: "hub_pages#instrument", as: :instrument
     get "periods", to: "hub_pages#periods_index", as: :periods
     get "periods/:slug", to: "hub_pages#period", as: :period
+    get "ensembles", to: "hub_pages#ensembles_index", as: :ensembles
+    get "ensembles/:slug", to: "hub_pages#ensemble", as: :ensemble
 
     # Combined pages (Tier 1 combinations)
     get "composers/:composer_slug/:instrument_slug", to: "hub_pages#composer_instrument", as: :composer_instrument

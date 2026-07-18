@@ -99,6 +99,26 @@ class HubDataBuilder
   GENRE_VOCABULARY_PATH = Rails.root.join("config/genre_vocabulary.yml").freeze
   VALID_GENRES = YAML.load_file(GENRE_VOCABULARY_PATH).fetch("genres").freeze
 
+  # ===========================================
+  # ENSEMBLE CATEGORIES (SMD smd_category allowlist for buyer-query hub pages)
+  # ===========================================
+  # smd_category is a MIXED taxonomy — most values are formats ("Piano Solo").
+  # NEVER auto-derive: only these curated ensemble values get a hub. Grouped for
+  # the index UX. A genuinely new smd_category needs a one-line edit here.
+  ENSEMBLE_CATEGORIES = {
+    instrumental: [
+      "Concert Band", "Jazz Ensemble", "Orchestra", "Marching Band",
+      "Full Orchestra", "Concert Band: Flex-Band", "Guitar Ensemble", "Ukulele Ensemble"
+    ],
+    choral: [
+      "SATB Choir", "2-Part Choir", "SSA Choir", "SAB Choir", "3-Part Mixed Choir",
+      "Choir", "TTBB Choir", "Unison Choir", "3-Part Treble Choir", "TB Choir",
+      "SSAA Choir", "TBB Choir"
+    ]
+  }.freeze
+
+  ENSEMBLE_CATEGORIES_FLAT = ENSEMBLE_CATEGORIES.values.flatten.freeze
+
   class << self
     # Public accessors - read from cache with fallback to building
     def composers
@@ -121,6 +141,20 @@ class HubDataBuilder
       fetch_or_build("hub/periods") { build_periods }
     end
 
+    def ensembles
+      fetch_or_build("hub/ensembles") { build_ensembles }
+    end
+
+    # Grouped structure for the /ensembles landing page. Reuses the flat build
+    # result and buckets each item back into its ENSEMBLE_CATEGORIES group,
+    # dropping groups/items that fall below THRESHOLD.
+    def ensemble_groups
+      built = ensembles.index_by { |item| item[:name] }
+      ENSEMBLE_CATEGORIES.transform_values do |names|
+        names.filter_map { |name| built[name] }
+      end
+    end
+
     # Pre-warm all caches (called by HubCacheWarmJob)
     def warm_all
       Rails.logger.info "[HubDataBuilder] Starting cache warm..."
@@ -130,7 +164,8 @@ class HubDataBuilder
         artists: build_artists,
         genres: build_genres,
         instruments: build_instruments,
-        periods: build_periods
+        periods: build_periods,
+        ensembles: build_ensembles
       }.each do |key, data|
         Rails.cache.write("hub/#{key}", data, expires_in: CACHE_TTL)
         Rails.logger.info "[HubDataBuilder] Cached #{data.size} #{key}"
@@ -222,6 +257,7 @@ class HubDataBuilder
       when :genres then Score.active.by_genre(name).count
       when :instruments then Score.active.by_instrument(name).count
       when :periods then Score.active.by_period(name).count
+      when :ensembles then Score.active.where(smd_category: name).deduplicate_arrangements.count
       else 0
       end
     end
@@ -274,6 +310,17 @@ class HubDataBuilder
 
         { name: period_name, slug: period_name.parameterize, count: count }
       end
+    end
+
+    def build_ensembles
+      # Count deduplicated arrangements (reps + ungrouped) so each card is one
+      # arrangement, not a part dump. smd_category is exact-match here.
+      ENSEMBLE_CATEGORIES_FLAT.filter_map do |cat|
+        count = Score.active.where(smd_category: cat).deduplicate_arrangements.count
+        next if count < THRESHOLD
+
+        { name: cat, slug: cat.parameterize, count: count }
+      end.sort_by { |item| -item[:count] }
     end
 
     # Convert counts hash to sorted hub items array

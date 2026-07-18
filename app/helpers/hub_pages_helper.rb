@@ -37,6 +37,10 @@ module HubPagesHelper
     safe_join(GENRE_FILTER_PARAMS.map { |param| form.hidden_field(param, value: params[param]) })
   end
 
+  # Ensemble page uses the same instrument+composer filters as genre
+  alias_method :ensemble_active_filters_count, :genre_active_filters_count
+  alias_method :ensemble_filter_hidden_fields, :genre_filter_hidden_fields
+
   # Count active filters for period page
   def period_active_filters_count
     PERIOD_FILTER_PARAMS.count { |param| params[param].present? }

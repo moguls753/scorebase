@@ -29,6 +29,12 @@ class HubPagesController < ApplicationController
     set_index_meta(:periods)
   end
 
+  def ensembles_index
+    @ensembles = HubDataBuilder.ensembles
+    @ensemble_groups = HubDataBuilder.ensemble_groups
+    set_index_meta(:ensembles)
+  end
+
   # Detail pages
   def composer
     @composer_name = find_or_404(:composers, params[:slug])
@@ -167,6 +173,39 @@ class HubPagesController < ApplicationController
     @filter_options = build_period_filter_options(base_scope, params)
 
     set_detail_meta(:period, @period_name)
+  end
+
+  def ensemble
+    @ensemble_name = find_or_404(:ensembles, params[:slug])
+
+    # Base scope for this ensemble category — deduplicated so each card is one
+    # arrangement (rep or ungrouped), not a part dump.
+    base_scope = Score.active.where(smd_category: @ensemble_name).deduplicate_arrangements
+
+    # Apply filters
+    filtered_scope = base_scope
+    filtered_scope = filtered_scope.by_instrument(params[:instrument]) if params[:instrument].present?
+    # Ensemble composers are SMD arrangers stored "First Last" — absent from the
+    # classical composer hub, so resolve the slug against this page's own scope
+    # (composer_name_from_slug would return nil -> where(composer: nil) -> empty page).
+    if params[:composer].present? && (name = composer_in_scope(base_scope, params[:composer]))
+      filtered_scope = filtered_scope.where(composer: name)
+    end
+
+    # Apply scoped search
+    filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
+
+    # Counts
+    @total_count = base_scope.count
+    @filtered_count = filtered_scope.count
+
+    # Paginate
+    @scores = paginate_filtered(filtered_scope)
+
+    # Dynamic filter options (faceted)
+    @filter_options = build_ensemble_filter_options(base_scope, params)
+
+    set_detail_meta(:ensemble, @ensemble_name)
   end
 
   # Combined pages
@@ -372,6 +411,9 @@ class HubPagesController < ApplicationController
     }
   end
 
+  # Ensemble uses same filter options as genre (instrument + composer)
+  alias_method :build_ensemble_filter_options, :build_genre_filter_options
+
   # Get available instruments for genre page (1 query)
   def available_instruments_for_genre(base_scope, current_params)
     scope = base_scope
@@ -499,6 +541,13 @@ class HubPagesController < ApplicationController
     return nil if slug.blank?
     # Look up in hub data to get exact name
     HubDataBuilder.find_by_slug(:composers, slug)
+  end
+
+  # Resolve a composer slug against a specific scope's own composers (for hubs
+  # whose content isn't in the classical composer hub, e.g. SMD arrangers).
+  def composer_in_scope(scope, slug)
+    return nil if slug.blank?
+    scope.where.not(composer: [ nil, "" ]).distinct.pluck(:composer).find { |c| c.parameterize == slug }
   end
 
   # Convert period slug to canonical name (e.g., "baroque" -> "Baroque")

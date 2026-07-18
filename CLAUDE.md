@@ -23,6 +23,8 @@ ScoreBase aggregates from several sources; importers live in `app/services/`:
 
 **SQLite dump gotcha:** `db:migrate` regenerates `db/structure.sql` via `.schema`, which emits the FTS5 *shadow* tables (`*_fts_data/_idx/_docsize/_config`). Those are auto-created by `CREATE VIRTUAL TABLE` — leaving them in the dump breaks `db:test:prepare`. `structure.sql` is hand-maintained: after a migration, restore the committed version and add only your new objects (Rails can't filter shadow tables on SQLite; `SchemaDumper.ignore_tables` doesn't reach them).
 
+**Ensemble hubs (buyer-query landing pages).** The `smd_category`-keyed ensemble hubs ("Concert Band Sheet Music", "SATB Choir Sheet Music") use a **CURATED** `HubDataBuilder::ENSEMBLE_CATEGORIES` allowlist — `smd_category` is a mixed taxonomy (most values are formats like "Piano Solo"), so it is never auto-derived. New scores in an existing allowlisted category auto-appear via the daily `HubCacheWarmJob`, but a genuinely new `smd_category` requires a one-line edit to the constant.
+
 **Cross-links (free → SMD "Professional Editions"):** `score_smd_matches` is derived data (`BackfillSmdMatchesJob`, title+composer-surname matching via `SmdMatchFinder`). **After any import or bulk title/composer rewrite**, refresh it: `bin/kamal app exec --reuse -r web "bin/rails scores:backfill_smd_matches"` — the Sunday-5am recurring run is only a safety net. Bad match spotted in prod? Set `suppressed = true` on its row (console one-liner); the converge preserves it forever. Preview matches without writing: `DRY_RUN=1 bin/rails scores:backfill_smd_matches`.
 
 ## Tech Stack

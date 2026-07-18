@@ -96,6 +96,7 @@ CREATE INDEX "index_scores_on_composer" ON "scores" ("composer") /*application='
 CREATE INDEX "index_scores_on_source" ON "scores" ("source") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_external_id" ON "scores" ("external_id") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_voicing" ON "scores" ("voicing") /*application='Scorebase'*/;
+CREATE INDEX "index_scores_on_smd_category_and_deleted_at" ON "scores" ("smd_category", "deleted_at") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_instruments" ON "scores" ("instruments") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_extraction_status" ON "scores" ("extraction_status") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_ambitus_semitones" ON "scores" ("ambitus_semitones") /*application='Scorebase'*/;
@@ -203,6 +204,7 @@ CREATE TRIGGER scores_instruments_fts_au AFTER UPDATE ON scores
           AND NEW.deleted_at IS NULL;
       END;
 INSERT INTO "schema_migrations" (version) VALUES
+('20260718100000'),
 ('20260716160001'),
 ('20260716160000'),
 ('20260520104043'),

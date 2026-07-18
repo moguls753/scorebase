@@ -212,6 +212,7 @@
 #  index_scores_on_price_usd                     (price_usd)
 #  index_scores_on_rag_status                    (rag_status)
 #  index_scores_on_rating                        (rating)
+#  index_scores_on_smd_category_and_deleted_at   (smd_category,deleted_at)
 #  index_scores_on_source                        (source)
 #  index_scores_on_tempo_bpm                     (tempo_bpm)
 #  index_scores_on_texture_type                  (texture_type)

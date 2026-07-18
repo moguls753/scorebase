@@ -132,4 +132,17 @@ RSpec.describe "Sitemap generation" do
       expect(xml).to include("/de/scores/#{rep.id}</loc>")
     end
   end
+
+  describe "ensemble hub pages" do
+    it "emits a threshold-meeting ensemble hub URL in both locales" do
+      threshold.times { create(:score, :smd, smd_category: "Concert Band") }
+
+      expect { SitemapGenerator::Interpreter.run(verbose: false) }.not_to raise_error
+
+      xml = Zlib::GzipReader.open(Rails.root.join("storage/sitemaps/sitemap.xml.gz"), &:read)
+      expect(xml).to include("/ensembles/concert-band</loc>")
+      expect(xml).to include("/de/ensembles/concert-band</loc>")
+      expect(xml).to include("/ensembles</loc>")
+    end
+  end
 end

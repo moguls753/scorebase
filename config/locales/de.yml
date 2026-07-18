@@ -107,6 +107,7 @@ de:
     browse_genres: "Genres & Formen"
     browse_instruments: "Instrumente"
     browse_periods: "Epochen"
+    browse_ensembles: "Ensembles"
     filters: "Filter"
     close_filters: "Filter schließen"
     clear: "Zurücksetzen"
@@ -372,6 +373,11 @@ de:
     periods_title: "Epochen — Noten"
     periods_description: "Durchsuche %{count} Epochen mit Noten zum Download."
     periods: "Epochen"
+    ensembles_title: "Ensembles — Noten"
+    ensembles_description: "Durchsuche %{count} Besetzungen mit Noten für Blasorchester, Orchester und Chöre."
+    ensembles: "Ensembles"
+    ensembles_instrumental: "Orchester & Ensembles"
+    ensembles_choral: "Chöre"
 
     # Single dimension pages
     composer_page_title: "%{name} — Noten"
@@ -384,6 +390,8 @@ de:
     instrument_page_description: "Entdecke %{count} Noten für %{name}. Kostenlos herunterladen und drucken."
     period_page_title: "%{name} — Noten"
     period_page_description: "Entdecke %{count} Noten aus der %{name}. Kostenlos herunterladen und drucken."
+    ensemble_page_title: "%{name} Noten"
+    ensemble_page_description: "Entdecke %{count} %{name}-Notenarrangements. Professionelle Arrangements zum Kauf."
 
     # Combined pages
     composer_instrument_title: "%{composer} %{instrument} Noten — Download"
@@ -431,6 +439,7 @@ de:
     search_composer_scores: "In %{name}s Noten suchen..."
     search_artist_scores: "In %{name} Arrangements suchen..."
     search_genre_scores: "In %{name}-Noten suchen..."
+    search_ensemble_scores: "In %{name}-Noten suchen..."
     search_instrument_scores: "In %{name}-Noten suchen..."
     search_period_scores: "In %{name}-Noten suchen..."
     filter_composer: "Komponist"

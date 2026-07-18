@@ -66,6 +66,10 @@ SitemapGenerator::Sitemap.create do
   add artists_path, changefreq: "weekly", priority: 0.9
   add artists_path(locale: :de), changefreq: "weekly", priority: 0.9
 
+  # Ensembles index (SMD ensemble-category hubs)
+  add ensembles_path, changefreq: "weekly", priority: 0.9
+  add ensembles_path(locale: :de), changefreq: "weekly", priority: 0.9
+
   # ===========================================
   # INDIVIDUAL HUB PAGES (from HubDataBuilder)
   # ===========================================
@@ -103,6 +107,14 @@ SitemapGenerator::Sitemap.create do
   periods.each do |item|
     add period_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
     add period_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
+  end
+
+  # Ensemble pages (curated smd_category allowlist, dedup arrangements)
+  # Keyword slug: (not positional) — the optional (:locale) route scope otherwise
+  # binds a positional arg to :locale and raises.
+  HubDataBuilder.ensembles.each do |item|
+    add ensemble_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
+    add ensemble_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
   end
 
   # ===========================================

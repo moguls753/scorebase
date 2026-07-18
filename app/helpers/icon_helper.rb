@@ -8,7 +8,8 @@ module IconHelper
     artists: "mic",
     genres: "music",
     instruments: "guitar",
-    periods: "hourglass"
+    periods: "hourglass",
+    ensembles: "users"
   }.freeze
 
   PERIOD_ICONS = {

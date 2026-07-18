@@ -107,6 +107,7 @@ en:
     browse_genres: "Genres & Forms"
     browse_instruments: "Instruments"
     browse_periods: "Periods"
+    browse_ensembles: "Ensembles"
     filters: "Filters"
     close_filters: "Close filters"
     clear: "Clear"
@@ -372,6 +373,11 @@ en:
     periods_title: "Historical Periods — Sheet Music"
     periods_description: "Browse %{count} historical periods with sheet music downloads."
     periods: "Periods"
+    ensembles_title: "Ensembles — Sheet Music"
+    ensembles_description: "Browse %{count} ensemble types with sheet music for bands, orchestras and choirs."
+    ensembles: "Ensembles"
+    ensembles_instrumental: "Bands & Orchestras"
+    ensembles_choral: "Choirs"
 
     # Single dimension pages
     composer_page_title: "%{name} — Sheet Music"
@@ -384,6 +390,8 @@ en:
     instrument_page_description: "Browse %{count} sheet music scores for %{name}. Free to download and print."
     period_page_title: "%{name} Period — Sheet Music"
     period_page_description: "Browse %{count} sheet music scores from the %{name} period. Free to download and print."
+    ensemble_page_title: "%{name} Sheet Music"
+    ensemble_page_description: "Browse %{count} %{name} sheet music arrangements. Professional arrangements available for purchase."
 
     # Combined pages
     composer_instrument_title: "%{composer} %{instrument} Sheet Music — Downloads"
@@ -433,6 +441,7 @@ en:
     search_genre_scores: "Search %{name} scores..."
     search_instrument_scores: "Search %{name} scores..."
     search_period_scores: "Search %{name} scores..."
+    search_ensemble_scores: "Search %{name} scores..."
     filter_composer: "Composer"
     scores_count: "%{count} scores"
     browse_all: "Browse All"

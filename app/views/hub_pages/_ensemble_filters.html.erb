@@ -1,0 +1,52 @@
+<%# Shared filter fields for ensemble page (mobile bottom sheet)
+    Params:
+    - f: form builder
+    - mobile: boolean (optional) - whether this is mobile layout
+    - filter_options: hash with :instruments, :composers arrays
+%>
+<% mobile ||= false %>
+
+<div class="<%= mobile ? 'grid grid-cols-2 gap-4' : 'space-y-4' %>">
+  <!-- Filter: Instrument -->
+  <% if filter_options[:instruments].present? %>
+    <div>
+      <label for="mobile-instrument" class="block text-xs font-bold text-[var(--color-text-muted)] mb-2 uppercase tracking-wide font-[var(--font-family-display)]">
+        <%= t('score.instrument') %>
+      </label>
+      <%= f.select :instrument,
+          options_for_select(
+            [[t('filters.any'), '']] + filter_options[:instruments].map { |i| [translate_hub_name(:instruments, i), i[:slug]] },
+            params[:instrument]
+          ),
+          {},
+          {
+            id: "mobile-instrument",
+            class: "mm-input w-full text-sm",
+            data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
+          }
+      %>
+    </div>
+  <% end %>
+
+  <!-- Filter: Composer -->
+  <% if filter_options[:composers].present? %>
+    <div>
+      <label for="mobile-composer" class="block text-xs font-bold text-[var(--color-text-muted)] mb-2 uppercase tracking-wide font-[var(--font-family-display)]">
+        <%= t('sort.composer') %>
+      </label>
+      <%= f.select :composer,
+          options_for_select(
+            [[t('filters.any'), '']] + filter_options[:composers].map { |c| [c[:name], c[:slug]] },
+            params[:composer]
+          ),
+          {},
+          {
+            id: "mobile-composer",
+            class: "mm-input w-full text-sm",
+            data: { action: mobile ? "change->filter-modal#closeAndSubmit" : "change->url-sync#submit" }
+          }
+      %>
+    </div>
+  <% end %>
+
+</div>
