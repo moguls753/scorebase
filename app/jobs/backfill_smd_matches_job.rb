@@ -5,17 +5,21 @@ class BackfillSmdMatchesJob < ApplicationJob
   retry_on ActiveRecord::StatementInvalid, wait: :polynomially_longer, attempts: 3
 
   def perform
-    index = SmdMatchFinder.build_index(smd_targets)
-    stats = converge(desired_matches(index))
+    stats = converge(desired_matches(smd_index))
     logger.info "[BackfillSmdMatches] #{stats}"
     stats
   end
 
   private
 
-  def smd_targets
-    Score.active.where(source: "smd").deduplicate_arrangements
-         .pluck(:id, :title, :composer, :artist, :price_usd)
+  # Batched so the 209k raw rows are never all resident: plucking them in one go
+  # cost ~126 MB on top of the index itself, which OOM-killed the 1 GB job container.
+  def smd_index
+    index = {}
+    Score.active.where(source: "smd").deduplicate_arrangements.in_batches do |batch|
+      SmdMatchFinder.build_index(batch.pluck(:id, :title, :composer, :artist, :price_usd), index)
+    end
+    index
   end
 
   def desired_matches(index)

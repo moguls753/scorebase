@@ -178,6 +178,24 @@ bin/kamal accessory reboot rag
 
 **ChromaDB concurrency.** The FastAPI process holds a Chroma reader open while the indexer process opens its own writer against the same `/data/chroma` volume. ChromaDB ≥ 0.4 uses SQLite/WAL for metadata and tolerates this in practice, but lock contention can surface as transient `/smart-search` 503s during heavy indexing — acceptable for a manually-run, infrequent operation. Fallback if it becomes disruptive: `bin/kamal accessory stop rag` before each batch, run the indexer in a transient container, `bin/kamal accessory boot rag` after.
 
+## Search Console (`tools/gsc.rb`)
+
+Reads Google Search Console. Deliberately **not** a Rails integration — stdlib only, no gems, nothing in the bundle, never deployed. Run it locally.
+
+```bash
+ruby tools/gsc.rb sites                                        # properties the service account can see
+ruby tools/gsc.rb sitemaps                                     # fetched-at, errors, submitted vs indexed
+ruby tools/gsc.rb inspect https://scorebase.org/scores/313510  # index status of one URL (2000/day)
+ruby tools/gsc.rb query --dimensions page --days 90 --table
+ruby tools/gsc.rb query --dimensions page,query --filter "page~~/scores/"
+```
+
+`query` prints JSON on stdout (pipe it into `bin/rails runner` to join against `scores`), or a summary with `--table`. Dimensions: `date query page country device searchAppearance`. Filter operators: `~~` contains, `==` equals, `!~` not-contains, `!=` not-equals, `=@` regex, `!@` not-regex. Pagination is automatic past the API's 25,000-row cap.
+
+**Auth.** Service account `gsc-reader@scorebase-503011.iam.gserviceaccount.com`, key at `~/.config/scorebase/gsc-key.json` (override with `GSC_KEY`, exported from `~/.config/zsh/.zsh_secrets`). The key is **never** committed. A new service account also has to be added under *Search Console → Settings → Users and permissions* — with a valid key it otherwise authenticates fine and simply sees zero properties.
+
+**Not available via the API:** the Index Coverage report (the "crawled – currently not indexed" buckets), Core Web Vitals, manual actions, the links report. Those are UI export only — download the Coverage ZIP and hand over the CSVs.
+
 ## Project Structure
 
 ```

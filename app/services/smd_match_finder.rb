@@ -17,9 +17,21 @@ class SmdMatchFinder
     barcarolle impromptu mazurka polonaise ballade fantasia pastorale canon
   ].to_set.freeze
 
-  # Rows: [id, title, composer, artist, price_usd], keyed by normalized title
-  def self.build_index(smd_rows)
-    smd_rows.group_by { |row| normalize(row[1]) }.tap { |index| index.delete("") }
+  # Rows: [id, title, composer, artist, price_usd], keyed by normalized title.
+  # Entries keep only what matching needs — retaining the full title, composer and
+  # artist strings costs ~120 MB on the 209k-row catalogue and OOM-killed the job.
+  # Pass an existing index to accumulate across batches.
+  def self.build_index(smd_rows, index = {})
+    smd_rows.each do |id, title, composer, artist, price|
+      key = normalize(title)
+      next if key.empty?
+
+      # -"str" interns: ~209k entries share far fewer distinct surnames, and a
+      # Float is a fraction of a BigDecimal — both matter at this row count.
+      (index[key] ||= []) << [ id, title.include?(" - "), price&.to_f,
+                               -surname(composer), -surname(artist) ]
+    end
+    index
   end
 
   # Ranked SMD ids (uncapped; callers apply MAX_MATCHES after suppression)
@@ -30,8 +42,8 @@ class SmdMatchFinder
     wanted = surname(composer)
     return [] if wanted.empty?
 
-    candidates = (index[key] || []).select do |row|
-      surname(row[2]) == wanted || surname(row[3]) == wanted
+    candidates = (index[key] || []).select do |_, _, _, composer_surname, artist_surname|
+      composer_surname == wanted || artist_surname == wanted
     end
     rank(candidates).map(&:first)
   end
@@ -50,9 +62,9 @@ class SmdMatchFinder
 
   # Same value-rank as GROUP_REPRESENTATIVE_ORDER_SQL: set listing first,
   # then price DESC (nil last), then id for determinism
-  def self.rank(rows)
-    rows.sort_by do |id, title, _, _, price|
-      [ title.include?(" - ") ? 1 : 0, price.nil? ? 1 : 0, -(price || 0), id ]
+  def self.rank(entries)
+    entries.sort_by do |id, instrument_part, price, _, _|
+      [ instrument_part ? 1 : 0, price.nil? ? 1 : 0, -(price || 0), id ]
     end
   end
 end
