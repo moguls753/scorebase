@@ -2,6 +2,7 @@
 
 require "net/http"
 require "uri"
+require_relative "clearance"
 
 module SmdCrawler
   class PageFetcher
@@ -10,14 +11,17 @@ module SmdCrawler
     DEFAULT_MAX_RETRIES = 3
     DEFAULT_DELAY_RANGE = 0.5..1.5
 
-    def initialize(delay_range: DEFAULT_DELAY_RANGE, max_retries: DEFAULT_MAX_RETRIES, timeout: DEFAULT_TIMEOUT)
+    def initialize(delay_range: DEFAULT_DELAY_RANGE, max_retries: DEFAULT_MAX_RETRIES, timeout: DEFAULT_TIMEOUT,
+                   clearance: Clearance.new)
       @delay_range = delay_range
       @max_retries = max_retries
       @timeout = timeout
+      @clearance = clearance
       @last_request_at = nil
     end
 
     def fetch(url)
+      @clearance.ensure!
       respect_rate_limit
 
       attempts = 0
@@ -35,6 +39,10 @@ module SmdCrawler
             return { success: true, body: result[:body], status: 200 }
           when 404
             return { success: false, status: 404, error: "not_found" }
+          when 403
+            # Clearance expired or was rejected — re-solve and retry.
+            last_error = "cloudflare_challenge"
+            @clearance.refresh! if attempts < @max_retries
           when 429
             # Rate limited - back off longer
             sleep(2 ** attempts)
@@ -81,7 +89,11 @@ module SmdCrawler
       http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
       request = Net::HTTP::Get.new(uri)
-      request["User-Agent"] = USER_AGENT
+      request["User-Agent"] = @clearance.user_agent || USER_AGENT
+      if (cookie = @clearance.cookie_header)
+        request["Cookie"] = cookie
+        request["Accept-Language"] = "en-US,en;q=0.9"
+      end
 
       @last_request_at = Time.now
       response = http.request(request)

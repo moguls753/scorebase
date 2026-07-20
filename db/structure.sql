@@ -85,7 +85,7 @@ CREATE VIRTUAL TABLE scores_search_fts USING fts5(
         tokenize='trigram'
       )
 /* scores_search_fts(title,composer,genre) */;
-CREATE TABLE IF NOT EXISTS "scores" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar, "composer" varchar, "key_signature" varchar, "time_signature" varchar, "num_parts" integer, "genre" text, "tags" text, "complexity" integer, "rating" decimal(3,2), "views" integer DEFAULT 0, "favorites" integer DEFAULT 0, "data_path" varchar, "metadata_path" varchar, "mxl_path" varchar, "pdf_path" varchar, "mid_path" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "source" varchar DEFAULT 'pdmx', "external_url" varchar, "external_id" varchar, "language" varchar, "instruments" varchar, "voicing" varchar, "description" text, "editor" varchar, "license" varchar, "lyrics" text, "cpdl_number" varchar, "posted_date" date, "page_count" integer, "thumbnail_url" varchar, "composer_status" varchar DEFAULT 'pending' NOT NULL, "highest_pitch" varchar, "lowest_pitch" varchar, "ambitus_semitones" integer, "pitch_range_per_part" json, "voice_ranges" json, "tempo_bpm" integer, "tempo_marking" varchar, "duration_seconds" float, "measure_count" integer, "event_count" integer, "note_density" float, "unique_pitches" integer, "accidental_count" integer, "chromatic_ratio" float, "rhythm_distribution" json, "syncopation_level" float, "rhythmic_variety" float, "predominant_rhythm" varchar, "key_confidence" float, "key_correlations" json, "modulations" text, "modulation_count" integer, "harmonic_rhythm" float, "interval_distribution" json, "largest_interval" integer, "stepwise_motion_ratio" float, "melodic_contour" varchar, "melodic_complexity" float, "form_analysis" varchar, "sections_count" integer, "repeats_count" integer, "cadence_types" text, "final_cadence" varchar, "clefs_used" text, "has_dynamics" boolean, "dynamic_range" varchar, "has_articulations" boolean, "has_ornaments" boolean, "has_tempo_changes" boolean, "has_fermatas" boolean, "expression_markings" text, "has_extracted_lyrics" boolean, "extracted_lyrics" text, "syllable_count" integer, "lyrics_language" varchar, "part_names" text, "detected_instruments" text, "instrument_families" text, "has_vocal" boolean, "is_instrumental" boolean, "has_accompaniment" boolean, "texture_type" varchar, "vertical_density" float, "voice_independence" float, "extraction_status" varchar DEFAULT 'pending' NOT NULL, "extraction_error" text, "extracted_at" datetime(6), "music21_version" varchar, "musicxml_source" varchar, "rag_status" varchar DEFAULT 'pending' NOT NULL, "search_text" text, "search_text_generated_at" datetime(6), "indexed_at" datetime(6), "index_version" integer, "period" varchar, "genre_status" varchar DEFAULT 'pending' NOT NULL, "period_status" varchar DEFAULT 'pending' NOT NULL, "instruments_status" varchar DEFAULT 'pending' NOT NULL, "computed_difficulty" integer, "max_chord_span" integer, "tessitura" json, "leap_count" integer, "leaps_per_measure" float, "has_vocal_status" varchar DEFAULT 'pending' NOT NULL, "voicing_status" varchar DEFAULT 'pending' NOT NULL, "chromatic_note_count" integer, "meter_classification" varchar, "beat_count" integer, "has_pedal_marks" boolean, "slur_count" integer, "has_ottava" boolean, "trill_count" integer, "mordent_count" integer, "turn_count" integer, "tremolo_count" integer, "grace_note_count" integer, "arpeggio_mark_count" integer, "modulation_targets" json, "unique_duration_count" integer, "off_beat_count" integer, "chord_count" integer, "interval_count" integer, "stepwise_count" integer, "simultaneous_note_avg" float, "pitch_count" integer, "pitch_class_distribution" json, "texture_variation" float, "avg_chord_span" float, "contrary_motion_ratio" float, "parallel_motion_ratio" float, "oblique_motion_ratio" float, "unique_chord_count" integer, "estimated_tempo_bpm" integer, "estimated_duration_seconds" float, "tempo_referent" float, "total_quarter_length" float, "is_multi_movement" boolean, "pedagogical_grade" varchar, "pedagogical_grade_de" varchar, "grade_status" varchar DEFAULT 'pending' NOT NULL, "grade_source" varchar, "title_normalized" varchar, "composer_normalized" varchar, "deleted_at" datetime(6), "contributors" json, "main_instrument" varchar, "arrangement_category" varchar, "smd_category" varchar, "brand" varchar, "is_arrangeme" boolean, "price_usd" decimal(8,2), "original_price_usd" decimal(8,2), "review_count" integer, "pitch_range" varchar, "is_interactive" boolean, "preview_image_url" varchar, "artist" varchar, "group_key" varchar, "is_group_representative" boolean);
+CREATE TABLE IF NOT EXISTS "scores" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "title" varchar, "composer" varchar, "key_signature" varchar, "time_signature" varchar, "num_parts" integer, "genre" text, "tags" text, "complexity" integer, "rating" decimal(3,2), "views" integer DEFAULT 0, "favorites" integer DEFAULT 0, "data_path" varchar, "metadata_path" varchar, "mxl_path" varchar, "pdf_path" varchar, "mid_path" varchar, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "source" varchar DEFAULT 'pdmx', "external_url" varchar, "external_id" varchar, "language" varchar, "instruments" varchar, "voicing" varchar, "description" text, "editor" varchar, "license" varchar, "lyrics" text, "cpdl_number" varchar, "posted_date" date, "page_count" integer, "thumbnail_url" varchar, "composer_status" varchar DEFAULT 'pending' NOT NULL, "highest_pitch" varchar, "lowest_pitch" varchar, "ambitus_semitones" integer, "pitch_range_per_part" json, "voice_ranges" json, "tempo_bpm" integer, "tempo_marking" varchar, "duration_seconds" float, "measure_count" integer, "event_count" integer, "note_density" float, "unique_pitches" integer, "accidental_count" integer, "chromatic_ratio" float, "rhythm_distribution" json, "syncopation_level" float, "rhythmic_variety" float, "predominant_rhythm" varchar, "key_confidence" float, "key_correlations" json, "modulations" text, "modulation_count" integer, "harmonic_rhythm" float, "interval_distribution" json, "largest_interval" integer, "stepwise_motion_ratio" float, "melodic_contour" varchar, "melodic_complexity" float, "form_analysis" varchar, "sections_count" integer, "repeats_count" integer, "cadence_types" text, "final_cadence" varchar, "clefs_used" text, "has_dynamics" boolean, "dynamic_range" varchar, "has_articulations" boolean, "has_ornaments" boolean, "has_tempo_changes" boolean, "has_fermatas" boolean, "expression_markings" text, "has_extracted_lyrics" boolean, "extracted_lyrics" text, "syllable_count" integer, "lyrics_language" varchar, "part_names" text, "detected_instruments" text, "instrument_families" text, "has_vocal" boolean, "is_instrumental" boolean, "has_accompaniment" boolean, "texture_type" varchar, "vertical_density" float, "voice_independence" float, "extraction_status" varchar DEFAULT 'pending' NOT NULL, "extraction_error" text, "extracted_at" datetime(6), "music21_version" varchar, "musicxml_source" varchar, "rag_status" varchar DEFAULT 'pending' NOT NULL, "search_text" text, "search_text_generated_at" datetime(6), "indexed_at" datetime(6), "index_version" integer, "period" varchar, "genre_status" varchar DEFAULT 'pending' NOT NULL, "period_status" varchar DEFAULT 'pending' NOT NULL, "instruments_status" varchar DEFAULT 'pending' NOT NULL, "computed_difficulty" integer, "max_chord_span" integer, "tessitura" json, "leap_count" integer, "leaps_per_measure" float, "has_vocal_status" varchar DEFAULT 'pending' NOT NULL, "voicing_status" varchar DEFAULT 'pending' NOT NULL, "chromatic_note_count" integer, "meter_classification" varchar, "beat_count" integer, "has_pedal_marks" boolean, "slur_count" integer, "has_ottava" boolean, "trill_count" integer, "mordent_count" integer, "turn_count" integer, "tremolo_count" integer, "grace_note_count" integer, "arpeggio_mark_count" integer, "modulation_targets" json, "unique_duration_count" integer, "off_beat_count" integer, "chord_count" integer, "interval_count" integer, "stepwise_count" integer, "simultaneous_note_avg" float, "pitch_count" integer, "pitch_class_distribution" json, "texture_variation" float, "avg_chord_span" float, "contrary_motion_ratio" float, "parallel_motion_ratio" float, "oblique_motion_ratio" float, "unique_chord_count" integer, "estimated_tempo_bpm" integer, "estimated_duration_seconds" float, "tempo_referent" float, "total_quarter_length" float, "is_multi_movement" boolean, "pedagogical_grade" varchar, "pedagogical_grade_de" varchar, "grade_status" varchar DEFAULT 'pending' NOT NULL, "grade_source" varchar, "title_search_normalized" varchar, "composer_search_normalized" varchar, "deleted_at" datetime(6), "contributors" json, "main_instrument" varchar, "arrangement_category" varchar, "smd_category" varchar, "brand" varchar, "is_arrangeme" boolean, "price_usd" decimal(8,2), "original_price_usd" decimal(8,2), "review_count" integer, "pitch_range" varchar, "is_interactive" boolean, "preview_image_url" varchar, "artist" varchar, "group_key" varchar, "is_group_representative" boolean, "last_crawled_at" datetime(6));
 CREATE INDEX "index_scores_on_key_signature" ON "scores" ("key_signature") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_time_signature" ON "scores" ("time_signature") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_num_parts" ON "scores" ("num_parts") /*application='Scorebase'*/;
@@ -97,6 +97,7 @@ CREATE INDEX "index_scores_on_source" ON "scores" ("source") /*application='Scor
 CREATE INDEX "index_scores_on_external_id" ON "scores" ("external_id") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_voicing" ON "scores" ("voicing") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_smd_category_and_deleted_at" ON "scores" ("smd_category", "deleted_at") /*application='Scorebase'*/;
+CREATE INDEX "index_scores_on_source_and_last_crawled_at" ON "scores" ("source", "last_crawled_at") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_instruments" ON "scores" ("instruments") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_extraction_status" ON "scores" ("extraction_status") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_ambitus_semitones" ON "scores" ("ambitus_semitones") /*application='Scorebase'*/;
@@ -127,8 +128,8 @@ CREATE INDEX "index_scores_on_event_count" ON "scores" ("event_count") /*applica
 CREATE INDEX "index_scores_on_chromatic_ratio" ON "scores" ("chromatic_ratio") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_pedagogical_grade" ON "scores" ("pedagogical_grade") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_grade_status" ON "scores" ("grade_status") /*application='Scorebase'*/;
-CREATE INDEX "index_scores_on_title_normalized" ON "scores" ("title_normalized") /*application='Scorebase'*/;
-CREATE INDEX "index_scores_on_composer_normalized" ON "scores" ("composer_normalized") /*application='Scorebase'*/;
+CREATE INDEX "index_scores_on_title_normalized" ON "scores" ("title_search_normalized") /*application='Scorebase'*/;
+CREATE INDEX "index_scores_on_composer_normalized" ON "scores" ("composer_search_normalized") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_created_at" ON "scores" ("created_at") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_deleted_at" ON "scores" ("deleted_at") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_brand" ON "scores" ("brand") /*application='Scorebase'*/;
@@ -145,8 +146,8 @@ CREATE TRIGGER scores_search_fts_ai AFTER INSERT ON scores
         INSERT INTO scores_search_fts(rowid, title, composer, genre)
         VALUES (
           NEW.id,
-          COALESCE(LOWER(NEW.title_normalized), ''),
-          COALESCE(LOWER(NEW.composer_normalized), ''),
+          COALESCE(LOWER(NEW.title_search_normalized), ''),
+          COALESCE(LOWER(NEW.composer_search_normalized), ''),
           COALESCE(LOWER(NEW.genre), '')
         );
       END;
@@ -156,8 +157,8 @@ CREATE TRIGGER scores_search_fts_ad AFTER DELETE ON scores
         VALUES (
           'delete',
           OLD.id,
-          COALESCE(LOWER(OLD.title_normalized), ''),
-          COALESCE(LOWER(OLD.composer_normalized), ''),
+          COALESCE(LOWER(OLD.title_search_normalized), ''),
+          COALESCE(LOWER(OLD.composer_search_normalized), ''),
           COALESCE(LOWER(OLD.genre), '')
         );
       END;
@@ -165,15 +166,15 @@ CREATE TRIGGER scores_search_fts_au AFTER UPDATE ON scores
       BEGIN
         INSERT INTO scores_search_fts(scores_search_fts, rowid, title, composer, genre)
         SELECT 'delete', OLD.id,
-               COALESCE(LOWER(OLD.title_normalized), ''),
-               COALESCE(LOWER(OLD.composer_normalized), ''),
+               COALESCE(LOWER(OLD.title_search_normalized), ''),
+               COALESCE(LOWER(OLD.composer_search_normalized), ''),
                COALESCE(LOWER(OLD.genre), '')
         WHERE OLD.deleted_at IS NULL;
 
         INSERT INTO scores_search_fts(rowid, title, composer, genre)
         SELECT NEW.id,
-               COALESCE(LOWER(NEW.title_normalized), ''),
-               COALESCE(LOWER(NEW.composer_normalized), ''),
+               COALESCE(LOWER(NEW.title_search_normalized), ''),
+               COALESCE(LOWER(NEW.composer_search_normalized), ''),
                COALESCE(LOWER(NEW.genre), '')
         WHERE NEW.deleted_at IS NULL;
       END;
@@ -204,6 +205,7 @@ CREATE TRIGGER scores_instruments_fts_au AFTER UPDATE ON scores
           AND NEW.deleted_at IS NULL;
       END;
 INSERT INTO "schema_migrations" (version) VALUES
+('20260719110000'),
 ('20260718100000'),
 ('20260716160001'),
 ('20260716160000'),

@@ -8,7 +8,7 @@
 #   NormalizePeriodsJob.perform_later(limit: 5000)
 #
 class NormalizePeriodsJob < ApplicationJob
-  queue_as :normalization
+  queue_as :default
 
   def perform(limit: 1000)
     scores = eligible_scores(limit)

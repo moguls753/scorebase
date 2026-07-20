@@ -43,5 +43,8 @@
 # Internal documentation (keep locally, not in public repo)
 /docs/
 
-# Generated sitemap (symlinked from storage/ at runtime; test suite regenerates it)
+# Generated sitemap (symlinked from storage/ at runtime; test suite regenerates it).
+# /public/sitemaps is the directory link the entrypoint makes so index-mode child
+# files (/sitemaps/sitemapN.xml.gz) are served once the sitemap passes 50k URLs.
 /public/sitemap*.xml.gz
+/public/sitemaps

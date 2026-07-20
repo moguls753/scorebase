@@ -57,4 +57,30 @@ RSpec.describe ComposerNormalizerBase do
       expect(score.reload.composer_status).to eq("pending")
     end
   end
+
+  # update_all skips the before_save that derives composer_search_normalized,
+  # which is the column the FTS trigger indexes. Left unhandled, every
+  # normalization run silently desynced search from display.
+  describe "keeping the search column in sync" do
+    it "derives composer_search_normalized when applying an API result" do
+      create(:score, composer: "Antonín Dvořák", composer_status: "pending")
+
+      normalizer.send(:apply_api_results,
+                      [{ "original" => "Antonín Dvořák", "normalized" => "Dvořák, Antonín" }])
+
+      score = Score.find_by(composer: "Dvořák, Antonín")
+      expect(score.composer_search_normalized).to eq("Dvorak, Antonin")
+    end
+
+    it "derives composer_search_normalized when applying a cached mapping" do
+      create(:score, composer: "Antonín Dvořák", composer_status: "pending")
+      ComposerMapping.create!(original_name: "Antonín Dvořák",
+                              normalized_name: "Dvořák, Antonín", source: "test")
+
+      normalizer.send(:apply_cached_mappings)
+
+      score = Score.find_by(composer: "Dvořák, Antonín")
+      expect(score.composer_search_normalized).to eq("Dvorak, Antonin")
+    end
+  end
 end

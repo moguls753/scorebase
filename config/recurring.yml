@@ -39,12 +39,47 @@ production:
     queue: default
     schedule: every day at 2am
 
+  # Imports land composers raw ("Billie Eilish"); this rewrites them to the
+  # "Eilish, Billie" convention the composer hubs and ComposerMapping are built
+  # on. Scoped to composer_status = pending and failures are terminal, so it is
+  # a free no-op when nothing new has arrived. The limit caps LLM spend per run
+  # after a large import — cache hits and pattern matches cost nothing, only
+  # genuinely unseen names reach the API. Runs before Sunday's
+  # backfill_smd_matches, which matches on composer surnames.
+  normalize_composers:
+    class: NormalizeComposersJob
+    queue: default
+    args: [ { limit: 2000 } ]
+    schedule: every day at 1am
+
   # Safety net only — the primary trigger is the documented post-import
   # `scores:backfill_smd_matches` run (catalogs change only on manual imports)
   backfill_smd_matches:
     class: BackfillSmdMatchesJob
     queue: default
     schedule: every sunday at 5am
+
+  # SMD prices drift, and stale ones are quoted to buyers: a Jan-2026 import was
+  # measured ~29% high across every sampled product. Both passes walk
+  # last_crawled_at ascending, so each run continues where the last stopped and
+  # no row can be starved.
+  #
+  # Representatives are the only pages that earn commission, so they get their
+  # own faster cadence — 1100/day cycles all 7,254 in a week. The catalogue pass
+  # covers everything else at 5000/day (~63-day cycle). Roughly 100 min/day of
+  # crawling total at the crawler's ~1 req/sec throttle; the default queue has 3
+  # threads, so this occupies one and leaves two free.
+  smd_refresh_representatives:
+    class: SmdRefreshJob
+    queue: default
+    args: [ { limit: 1100, scope: representatives } ]
+    schedule: every day at 6am
+
+  smd_refresh_catalogue:
+    class: SmdRefreshJob
+    queue: default
+    args: [ { limit: 5000 } ]
+    schedule: every day at 8am
 
   # extract_pending_scores:
   #   class: ExtractPendingScoresJob

@@ -1,8 +1,15 @@
 #!/bin/bash -e
 
-# Ensure sitemap directory exists and symlink into public/ for Thruster
+# Ensure sitemap directory exists and symlink into public/ so it is served.
+#
+# Two links, not one. sitemap.xml.gz is the canonical URL Google is told about.
+# The directory link matters once the sitemap crosses 50,000 URLs: sitemap_generator
+# switches to index mode and emits child files whose URLs are /sitemaps/sitemapN.xml.gz.
+# Without this link those 404 and the whole sitemap silently stops working — and
+# nothing warns you, because the index itself still resolves.
 mkdir -p storage/sitemaps
 ln -sf ../storage/sitemaps/sitemap.xml.gz public/sitemap.xml.gz
+ln -sfn ../storage/sitemaps public/sitemaps
 
 # If running the rails server then create or migrate existing database
 if [ "${@: -2:1}" == "./bin/rails" ] && [ "${@: -1:1}" == "server" ]; then

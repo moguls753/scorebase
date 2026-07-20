@@ -1,7 +1,8 @@
 # Matches free scores to professional SMD editions of the same piece.
 #
-# Matching works on RAW title/composer/artist columns — never title_normalized
-# (SMD's embeds an SEO suffix) or composer_normalized (name order flips per
+# Matching works on RAW title/composer/artist columns — never
+# title_search_normalized (SMD's embeds an SEO suffix) or
+# composer_search_normalized (name order flips per
 # source). Title-only matching measured 81% wrong-composer links, so a match
 # requires the composer surname too; single-word generic form titles are
 # stoplisted because the same composer often wrote several pieces by that name.

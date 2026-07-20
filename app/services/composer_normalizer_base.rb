@@ -82,7 +82,7 @@ class ComposerNormalizerBase
       scores = Score.composer_pending.where(composer: composer)
 
       count = if mapping.normalized_name
-        scores.update_all(composer: mapping.normalized_name, composer_status: "normalized")
+        scores.update_all(normalized_attributes(mapping.normalized_name))
       else
         scores.update_all(composer_status: "failed")
       end
@@ -142,7 +142,7 @@ class ComposerNormalizerBase
 
       if normalized.present?
         ComposerMapping.register(original: original, normalized: normalized, source: provider_name)
-        count = scores.update_all(composer: normalized, composer_status: "normalized")
+        count = scores.update_all(normalized_attributes(normalized))
         @stats[:api_normalized] += count
         puts "    [#{count}] #{truncate(original, 30)} → #{normalized}"
       else
@@ -164,6 +164,18 @@ class ComposerNormalizerBase
 
   def pending_composers
     Score.composer_pending.distinct.pluck(:composer)
+  end
+
+  # update_all is what makes this bulk normalization fast, but it skips the
+  # before_save that derives composer_search_normalized — which is the column the
+  # FTS trigger indexes. Deriving it here keeps the search copy honest without
+  # giving up the bulk write.
+  def normalized_attributes(name)
+    {
+      composer: name,
+      composer_search_normalized: Score.normalize_for_search(name),
+      composer_status: "normalized"
+    }
   end
 
   def truncate(str, length)

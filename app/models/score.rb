@@ -18,7 +18,7 @@
 #  clefs_used                 :text
 #  complexity                 :integer
 #  composer                   :string
-#  composer_normalized        :string
+#  composer_search_normalized :string
 #  composer_status            :string           default("pending"), not null
 #  computed_difficulty        :integer
 #  contrary_motion_ratio      :float
@@ -79,6 +79,7 @@
 #  key_signature              :string
 #  language                   :string
 #  largest_interval           :integer
+#  last_crawled_at            :datetime
 #  leap_count                 :integer
 #  leaps_per_measure          :float
 #  license                    :string
@@ -148,7 +149,7 @@
 #  thumbnail_url              :string
 #  time_signature             :string
 #  title                      :string
-#  title_normalized           :string
+#  title_search_normalized    :string
 #  total_quarter_length       :float
 #  tremolo_count              :integer
 #  trill_count                :integer
@@ -175,7 +176,7 @@
 #  index_scores_on_chromatic_ratio               (chromatic_ratio)
 #  index_scores_on_complexity                    (complexity)
 #  index_scores_on_composer                      (composer)
-#  index_scores_on_composer_normalized           (composer_normalized)
+#  index_scores_on_composer_search_normalized    (composer_search_normalized)
 #  index_scores_on_composer_status               (composer_status)
 #  index_scores_on_computed_difficulty           (computed_difficulty)
 #  index_scores_on_created_at                    (created_at)
@@ -214,10 +215,11 @@
 #  index_scores_on_rating                        (rating)
 #  index_scores_on_smd_category_and_deleted_at   (smd_category,deleted_at)
 #  index_scores_on_source                        (source)
+#  index_scores_on_source_and_last_crawled_at    (source,last_crawled_at)
 #  index_scores_on_tempo_bpm                     (tempo_bpm)
 #  index_scores_on_texture_type                  (texture_type)
 #  index_scores_on_time_signature                (time_signature)
-#  index_scores_on_title_normalized              (title_normalized)
+#  index_scores_on_title_search_normalized       (title_search_normalized)
 #  index_scores_on_views                         (views)
 #  index_scores_on_voicing                       (voicing)
 #  index_scores_on_voicing_status                (voicing_status)
@@ -643,6 +645,13 @@ class Score < ApplicationRecord
   # Shared by config/sitemap.rb and its spec so the scoping can't drift.
   scope :smd_group_representatives, -> { where(source: "smd", is_group_representative: true) }
 
+  # Refresh order for SmdRefreshJob: never-crawled first, then oldest crawl.
+  # Stamping last_crawled_at as we go is what makes a chunked run resumable.
+  # SQLite sorts NULLs first on a plain ASC, which is exactly the order we want —
+  # and unlike an expression it lets the (source, last_crawled_at) index serve the
+  # sort instead of building a temp B-tree over every SMD row on each run.
+  scope :smd_stalest_first, -> { where(source: "smd").order(:last_crawled_at) }
+
   # Get all other parts in this score's arrangement group
   def grouped_parts
     return Score.none if group_key.blank?
@@ -1027,8 +1036,8 @@ class Score < ApplicationRecord
   end
 
   def update_normalized_search_columns
-    self.title_normalized = self.class.normalize_for_search(title)
-    self.composer_normalized = self.class.normalize_for_search(composer)
+    self.title_search_normalized = self.class.normalize_for_search(title)
+    self.composer_search_normalized = self.class.normalize_for_search(composer)
   end
 
   def instrument_context_changed?

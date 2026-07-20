@@ -7,6 +7,20 @@ require_relative "metadata_extractor"
 module SmdCrawler
   class Crawler
     PRODUCT_URL_TEMPLATE = "https://www.sheetmusicdirect.com/se/ID_No/%s/Product.aspx"
+    # The only fields a re-crawl may rewrite on a score we already hold: the
+    # volatile commercial ones, plus title (no hub is built from it; group_key
+    # re-derives nightly).
+    #
+    # Everything else is excluded because the crawl value is *upstream* of our
+    # enrichment. composer is the costly one: SMD gives "Billie Eilish", and
+    # NormalizeComposersJob rewrites it to "Eilish, Billie", which is the form
+    # ComposerMapping and the composer hubs are built on. Re-writing the raw
+    # value reverts that for 212,601 rows, and nothing re-normalizes on a
+    # schedule — NormalizeComposersJob is not in recurring.yml.
+    REFRESHABLE = %i[
+      title price_usd original_price_usd rating review_count page_count
+      is_interactive last_crawled_at
+    ].freeze
 
     def initialize(fetcher: nil, parser: nil, extractor: nil)
       @fetcher = fetcher || PageFetcher.new
@@ -25,14 +39,18 @@ module SmdCrawler
       { success: true, metadata: metadata }
     end
 
-    # Save product metadata to Score model
+    # Save product metadata to Score model.
+    #
+    # A score we already hold is only ever updated in REFRESHABLE fields. That is
+    # deliberately not opt-in: every crawl path lands here, so making it a flag
+    # would mean any caller that forgot it silently reverts our enrichment.
     def save_product(metadata)
       score = Score.find_or_initialize_by(
         external_id: metadata[:external_id],
         source: "smd"
       )
 
-      score.assign_attributes(
+      attributes = {
         title: metadata[:title],
         composer: metadata[:composer],
         artist: metadata[:artist],
@@ -55,15 +73,20 @@ module SmdCrawler
         thumbnail_url: metadata[:thumbnail_url],
         preview_image_url: metadata[:preview_image_url],
         period: smd_period(metadata[:tags]),
-        period_status: "normalized"
-      )
+        period_status: "normalized",
+        last_crawled_at: Time.current
+      }
+
+      attributes = attributes.slice(*REFRESHABLE) if score.persisted?
+
+      score.assign_attributes(attributes)
 
       score.save!
       score
     end
 
-    # Crawl all products from a sitemap XML string
-    # @param mode [Symbol] :import (new only), :update (existing only), :all (both)
+    # Crawl all products listed in one of SMD's sitemap XML documents
+    # @param mode [Symbol] :import (new only) or :all (re-crawl everything listed)
     def crawl_sitemap(sitemap_xml, limit: nil, mode: :import)
       products = @parser.parse_sitemap(sitemap_xml)
 
@@ -137,7 +160,6 @@ module SmdCrawler
     def should_skip?(mode, exists)
       case mode
       when :import then exists
-      when :update then !exists
       when :all then false
       end
     end

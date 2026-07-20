@@ -9,7 +9,7 @@
 #   NormalizeComposersJob.perform_later(limit: nil)  # process all
 #
 class NormalizeComposersJob < ApplicationJob
-  queue_as :normalization
+  queue_as :default
 
   def perform(limit: nil)
     ComposerNormalizer.new(limit: limit).normalize!

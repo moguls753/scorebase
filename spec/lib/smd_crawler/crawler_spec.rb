@@ -114,6 +114,62 @@ RSpec.describe SmdCrawler::Crawler do
 
       expect(Score.where(external_id: "123456").count).to eq(2)
     end
+
+    it "stamps last_crawled_at" do
+      crawler.save_product(metadata)
+
+      expect(Score.last.last_crawled_at).to be_within(5.seconds).of(Time.current)
+    end
+
+    it "keeps a normalizer-derived pedagogical_grade when SMD ships no difficulty" do
+      Score.create!(external_id: "123456", source: "smd", title: "Old",
+                    pedagogical_grade: "Grade 4-5", grade_status: "normalized")
+
+      crawler.save_product(metadata.except(:difficulty))
+
+      expect(Score.find_by(external_id: "123456", source: "smd").pedagogical_grade).to eq("Grade 4-5")
+    end
+
+    it "keeps normalizer-derived instruments when SMD ships them blank" do
+      Score.create!(external_id: "123456", source: "smd", title: "Old",
+                    instruments: "Trumpet", instruments_status: "normalized")
+
+      crawler.save_product(metadata.merge(instruments: ""))
+
+      expect(Score.find_by(external_id: "123456", source: "smd").instruments).to eq("Trumpet")
+    end
+
+    it "leaves composer alone on an existing score so hub membership survives" do
+      Score.create!(external_id: "123456", source: "smd", title: "Old", composer: "Eilish, Billie")
+
+      crawler.save_product(metadata.merge(composer: "Billie Eilish"))
+
+      expect(Score.find_by(external_id: "123456", source: "smd").composer).to eq("Eilish, Billie")
+    end
+
+    it "still updates commercial fields on an existing score" do
+      Score.create!(external_id: "123456", source: "smd", title: "Old", price_usd: 7.79)
+
+      crawler.save_product(metadata.merge(price_usd: 5.99))
+
+      expect(Score.find_by(external_id: "123456", source: "smd").price_usd).to eq(5.99)
+    end
+
+    it "writes the full attribute set for a score it has never seen" do
+      crawler.save_product(metadata.merge(composer: "Billie Eilish"))
+
+      expect(Score.find_by(external_id: "123456", source: "smd").composer).to eq("Billie Eilish")
+    end
+
+
+    it "does not touch instruments on an existing score even when SMD sends a value" do
+      Score.create!(external_id: "123456", source: "smd", title: "Old", instruments: "Trumpet")
+
+      crawler.save_product(metadata.merge(instruments: "Piano"))
+
+      # SmdStatusNormalizer owns this field; the crawler must not fight it.
+      expect(Score.find_by(external_id: "123456", source: "smd").instruments).to eq("Trumpet")
+    end
   end
 
   describe "#crawl_sitemap" do
@@ -148,6 +204,17 @@ RSpec.describe SmdCrawler::Crawler do
       expect(stats[:failed]).to eq(0)
     end
 
+    it "protects enrichment in :all mode, which re-crawls scores we already hold" do
+      Score.create!(external_id: "111", source: "smd", title: "Old",
+                    composer: "Eilish, Billie", instruments: "Orchestra")
+
+      crawler.crawl_sitemap(sitemap_xml, mode: :all)
+
+      score = Score.find_by(external_id: "111", source: "smd")
+      expect(score.composer).to eq("Eilish, Billie")
+      expect(score.instruments).to eq("Orchestra")
+    end
+
     it "respects limit parameter" do
       stats = crawler.crawl_sitemap(sitemap_xml, limit: 1)
 
@@ -158,15 +225,6 @@ RSpec.describe SmdCrawler::Crawler do
       Score.create!(external_id: "111", source: "smd", title: "Already exists")
 
       stats = crawler.crawl_sitemap(sitemap_xml, limit: 2, mode: :import)
-
-      expect(stats[:skipped]).to eq(1)
-      expect(stats[:saved]).to eq(1)
-    end
-
-    it "skips new products in update mode" do
-      Score.create!(external_id: "111", source: "smd", title: "Already exists")
-
-      stats = crawler.crawl_sitemap(sitemap_xml, limit: 2, mode: :update)
 
       expect(stats[:skipped]).to eq(1)
       expect(stats[:saved]).to eq(1)

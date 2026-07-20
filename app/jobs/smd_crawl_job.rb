@@ -6,18 +6,21 @@ class SmdCrawlJob < ApplicationJob
   # Long-running job, limit retries
   retry_on StandardError, wait: 10.minutes, attempts: 2
 
-  VALID_MODES = %i[import update all].freeze
+  VALID_MODES = %i[import all].freeze
 
-  # Crawl SMD products from Hal Leonard catalog
+  # Discovers SMD products by walking SMD's own sitemaps.
+  #
+  # Refreshing scores we already have is SmdRefreshJob's job — it iterates the
+  # database instead, which is what makes it chunkable. A sitemap walk has no
+  # cursor, so a limited run always redoes the same first N products.
   #
   # @param limit [Integer, nil] Max products to process (nil = all)
-  # @param mode [Symbol] :import (new only), :update (existing only), :all (both)
+  # @param mode [Symbol] :import (new only) or :all (re-crawl everything listed)
   # @param catalog [String] Which catalog: "hl", "ame", or "other"
   #
   # Usage:
-  #   SmdCrawlJob.perform_later(limit: 100)                # Import 100 new
-  #   SmdCrawlJob.perform_later(mode: :update, limit: 50)  # Update 50 existing
-  #   SmdCrawlJob.perform_later(mode: :all)                # Full crawl
+  #   SmdCrawlJob.perform_later(limit: 100)   # Import 100 new
+  #   SmdCrawlJob.perform_later(mode: :all)   # Full crawl
   #
   def perform(limit: nil, mode: :import, catalog: "hl")
     require "smd_crawler/crawler"
