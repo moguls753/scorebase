@@ -7,8 +7,12 @@ class Ahoy::Store < Ahoy::DatabaseStore
   # device_detector returns ~13 device categories; the dashboard only knows
   # desktop / mobile / tablet. Bucket on the way in so historical rows and
   # new rows share the same key set.
-  DEVICE_BUCKETS = Hash.new("desktop").merge!(
+  # Two vocabularies land here: Cloudflare's CF-Device-Type (mobile/tablet/desktop)
+  # and device_detector's (smartphone/phablet/…). Missing "mobile" silently bucketed
+  # every phone as desktop for months — the default hid it, so it is "unknown" now.
+  DEVICE_BUCKETS = Hash.new("unknown").merge!(
     "desktop"        => "desktop",
+    "mobile"         => "mobile",
     "smartphone"     => "mobile",
     "phablet"        => "mobile",
     "feature phone"  => "mobile",

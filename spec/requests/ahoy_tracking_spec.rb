@@ -11,6 +11,18 @@ RSpec.describe "Ahoy tracking", type: :request do
     post "/_internal/events", params: { events_json: events.to_json }, headers: headers
   end
 
+  # Cloudflare's CF-Device-Type says "mobile"; device_detector says "smartphone".
+  # Only the latter was mapped, so every phone was silently bucketed as desktop.
+  {
+    "mobile" => "mobile", "tablet" => "tablet", "desktop" => "desktop"
+  }.each do |cf_value, expected|
+    it "buckets Cloudflare's #{cf_value.inspect} device header as #{expected}" do
+      track_view({ "page" => "/" }.tap { headers["HTTP_CF_DEVICE_TYPE"] = cf_value })
+
+      expect(Ahoy::Visit.last.device_type).to eq(expected)
+    end
+  end
+
   it "records the browser-supplied hostname as the visit's referring_domain" do
     expect { track_view("page" => "/scores/1", "referring_domain" => "google.com") }
       .to change { Ahoy::Visit.count }.by(1)
