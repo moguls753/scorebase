@@ -201,4 +201,18 @@ RSpec.describe DailyStat, type: :model do
       expect(stat.returning_rates.keys).to contain_exactly("7d", "30d", "90d", "180d")
     end
   end
+
+  describe '#smd_conversion_rate' do
+    it 'expresses buy clicks as a percentage of visits' do
+      stat = DailyStat.new(date: Date.current, visits: 160, smd_clicks_by_score: { "1" => 20, "2" => 10 })
+
+      expect(stat.smd_conversion_rate).to eq(18.8)
+    end
+
+    it 'returns nil rather than dividing by zero on a day with no visits' do
+      stat = DailyStat.new(date: Date.current, visits: 0, smd_clicks_by_score: { "1" => 3 })
+
+      expect(stat.smd_conversion_rate).to be_nil
+    end
+  end
 end

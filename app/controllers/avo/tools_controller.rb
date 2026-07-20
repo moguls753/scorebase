@@ -51,6 +51,7 @@ class Avo::ToolsController < Avo::ApplicationController
     @visits_30d = DailyStat.where(date: 30.days.ago..Date.current).sum(:visits)
     @clicks_30d = DailyStat.where(date: 30.days.ago..Date.current).sum(&:total_smd_clicks)
     @xlinks_30d = DailyStat.where(date: 30.days.ago..Date.current).sum(&:total_cross_link_visits)
+    @conversion_30d = @visits_30d.positive? ? (@clicks_30d * 100.0 / @visits_30d).round(1) : nil
 
     # Aggregate clicks by score across all time
     clicks_by_score = DailyStat.pluck(:smd_clicks_by_score).compact.each_with_object(Hash.new(0)) do |day_clicks, totals|
