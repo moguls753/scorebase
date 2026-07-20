@@ -128,8 +128,8 @@ CREATE INDEX "index_scores_on_event_count" ON "scores" ("event_count") /*applica
 CREATE INDEX "index_scores_on_chromatic_ratio" ON "scores" ("chromatic_ratio") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_pedagogical_grade" ON "scores" ("pedagogical_grade") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_grade_status" ON "scores" ("grade_status") /*application='Scorebase'*/;
-CREATE INDEX "index_scores_on_title_normalized" ON "scores" ("title_search_normalized") /*application='Scorebase'*/;
-CREATE INDEX "index_scores_on_composer_normalized" ON "scores" ("composer_search_normalized") /*application='Scorebase'*/;
+CREATE INDEX "index_scores_on_title_search_normalized" ON "scores" ("title_search_normalized") /*application='Scorebase'*/;
+CREATE INDEX "index_scores_on_composer_search_normalized" ON "scores" ("composer_search_normalized") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_created_at" ON "scores" ("created_at") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_deleted_at" ON "scores" ("deleted_at") /*application='Scorebase'*/;
 CREATE INDEX "index_scores_on_brand" ON "scores" ("brand") /*application='Scorebase'*/;

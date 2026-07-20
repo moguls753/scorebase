@@ -650,7 +650,10 @@ class Score < ApplicationRecord
   # SQLite sorts NULLs first on a plain ASC, which is exactly the order we want —
   # and unlike an expression it lets the (source, last_crawled_at) index serve the
   # sort instead of building a temp B-tree over every SMD row on each run.
-  scope :smd_stalest_first, -> { where(source: "smd").order(:last_crawled_at) }
+  # :id is a tiebreaker, not decoration — every row starts NULL, and without a
+  # deterministic order the queue can reshuffle between runs (a plan change is
+  # enough), causing rows to repeat while others starve.
+  scope :smd_stalest_first, -> { where(source: "smd").order(:last_crawled_at, :id) }
 
   # Get all other parts in this score's arrangement group
   def grouped_parts

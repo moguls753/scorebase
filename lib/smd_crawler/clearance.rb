@@ -47,6 +47,10 @@ module SmdCrawler
     end
 
     def refresh!
+      # Drop the old cookie first: ensure! only checks presence, so keeping a
+      # known-bad one on failure would stop us ever re-solving.
+      @cookie_header = nil
+
       payload = solve
       cookies = payload && payload["cookies"]
       return false if cookies.nil? || cookies.empty?

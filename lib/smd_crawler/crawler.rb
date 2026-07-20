@@ -36,6 +36,14 @@ module SmdCrawler
       return { success: false, error: result[:error] } unless result[:success]
 
       metadata = @extractor.extract(result[:body])
+
+      # HTTP 200 does not mean we were served a product. Cloudflare's JS-challenge
+      # interstitial is a 200 with no ld+json, so the extractor returns all-nil and
+      # save_product would raise on the title presence validation — aborting the
+      # entire run, and leaving the offending row unstamped so it sorts to the head
+      # of the queue and kills every subsequent run too.
+      return { success: false, error: "unparseable" } unless product?(metadata)
+
       { success: true, metadata: metadata }
     end
 
@@ -77,7 +85,11 @@ module SmdCrawler
         last_crawled_at: Time.current
       }
 
-      attributes = attributes.slice(*REFRESHABLE) if score.persisted?
+      # .compact so a field SMD did not ship this time cannot null out good data.
+      # A partial parse (ld+json present but `offers` missing) would otherwise
+      # write price_usd = NULL over a correct price *and* stamp last_crawled_at,
+      # hiding the damage for a full refresh cycle.
+      attributes = attributes.slice(*REFRESHABLE).compact if score.persisted?
 
       score.assign_attributes(attributes)
 
@@ -156,6 +168,12 @@ module SmdCrawler
     end
 
     private
+
+    # The two fields Score cannot be saved without. Their absence means we were
+    # served something other than a product page.
+    def product?(metadata)
+      metadata[:external_id].present? && metadata[:title].present?
+    end
 
     def should_skip?(mode, exists)
       case mode

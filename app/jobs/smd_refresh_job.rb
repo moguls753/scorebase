@@ -13,6 +13,10 @@ class SmdRefreshJob < ApplicationJob
 
   VALID_SCOPES = %i[all representatives].freeze
 
+  # SMD blocking us, or the bypass hanging, looks like an unbroken run of
+  # failures. Without this the run burns its whole limit re-proving that.
+  MAX_CONSECUTIVE_FAILURES = 25
+
   # @param limit [Integer] how many scores to refresh this run
   # @param scope [Symbol] :all, or :representatives for the sitemap'd buy pages
   #
@@ -26,7 +30,8 @@ class SmdRefreshJob < ApplicationJob
     raise ArgumentError, "Invalid scope: #{scope}. Use #{VALID_SCOPES.join(', ')}" unless VALID_SCOPES.include?(scope)
 
     crawler = SmdCrawler::Crawler.new
-    stats = { examined: 0, refreshed: 0, failed: 0 }
+    stats = { examined: 0, refreshed: 0, failed: 0, aborted: false }
+    consecutive_failures = 0
 
     candidates(scope).limit(limit).each do |score|
       stats[:examined] += 1
@@ -34,13 +39,25 @@ class SmdRefreshJob < ApplicationJob
 
       if result[:success]
         crawler.save_product(result[:metadata])
+        consecutive_failures = 0
         stats[:refreshed] += 1
       else
-        # Stamp failures too, otherwise a permanently broken row blocks the
-        # queue head forever and the run never advances past it.
-        score.update_column(:last_crawled_at, Time.current)
+        consecutive_failures += 1
         stats[:failed] += 1
         Rails.logger.warn("SmdRefreshJob: #{score.external_id} failed: #{result[:error]}")
+      end
+
+      # Stamp the row we *asked for*, always. save_product keys on the external_id
+      # in the response, which differs when SMD redirects a discontinued product
+      # to its replacement — that updates a different row and would leave this one
+      # unstamped at the head of the queue, re-crawled on every run forever.
+      # Failures must be stamped for the same reason.
+      score.update_column(:last_crawled_at, Time.current)
+
+      if consecutive_failures >= MAX_CONSECUTIVE_FAILURES
+        stats[:aborted] = true
+        Rails.logger.error("SmdRefreshJob: aborting after #{consecutive_failures} consecutive failures")
+        break
       end
     end
 

@@ -56,6 +56,29 @@ RSpec.describe SmdCrawler::Crawler do
       expect(result[:success]).to be false
       expect(result[:error]).to eq("not_found")
     end
+
+    # Cloudflare serves its JS challenge as 200 with no product markup. Treating
+    # that as success sends all-nil metadata into save_product, which raises on
+    # the title validation and takes the whole run down with it.
+    it "rejects a 200 that carries no product markup" do
+      stub_request(:get, url).to_return(
+        status: 200, body: "<html><head><title>Just a moment...</title></head><body></body></html>"
+      )
+
+      result = crawler.crawl_product(product_id)
+
+      expect(result[:success]).to be false
+      expect(result[:error]).to eq("unparseable")
+    end
+
+    it "rejects a product page missing a title" do
+      stub_request(:get, url).to_return(
+        status: 200,
+        body: '<script type="application/ld+json">[{"@type":"Product","mpn":123}]</script>'
+      )
+
+      expect(crawler.crawl_product(product_id)[:success]).to be false
+    end
   end
 
   describe "#save_product" do
@@ -161,6 +184,19 @@ RSpec.describe SmdCrawler::Crawler do
       expect(Score.find_by(external_id: "123456", source: "smd").composer).to eq("Billie Eilish")
     end
 
+
+    it "never nulls an existing value with a field SMD did not ship" do
+      Score.create!(external_id: "123456", source: "smd", title: "Old",
+                    price_usd: 7.79, rating: 4.5, review_count: 12)
+
+      # ld+json parsed, but `offers` absent — price comes back nil
+      crawler.save_product(metadata.merge(price_usd: nil, rating: nil, review_count: nil))
+
+      score = Score.find_by(external_id: "123456", source: "smd")
+      expect(score.price_usd).to eq(7.79)
+      expect(score.rating).to eq(4.5)
+      expect(score.review_count).to eq(12)
+    end
 
     it "does not touch instruments on an existing score even when SMD sends a value" do
       Score.create!(external_id: "123456", source: "smd", title: "Old", instruments: "Trumpet")
