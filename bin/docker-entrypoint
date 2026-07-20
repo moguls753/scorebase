@@ -1,12 +1,6 @@
 #!/bin/bash -e
 
-# Ensure sitemap directory exists and symlink into public/ so it is served.
-#
-# Two links, not one. sitemap.xml.gz is the canonical URL Google is told about.
-# The directory link matters once the sitemap crosses 50,000 URLs: sitemap_generator
-# switches to index mode and emits child files whose URLs are /sitemaps/sitemapN.xml.gz.
-# Without this link those 404 and the whole sitemap silently stops working — and
-# nothing warns you, because the index itself still resolves.
+# The directory link serves index-mode child files once the sitemap passes 50k URLs.
 mkdir -p storage/sitemaps
 ln -sf ../storage/sitemaps/sitemap.xml.gz public/sitemap.xml.gz
 ln -sfn ../storage/sitemaps public/sitemaps
