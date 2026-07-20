@@ -4,6 +4,7 @@
 #
 #  id                         :integer          not null, primary key
 #  browsers                   :json
+#  converting_visits          :integer
 #  countries                  :json
 #  cross_link_visits_by_score :json
 #  date                       :date

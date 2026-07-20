@@ -4,6 +4,7 @@
 #
 #  id                         :integer          not null, primary key
 #  browsers                   :json
+#  converting_visits          :integer
 #  countries                  :json
 #  cross_link_visits_by_score :json
 #  date                       :date
@@ -39,9 +40,11 @@ class DailyStat < ApplicationRecord
     (cross_link_visits_by_score || {}).values.sum
   end
 
+  # Nil for rows aggregated before `converting_visits` existed: the dashboard
+  # renders those as "—" rather than a misleading 0%.
   def smd_conversion_rate
-    return nil if visits.to_i.zero?
-    (total_smd_clicks * 100.0 / visits).round(1)
+    return nil if visits.to_i.zero? || converting_visits.nil?
+    (converting_visits * 100.0 / visits).round(1)
   end
 
   # Roll up Ahoy data for `date` into a DailyStat row matching the dashboard's
@@ -53,6 +56,9 @@ class DailyStat < ApplicationRecord
   # referring_domain is NULL (direct entry) or not one of INTERNAL_HOSTS.
   # `paths` and `smd_clicks_by_score` stay unfiltered: per-page engagement
   # and revenue events are meaningful regardless of how the user got there.
+  # `converting_visits` must stay filtered to match the `visits` denominator —
+  # ~89% of click events happen on internal-referrer visits, so dividing the
+  # unfiltered click count by `visits` yields rates well over 100%.
   def self.aggregate_for!(date)
     range           = date.beginning_of_day..date.end_of_day
     all_visits      = Ahoy::Visit.where(started_at: range)
@@ -67,11 +73,13 @@ class DailyStat < ApplicationRecord
     pageviews       = all_events.where(name: "$view")
     clicks          = all_events.where(name: "SMD click")
     cross_links     = all_events.where(name: "Cross-link visit")
+    external_clicks = clicks.where(visit_id: external_visits.select(:id))
 
     return if pageviews.count.zero? && all_visits.count.zero?
 
     find_or_create_by(date: date).update!(
       visits:              external_visits.count,
+      converting_visits:   external_clicks.distinct.count(:visit_id),
       countries:           external_visits.where.not(country: nil).group(:country).count,
       referrers:           external_visits.group("COALESCE(NULLIF(referring_domain, ''), 'direct')").count,
       paths:               pageviews.group("json_extract(properties, '$.page')").count,

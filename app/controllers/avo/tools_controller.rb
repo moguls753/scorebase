@@ -48,10 +48,19 @@ class Avo::ToolsController < Avo::ApplicationController
     add_breadcrumb "SMD Stats"
 
     @stats = DailyStat.where(date: 14.days.ago..Date.current).order(date: :desc)
-    @visits_30d = DailyStat.where(date: 30.days.ago..Date.current).sum(:visits)
-    @clicks_30d = DailyStat.where(date: 30.days.ago..Date.current).sum(&:total_smd_clicks)
-    @xlinks_30d = DailyStat.where(date: 30.days.ago..Date.current).sum(&:total_cross_link_visits)
-    @conversion_30d = @visits_30d.positive? ? (@clicks_30d * 100.0 / @visits_30d).round(1) : nil
+
+    window = DailyStat.where(date: 30.days.ago..Date.current)
+    @visits_30d = window.sum(:visits)
+    @clicks_30d = window.sum(&:total_smd_clicks)
+    @xlinks_30d = window.sum(&:total_cross_link_visits)
+
+    # Rate operands come from rows that actually have `converting_visits`: SQL SUM
+    # skips NULLs, so a window that is only partly backfilled would divide a short
+    # numerator by the full denominator and under-report.
+    measured = window.where.not(converting_visits: nil)
+    measured_visits = measured.sum(:visits)
+    @converting_30d = measured.sum(:converting_visits)
+    @conversion_30d = measured_visits.positive? ? (@converting_30d * 100.0 / measured_visits).round(1) : nil
 
     # Aggregate clicks by score across all time
     clicks_by_score = DailyStat.pluck(:smd_clicks_by_score).compact.each_with_object(Hash.new(0)) do |day_clicks, totals|

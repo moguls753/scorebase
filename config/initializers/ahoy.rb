@@ -1,6 +1,7 @@
 # Ahoy is wired through DailyStat: hourly AggregateDailyStatsJob rolls
 # Ahoy data into DailyStat rows that the Avo dashboard reads. Ahoy data
-# itself is pruned after 30 days; DailyStat is the long-term aggregate.
+# itself is pruned after AggregateDailyStatsJob::RETENTION_DAYS; DailyStat
+# is the long-term aggregate.
 
 class Ahoy::Store < Ahoy::DatabaseStore
   # device_detector returns ~13 device categories; the dashboard only knows

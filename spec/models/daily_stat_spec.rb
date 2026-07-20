@@ -58,6 +58,8 @@ RSpec.describe DailyStat, type: :model do
         expect(ds.user_agents).to eq("UA-1" => 1, "UA-2" => 1)
         expect(ds.smd_clicks_by_score).to eq("42" => 2, "99" => 1)
         expect(ds.cross_link_visits_by_score).to eq("42" => 2)
+        # v1 clicked twice, v2 once: converting_visits counts visits, not events.
+        expect(ds.converting_visits).to eq(2)
       end
 
       it 'is idempotent on repeat invocation' do
@@ -96,6 +98,10 @@ RSpec.describe DailyStat, type: :model do
         # but content engagement and revenue events stay unfiltered
         expect(ds.paths).to eq("/scores" => 1, "/scores/123" => 1, "/scores/456" => 1)
         expect(ds.smd_clicks_by_score).to eq("7" => 1)
+
+        # ...while converting_visits tracks the filtered denominator, so the
+        # internal visit's click does not count.
+        expect(ds.converting_visits).to eq(0)
       end
     end
 
@@ -203,16 +209,48 @@ RSpec.describe DailyStat, type: :model do
   end
 
   describe '#smd_conversion_rate' do
-    it 'expresses buy clicks as a percentage of visits' do
-      stat = DailyStat.new(date: Date.current, visits: 160, smd_clicks_by_score: { "1" => 20, "2" => 10 })
+    it 'expresses converting visits as a percentage of visits' do
+      stat = DailyStat.new(date: Date.current, visits: 160, converting_visits: 30)
 
       expect(stat.smd_conversion_rate).to eq(18.8)
     end
 
     it 'returns nil rather than dividing by zero on a day with no visits' do
-      stat = DailyStat.new(date: Date.current, visits: 0, smd_clicks_by_score: { "1" => 3 })
+      stat = DailyStat.new(date: Date.current, visits: 0, converting_visits: 3)
 
       expect(stat.smd_conversion_rate).to be_nil
+    end
+
+    it 'returns nil for rows aggregated before converting_visits was backfilled' do
+      stat = DailyStat.new(date: Date.current, visits: 100, converting_visits: nil,
+                           smd_clicks_by_score: { "1" => 40 })
+
+      expect(stat.smd_conversion_rate).to be_nil
+    end
+
+    it 'stays within 100% when internal-referrer visits generate most of the clicks' do
+      date = Date.new(2026, 4, 15)
+      noon = date.in_time_zone.change(hour: 12)
+      visit = lambda do |referring_domain|
+        Ahoy::Visit.create!(started_at: noon, visit_token: SecureRandom.uuid,
+                            visitor_token: SecureRandom.uuid, referring_domain: referring_domain)
+      end
+
+      converting_external = visit.call("google.com")
+      visit.call("bing.com")
+      internal = visit.call("scorebase.org")
+
+      Ahoy::Event.create!(visit: converting_external, name: "$view", properties: { "page" => "/" }, time: noon)
+      Ahoy::Event.create!(visit: converting_external, name: "SMD click", properties: { "score_id" => 1 }, time: noon)
+      5.times { Ahoy::Event.create!(visit: internal, name: "SMD click", properties: { "score_id" => 2 }, time: noon) }
+
+      DailyStat.aggregate_for!(date)
+      stat = DailyStat.find_by!(date: date)
+
+      expect(stat.visits).to eq(2)
+      expect(stat.total_smd_clicks).to eq(6)
+      expect(stat.converting_visits).to eq(1)
+      expect(stat.smd_conversion_rate).to eq(50.0)
     end
   end
 end

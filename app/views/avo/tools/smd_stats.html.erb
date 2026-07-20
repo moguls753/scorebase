@@ -3,7 +3,7 @@
   <%= render Avo::PanelComponent.new(name: '30-Day Summary') do |c| %>
     <% c.with_body do %>
       <div class="px-6 py-4">
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
           <div class="bg-orange-50 rounded-lg p-4">
             <div class="text-2xl font-bold text-orange-600"><%= number_with_delimiter(@visits_30d) %></div>
             <div class="text-sm text-gray-500">Total Visits</div>
@@ -14,11 +14,11 @@
           </div>
           <div class="bg-teal-50 rounded-lg p-4">
             <div class="text-2xl font-bold text-teal-600"><%= number_with_delimiter(@clicks_30d) %></div>
-            <div class="text-sm text-gray-500">Buy Clicks</div>
+            <div class="text-sm text-gray-500">Buy Clicks (all traffic)</div>
           </div>
           <div class="bg-violet-50 rounded-lg p-4">
             <div class="text-2xl font-bold text-violet-600"><%= @conversion_30d ? "#{@conversion_30d}%" : "—" %></div>
-            <div class="text-sm text-gray-500">Buy Clicks / Visit</div>
+            <div class="text-sm text-gray-500">Conversion Rate<%= " (#{number_with_delimiter(@converting_30d)} converting)" if @conversion_30d %></div>
           </div>
         </div>
       </div>
@@ -56,6 +56,7 @@
                 <th class="py-2 text-right text-gray-600">Visits</th>
                 <th class="py-2 text-right text-gray-600">Cross-links</th>
                 <th class="py-2 text-right text-gray-600">Buy Clicks</th>
+                <th class="py-2 text-right text-gray-600">Converting</th>
                 <th class="py-2 text-right text-gray-600">Conversion</th>
               </tr>
             </thead>
@@ -66,11 +67,15 @@
                   <td class="py-2 text-right font-mono"><%= number_with_delimiter(stat.visits) %></td>
                   <td class="py-2 text-right font-mono text-indigo-600"><%= stat.total_cross_link_visits %></td>
                   <td class="py-2 text-right font-mono text-teal-600"><%= stat.total_smd_clicks %></td>
+                  <td class="py-2 text-right font-mono text-violet-600"><%= stat.converting_visits || "—" %></td>
                   <td class="py-2 text-right font-mono text-gray-500"><%= stat.smd_conversion_rate ? "#{stat.smd_conversion_rate}%" : "—" %></td>
                 </tr>
               <% end %>
             </tbody>
           </table>
+          <p class="mt-3 text-xs text-gray-500">
+            Visits and Converting count external arrivals only; Buy Clicks counts every click, including on-site navigation. Conversion is Converting / Visits.
+          </p>
         <% else %>
           <p class="text-gray-500 italic">No stats recorded yet.</p>
         <% end %>
