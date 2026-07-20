@@ -1,15 +1,8 @@
 # frozen_string_literal: true
 
 # Recomputes title_search_normalized / composer_search_normalized from their
-# source columns.
-#
-# Both drifted the same way: a bulk `update_all` rewrote `title` (the May 2026
-# marketing-tail cleanup) and `composer` (ComposerNormalizer), and update_all
-# skips the before_save that derives these. The columns kept their pre-rewrite
-# values, so the FTS index describes titles and names the site no longer shows.
-#
-# Purely local — no network, no LLM. Safe to re-run; rows already in sync are
-# skipped, so a second pass is a no-op.
+# source columns. Both drifted because bulk update_all rewrites skip the
+# before_save that derives them. Safe to re-run; in-sync rows are skipped.
 class BackfillSearchColumnsJob < ApplicationJob
   queue_as :default
 
@@ -34,8 +27,6 @@ class BackfillSearchColumnsJob < ApplicationJob
 
       next if updates.empty?
 
-      # One statement per batch. The FTS triggers are SQL-level so they still
-      # fire, which is the point — the search index is what we are repairing.
       Score.upsert_all(updates, update_only: %i[title_search_normalized composer_search_normalized])
       stats[:updated] += updates.size
     end

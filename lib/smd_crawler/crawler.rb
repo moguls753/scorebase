@@ -7,16 +7,8 @@ require_relative "metadata_extractor"
 module SmdCrawler
   class Crawler
     PRODUCT_URL_TEMPLATE = "https://www.sheetmusicdirect.com/se/ID_No/%s/Product.aspx"
-    # The only fields a re-crawl may rewrite on a score we already hold: the
-    # volatile commercial ones, plus title (no hub is built from it; group_key
-    # re-derives nightly).
-    #
-    # Everything else is excluded because the crawl value is *upstream* of our
-    # enrichment. composer is the costly one: SMD gives "Billie Eilish", and
-    # NormalizeComposersJob rewrites it to "Eilish, Billie", which is the form
-    # ComposerMapping and the composer hubs are built on. Re-writing the raw
-    # value reverts that for 212,601 rows, and nothing re-normalizes on a
-    # schedule — NormalizeComposersJob is not in recurring.yml.
+    # Everything else is upstream of our enrichment — rewriting composer here
+    # reverts NormalizeComposersJob and drops scores off their composer hub.
     REFRESHABLE = %i[
       title price_usd original_price_usd rating review_count page_count
       is_interactive last_crawled_at
@@ -37,21 +29,12 @@ module SmdCrawler
 
       metadata = @extractor.extract(result[:body])
 
-      # HTTP 200 does not mean we were served a product. Cloudflare's JS-challenge
-      # interstitial is a 200 with no ld+json, so the extractor returns all-nil and
-      # save_product would raise on the title presence validation — aborting the
-      # entire run, and leaving the offending row unstamped so it sorts to the head
-      # of the queue and kills every subsequent run too.
+      # Cloudflare's challenge interstitial is a 200 with no ld+json.
       return { success: false, error: "unparseable" } unless product?(metadata)
 
       { success: true, metadata: metadata }
     end
 
-    # Save product metadata to Score model.
-    #
-    # A score we already hold is only ever updated in REFRESHABLE fields. That is
-    # deliberately not opt-in: every crawl path lands here, so making it a flag
-    # would mean any caller that forgot it silently reverts our enrichment.
     def save_product(metadata)
       score = Score.find_or_initialize_by(
         external_id: metadata[:external_id],
@@ -85,10 +68,7 @@ module SmdCrawler
         last_crawled_at: Time.current
       }
 
-      # .compact so a field SMD did not ship this time cannot null out good data.
-      # A partial parse (ld+json present but `offers` missing) would otherwise
-      # write price_usd = NULL over a correct price *and* stamp last_crawled_at,
-      # hiding the damage for a full refresh cycle.
+      # .compact: a partial parse must not null out a good price.
       attributes = attributes.slice(*REFRESHABLE).compact if score.persisted?
 
       score.assign_attributes(attributes)
@@ -169,8 +149,6 @@ module SmdCrawler
 
     private
 
-    # The two fields Score cannot be saved without. Their absence means we were
-    # served something other than a product page.
     def product?(metadata)
       metadata[:external_id].present? && metadata[:title].present?
     end

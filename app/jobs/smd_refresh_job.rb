@@ -1,11 +1,8 @@
 # frozen_string_literal: true
 
-# Re-crawls SMD scores we already have, stalest first.
-#
-# Distinct from SmdCrawlJob, which walks SMD's sitemaps to *discover* products.
-# Refreshing needs no discovery — every external_id is already in the database —
-# so this iterates the DB directly, ordered by last_crawled_at. That ordering is
-# what makes a chunked run resumable: each run picks up where the last stopped.
+# Re-crawls SMD scores we already have, stalest first. SmdCrawlJob discovers new
+# products from SMD's sitemaps; this needs no discovery, so it walks the DB by
+# last_crawled_at, which is what makes a chunked run resumable.
 class SmdRefreshJob < ApplicationJob
   queue_as :default
 
@@ -13,8 +10,6 @@ class SmdRefreshJob < ApplicationJob
 
   VALID_SCOPES = %i[all representatives].freeze
 
-  # SMD blocking us, or the bypass hanging, looks like an unbroken run of
-  # failures. Without this the run burns its whole limit re-proving that.
   MAX_CONSECUTIVE_FAILURES = 25
 
   # @param limit [Integer] how many scores to refresh this run
@@ -47,11 +42,8 @@ class SmdRefreshJob < ApplicationJob
         Rails.logger.warn("SmdRefreshJob: #{score.external_id} failed: #{result[:error]}")
       end
 
-      # Stamp the row we *asked for*, always. save_product keys on the external_id
-      # in the response, which differs when SMD redirects a discontinued product
-      # to its replacement — that updates a different row and would leave this one
-      # unstamped at the head of the queue, re-crawled on every run forever.
-      # Failures must be stamped for the same reason.
+      # The row we asked for, not the one save_product matched — SMD redirects
+      # discontinued products, and an unstamped row blocks the queue head forever.
       score.update_column(:last_crawled_at, Time.current)
 
       if consecutive_failures >= MAX_CONSECUTIVE_FAILURES

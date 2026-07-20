@@ -105,6 +105,16 @@ Copy that shape when adding new aliases for recurring operations.
 
 Default to none. Trust well-named identifiers and types to carry the meaning. Only write a comment when the WHY is non-obvious — a hidden constraint, a workaround, a subtle invariant. Never narrate what the code does; never inline what an enum value means when the name already says it; never write multi-paragraph docstrings. If you're unsure, leave it out.
 
+**A comment is one line.** If it needs a paragraph, it belongs in the commit message or a doc, not the source. Specifically do not write:
+
+- **Justifications for a choice** — "SATB stays because the abbreviation is common in German sheet music", "sort: false keeps the curated order". The code already shows the choice; the reasoning is commit-message material.
+- **Restatements of the identifier** — `@ensemble_name stays the raw category, only the display copy is localized` above `@ensemble_name` / `@ensemble_display_name`.
+- **Background narration** — how a bug arose, how many rows it hit, what a past migration did.
+
+Keep the one-liner only where a future reader would otherwise reintroduce a bug (`# Cloudflare's challenge interstitial is a 200 with no ld+json`).
+
+Same for tests: **only necessary specs.** One example per behaviour, not per assertion, and no spec that a neighbouring spec already covers.
+
 ## Pre-push checks (run before `bin/kamal deploy`)
 
 CI runs these; failing locally first saves the round-trip:

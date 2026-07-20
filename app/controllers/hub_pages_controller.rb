@@ -30,8 +30,10 @@ class HubPagesController < ApplicationController
   end
 
   def ensembles_index
-    @ensembles = HubDataBuilder.ensembles
-    @ensemble_groups = HubDataBuilder.ensemble_groups
+    @ensembles = localize_hub_items(:ensembles, HubDataBuilder.ensembles)
+    @ensemble_groups = HubDataBuilder.ensemble_groups.transform_values do |items|
+      localize_hub_items(:ensembles, items, sort: false)
+    end
     set_index_meta(:ensembles)
   end
 
@@ -177,6 +179,9 @@ class HubPagesController < ApplicationController
 
   def ensemble
     @ensemble_name = find_or_404(:ensembles, params[:slug])
+    @ensemble_display_name = helpers.translate_hub_name(
+      :ensembles, { slug: params[:slug], name: @ensemble_name }
+    )
 
     # Base scope for this ensemble category — deduplicated so each card is one
     # arrangement (rep or ungrouped), not a part dump.
@@ -205,7 +210,7 @@ class HubPagesController < ApplicationController
     # Dynamic filter options (faceted)
     @filter_options = build_ensemble_filter_options(base_scope, params)
 
-    set_detail_meta(:ensemble, @ensemble_name)
+    set_detail_meta(:ensemble, @ensemble_display_name)
   end
 
   # Combined pages
@@ -627,10 +632,10 @@ class HubPagesController < ApplicationController
       count: @total_count)
   end
 
-  # Adds translated display names and sorts by locale
-  def localize_hub_items(type, items)
-    items.map do |item|
+  def localize_hub_items(type, items, sort: true)
+    localized = items.map do |item|
       item.merge(display_name: helpers.translate_hub_name(type, item))
-    end.sort_by { |item| item[:display_name].downcase }
+    end
+    sort ? localized.sort_by { |item| item[:display_name].downcase } : localized
   end
 end

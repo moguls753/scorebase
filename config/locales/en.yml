@@ -622,6 +622,28 @@ en:
       modern: "Modern"
       contemporary: "Contemporary"
 
+    ensemble_names:
+      concert_band: "Concert Band"
+      jazz_ensemble: "Jazz Ensemble"
+      orchestra: "Orchestra"
+      marching_band: "Marching Band"
+      full_orchestra: "Full Orchestra"
+      concert_band_flex_band: "Concert Band: Flex-Band"
+      guitar_ensemble: "Guitar Ensemble"
+      ukulele_ensemble: "Ukulele Ensemble"
+      satb_choir: "SATB Choir"
+      2_part_choir: "2-Part Choir"
+      ssa_choir: "SSA Choir"
+      sab_choir: "SAB Choir"
+      3_part_mixed_choir: "3-Part Mixed Choir"
+      choir: "Choir"
+      ttbb_choir: "TTBB Choir"
+      unison_choir: "Unison Choir"
+      3_part_treble_choir: "3-Part Treble Choir"
+      tb_choir: "TB Choir"
+      ssaa_choir: "SSAA Choir"
+      tbb_choir: "TBB Choir"
+
   # Pro Landing Page
   pro:
     meta_title: "Sheet Music Search by Description — ScoreBase Smart Search"

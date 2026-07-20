@@ -100,11 +100,13 @@ RSpec.describe "HubPages" do
       expect(response.body).to include("SATB Choir")
     end
 
-    it "renders the German variant" do
+    it "renders the German variant with translated ensemble names" do
       12.times { create(:score, :smd, smd_category: "Concert Band") }
 
       get ensembles_path(locale: :de)
       expect(response).to have_http_status(:success)
+      expect(response.body).to include("Blasorchester")
+      expect(response.body).not_to include("Concert Band")
     end
   end
 
@@ -146,12 +148,12 @@ RSpec.describe "HubPages" do
       expect(response.body).not_to include("JD Chart")
     end
 
-    it "renders the German variant" do
+    it "renders the German variant with a translated heading" do
       12.times { create(:score, :smd, smd_category: "Concert Band") }
 
       get ensemble_path(slug: "concert-band", locale: :de)
       expect(response).to have_http_status(:success)
-      expect(response.body).to include("Concert Band Noten")
+      expect(response.body).to include("Blasorchester Noten")
     end
 
     it "returns 404 for a below-threshold category" do

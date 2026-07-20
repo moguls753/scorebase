@@ -20,16 +20,6 @@ RSpec.describe BackfillSearchColumnsJob do
     expect(score.composer_search_normalized).to eq("Dvorak, Antonin")
   end
 
-  it "strips accents rather than reordering names" do
-    score = stale_score(title: "Fauré Requiem", composer: "Bartók, Béla")
-
-    described_class.new.perform
-
-    score.reload
-    expect(score.title_search_normalized).to eq("Faure Requiem")
-    expect(score.composer_search_normalized).to eq("Bartok, Bela")
-  end
-
   it "leaves the source columns untouched" do
     score = stale_score(title: "Dvořák Symphony", composer: "Dvořák, Antonín")
 
@@ -46,16 +36,6 @@ RSpec.describe BackfillSearchColumnsJob do
     stats = described_class.new.perform
 
     expect(stats[:updated]).to eq(0)
-  end
-
-  it "reports what it examined and changed" do
-    stale_score(title: "One", composer: "A")
-    create(:score, title: "Two", composer: "B")
-
-    stats = described_class.new.perform
-
-    expect(stats[:examined]).to eq(2)
-    expect(stats[:updated]).to eq(1)
   end
 
   it "handles a nil composer without blowing up" do

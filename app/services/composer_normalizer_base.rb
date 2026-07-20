@@ -166,10 +166,7 @@ class ComposerNormalizerBase
     Score.composer_pending.distinct.pluck(:composer)
   end
 
-  # update_all is what makes this bulk normalization fast, but it skips the
-  # before_save that derives composer_search_normalized — which is the column the
-  # FTS trigger indexes. Deriving it here keeps the search copy honest without
-  # giving up the bulk write.
+  # update_all skips the before_save that derives composer_search_normalized.
   def normalized_attributes(name)
     {
       composer: name,

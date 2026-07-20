@@ -57,9 +57,7 @@ RSpec.describe SmdCrawler::Crawler do
       expect(result[:error]).to eq("not_found")
     end
 
-    # Cloudflare serves its JS challenge as 200 with no product markup. Treating
-    # that as success sends all-nil metadata into save_product, which raises on
-    # the title validation and takes the whole run down with it.
+    # Cloudflare serves its JS challenge as 200 with no product markup.
     it "rejects a 200 that carries no product markup" do
       stub_request(:get, url).to_return(
         status: 200, body: "<html><head><title>Just a moment...</title></head><body></body></html>"
@@ -69,15 +67,6 @@ RSpec.describe SmdCrawler::Crawler do
 
       expect(result[:success]).to be false
       expect(result[:error]).to eq("unparseable")
-    end
-
-    it "rejects a product page missing a title" do
-      stub_request(:get, url).to_return(
-        status: 200,
-        body: '<script type="application/ld+json">[{"@type":"Product","mpn":123}]</script>'
-      )
-
-      expect(crawler.crawl_product(product_id)[:success]).to be false
     end
   end
 

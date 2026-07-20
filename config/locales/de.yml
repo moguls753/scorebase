@@ -622,6 +622,28 @@ de:
       modern: "Moderne"
       contemporary: "Zeitgenössisch"
 
+    ensemble_names:
+      concert_band: "Blasorchester"
+      jazz_ensemble: "Jazz-Ensemble"
+      orchestra: "Orchester"
+      marching_band: "Marching Band"
+      full_orchestra: "Sinfonieorchester"
+      concert_band_flex_band: "Blasorchester: Flex-Band"
+      guitar_ensemble: "Gitarrenensemble"
+      ukulele_ensemble: "Ukulelen-Ensemble"
+      satb_choir: "SATB-Chor"
+      2_part_choir: "Zweistimmiger Chor"
+      ssa_choir: "SSA-Chor"
+      sab_choir: "SAB-Chor"
+      3_part_mixed_choir: "Dreistimmiger gemischter Chor"
+      choir: "Chor"
+      ttbb_choir: "TTBB-Chor"
+      unison_choir: "Einstimmiger Chor"
+      3_part_treble_choir: "Dreistimmiger Frauenchor"
+      tb_choir: "TB-Chor"
+      ssaa_choir: "SSAA-Chor"
+      tbb_choir: "TBB-Chor"
+
   # Pro Landing Page
   pro:
     meta_title: "Notensuche per Beschreibung — ScoreBase Smart Search"
