@@ -33,6 +33,7 @@
           data: {
             controller: "smd-redirect",
             smd_redirect_url_value: smd_redirect_path(smd_id: score.external_id),
+            smd_redirect_score_id_value: score.id,
             action: "click->smd-redirect#go"
           } do %>
         <span class="dl-label"><%= smd_cta_label(score) %></span>
@@ -84,6 +85,7 @@
           data: {
             controller: "smd-redirect",
             smd_redirect_url_value: smd_redirect_path(smd_id: score.external_id),
+            smd_redirect_score_id_value: score.id,
             action: "click->smd-redirect#go"
           } do %>
         <span class="dl-label"><%= smd_cta_label(score) %></span>

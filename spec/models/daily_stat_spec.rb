@@ -71,7 +71,7 @@ RSpec.describe DailyStat, type: :model do
     end
 
     context 'internal-referrer filtering' do
-      it 'excludes internal-referrer visits from visits/countries/devices/referrers but keeps their pageviews and SMD clicks' do
+      it 'excludes internal-referrer visits from visits/countries/devices/referrers and their SMD clicks, but keeps their pageviews' do
         external = make_visit(country: "DE", browser: "Chrome", device_type: "desktop",
                               referring_domain: "google.com", user_agent: "ext-ua")
         internal_a = make_visit(country: "US", browser: "Firefox", device_type: "mobile",
@@ -95,12 +95,12 @@ RSpec.describe DailyStat, type: :model do
         expect(ds.referrers).to eq("google.com" => 1)
         expect(ds.user_agents).to eq("ext-ua" => 1)
 
-        # but content engagement and revenue events stay unfiltered
+        # content engagement stays unfiltered
         expect(ds.paths).to eq("/scores" => 1, "/scores/123" => 1, "/scores/456" => 1)
-        expect(ds.smd_clicks_by_score).to eq("7" => 1)
 
-        # ...while converting_visits tracks the filtered denominator, so the
-        # internal visit's click does not count.
+        # ...but revenue events share converting_visits' filtered denominator,
+        # so the internal visit's click is excluded from both.
+        expect(ds.smd_clicks_by_score).to eq({})
         expect(ds.converting_visits).to eq(0)
       end
     end
@@ -248,7 +248,7 @@ RSpec.describe DailyStat, type: :model do
       stat = DailyStat.find_by!(date: date)
 
       expect(stat.visits).to eq(2)
-      expect(stat.total_smd_clicks).to eq(6)
+      expect(stat.total_smd_clicks).to eq(1)
       expect(stat.converting_visits).to eq(1)
       expect(stat.smd_conversion_rate).to eq(50.0)
     end

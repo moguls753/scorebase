@@ -217,6 +217,14 @@ RSpec.describe 'Scores' do
         expect(crumbs['itemListElement'].last['name']).to eq('Crazy Train')
       end
 
+      it 'wires the SMD buy button to the client-side click-tracking hook' do
+        smd = create(:score, :smd, title: 'Crazy Train', price_usd: 64.79)
+
+        get score_path(id: smd.id)
+
+        expect(response.body).to include(%(data-smd-redirect-score-id-value="#{smd.id}"))
+      end
+
       it 'includes the SMD category in the meta description' do
         smd = create(:score, :smd, title: 'Fanfare', smd_category: 'Concert Band', instruments: 'Trumpet')
 

@@ -54,11 +54,11 @@ class DailyStat < ApplicationRecord
   # `visits` (and visit-derived breakdowns: countries, browsers, devices,
   # user_agents, referrers) count *external arrivals only* — visits whose
   # referring_domain is NULL (direct entry) or not one of INTERNAL_HOSTS.
-  # `paths` and `smd_clicks_by_score` stay unfiltered: per-page engagement
-  # and revenue events are meaningful regardless of how the user got there.
-  # `converting_visits` must stay filtered to match the `visits` denominator —
-  # ~89% of click events happen on internal-referrer visits, so dividing the
-  # unfiltered click count by `visits` yields rates well over 100%.
+  # `paths` stays unfiltered: per-page engagement is meaningful regardless of
+  # how the user got there. `smd_clicks_by_score` and `converting_visits` both
+  # count external clicks only, sharing the `visits` denominator — historical
+  # rows are polluted by server-side clicks on internal-referrer visits that
+  # would otherwise push conversion rates well over 100%.
   def self.aggregate_for!(date)
     range           = date.beginning_of_day..date.end_of_day
     all_visits      = Ahoy::Visit.where(started_at: range)
@@ -86,7 +86,7 @@ class DailyStat < ApplicationRecord
       devices:             external_visits.where.not(device_type: nil).group(:device_type).count,
       browsers:            external_visits.where.not(browser: nil).group(:browser).count,
       user_agents:         external_visits.where.not(user_agent: nil).group("substr(user_agent, 1, 100)").count,
-      smd_clicks_by_score: clicks.group("json_extract(properties, '$.score_id')").count,
+      smd_clicks_by_score: external_clicks.group("json_extract(properties, '$.score_id')").count,
       cross_link_visits_by_score: cross_links.group("json_extract(properties, '$.score_id')").count,
       returning_rates:     returning_rates_for(date)
     )

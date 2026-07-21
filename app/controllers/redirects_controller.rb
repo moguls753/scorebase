@@ -1,4 +1,4 @@
-# Handles affiliate redirects with click tracking
+# Centralizes the SMD affiliate ID behind a robots-disallowed /go/ redirect.
 class RedirectsController < ApplicationController
   def smd
     smd_id = params[:smd_id]
@@ -16,16 +16,15 @@ class RedirectsController < ApplicationController
       return
     end
 
-    # Bot/prefetch exclusion is handled by Ahoy.exclude_method + device_detector
-    score = Score.find_by(external_id: smd_id, source: "smd")
-    ahoy.track "SMD click", score_id: score.id if score
-
+    # The buy click is tracked client-side (smd_redirect_controller.js) so only
+    # real user clicks count — a bare GET to /go/ (bots/prefetch) must not track.
     # 302 (not 301) - temporary redirect so we can change affiliate ID or tracking later
     redirect_to smd_product_url(smd_id), allow_other_host: true
   end
 
   private
 
+  # Depends on the Referer header being sent — a global Referrer-Policy: no-referrer would 403 every buy click.
   def valid_internal_referrer?
     return false if request.referer.blank?
 
