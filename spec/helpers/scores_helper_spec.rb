@@ -130,6 +130,41 @@ RSpec.describe ScoresHelper, type: :helper do
     end
   end
 
+  describe '#score_json_ld' do
+    def ld(score)
+      JSON.parse(helper.score_json_ld(score))
+    end
+
+    it 'emits a Product Offer that names SMD as seller, with price, brand, and a fallback description' do
+      score = build(:score, :smd, brand: 'Hal Leonard', description: nil)
+      data = ld(score)
+
+      expect(data['@type']).to eq('Product')
+      expect(data['offers']['seller']['name']).to eq('Sheet Music Direct')
+      expect(data['offers']['price']).to eq('7.19')
+      expect(data['offers']['priceCurrency']).to eq('USD')
+      expect(data['brand']['name']).to eq('Hal Leonard')
+      expect(data['description']).to be_present
+    end
+
+    it 'never emits review or aggregateRating for a commercial score' do
+      score = build(:score, :smd)
+      data = ld(score)
+
+      expect(data).not_to have_key('review')
+      expect(data).not_to have_key('aggregateRating')
+    end
+
+    it 'emits a free MusicComposition with no Offer and accessible-for-free' do
+      score = build(:score)
+      data = ld(score)
+
+      expect(data['@type']).to eq('MusicComposition')
+      expect(data).not_to have_key('offers')
+      expect(data['isAccessibleForFree']).to be true
+    end
+  end
+
   describe '#score_card_badge' do
     it 'returns nil for non-SMD scores (free scores have no badge)' do
       score = build(:score)

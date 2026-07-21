@@ -547,8 +547,9 @@ module ScoresHelper
   def score_json_ld(score)
     # Commercial SMD pages are Products carrying a price Offer (earns price rich
     # results for buy-intent searches); free scores stay public-domain
-    # MusicCompositions. Never emit review/aggregateRating — there is no real
-    # review data and fabricating it risks a site-wide structured-data penalty.
+    # MusicCompositions. The Offer names SMD as seller (ScoreBase is an affiliate,
+    # not the merchant). Never emit review/aggregateRating — SMD's ratings aren't
+    # ScoreBase's own, and passing them off risks a site-wide structured-data penalty.
     commercial = score.smd? && score.price_usd.to_f.positive?
 
     data = {
@@ -567,12 +568,14 @@ module ScoresHelper
 
     if commercial
       data["image"] = score.thumbnail if score.thumbnail.present?
+      data["brand"] = { "@type" => "Brand", "name" => score.brand } if score.brand.present?
       data["offers"] = {
         "@type" => "Offer",
         "price" => format("%.2f", score.price_usd),
         "priceCurrency" => "USD",
         "availability" => "https://schema.org/InStock",
-        "url" => request.original_url
+        "url" => request.original_url,
+        "seller" => { "@type" => "Organization", "name" => "Sheet Music Direct" }
       }
     end
 
@@ -583,7 +586,11 @@ module ScoresHelper
     } if score.composer.present?
 
     # Description
-    data["description"] = score.description.truncate(160) if score.description.present?
+    if score.description.present?
+      data["description"] = score.description.truncate(160)
+    elsif commercial
+      data["description"] = score_meta_description(score)
+    end
 
     # Genre (array including period for broader discovery)
     # Musicians search "Baroque motet" or "Romantic piano"
