@@ -236,6 +236,16 @@ RSpec.describe 'Scores' do
         expect(response.body).not_to include('View on SMD')
       end
 
+      it 'appends the catalog number to the title, h1 and meta description of an IMSLP score' do
+        score = create(:score, :imslp, title: 'Magnificat Fugue', composer: 'Pachelbel', catalog_number: 'P.257')
+
+        get score_path(id: score.id)
+
+        expect(response.body).to include('<title>Magnificat Fugue, P.257 - Pachelbel | ScoreBase</title>')
+        expect(response.body).to include('Magnificat Fugue, P.257</h1>')
+        expect(response.body).to match(/<meta name="description"[^>]*Magnificat Fugue, P\.257 by Pachelbel/)
+      end
+
       it 'renders the German priced CTA on the /de SMD page' do
         smd = create(:score, :smd, title: 'Crazy Train', price_usd: 64.79)
 
@@ -299,6 +309,21 @@ RSpec.describe 'Scores' do
           get score_path(id: edition.id, src: 'xlink'),
               headers: browser_headers.merge('HTTP_X_SEC_PURPOSE' => 'prefetch')
         }.not_to change { Ahoy::Event.count }
+      end
+    end
+
+    describe 'gallery preview image' do
+      it 'renders the stored thumbnail attachment when thumbnail_url is absent (CPDL/OpenScore)' do
+        # Real attachment so has_thumbnail? is genuinely true; stub only the URL (Disk service
+        # can't generate one in test). object-contain is unique to the gallery image branch.
+        allow_any_instance_of(Score).to receive(:thumbnail).and_return('https://cdn.test/preview.webp')
+        score = create(:score, :cpdl, thumbnail_url: nil)
+        score.thumbnail_image.attach(io: StringIO.new('x'), filename: 't.webp', content_type: 'image/webp')
+
+        get score_path(id: score.id)
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('object-contain')
       end
     end
   end

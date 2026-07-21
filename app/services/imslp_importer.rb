@@ -793,7 +793,9 @@ class ImslpImporter
       mid_path: midi_file&.dig(:filename),
 
       thumbnail_url: thumb_url,
-      cpdl_number: nil
+      cpdl_number: nil,
+      catalog_number: (parsed[:opus] if CatalogNumberExtractor.catalog_shaped?(parsed[:opus])) ||
+        CatalogNumberExtractor.extract(parsed[:title] || intvals["worktitle"], work_entry["permlink"])
     }
   end
 

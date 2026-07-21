@@ -1,137 +1,143 @@
 # frozen_string_literal: true
 
 namespace :gallery do
-  desc "Recover ScorePages from orphaned attachments"
+  desc "Recover ScorePages from orphaned attachments (batched, resumable, memory-bounded)"
   task recover: :environment do
+    conn = ActiveRecord::Base.connection
+    batch = (ENV["BATCH"] || 5000).to_i
+    dry_run = ENV["DRY_RUN"].present?
+
+    # Orphan = a ScorePage image whose owning score_pages row is gone (the 2026-05-17
+    # migration cascade wiped every row; the blobs survived). record_id points nowhere.
+    orphaned_where = "asa.record_type = 'ScorePage' AND asa.record_id NOT IN (SELECT id FROM score_pages)"
+
     puts "=" * 60
-    puts "Gallery Recovery"
+    puts "Gallery Recovery (batch=#{batch}#{dry_run ? ', DRY_RUN' : ''})"
     puts "=" * 60
 
-    existing_score_ids = Score.pluck(:id).to_set
-    existing_pages = ScorePage.pluck(:score_id, :page_number).to_set
+    total = conn.select_value("SELECT COUNT(*) FROM active_storage_attachments asa WHERE #{orphaned_where}").to_i
+    puts "Orphaned ScorePage attachments: #{total}"
 
-    # ScorePages that already have an attachment - don't relink to these
-    pages_with_attachments = ActiveStorage::Attachment
-      .where(record_type: "ScorePage", name: "image", record_id: ScorePage.select(:id))
-      .pluck(:record_id)
-      .to_set
-    pages_needing_attachment = ScorePage.where.not(id: pages_with_attachments).pluck(:score_id, :page_number).to_set
+    if total.zero?
+      puts "Nothing to recover."
+      next
+    end
 
-    orphaned = ActiveRecord::Base.connection.execute(<<-SQL).to_a
-      SELECT asa.id, asa.blob_id, asb.filename, asb.byte_size
-      FROM active_storage_attachments asa
-      JOIN active_storage_blobs asb ON asa.blob_id = asb.id
-      WHERE asa.record_type = 'ScorePage'
-        AND asa.record_id NOT IN (SELECT id FROM score_pages)
-      ORDER BY asb.byte_size DESC
-    SQL
+    if dry_run
+      keepers = conn.select_value(<<~SQL).to_i
+        SELECT COUNT(DISTINCT asb.filename)
+        FROM active_storage_attachments asa
+        JOIN active_storage_blobs asb ON asb.id = asa.blob_id
+        WHERE #{orphaned_where}
+      SQL
+      puts "DRY_RUN — would keep ~#{keepers} pages and delete ~#{total - keepers} duplicate attachments. No writes."
+      next
+    end
 
-    puts "Found #{orphaned.size} orphaned attachments"
+    # Phase A — collapse duplicates: keep the largest attachment per filename, delete the rest.
+    # Chunked DELETE so a single statement is never unbounded.
+    dupes = 0
+    loop do
+      n = conn.exec_delete(<<~SQL)
+        DELETE FROM active_storage_attachments
+        WHERE id IN (
+          SELECT id FROM (
+            SELECT asa.id,
+                   ROW_NUMBER() OVER (PARTITION BY asb.filename ORDER BY asb.byte_size DESC, asa.id) AS rn
+            FROM active_storage_attachments asa
+            JOIN active_storage_blobs asb ON asb.id = asa.blob_id
+            WHERE #{orphaned_where}
+          ) WHERE rn > 1
+          LIMIT #{batch}
+        )
+      SQL
+      dupes += n
+      print "\r  deduped: #{dupes}"
+      break if n.zero?
+    end
+    puts
 
-    to_create = {}      # key => attachment_id (single, largest file)
-    to_relink = {}      # key => attachment_id (single, largest file)
-    duplicates = []     # attachment_ids to delete (extras)
-    skipped = 0
+    # Phase B — recreate ScorePages and relink their attachment. Page by attachment id so
+    # skipped rows (bad filename / deleted score) advance the cursor and can't loop forever;
+    # commit per batch so an interruption loses only the current batch and a rerun resumes.
+    created = relinked = skipped = 0
+    last_id = 0
+    loop do
+      rows = conn.select_all(<<~SQL).to_a
+        SELECT asa.id AS att_id, asb.filename AS filename
+        FROM active_storage_attachments asa
+        JOIN active_storage_blobs asb ON asb.id = asa.blob_id
+        WHERE #{orphaned_where} AND asa.id > #{last_id}
+        ORDER BY asa.id
+        LIMIT #{batch}
+      SQL
+      break if rows.empty?
+      last_id = rows.last["att_id"]
 
-    orphaned.each do |row|
-      filename = row["filename"]
-      unless filename =~ /^(\d+)_page_(\d+)\.webp$/
-        skipped += 1
-        next
+      parsed = rows.filter_map do |r|
+        m = r["filename"].to_s.match(/\A(\d+)_page_(\d+)\.webp\z/)
+        next (skipped += 1) && nil unless m
+
+        { att_id: r["att_id"], score_id: m[1].to_i, page: m[2].to_i }
       end
+      next if parsed.empty?
 
-      score_id = $1.to_i
-      page_num = $2.to_i
-      key = [score_id, page_num]
+      live = Score.where(id: parsed.map { |p| p[:score_id] }.uniq).pluck(:id).to_set
+      valid = parsed.select { |p| live.include?(p[:score_id]) }
+      skipped += parsed.size - valid.size
+      next if valid.empty?
 
-      unless existing_score_ids.include?(score_id)
-        skipped += 1
-        next
-      end
+      ActiveRecord::Base.transaction do
+        keys = valid.map { |p| [ p[:score_id], p[:page] ] }.uniq
+        lookup = ScorePage.where(score_id: keys.map(&:first).uniq)
+                          .pluck(:score_id, :page_number, :id)
+                          .each_with_object({}) { |(sid, pg, id), h| h[[ sid, pg ]] = id }
 
-      if existing_pages.include?(key)
-        # ScorePage exists
-        if pages_needing_attachment.include?(key)
-          # ScorePage has no attachment - relink one
-          if to_relink.key?(key)
-            duplicates << row["id"]
+        to_create = keys.reject { |k| lookup.key?(k) }
+        if to_create.any?
+          now = Time.current
+          ScorePage.insert_all(to_create.map { |sid, pg| { score_id: sid, page_number: pg, created_at: now, updated_at: now } })
+          ScorePage.where(score_id: to_create.map(&:first).uniq)
+                   .pluck(:score_id, :page_number, :id)
+                   .each { |sid, pg, id| lookup[[ sid, pg ]] = id }
+          created += to_create.size
+        end
+
+        # A page that already carries an image keeps it; the orphan for that page is redundant.
+        attached = ActiveStorage::Attachment
+                   .where(record_type: "ScorePage", name: "image", record_id: lookup.values)
+                   .pluck(:record_id).to_set
+
+        relink = []
+        drop = []
+        valid.each do |p|
+          pid = lookup[[ p[:score_id], p[:page] ]]
+          if pid && !attached.include?(pid)
+            relink << [ p[:att_id], pid ]
+            attached << pid
           else
-            to_relink[key] = row["id"]
+            drop << p[:att_id]
           end
-        else
-          # ScorePage already has attachment - this is a duplicate
-          duplicates << row["id"]
         end
-      else
-        # Need new ScorePage - pick largest file (ordered by byte_size DESC)
-        if to_create.key?(key)
-          duplicates << row["id"]
-        else
-          to_create[key] = row["id"]
+
+        relink.each_slice(1000) do |slice|
+          cases = slice.map { |aid, pid| "WHEN #{aid} THEN #{pid}" }.join(" ")
+          ids = slice.map(&:first).join(",")
+          conn.execute("UPDATE active_storage_attachments SET record_id = CASE id #{cases} END WHERE id IN (#{ids})")
         end
-      end
-    end
-
-    puts "\nAnalysis:"
-    puts "  ScorePages to create: #{to_create.size}"
-    puts "  Attachments to relink: #{to_relink.size}"
-    puts "  Duplicate attachments to delete: #{duplicates.size}"
-    puts "  Skipped (Score deleted or bad filename): #{skipped}"
-
-    if to_create.empty? && to_relink.empty?
-      puts "\nNothing to recover."
-      next
-    end
-
-    print "\nProceed? (y/N): "
-    unless $stdin.gets&.strip&.downcase == "y"
-      puts "Aborted."
-      next
-    end
-
-    ActiveRecord::Base.transaction do
-      # 1. Create new ScorePages
-      if to_create.any?
-        puts "\nCreating #{to_create.size} ScorePages..."
-        now = Time.current
-        new_pages = to_create.keys.map do |score_id, page_num|
-          { score_id: score_id, page_number: page_num, created_at: now, updated_at: now }
-        end
-        ScorePage.insert_all(new_pages)
+        ActiveStorage::Attachment.where(id: drop).delete_all if drop.any?
+        relinked += relink.size
       end
 
-      # 2. Build lookup
-      page_lookup = ScorePage.pluck(:score_id, :page_number, :id)
-                             .each_with_object({}) { |(sid, pn, id), h| h[[sid, pn]] = id }
-
-      # 3. Relink attachments
-      all_updates = []
-      to_create.each { |key, aid| all_updates << [aid, page_lookup[key]] }
-      to_relink.each { |key, aid| all_updates << [aid, page_lookup[key]] }
-
-      puts "Relinking #{all_updates.size} attachments..."
-      all_updates.each_slice(1000).with_index do |batch, i|
-        cases = batch.map { |aid, spid| "WHEN #{aid} THEN #{spid}" }.join(" ")
-        ids = batch.map(&:first).join(",")
-        ActiveRecord::Base.connection.execute(<<-SQL)
-          UPDATE active_storage_attachments
-          SET record_id = CASE id #{cases} END
-          WHERE id IN (#{ids})
-        SQL
-        print "\r  #{[(i + 1) * 1000, all_updates.size].min}/#{all_updates.size}"
-      end
-      puts
-
-      # 4. Delete duplicate attachments
-      if duplicates.any?
-        puts "Deleting #{duplicates.size} duplicate attachments..."
-        ActiveStorage::Attachment.where(id: duplicates).delete_all
-      end
+      print "\r  recovered: #{relinked} pages (#{created} new score_pages)"
     end
+    puts
 
     puts "\nDone!"
-    puts "  ScorePages now: #{ScorePage.count}"
-    puts "  Scores with galleries: #{Score.joins(:score_pages).distinct.count}"
+    puts "  score_pages now:       #{ScorePage.count}"
+    puts "  scores with galleries: #{Score.joins(:score_pages).distinct.count}"
+    puts "  duplicates deleted:    #{dupes}"
+    puts "  skipped (deleted score / bad filename): #{skipped}"
   end
 
   desc "Delete orphaned attachments and purge ALL unattached blobs from R2"

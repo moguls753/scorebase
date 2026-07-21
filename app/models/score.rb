@@ -12,6 +12,7 @@
 #  beat_count                 :integer
 #  brand                      :string
 #  cadence_types              :text
+#  catalog_number             :string
 #  chord_count                :integer
 #  chromatic_note_count       :integer
 #  chromatic_ratio            :float
@@ -800,6 +801,10 @@ class Score < ApplicationRecord
   # SMD score with valid external_id (can link to purchase)
   def smd_purchasable?
     smd? && external_id.present?
+  end
+
+  def display_title
+    [title, catalog_number.presence].compact.join(", ")
   end
 
   # Derived from has_vocal (set by LLM normalizer)

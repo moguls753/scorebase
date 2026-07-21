@@ -121,10 +121,11 @@
         class: "w-full h-full object-contain bg-[var(--color-bg)]" %>
   </div>
 
-<% elsif score.thumbnail_url.present? %>
-  <%# Single preview image (no gallery generated yet) %>
+<% elsif score.has_thumbnail? %>
+  <%# Single preview image (no gallery generated yet).
+      thumbnail_url_original is nil for CPDL/OpenScore (no thumbnail_url); fall back to the stored attachment. %>
   <div class="mm-card overflow-hidden gallery-fixed-height">
-    <%= image_tag score.thumbnail_url_original,
+    <%= image_tag score.thumbnail_url_original || score.thumbnail,
         alt: score.title,
         decoding: "async",
         fetchpriority: "high",

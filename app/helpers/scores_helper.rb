@@ -103,7 +103,7 @@ module ScoresHelper
     if score.smd? && score.smd_category.present?
       "#{score.title} for #{score.smd_category} — Sheet Music"
     else
-      title = score.title.to_s
+      title = score.display_title
       title += " - #{score.composer}" if score.composer.present?
       title
     end
@@ -118,9 +118,9 @@ module ScoresHelper
 
     # Title and composer (required)
     if score.composer.present?
-      parts << "#{score.title} by #{score.composer}"
+      parts << "#{score.display_title} by #{score.composer}"
     else
-      parts << score.title
+      parts << score.display_title
     end
 
     # Musical attributes (key, instruments, difficulty, genre for SMD)

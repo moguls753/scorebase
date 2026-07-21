@@ -12,6 +12,7 @@
 #  beat_count                 :integer
 #  brand                      :string
 #  cadence_types              :text
+#  catalog_number             :string
 #  chord_count                :integer
 #  chromatic_note_count       :integer
 #  chromatic_ratio            :float
