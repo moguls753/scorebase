@@ -326,5 +326,16 @@ RSpec.describe 'Scores' do
         expect(response.body).to include('object-contain')
       end
     end
+
+    describe 'language switcher' do
+      it 'links to the unprefixed English URL on a German page, not a /en/ redirect' do
+        score = create(:score, title: 'Test Piece')
+
+        get score_path(id: score.id, locale: 'de')
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).not_to include("/en/scores/#{score.id}")
+      end
+    end
   end
 end
