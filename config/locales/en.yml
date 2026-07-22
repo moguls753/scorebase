@@ -304,6 +304,8 @@ en:
     other_parts: "Other Parts"
     set_label: "Parts"
     professional_editions: "Professional Editions"
+    professional_editions_trust: "Officially licensed · instant PDF"
+    recommended_edition: "Recommended"
 
   # About Page
   about:

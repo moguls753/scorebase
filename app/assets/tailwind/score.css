@@ -475,21 +475,28 @@
 
 /* Commercial/external buy button - teal to distinguish from free downloads */
 .dl-btn--buy {
+  /* .dl-btn--primary's white text (3.74:1 on this bg, 2.49:1 on hover) fails WCAG AA -
+     override with the same verified-safe dark teal-tint used on the hero buy button. */
+  color: #021410;
   background: #0d9488;
   border-color: #0f766e;
-  box-shadow: 3px 3px 0 var(--color-bg-deep);
+  /* --color-bg-deep (1.19:1 against this card's bg) nearly disappears behind teal's
+     muted fill - matches .dl-btn--secondary's reasoning for the same reason: only the
+     vivid --color-accent orange reads fine on --color-bg-deep, muted fills need
+     --color-border's stronger separation (1.5:1+) to stay visible. */
+  box-shadow: 3px 3px 0 var(--color-border);
 }
 
 .dl-btn--buy:hover {
   background: #14b8a6;
   border-color: #0d9488;
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--color-bg-deep);
+  box-shadow: 4px 4px 0 var(--color-border);
 }
 
 .dl-btn--buy:active {
   transform: translate(2px, 2px);
-  box-shadow: 1px 1px 0 var(--color-bg-deep);
+  box-shadow: 1px 1px 0 var(--color-border);
 }
 
 .dl-btn--buy:focus-visible {
@@ -1038,48 +1045,222 @@
   }
 }
 
-/* ── Professional editions (free → SMD cross-links) ─────────────── */
+/* ── Professional editions (free → SMD cross-links) ───────────────
+   Teal ties back to .dl-btn--buy's established "this leads to a paid
+   SMD action" color — orange stays reserved for the free-score CTA. */
 
-.pro-editions__item {
+:root {
+  --pro-editions-teal: #0d9488;
+  --pro-editions-teal-text: #2dd4bf;
+  --pro-editions-teal-hover: #14b8a6;
+  /* Same value as .dl-btn--buy's hardcoded border-color - shared so both buttons'
+     rest-state border (darker than fill) stays in sync. */
+  --pro-editions-teal-dark: #0f766e;
+}
+
+.pro-editions-card {
+  border-top: 3px solid var(--pro-editions-teal);
+}
+
+.pro-editions-card .grouped-parts__header {
+  margin-bottom: 0.25rem;
+}
+
+.pro-editions__trust {
+  margin: 0 0 0.875rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+/* Top match: its own product-like moment with a direct buy action. Buy sits flush
+   right (hero-body's flex:1 pushes it there) to match the price-on-the-right
+   pattern the list rows below already use. */
+.pro-editions__hero {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem;
-  margin: 0 -0.25rem;
-  border-radius: 0.5rem;
-  border: 1px solid transparent;
-  transition: background-color 0.15s ease, border-color 0.15s ease, transform 0.15s ease;
+  gap: 0.875rem;
+  padding: 0.625rem;
+  margin-bottom: 0.625rem;
+  background: linear-gradient(155deg, var(--color-bg-surface), var(--color-bg-card));
+  border: var(--border-width) solid var(--color-border);
+  border-radius: var(--radius-md);
 }
 
-.pro-editions__item:hover {
-  background: var(--color-bg-elevated);
-  border-color: var(--color-border);
-  transform: translateX(2px);
+@media (max-width: 480px) {
+  .pro-editions__hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
-.pro-editions__thumb {
-  width: 2.75rem;
-  height: 3.5rem;
+.pro-editions__hero-media {
   flex-shrink: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pro-editions__hero-thumb {
+  display: block;
+  width: 4.5rem;
+  height: 5.75rem;
   object-fit: cover;
   object-position: top;
-  border-radius: 0.25rem;
-  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  border: var(--border-width) solid var(--color-border);
   background: #fffdf8;
-  box-shadow: 0 2px 8px rgb(0 0 0 / 0.5);
+  /* --color-border, not --color-bg-deep: same near-invisibility issue as the buy
+     buttons had - this thumb sits inside the hero's already-dark gradient panel. */
+  box-shadow: 2px 2px 0 var(--color-border);
   transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
-.pro-editions__item:hover .pro-editions__thumb {
-  transform: scale(1.06) rotate(-1.5deg);
-  box-shadow: 0 4px 12px rgb(0 0 0 / 0.6);
+.pro-editions__hero-media:hover .pro-editions__hero-thumb {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--color-border);
+}
+
+.pro-editions__hero-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.pro-editions__hero-eyebrow {
+  font-family: var(--font-family-display);
+  font-size: 0.6875rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--pro-editions-teal-text);
+  margin-bottom: 0.125rem;
+}
+
+.pro-editions__hero-title {
+  font-family: var(--font-family-display);
+  font-size: 1.0625rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--color-primary);
+  text-decoration: none;
+  line-height: 1.2;
+  transition: color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pro-editions__hero-title:hover {
+  color: var(--pro-editions-teal-text);
+}
+
+.pro-editions__buy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 8px 12px;
+  font-family: var(--font-family-display);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  /* #021410 (not the more obvious near-black #04241f) - verified 5.05:1 against the
+     #0d9488 fill, comfortably clearing WCAG AA's 4.5:1 for this button's 12px bold text. */
+  color: #021410;
+  background: var(--pro-editions-teal);
+  border: var(--border-width) solid var(--pro-editions-teal-dark);
+  border-radius: var(--radius-sm);
+  /* --color-border, not --color-bg-deep: this button sits inside the hero's already-dark
+     gradient panel, where bg-deep (1.19-1.36:1 against it) is nearly invisible - same fix
+     as .dl-btn--buy, same reasoning. */
+  box-shadow: 2px 2px 0 var(--color-border);
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+@media (max-width: 480px) {
+  .pro-editions__buy {
+    align-self: stretch;
+    margin-top: 0.5rem;
+  }
+}
+
+.pro-editions__buy:hover,
+.pro-editions__buy:focus-visible {
+  background: var(--pro-editions-teal-hover);
+  border-color: var(--pro-editions-teal);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--color-border);
+  outline: none;
+}
+
+.pro-editions__buy:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0 var(--color-border);
+}
+
+.pro-editions__list {
+  padding-top: 0.625rem;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+/* Each row splits two destinations: item-link (thumb+title, -> the edition's own
+   ScoreBase page) and item-price (-> direct affiliate SMD buy). .pro-editions__item
+   itself is a plain flex row, not a link - the two children carry their own targets
+   and hover feedback. */
+.pro-editions__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 -0.25rem;
+}
+
+.pro-editions__item-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  border: 1px solid transparent;
+  text-decoration: none;
+  color: inherit;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pro-editions__item-link:hover,
+.pro-editions__item-link:focus-visible {
+  background: var(--color-bg-elevated);
+  border-color: var(--color-border);
+}
+
+.pro-editions__thumb {
+  width: 3.75rem;
+  height: 4.75rem;
+  flex-shrink: 0;
+  object-fit: cover;
+  object-position: top;
+  border-radius: var(--radius-sm);
+  border: var(--border-width) solid var(--color-border);
+  background: #fffdf8;
+  box-shadow: 2px 2px 0 var(--color-border);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.pro-editions__item-link:hover .pro-editions__thumb {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--color-border);
 }
 
 .pro-editions__thumb--empty {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   color: var(--color-border-subtle);
   background: var(--color-bg-elevated);
 }
@@ -1089,30 +1270,65 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-family: var(--font-family-display);
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   color: var(--color-text);
   transition: color 0.15s ease;
 }
 
-.pro-editions__item:hover .pro-editions__title {
-  color: var(--color-accent);
+.pro-editions__item-link:hover .pro-editions__title {
+  color: var(--pro-editions-teal-text);
+}
+
+.pro-editions__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin-top: 0.25rem;
 }
 
 .pro-editions__category {
-  display: block;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  margin-top: 0.125rem;
-  font-size: 0.6875rem;
+  font-size: 0.75rem;
   color: var(--color-text-muted);
 }
 
-.pro-editions__price {
+.pro-editions__grade {
   flex-shrink: 0;
-  font-family: var(--font-family-display);
-  font-size: 0.9375rem;
+  padding: 1px 6px;
+  font-size: 0.625rem;
   font-weight: 700;
-  color: var(--color-accent);
+  letter-spacing: 0.03em;
+  color: var(--color-text-muted);
+  background: var(--color-bg-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-sm);
+}
+
+.pro-editions__item-price {
+  flex-shrink: 0;
+  padding: 0.375rem 0.5rem;
+  font-family: var(--font-family-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--pro-editions-teal-text);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a.pro-editions__item-price:hover,
+a.pro-editions__item-price:focus-visible {
+  background: var(--color-bg-elevated);
+  color: var(--pro-editions-teal-hover);
+}
+
+.pro-editions__item-price--static {
+  cursor: default;
 }

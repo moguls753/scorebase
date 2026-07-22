@@ -39,12 +39,16 @@
   font-weight: 700;
 }
 
-/* Visual interest: refined link hover */
-main a:not(.mm-button):not(.mm-card) {
+/* Visual interest: refined link hover. .dl-btn, .pro-editions__buy, .pro-editions__hero-title
+   and .pro-editions__item-price are excluded like .mm-button/.mm-card - they're full custom
+   buttons/links with their own hover color (teal, reserved for SMD commercial actions), not
+   themed inline links (all post-date this rule, hence the growing exclusion list - each one
+   missing here silently loses its own hover color to this rule's higher specificity). */
+main a:not(.mm-button):not(.mm-card):not(.dl-btn):not(.pro-editions__buy):not(.pro-editions__hero-title):not(.pro-editions__item-price) {
   text-decoration: none;
 }
 
-main a:not(.mm-button):not(.mm-card):hover {
+main a:not(.mm-button):not(.mm-card):not(.dl-btn):not(.pro-editions__buy):not(.pro-editions__hero-title):not(.pro-editions__item-price):hover {
   color: var(--color-accent);
 }
 

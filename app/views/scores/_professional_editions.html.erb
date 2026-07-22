@@ -1,31 +1,93 @@
-<%# Professional SMD editions of a free score — enticing but subordinate to the free download %>
+<%# Professional SMD editions of a free score — enticing but subordinate to the free download.
+    Top match gets a hero treatment with a direct buy button; the rest stay a quiet list.
+    Every row splits two destinations: thumbnail/title go to the edition's own ScoreBase page
+    (keeps the Cross-link visit signal and the page's own SEO value), the price is a direct,
+    affiliate-tagged SMD buy - same /go/smd/ redirect and client-side-only Ahoy tracking as
+    every other buy action on the site (bots hitting /go/ server-side never fire the JS event). %>
 
 <% editions = score.professional_editions.with_attached_thumbnail_image.to_a %>
 <% return if editions.empty? %>
+<% hero = editions.first %>
+<% rest = editions[1..] %>
 
-<div class="mm-card p-3 sm:p-4">
+<div class="mm-card pro-editions-card p-3 sm:p-4">
   <h3 class="grouped-parts__header">
     <span class="grouped-parts__icon">♪</span>
     <%= t('score.professional_editions') %>
   </h3>
+  <p class="pro-editions__trust"><%= t('score.professional_editions_trust') %></p>
 
-  <div class="flex flex-col gap-1">
-    <% editions.each do |edition| %>
-      <%= link_to score_path(edition, src: "xlink"),
-            class: "pro-editions__item",
-            data: { turbo_prefetch: false } do %>
-        <% if edition.has_thumbnail? %>
-          <%= image_tag edition.thumbnail, alt: edition.title, loading: "lazy", decoding: "async",
-                class: "pro-editions__thumb" %>
-        <% else %>
-          <span class="pro-editions__thumb pro-editions__thumb--empty">♪</span>
+  <div class="pro-editions__hero">
+    <%= link_to score_path(hero, src: "xlink"), class: "pro-editions__hero-media", data: { turbo_prefetch: false } do %>
+      <% if hero.has_thumbnail? %>
+        <%= image_tag hero.thumbnail, alt: hero.title, loading: "lazy", decoding: "async",
+              class: "pro-editions__hero-thumb" %>
+      <% else %>
+        <span class="pro-editions__hero-thumb pro-editions__thumb--empty">♪</span>
+      <% end %>
+    <% end %>
+    <div class="pro-editions__hero-body">
+      <span class="pro-editions__hero-eyebrow"><%= t('score.recommended_edition') %></span>
+      <%= link_to hero.title, score_path(hero, src: "xlink"),
+            class: "pro-editions__hero-title", data: { turbo_prefetch: false } %>
+      <span class="pro-editions__meta">
+        <span class="pro-editions__category"><%= hero.smd_category.presence || hero.composer.presence || hero.artist %></span>
+        <% if hero.pedagogical_grade.present? %>
+          <span class="pro-editions__grade"><%= hero.pedagogical_grade %></span>
         <% end %>
-        <span class="min-w-0 flex-1">
-          <span class="pro-editions__title"><%= edition.title %></span>
-          <span class="pro-editions__category"><%= edition.smd_category.presence || edition.composer.presence || edition.artist %></span>
-        </span>
-        <span class="pro-editions__price"><%= format_smd_price(edition) %></span>
+      </span>
+    </div>
+    <% if hero.smd_purchasable? %>
+      <%= link_to "#", class: "pro-editions__buy", aria: { label: smd_cta_label(hero) },
+            data: {
+              controller: "smd-redirect",
+              smd_redirect_url_value: smd_redirect_path(smd_id: hero.external_id),
+              smd_redirect_score_id_value: hero.id,
+              action: "click->smd-redirect#go"
+            } do %>
+        <%= smd_cta_label(hero) %>
       <% end %>
     <% end %>
   </div>
+
+  <% if rest.any? %>
+    <div class="pro-editions__list">
+      <% rest.each do |edition| %>
+        <div class="pro-editions__item">
+          <%= link_to score_path(edition, src: "xlink"),
+                class: "pro-editions__item-link",
+                data: { turbo_prefetch: false } do %>
+            <% if edition.has_thumbnail? %>
+              <%= image_tag edition.thumbnail, alt: edition.title, loading: "lazy", decoding: "async",
+                    class: "pro-editions__thumb" %>
+            <% else %>
+              <span class="pro-editions__thumb pro-editions__thumb--empty">♪</span>
+            <% end %>
+            <span class="min-w-0 flex-1">
+              <span class="pro-editions__title"><%= edition.title %></span>
+              <span class="pro-editions__meta">
+                <span class="pro-editions__category"><%= edition.smd_category.presence || edition.composer.presence || edition.artist %></span>
+                <% if edition.pedagogical_grade.present? %>
+                  <span class="pro-editions__grade"><%= edition.pedagogical_grade %></span>
+                <% end %>
+              </span>
+            </span>
+          <% end %>
+          <% if edition.smd_purchasable? %>
+            <%= link_to "#", class: "pro-editions__item-price", aria: { label: smd_cta_label(edition) },
+                  data: {
+                    controller: "smd-redirect",
+                    smd_redirect_url_value: smd_redirect_path(smd_id: edition.external_id),
+                    smd_redirect_score_id_value: edition.id,
+                    action: "click->smd-redirect#go"
+                  } do %>
+              <%= format_smd_price(edition).presence || smd_cta_label(edition) %>
+            <% end %>
+          <% else %>
+            <span class="pro-editions__item-price pro-editions__item-price--static"><%= format_smd_price(edition) %></span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
 </div>
