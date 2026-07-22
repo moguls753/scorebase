@@ -87,6 +87,7 @@ class SmdMatchFinder
   def self.rank(entries, free_family = nil)
     entries.sort_by do |id, instrument_part, price, _, _, family|
       [ compatible?(free_family, family) ? 0 : 1,
+        ensemble_mismatch?(free_family, family) ? 1 : 0,
         instrument_part ? 1 : 0, price.nil? ? 1 : 0, -(price || 0), id ]
     end
   end
@@ -128,5 +129,15 @@ class SmdMatchFinder
     return false if free_family.nil? || free_family == :other || candidate_family == :other
 
     free_family == candidate_family
+  end
+
+  # A large-ensemble edition (concert/marching band, orchestra) is a poor top pick
+  # for a solo/keyboard/vocal free score, so it sinks below smaller editions in the
+  # no-family-match fallback regardless of its (usually higher) price. A genuine
+  # band/orchestra free score keeps it.
+  ENSEMBLE_FAMILIES = %i[band orchestra].freeze
+
+  def self.ensemble_mismatch?(free_family, candidate_family)
+    ENSEMBLE_FAMILIES.include?(candidate_family) && ENSEMBLE_FAMILIES.exclude?(free_family)
   end
 end

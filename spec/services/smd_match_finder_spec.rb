@@ -117,5 +117,15 @@ RSpec.describe SmdMatchFinder do
 
       expect(described_class.matches_for("Fur Elise", "Beethoven, Ludwig", index)).to eq([ 2, 1 ])
     end
+
+    it "sinks a pricey large-ensemble edition below smaller ones off-family, but keeps it for a band score" do
+      index = index_for(
+        [ 1, "Homeward Bound", "Whitacre, Eric", nil, 64.99, "Band" ],
+        [ 2, "Homeward Bound", "Whitacre, Eric", nil, 7.99, "Piano" ]
+      )
+
+      expect(described_class.matches_for("Homeward Bound", "Whitacre, Eric", index, free_family: :vocal)).to eq([ 2, 1 ])
+      expect(described_class.matches_for("Homeward Bound", "Whitacre, Eric", index, free_family: :band).first).to eq(1)
+    end
   end
 end
