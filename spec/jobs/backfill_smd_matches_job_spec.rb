@@ -35,6 +35,14 @@ RSpec.describe BackfillSmdMatchesJob, type: :job do
       expect(free.smd_match_links).to be_empty
     end
 
+    it "never links an audio product, only sheet-music editions" do
+      smd_edition(price: 9.99, smd_category: "SATB Choir Audio - Full Performance")
+
+      described_class.perform_now
+
+      expect(free.smd_match_links).to be_empty
+    end
+
     it "never links anything to an SMD score" do
       smd_edition(price: 9.99)
       other_smd = smd_edition(price: 5.99)

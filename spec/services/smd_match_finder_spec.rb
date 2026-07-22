@@ -3,7 +3,7 @@
 require "rails_helper"
 
 RSpec.describe SmdMatchFinder do
-  # Index rows: [id, title, composer, artist, price_usd]
+  # Index rows: [id, title, composer, artist, price_usd, main_instrument]
   def index_for(*rows)
     described_class.build_index(rows)
   end
@@ -81,6 +81,41 @@ RSpec.describe SmdMatchFinder do
       )
 
       expect(described_class.matches_for("Ave Maria SATB", "Schubert, Franz", index)).to eq([ 2, 1 ])
+    end
+  end
+
+  describe ".free_family" do
+    it "checks is_instrumental first, then voicing/is_instrumental=false, then the instruments text" do
+      expect(described_class.free_family("SATB", true, "Piano")).to eq(:piano)
+      expect(described_class.free_family("SATB", nil, "Piano")).to eq(:vocal)
+      expect(described_class.free_family(nil, false, "Piano")).to eq(:vocal)
+      expect(described_class.free_family(nil, true, "Piano, Orchestra")).to eq(:piano)
+      expect(described_class.free_family(nil, nil, nil)).to eq(:other)
+    end
+
+    it "does not misread register-prefixed winds ('Alto Sax', 'flute') as vocal or guitar" do
+      expect(described_class.free_family(nil, true, "Alto Saxophone")).to eq(:winds)
+      expect(described_class.free_family(nil, true, "Flute, B♭ Clarinet")).to eq(:winds)
+    end
+  end
+
+  describe "instrument-relevant ranking" do
+    it "floats a same-family edition above a pricier off-instrument one" do
+      index = index_for(
+        [ 1, "Fur Elise", "Beethoven, Ludwig", nil, 9.99, "Guitar" ],
+        [ 2, "Fur Elise", "Beethoven, Ludwig", nil, 5.99, "Piano" ]
+      )
+
+      expect(described_class.matches_for("Fur Elise", "Beethoven, Ludwig", index, free_family: :piano)).to eq([ 2, 1 ])
+    end
+
+    it "keeps plain price order when the free family is unknown" do
+      index = index_for(
+        [ 1, "Fur Elise", "Beethoven, Ludwig", nil, 5.99, "Piano" ],
+        [ 2, "Fur Elise", "Beethoven, Ludwig", nil, 9.99, "Guitar" ]
+      )
+
+      expect(described_class.matches_for("Fur Elise", "Beethoven, Ludwig", index)).to eq([ 2, 1 ])
     end
   end
 end

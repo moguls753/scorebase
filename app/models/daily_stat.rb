@@ -59,6 +59,11 @@ class DailyStat < ApplicationRecord
   # count external clicks only, sharing the `visits` denominator — historical
   # rows are polluted by server-side clicks on internal-referrer visits that
   # would otherwise push conversion rates well over 100%.
+  #
+  # Why referrer and not a $view check: a buy-click with no prior JS pageview gets a
+  # lazily-created (server_side_visits :when_needed) internal-referrer visit, so
+  # external-referrer and has-a-pageview select the same rows here; bots are already
+  # out. Measured 07/2026: internal buy-click visits are 0.3% pageview, external 100%.
   def self.aggregate_for!(date)
     range           = date.beginning_of_day..date.end_of_day
     all_visits      = Ahoy::Visit.where(started_at: range)
