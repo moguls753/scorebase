@@ -51,10 +51,25 @@ body:has([data-view="landing"]) .browse-links {
   body:has([data-view="landing"]) .browse-links {
     grid-template-columns: repeat(3, minmax(0, 11rem));
   }
+
+  body:has([data-view="landing"]) .browse-link {
+    padding: 10px 18px;
+    font-size: 12px;
+    gap: 8px;
+  }
+
+  body:has([data-view="landing"]) .browse-link-icon {
+    width: 16px;
+    height: 16px;
+  }
 }
 
 body:has([data-view="landing"]) .browse-link {
   justify-content: center;
+  gap: 10px;
+  padding: 13px 16px;
+  font-size: 13px;
+  white-space: nowrap;
   background: transparent;
   box-shadow: none;
 }
@@ -68,6 +83,11 @@ body:has([data-view="landing"]) .browse-link:hover {
 body:has([data-view="landing"]) .browse-link:active {
   box-shadow: none;
   transform: none;
+}
+
+body:has([data-view="landing"]) .browse-link-icon {
+  width: 18px;
+  height: 18px;
 }
 
 .browse-link {
