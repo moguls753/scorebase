@@ -1,0 +1,14 @@
+<div class="results-empty">
+  <p class="results-empty__title"><%= t('hub.no_scores_found') %></p>
+  <p class="results-empty__text"><%= t('hub.no_scores_hint') %></p>
+
+  <% if active_filters_count > 0 %>
+    <div class="results-empty__actions">
+      <%= link_to t('search.clear'), clear_filters_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary text-xs" %>
+    </div>
+  <% end %>
+
+  <div class="results-smart-nudge">
+    <%= render "shared/smart_search_teaser", lead: t('search.not_finding'), query: params[:q] %>
+  </div>
+</div>

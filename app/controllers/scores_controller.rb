@@ -1,13 +1,14 @@
 class ScoresController < ApplicationController
+  SEARCH_TRIGGER_PARAMS = (ScoresHelper::FILTER_PARAMS + %i[source key time]).freeze
+  LOW_RESULTS_THRESHOLD = 5
+
   def index
+    @total_count = Score.active.count
+    @searching = searching?
+    return unless @searching # no copyright-risk popularity grid on landing
+
     @scores = Score.active
-
-    # Search
-    if params[:q].present?
-      @scores = @scores.search(params[:q])
-    end
-
-    # Filters
+    @scores = @scores.search(params[:q]) if params[:q].present?
     @scores = @scores.by_source(params[:source]) if params[:source].present?
     @scores = @scores.by_key_signature(params[:key]) if params[:key].present?
     @scores = @scores.by_time_signature(params[:time]) if params[:time].present?
@@ -18,24 +19,12 @@ class ScoresController < ApplicationController
     @scores = @scores.where(language: params[:language]) if params[:language].present?
     @scores = @scores.by_instrument(params[:instrument]) if params[:instrument].present?
     @scores = @scores.by_pricing(params[:pricing]) if params[:pricing].present?
-
-    # Forces filter (number of parts)
     @scores = apply_forces_filter(@scores, params[:voicing]) if params[:voicing].present?
-
-    # Voice type filter (choir type)
     @scores = apply_voice_type_filter(@scores, params[:voice_type]) if params[:voice_type].present?
-
-    # Sorting
     @scores = apply_sorting(@scores, params[:sort])
 
-    # Stats for filters (count before deduplication for speed)
-    @total_count = Score.active.count
     @filtered_count = @scores.count
-
-    # Deduplicate SMD arrangements (one card per arrangement)
     @scores = @scores.deduplicate_arrangements
-
-    # Pagination: 24 for clean 4-column grid (hub pages use 30 for 5-column)
     @scores = @scores.with_attached_thumbnail_image.page(params[:page]).per(24).without_count
     @scores.load
     raise ActionController::RoutingError, "Page out of range" if params[:page].to_i > 1 && @scores.empty?
@@ -126,6 +115,10 @@ class ScoresController < ApplicationController
   end
 
   private
+
+  def searching?
+    params[:q].present? || SEARCH_TRIGGER_PARAMS.any? { |p| params[p].present? }
+  end
 
   def attachment_for(file_type)
     case file_type

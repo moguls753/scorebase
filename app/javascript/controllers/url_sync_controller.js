@@ -2,12 +2,13 @@ import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
   connect() {
+    this.boundHandleFrameLoad = this.handleFrameLoad.bind(this)
     this.syncFromUrl()
-    document.addEventListener("turbo:frame-load", this.handleFrameLoad.bind(this))
+    document.addEventListener("turbo:frame-load", this.boundHandleFrameLoad)
   }
 
   disconnect() {
-    document.removeEventListener("turbo:frame-load", this.handleFrameLoad.bind(this))
+    document.removeEventListener("turbo:frame-load", this.boundHandleFrameLoad)
   }
 
   handleFrameLoad(event) {
@@ -22,6 +23,8 @@ export default class extends Controller {
 
     // Sync all inputs/selects in this form based on their name attribute
     this.element.querySelectorAll("input, select").forEach(field => {
+      if (field === document.activeElement) return // don't clobber the caret while typing
+
       let paramValue = params.get(field.name) || ""
 
       // Default sort to "popularity" when not specified in URL
@@ -29,7 +32,7 @@ export default class extends Controller {
         paramValue = "popularity"
       }
 
-      if (field.type === "hidden" || field.type === "text") {
+      if (field.type === "hidden" || field.type === "text" || field.type === "search") {
         field.value = paramValue
       } else if (field.tagName === "SELECT") {
         field.value = paramValue

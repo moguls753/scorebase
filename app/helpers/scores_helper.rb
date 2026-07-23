@@ -14,6 +14,22 @@ module ScoresHelper
     safe_join(FILTER_PARAMS.map { |param| form.hidden_field(param, value: params[param]) })
   end
 
+  # source/key/time are searching? triggers but not in FILTER_PARAMS
+  def search_trigger_hidden_fields(form)
+    safe_join(%i[source key time].filter_map { |p| form.hidden_field(p, value: params[p]) if params[p].present? })
+  end
+
+  # when nothing survives this resolves to the frameless landing (the frame-missing net promotes it)
+  def clear_filters_path
+    scores_path(**{ q: params[:q], source: params[:source], key: params[:key], time: params[:time] }.compact_blank)
+  end
+
+  # clean screen-reader phrasing (visible "128 / 441,026" is read as "slash")
+  def results_announce_text
+    return t("hub.no_scores_found") if @filtered_count.to_i.zero?
+    "#{number_with_delimiter(@filtered_count)} #{t('search.results_count')}"
+  end
+
   # Instrument options for filter dropdown
   # Ordered by match count in database. Only specific instruments, no categories.
   # Voice/Choir triggers contextual vocal filters (voice_type, language)

@@ -100,7 +100,6 @@ de:
     scores_ready: "%{count} Noten an einem Ort"
     placeholder: "NOTEN SUCHEN..."
     button: "Suchen"
-    browse: "Stöbern"
     or_explore: "oder stöbern"
     browse_composers: "Komponisten"
     browse_artists: "Künstler"
@@ -112,6 +111,7 @@ de:
     close_filters: "Filter schließen"
     clear: "Zurücksetzen"
     results_count: "Noten"
+    not_finding: "Nicht das Richtige dabei?"
     sort_by: "SORTIEREN"
     unknown_composer: "Unbekannt"
 

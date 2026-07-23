@@ -26,6 +26,47 @@
   position: relative;
 }
 
+/* Landing: anchor the search ~a third down. Additive to the hero section's own py, so keep it modest */
+body:has([data-view="landing"]) main {
+  padding-top: clamp(1rem, 7vh, 4rem);
+}
+
+@media (max-width: 639px) {
+  body:has([data-view="landing"]) main {
+    padding-top: 1.5rem;
+  }
+}
+
+.search-hero {
+  position: relative;
+}
+
+/* Landing field out-weighs the title: taller box + larger type. Sized here because .mm-input is unlayered and beats Tailwind size utilities */
+.search-hero .mm-input {
+  padding-left: 3rem;
+  padding-top: 0.875rem;
+  padding-bottom: 0.875rem;
+  font-size: 1rem;
+}
+
+@media (min-width: 640px) {
+  .search-hero .mm-input {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    font-size: 1.125rem;
+  }
+}
+
+.search-hero-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+
 .hero-title {
   color: var(--color-primary);
 }
@@ -39,11 +80,12 @@
   font-weight: 700;
 }
 
-/* Visual interest: refined link hover. .dl-btn, .pro-editions__buy, .pro-editions__hero-title
-   and .pro-editions__item-price are excluded like .mm-button/.mm-card - they're full custom
-   buttons/links with their own hover color (teal, reserved for SMD commercial actions), not
-   themed inline links (all post-date this rule, hence the growing exclusion list - each one
-   missing here silently loses its own hover color to this rule's higher specificity). */
+/* Programmatic focus target (tabindex=-1); keyboard users still get rings on real controls */
+#hero-heading:focus {
+  outline: none;
+}
+
+/* Custom-colored links must be excluded or this rule's specificity overrides their own hover color */
 main a:not(.mm-button):not(.mm-card):not(.dl-btn):not(.pro-editions__buy):not(.pro-editions__hero-title):not(.pro-editions__item-price) {
   text-decoration: none;
 }
@@ -228,6 +270,93 @@ main a:not(.mm-button):not(.mm-card):not(.dl-btn):not(.pro-editions__buy):not(.p
   .hub-controls {
     width: auto;
     flex-wrap: nowrap;
+  }
+}
+
+/* ========================================
+   COMPACT RESULTS BAR - Sticky two-tier toolbar
+   ======================================== */
+
+.results-bar {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--color-bg-elevated);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.results-bar .mm-input,
+.results-bar .mm-button {
+  height: 3rem;
+}
+
+/* >=16px stops iOS Safari zooming the viewport when the bar's query field takes focus */
+.results-bar .mm-input {
+  font-size: 1rem;
+}
+
+/* Shrink the box by its shadow offset and top-align, so box + shadow = field height (bottoms in line) */
+.results-bar .nav-icon-btn {
+  align-self: flex-start;
+  width: calc(3rem - 2px);
+  height: calc(3rem - 2px);
+}
+
+/* Height shy by its 3px shadow so box + shadow = field height */
+.results-bar .mm-button-primary {
+  align-self: flex-start;
+  height: calc(3rem - 3px);
+}
+
+.results-bar .sort-control {
+  height: 3rem;
+  box-shadow: none;
+}
+
+.results-bar .sort-control:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+.results-bar .sort-label {
+  background: transparent;
+  color: var(--color-text-muted);
+  border-right-color: var(--color-border);
+}
+
+/* The global header scrolls away in results, so the compact bar is the sole sticky element */
+body:has([data-view="results"]) > header {
+  position: static;
+}
+
+/* Keep the filter sidebar in view while the grid scrolls, cleared below the sticky bar */
+@media (min-width: 1024px) {
+  .results-sidebar {
+    position: sticky;
+    top: calc(var(--results-bar-h) + 1.5rem);
+    align-self: flex-start;
+    max-height: calc(100vh - var(--results-bar-h) - 3rem);
+    overflow-y: auto;
+  }
+}
+
+/* ========================================
+   VIEW TRANSITIONS - Shared search-box morph (home <-> results)
+   ======================================== */
+
+.search-vt {
+  view-transition-name: search-box;
+}
+
+::view-transition-group(search-box) {
+  animation-duration: 220ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
   }
 }
 

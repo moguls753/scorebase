@@ -1,53 +1,171 @@
 require 'rails_helper'
 
 RSpec.describe 'Scores' do
-  describe 'GET /scores' do
-    it 'returns success and displays scores' do
-      create(:score, title: 'Test Score')
-      get scores_path
-      expect(response).to have_http_status(:success)
-      expect(response.body).to include('Test Score')
+  # Two-view homepage (docs/homepage-two-view-spec.md §8): a bare request renders
+  # the indexable LANDING (hero + browse doors, no score grid); a request carrying
+  # a query or any filter/source/key/time trigger renders the noindex RESULTS view
+  # (grid + sticky bar inside turbo-frame#scores).
+  describe 'GET /scores (two-view homepage)' do
+    def parsed(body)
+      Nokogiri::HTML(body)
     end
 
-    it 'filters by voicing' do
-      create(:score, title: 'Solo Piece', num_parts: 1)
-      create(:score, title: 'SATB Piece', voicing: 'SATB')
-      create(:score, title: 'Quartet Piece', num_parts: 4)
+    context 'landing (no query, no search trigger)' do
+      it 'renders the hero, all six browse doors and the Smart Search teaser, with no results frame' do
+        get root_path
 
-      get scores_path(voicing: 'solo')
-      expect(response.body).to include('Solo Piece')
-      expect(response.body).not_to include('Quartet Piece')
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include(I18n.t('search.hero_title_line1'))
+        %w[composers artists instruments genres periods ensembles].each do |door|
+          expect(response.body).to include(ERB::Util.html_escape(I18n.t("search.browse_#{door}")))
+        end
+        expect(response.body).to include(composers_path, periods_path, ensembles_path)
+        expect(response.body).to include(I18n.t('smart_search_teaser.name'))
+        expect(response.body).not_to include('<turbo-frame id="scores"')
+      end
 
-      get scores_path(voicing: 'satb')
-      expect(response.body).to include('SATB Piece')
+      it 'never leaks a score-card grid onto the landing (copyright / no popularity cards)' do
+        leak = create(:score, title: 'Grid Leak Sonata')
+
+        get root_path
+
+        expect(response.body).not_to include("/scores/#{leak.id}")
+        expect(response.body).not_to include('Grid Leak Sonata')
+      end
+
+      it 'stays indexable (emits no robots meta)' do
+        get root_path
+
+        expect(response.body).not_to include('name="robots"')
+      end
+
+      it 'renders the landing for a bare /scores too' do
+        get scores_path
+
+        expect(response.body).to include(I18n.t('search.or_explore'))
+        expect(response.body).not_to include('<turbo-frame id="scores"')
+      end
     end
 
-    it 'rejects invalid voicing params' do
-      create(:score, title: 'Some Piece')
+    context 'results (query, filter, or source/key/time trigger)' do
+      it 'renders the grid inside turbo-frame#scores and echoes the query into the compact bar' do
+        score = create(:score, title: 'Ave Verum')
 
-      get scores_path(voicing: 'invalid_garbage_123')
-      expect(response.body).not_to include('Some Piece')
-    end
+        get scores_path(q: 'Ave')
 
-    it 'returns 404 for out-of-range pagination' do
-      create(:score, title: 'Only Piece')
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('Ave Verum', "/scores/#{score.id}", '<turbo-frame id="scores"')
+        query_field = parsed(response.body).at_css('input[type="search"][name="q"]')
+        expect(query_field['value']).to eq('Ave')
+      end
 
-      get scores_path(page: 9999)
-      expect(response).to have_http_status(:not_found)
-    end
+      it 'is noindex,follow and sheds the landing chrome' do
+        get scores_path(q: 'somequerywithnohits')
 
-    it 'emits noindex,follow on paginated pages (?page>=2)' do
-      30.times { |i| create(:score, title: "Piece #{i}") }
+        expect(response.body).to include('noindex,follow')
+        expect(response.body).not_to include(I18n.t('search.or_explore'))
+      end
 
-      get scores_path(page: 2)
-      expect(response.body).to include('<meta name="robots" content="noindex,follow">')
-    end
+      it 'filters by voicing and rejects invalid voicing params' do
+        create(:score, title: 'Solo Piece', num_parts: 1)
+        create(:score, title: 'Quartet Piece', num_parts: 4)
 
-    it 'does not emit a robots meta tag on page 1' do
-      create(:score, title: 'Piece')
+        get scores_path(voicing: 'solo')
+        expect(response.body).to include('Solo Piece')
+        expect(response.body).not_to include('Quartet Piece')
 
-      get scores_path
-      expect(response.body).not_to include('<meta name="robots"')
+        get scores_path(voicing: 'invalid_garbage_123')
+        expect(response.body).not_to include('Solo Piece')
+      end
+
+      it 'renders results for a filter-only deep link' do
+        create(:score, title: 'Piano Prelude', instruments: 'Piano')
+
+        get scores_path(instrument: 'piano')
+
+        expect(response.body).to include('<turbo-frame id="scores"')
+        expect(response.body).not_to include(I18n.t('search.or_explore'))
+      end
+
+      it 'treats source as a trigger and filters by it' do
+        create(:score, :cpdl, title: 'Cpdl Motet')
+        create(:score, :pdmx, title: 'Pdmx Sonata')
+
+        get scores_path(source: 'cpdl')
+
+        expect(response.body).to include('Cpdl Motet')
+        expect(response.body).not_to include('Pdmx Sonata')
+        expect(response.body).not_to include(I18n.t('search.or_explore'))
+      end
+
+      it 'treats key and time signature as search triggers (results, not landing)' do
+        get scores_path(key: 'G')
+        expect(response.body).to include('<turbo-frame id="scores"')
+        expect(response.body).not_to include(I18n.t('search.or_explore'))
+
+        get scores_path(time: '4/4')
+        expect(response.body).to include('<turbo-frame id="scores"')
+        expect(response.body).not_to include(I18n.t('search.or_explore'))
+      end
+
+      it 'carries the source trigger into a sort refinement via a hidden field' do
+        get scores_path(source: 'cpdl', sort: 'newest')
+
+        sort_forms = parsed(response.body).css('form').select { |f| f.at_css('select[name="sort"]') }
+        expect(sort_forms).to be_present
+        carried = sort_forms.any? do |f|
+          hidden = f.at_css('input[type="hidden"][name="source"]')
+          hidden && hidden['value'] == 'cpdl'
+        end
+        expect(carried).to be(true)
+      end
+
+      it 'sorts without dropping matches' do
+        create(:score, title: 'Piece One')
+        create(:score, title: 'Piece Two')
+
+        get scores_path(q: 'piece', sort: 'newest')
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include('Piece One', 'Piece Two')
+      end
+
+      it 'returns 404 for out-of-range pagination inside the results branch' do
+        25.times { |i| create(:score, title: "Piece #{i}") }
+
+        get scores_path(q: 'Piece', page: 9999)
+
+        expect(response).to have_http_status(:not_found)
+      end
+
+      it 'returns the landing (200) for a bare out-of-range page — the 404 is scoped to results' do
+        get scores_path(page: 9999)
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include(I18n.t('search.or_explore'))
+      end
+
+      it 'renders the zero-results empty state (200, not 404, not a blank grid)' do
+        create(:score, title: 'Something Else')
+
+        get scores_path(q: 'zzzznomatch')
+
+        expect(response).to have_http_status(:success)
+        expect(response.body).to include(
+          I18n.t('hub.no_scores_found'),
+          I18n.t('smart_search_teaser.name'),
+          'id="scores-results-heading"'
+        )
+        expect(response.body).not_to match(%r{/scores/\d})
+      end
+
+      it 'points the Clear link at the bare landing URL when only filters survive (frame-missing net, server half)' do
+        create(:score, title: 'Piano Prelude', instruments: 'Piano')
+
+        get scores_path(instrument: 'piano')
+
+        expect(response.body).to include('href="/scores"')
+      end
     end
   end
 

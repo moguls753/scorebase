@@ -22,6 +22,7 @@
       {},
       {
         class: "filter-select",
+        aria: { label: t('filters.all_instruments') },
         data: {
           action: "change->instrument-context#update #{submit_action}",
           instrument_context_target: "select"
@@ -40,7 +41,7 @@
         [t('difficulty.expert'), 'expert']
       ], params[:difficulty]),
       {},
-      { class: "filter-select", data: { action: submit_action } }
+      { class: "filter-select", aria: { label: t('filters.all_levels') }, data: { action: submit_action } }
   %>
 
   <%# Period - when was it written? %>
@@ -55,7 +56,7 @@
         [t('periods.modern'), 'Modern']
       ], params[:period]),
       {},
-      { class: "filter-select", data: { action: submit_action } }
+      { class: "filter-select", aria: { label: t('filters.all_periods') }, data: { action: submit_action } }
   %>
 
   <%# Genre - what style? %>
@@ -72,7 +73,7 @@
         [t('genres.classical'), 'classical']
       ], params[:genre]),
       {},
-      { class: "filter-select", data: { action: submit_action } }
+      { class: "filter-select", aria: { label: t('filters.all_genres') }, data: { action: submit_action } }
   %>
 
   <%# Parts - how many performers? %>
@@ -86,7 +87,7 @@
         [t('parts.ensemble'), 'ensemble']
       ], params[:voicing]),
       {},
-      { class: "filter-select", data: { action: submit_action } }
+      { class: "filter-select", aria: { label: t('filters.any_size') }, data: { action: submit_action } }
   %>
 
   <%# Length - how long? (practical refinement) %>
@@ -98,7 +99,7 @@
         [t('length.long'), 'long']
       ], params[:length]),
       {},
-      { class: "filter-select", data: { action: submit_action } }
+      { class: "filter-select", aria: { label: t('filters.any_length') }, data: { action: submit_action } }
   %>
 
   <%# Pricing - free or commercial? %>
@@ -109,7 +110,7 @@
         [t('pricing.commercial'), 'commercial']
       ], params[:pricing]),
       {},
-      { class: "filter-select", data: { action: submit_action } }
+      { class: "filter-select", aria: { label: t('filters.any_pricing') }, data: { action: submit_action } }
   %>
 
   <%# Vocal-specific filters - appear when Voice/Choir selected %>
@@ -127,7 +128,7 @@
           [t('voice_type.unison'), 'unison']
         ], params[:voice_type]),
         {},
-        { class: "filter-select", data: { action: submit_action } }
+        { class: "filter-select", aria: { label: t('filters.all_voice_types') }, data: { action: submit_action } }
     %>
 
     <%# Language %>
@@ -142,7 +143,7 @@
           [t('languages.spanish'), 'Spanish']
         ], params[:language]),
         {},
-        { class: "filter-select", data: { action: submit_action } }
+        { class: "filter-select", aria: { label: t('filters.all_languages') }, data: { action: submit_action } }
     %>
   </div>
 

@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 
 export default class extends Controller {
-  static targets = ["modal", "closeButton"]
+  static targets = ["modal", "closeButton", "openButton"]
 
   connect() {
     this.handleKeydown = this.handleKeydown.bind(this)
@@ -12,6 +12,7 @@ export default class extends Controller {
     this.modalTarget.classList.remove("hidden")
     document.body.classList.add("overflow-hidden")
     document.addEventListener("keydown", this.handleKeydown)
+    if (this.hasOpenButtonTarget) this.openButtonTarget.setAttribute("aria-expanded", "true")
 
     // Focus first focusable element or close button
     requestAnimationFrame(() => {
@@ -26,6 +27,7 @@ export default class extends Controller {
     this.modalTarget.classList.add("hidden")
     document.body.classList.remove("overflow-hidden")
     document.removeEventListener("keydown", this.handleKeydown)
+    if (this.hasOpenButtonTarget) this.openButtonTarget.setAttribute("aria-expanded", "false")
 
     // Restore focus to trigger element
     if (this.previousActiveElement) {

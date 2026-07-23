@@ -42,6 +42,9 @@
   --radius-md: 4px;
   --radius-lg: 6px;
 
+  /* Sticky results-bar height, computed from markup (biased over as a scroll offset); fine-tune in-browser */
+  --results-bar-h: 124px;
+
   /* Legacy compatibility - map old vars */
   --neon-cyan: var(--color-accent);
   --neon-magenta: var(--color-accent);
@@ -52,6 +55,12 @@
   --glow-magenta: none;
   --glow-purple: none;
   --glow-soft: none;
+}
+
+@media (min-width: 640px) {
+  :root {
+    --results-bar-h: 76px;
+  }
 }
 
 /* Smooth scrolling */
@@ -174,8 +183,6 @@ a.mm-card:active {
   letter-spacing: 0.04em;
 }
 
-/* Compact primary still uses mm-button-primary's color/border/shadow,
-   but with a tighter shadow to match the smaller size. */
 .mm-button-sm.mm-button-primary {
   box-shadow: 2px 2px 0 var(--color-bg-deep);
 }
@@ -563,5 +570,135 @@ button, input, select {
     right: 4px;
     padding: 2px 5px;
     font-size: 9px;
+  }
+}
+
+/* ========================================================================
+   CUSTOMIZABLE SELECT — base-select (pointer:fine + @supports gate keeps touch/legacy on the native OS picker)
+   ======================================================================== */
+@supports (appearance: base-select) {
+  @media (pointer: fine) {
+
+    select.sort-select,          select.sort-select::picker(select),
+    select.filter-select,        select.filter-select::picker(select),
+    select.sort-select-mobile,   select.sort-select-mobile::picker(select) {
+      appearance: base-select;
+    }
+
+    /* ::picker-icon replaces the bg chevron — drop the image so they don't double up */
+    select.sort-select,
+    select.filter-select,
+    select.sort-select-mobile {
+      background-image: none;
+    }
+
+    select.sort-select,
+    select.filter-select {
+      padding-right: 12px;
+    }
+
+    select.sort-select::picker-icon,
+    select.filter-select::picker-icon {
+      color: var(--color-text-muted);
+      margin-inline-start: auto;
+      font-size: 0.7rem;
+    }
+    select.sort-select:open::picker-icon,
+    select.filter-select:open::picker-icon {
+      transform: rotate(180deg);
+    }
+    /* base-select makes the mobile sort a flex box, so center via justify-content, not text-align */
+    select.sort-select-mobile::picker-icon {
+      display: none;
+    }
+    select.sort-select-mobile {
+      justify-content: center;
+    }
+
+    select.sort-select::picker(select),
+    select.filter-select::picker(select),
+    select.sort-select-mobile::picker(select) {
+      background: var(--color-bg-elevated);
+      border: var(--border-width) solid var(--color-border);
+      border-radius: var(--radius-sm);
+      box-shadow: 0 12px 30px -8px rgba(0, 0, 0, 0.65); /* soft elevation: the picker floats in the top layer, so a grounded offset shadow reads wrong */
+      padding: 4px;
+      color: var(--color-text);
+      font-family: var(--font-family-body);
+      max-height: 20rem;
+      overflow-y: auto;
+    }
+
+    select.sort-select option,
+    select.filter-select option,
+    select.sort-select-mobile option {
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-family-body);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--color-text);
+      background: transparent;
+      cursor: pointer;
+      transition: background-color 0.1s ease, color 0.1s ease;
+    }
+
+    select.sort-select option:checked,
+    select.filter-select option:checked,
+    select.sort-select-mobile option:checked {
+      color: var(--color-accent);
+      font-weight: 700;
+      background: rgba(var(--color-accent-rgb), 0.12);
+    }
+
+    /* outline-offset inset keeps the focus ring from clipping the popover padding */
+    select.sort-select option:hover,        select.sort-select option:focus,
+    select.filter-select option:hover,      select.filter-select option:focus,
+    select.sort-select-mobile option:hover, select.sort-select-mobile option:focus {
+      background: var(--color-bg-hover);
+      color: var(--color-accent);
+      outline-offset: -3px;
+    }
+
+    select.sort-select option::checkmark,
+    select.filter-select option::checkmark,
+    select.sort-select-mobile option::checkmark {
+      color: var(--color-accent);
+    }
+
+    @media (prefers-reduced-motion: no-preference) {
+      /* :open rotate end-state lives outside this block so reduced-motion gets an instant flip */
+      select.sort-select::picker-icon,
+      select.filter-select::picker-icon {
+        transition: transform 0.15s ease;
+      }
+      select.sort-select::picker(select),
+      select.filter-select::picker(select),
+      select.sort-select-mobile::picker(select) {
+        transform-origin: top center;
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+        transition:
+          opacity 0.14s ease,
+          transform 0.14s ease,
+          display 0.14s allow-discrete,
+          overlay 0.14s allow-discrete;
+      }
+      select.sort-select:open::picker(select),
+      select.filter-select:open::picker(select),
+      select.sort-select-mobile:open::picker(select) {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      @starting-style {
+        select.sort-select:open::picker(select),
+        select.filter-select:open::picker(select),
+        select.sort-select-mobile:open::picker(select) {
+          opacity: 0;
+          transform: translateY(-6px) scale(0.98);
+        }
+      }
+    }
+
   }
 }

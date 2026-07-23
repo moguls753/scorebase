@@ -40,6 +40,36 @@
   gap: 10px;
 }
 
+body:has([data-view="landing"]) .browse-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  justify-content: center;
+  gap: 10px 12px;
+}
+
+@media (min-width: 640px) {
+  body:has([data-view="landing"]) .browse-links {
+    grid-template-columns: repeat(3, minmax(0, 11rem));
+  }
+}
+
+body:has([data-view="landing"]) .browse-link {
+  justify-content: center;
+  background: transparent;
+  box-shadow: none;
+}
+
+body:has([data-view="landing"]) .browse-link:hover {
+  background: var(--color-bg-elevated);
+  box-shadow: none;
+  transform: none;
+}
+
+body:has([data-view="landing"]) .browse-link:active {
+  box-shadow: none;
+  transform: none;
+}
+
 .browse-link {
   display: inline-flex;
   align-items: center;
@@ -160,6 +190,71 @@
   color: var(--color-text-subtle);
   transform: none;
   box-shadow: none;
+}
+
+/* ========================================
+   RESULTS VIEW - Count heading + zero/low-results state
+   ======================================== */
+
+/* Single count heading (visible count + focus/announce anchor); sr-only at zero results */
+.results-heading {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+  color: var(--color-text-muted);
+  margin-bottom: 1.25rem;
+  scroll-margin-top: var(--results-bar-h);
+}
+
+/* Programmatic focus target; keyboard users still get rings on real controls */
+.results-heading:focus {
+  outline: none;
+}
+
+/* Turbo sets [busy] during a frame refine. The frame is display:contents (no box), so dim its boxed descendants */
+turbo-frame#scores[busy] .results-heading,
+turbo-frame#scores[busy] .grid,
+turbo-frame#scores[busy] aside,
+turbo-frame#scores[busy] .results-empty {
+  opacity: 0.55;
+  pointer-events: none;
+  transition: opacity 0.15s ease;
+}
+
+.results-empty {
+  max-width: 28rem;
+  margin-inline: auto;
+  padding: 64px 0;
+  text-align: center;
+}
+
+.results-empty__title {
+  font-family: var(--font-family-display);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  font-size: 1.25rem;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+}
+
+.results-empty__text {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-bottom: 20px;
+}
+
+.results-empty__actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.results-smart-nudge {
+  margin-top: 28px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-border-subtle);
 }
 
 /* ========================================

@@ -1,0 +1,14 @@
+<%# Smart Search teaser. Landing renders it bare; zero/low-results seed it with a
+    contextual `lead` and the current `query` (deep-links into /smart-search?q=…). %>
+<% lead          = local_assigns[:lead] %>
+<% query         = local_assigns[:query] %>
+<% wrapper_class = local_assigns[:wrapper_class] %>
+<% teaser_url    = query.present? ? smart_search_path(q: query) : smart_search_path %>
+<div class="smart-search-teaser<%= " #{wrapper_class}" if wrapper_class.present? %>">
+  <% if lead.present? %>
+    <p class="text-xs font-semibold uppercase tracking-wide text-[var(--color-text-muted)] mb-2"><%= lead %></p>
+  <% end %>
+  <%= link_to teaser_url, class: "smart-search-teaser-link" do %>
+    <span class="teaser-name"><%= t('smart_search_teaser.name') %></span><span class="teaser-mark"><%= t('smart_search_teaser.mark') %></span> <span class="teaser-em">—</span> <span class="teaser-prompt"><%= t('smart_search_teaser.prompt') %></span> <span class="teaser-arrow">→</span>
+  <% end %>
+</div>

@@ -1,0 +1,198 @@
+<% content_for :robots, "noindex,follow" %>
+
+<div data-controller="results filter-modal" data-view="results">
+  <div id="scores-live" role="status" aria-live="polite" aria-atomic="true" class="sr-only" data-results-target="live"></div>
+
+  <!-- Compact sticky results bar (persists across frame refinements) -->
+  <div class="results-bar">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2 sm:py-3">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+        <!-- Primary group: home + query -->
+        <div class="flex items-center gap-2 sm:flex-1 min-w-0">
+          <%= link_to root_path, class: "nav-icon-btn flex-shrink-0", aria: { label: t('nav.home') }, title: t('nav.home') do %>
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+              <polyline points="9 22 9 12 15 12 15 22"></polyline>
+            </svg>
+          <% end %>
+
+          <%= form_with url: scores_path, method: :get,
+                data: { turbo_frame: "scores", turbo_action: "advance", controller: "url-sync" },
+                html: { role: "search", class: "flex items-center gap-2 min-w-0 flex-1 lg:max-w-[40rem]" } do |f| %>
+            <%= filter_hidden_fields(f) %>
+            <%= search_trigger_hidden_fields(f) %>
+            <%= f.hidden_field :sort, value: params[:sort] %>
+            <%= f.search_field :q,
+                value: params[:q],
+                placeholder: t('search.placeholder'),
+                aria: { label: t('search.placeholder') },
+                enterkeyhint: "search",
+                class: "flex-1 min-w-0 mm-input search-vt" %>
+            <%= f.submit t('search.button'), class: "hidden lg:block mm-button mm-button-primary cursor-pointer px-5 text-xs" %>
+          <% end %>
+        </div>
+
+        <!-- Secondary group: Filters + sort. Own row on mobile (grid), inline sm+,
+             dissolves at lg (contents) so the desktop sort sits on the bar's right. -->
+        <div class="grid grid-cols-2 gap-2 sm:flex sm:items-center sm:gap-2 lg:contents">
+          <button type="button"
+                  data-action="click->filter-modal#open"
+                  data-filter-modal-target="openButton"
+                  aria-haspopup="dialog"
+                  aria-controls="filter-modal"
+                  aria-expanded="false"
+                  class="lg:hidden mm-button mm-button-secondary text-xs flex items-center justify-center gap-1.5 filter-btn-padded">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+            </svg>
+            <span class="font-black uppercase"><%= t('search.filters') %></span>
+            <span class="filter-count" data-results-target="badge" hidden>0</span>
+          </button>
+
+          <!-- Sort (mobile / tablet variant) -->
+          <%= form_with url: scores_path, method: :get,
+                data: { turbo_frame: "scores", turbo_action: "replace", controller: "url-sync" },
+                html: { class: "lg:hidden w-full sm:w-auto" } do |f| %>
+            <%= f.hidden_field :q, value: params[:q] %>
+            <%= filter_hidden_fields(f) %>
+            <%= search_trigger_hidden_fields(f) %>
+            <%= f.select :sort,
+                [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
+                { selected: params[:sort] || "popularity" },
+                { class: "mm-button mm-button-secondary text-xs w-full font-black uppercase filter-btn-padded sort-select-mobile",
+                  id: "sort-mobile",
+                  aria: { label: t('search.sort_by') },
+                  data: { action: "change->url-sync#submit" } }
+            %>
+          <% end %>
+
+          <!-- Sort (desktop variant) -->
+          <%= form_with url: scores_path, method: :get,
+                data: { turbo_frame: "scores", turbo_action: "replace", controller: "url-sync" },
+                html: { class: "hidden lg:block" } do |f| %>
+            <%= f.hidden_field :q, value: params[:q] %>
+            <%= filter_hidden_fields(f) %>
+            <%= search_trigger_hidden_fields(f) %>
+            <div class="sort-control">
+              <label for="sort" class="sort-label">
+                <span class="sort-icon">↕</span>
+                <span><%= t('search.sort_by') %></span>
+              </label>
+              <%= f.select :sort,
+                  [[t('sort.popular'), "popularity"], [t('sort.newest'), "newest"], [t('sort.title'), "title"], [t('sort.composer'), "composer"]],
+                  { selected: params[:sort] || "popularity" },
+                  { class: "sort-select", id: "sort", data: { action: "change->url-sync#submit" } }
+              %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main content: filters + grid, inside the swappable frame -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-8 pb-8 sm:pt-12 sm:pb-10">
+    <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
+      <turbo-frame id="scores" class="contents" data-turbo-action="advance" data-results-target="frame">
+        <!-- Mobile Filter Modal (hidden by default) -->
+        <div id="filter-modal"
+             data-filter-modal-target="modal"
+             data-action="click->filter-modal#closeOnBackdrop"
+             class="lg:hidden fixed inset-0 z-50 hidden filter-modal-backdrop"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="filter-modal-title">
+          <div class="absolute inset-x-0 bottom-0 bg-[var(--color-bg-card)] border-t-2 border-[var(--color-border)] filter-modal-sheet">
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between p-4 border-b-2 border-[var(--color-border)]">
+              <h2 id="filter-modal-title" class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight">
+                <%= t('search.filters') %>
+              </h2>
+              <button type="button"
+                      data-action="click->filter-modal#close"
+                      class="text-[var(--color-text-muted)] hover:text-[var(--color-primary)]"
+                      aria-label="<%= t('search.close_filters') %>">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Scrollable Filter Content -->
+            <div class="filter-modal-content">
+              <%= form_with url: scores_path, method: :get,
+                    data: { turbo_frame: "scores", turbo_action: "replace", controller: "url-sync" } do |f| %>
+                <%= f.hidden_field :q, value: params[:q] %>
+                <%= f.hidden_field :sort, value: params[:sort] %>
+                <%= search_trigger_hidden_fields(f) %>
+
+                <%# Mobile filter fields (2-column grid) %>
+                <%= render 'filter_fields', f: f, mobile: true %>
+              <% end %>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 border-t-2 border-[var(--color-border)]">
+              <%= link_to t('search.clear'), clear_filters_path,
+                  data: { turbo_frame: "scores", action: "click->filter-modal#close" },
+                  class: "mm-button mm-button-secondary w-full text-center text-xs" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Filters Sidebar -->
+        <aside class="results-sidebar hidden lg:block w-64 flex-shrink-0">
+          <%= form_with url: scores_path, method: :get,
+                data: { turbo_frame: "scores", turbo_action: "replace", controller: "url-sync" },
+                html: { class: "p-5 bg-[var(--color-bg-card)] border border-[var(--color-border)] rounded-xl" } do |f| %>
+            <h2 class="text-lg font-[var(--font-family-display)] text-[var(--color-primary)] mb-5 font-black uppercase tracking-tight">
+              <%= t('search.filters') %>
+            </h2>
+
+            <%= f.hidden_field :q, value: params[:q] %>
+            <%= f.hidden_field :sort, value: params[:sort] %>
+            <%= search_trigger_hidden_fields(f) %>
+
+            <%# Desktop filter fields (stacked layout) %>
+            <%= render 'filter_fields', f: f, mobile: false %>
+
+            <div class="filter-clear-wrap">
+              <%= link_to t('search.clear'), clear_filters_path, data: { turbo_frame: "scores" }, class: "mm-button mm-button-secondary w-full text-center text-xs py-2" %>
+            </div>
+          <% end %>
+        </aside>
+
+        <!-- Results Column -->
+        <div class="flex-1 min-w-0">
+          <h2 id="scores-results-heading"
+              class="results-heading <%= 'sr-only' if @filtered_count.to_i.zero? %>"
+              tabindex="-1"
+              aria-label="<%= results_announce_text %>"
+              data-active-filters="<%= active_filters_count %>"
+              data-results-announce="<%= results_announce_text %>">
+            <span class="text-[var(--color-accent)]"><%= number_with_delimiter(@filtered_count) %></span> <%= t('search.results_count') %>
+          </h2>
+
+          <% if @scores.empty? %>
+            <%= render "scores/no_results" %>
+          <% else %>
+            <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
+              <% @scores.each do |score| %>
+                <%= render "hub_pages/score_card", score: score %>
+              <% end %>
+            </div>
+
+            <% if @filtered_count.to_i.between?(1, ScoresController::LOW_RESULTS_THRESHOLD) %>
+              <div class="results-smart-nudge">
+                <%= render "shared/smart_search_teaser", lead: t('search.not_finding'), query: params[:q] %>
+              </div>
+            <% end %>
+
+            <%= render 'shared/pagination', scores: @scores, turbo_frame: 'scores' %>
+          <% end %>
+        </div>
+      </turbo-frame>
+    </div>
+  </div>
+</div>
