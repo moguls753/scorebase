@@ -36,6 +36,18 @@ RSpec.describe "HubPages" do
       get genre_path(slug: "motet", page: 99)
       expect(response).to have_http_status(:not_found)
     end
+
+    it "noindexes page 2 but leaves page 1 indexable and self-canonical" do
+      31.times { create(:score, genre: "Motet", genre_status: "normalized") }
+
+      get genre_path(slug: "motet")
+      expect(response.body).not_to include('name="robots"')
+      expect(response.body).to include('<link rel="canonical" href="http://www.example.com/genres/motet">')
+
+      get genre_path(slug: "motet", page: 2)
+      expect(response.body).to include('content="noindex,follow"')
+      expect(response.body).not_to include('rel="canonical"')
+    end
   end
 
   describe "GET /composers" do

@@ -39,6 +39,12 @@ RSpec.describe 'Scores' do
         expect(response.body).not_to include('name="robots"')
       end
 
+      it 'pairs the homepage with /de, not /de/, so the hreflang cluster is reciprocal' do
+        get root_path
+
+        expect(response.body).to include('hreflang="de" href="http://www.example.com/de"')
+      end
+
       it 'renders the landing for a bare /scores too' do
         get scores_path
 
@@ -251,6 +257,13 @@ RSpec.describe 'Scores' do
       it 'leaves the representative self-canonical' do
         get score_path(id: rep.id)
 
+        expect(canonical_href(response.body)).to end_with("/scores/#{rep.id}")
+      end
+
+      it 'never noindexes a show page over a stray ?page, keeping the representative canonical' do
+        get score_path(id: member.id, page: 2)
+
+        expect(response.body).not_to include('name="robots"')
         expect(canonical_href(response.body)).to end_with("/scores/#{rep.id}")
       end
 

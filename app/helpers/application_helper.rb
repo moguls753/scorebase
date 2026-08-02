@@ -1,10 +1,7 @@
 module ApplicationHelper
-  # Resolves the robots meta value: explicit content_for(:robots) wins,
-  # otherwise paginated views (?page>=2) get noindex,follow so page 2+
-  # doesn't compete with page 1 in the index.
-  def robots_meta_content
-    return content_for(:robots) if content_for?(:robots)
-    "noindex,follow" if params[:page].to_i > 1
+  def hreflang_alternates
+    path = request.path.sub(%r{\A/de(?=/|\z)}, "").presence || "/"
+    { en: path, de: "/de#{path}".chomp("/") }
   end
 
   # Sanitize URL to prevent javascript: XSS attacks

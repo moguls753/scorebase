@@ -27,33 +27,28 @@
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
     <!-- Robots — set per-view via content_for(:robots, "noindex,follow") on
-         dynamic query-result pages and beta-limit pages so they don't
-         pollute the index. Paginated pages (?page>=2) auto-noindex via
-         robots_meta_content so page 2+ doesn't compete with page 1. -->
-    <% robots_content = robots_meta_content %>
+         dynamic query-result pages, beta-limit pages and paginated listings. -->
+    <% robots_content = content_for(:robots).presence %>
+    <% noindexed = robots_content&.include?("noindex") %>
     <% if robots_content %>
       <meta name="robots" content="<%= robots_content %>">
     <% end %>
 
     <!-- Canonical URL -->
-    <%# Never pair noindex with rel=canonical: the default canonical drops the query
-        string, so /scores?filter=… would point at /scores and Google consolidates the
-        noindex onto that target — which itself folds into /. %>
-    <% unless robots_content %>
-      <% if content_for?(:canonical_url) %>
-        <link rel="canonical" href="<%= content_for(:canonical_url) %>">
-      <% else %>
-        <link rel="canonical" href="<%= request.base_url %><%= request.path %>">
-      <% end %>
+    <%# A canonical alongside noindex consolidates the noindex onto its target. %>
+    <% if content_for?(:canonical_url) %>
+      <link rel="canonical" href="<%= content_for(:canonical_url) %>">
+    <% elsif !noindexed %>
+      <link rel="canonical" href="<%= request.base_url %><%= request.path %>">
     <% end %>
 
-    <%# Suppress self-hreflang on pages canonicalized elsewhere (hidden arrangement
-        members) — their language cluster belongs to the representative, not them. %>
-    <% unless content_for?(:canonical_url) || robots_content %>
+    <%# Pages canonicalized elsewhere belong to their target's language cluster. %>
+    <% unless content_for?(:canonical_url) || noindexed %>
+      <% alternates = hreflang_alternates %>
       <!-- Alternate language versions (hreflang) -->
-      <link rel="alternate" hreflang="en" href="<%= request.base_url %><%= request.path.gsub(%r{^/de(/|$)}, '/') %>">
-      <link rel="alternate" hreflang="de" href="<%= request.base_url %>/de<%= request.path.gsub(%r{^/de}, '') %>">
-      <link rel="alternate" hreflang="x-default" href="<%= request.base_url %><%= request.path.gsub(%r{^/de(/|$)}, '/') %>">
+      <link rel="alternate" hreflang="en" href="<%= request.base_url %><%= alternates[:en] %>">
+      <link rel="alternate" hreflang="de" href="<%= request.base_url %><%= alternates[:de] %>">
+      <link rel="alternate" hreflang="x-default" href="<%= request.base_url %><%= alternates[:en] %>">
     <% end %>
 
     <!-- Open Graph / Social Sharing -->
