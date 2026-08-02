@@ -30,20 +30,26 @@
          dynamic query-result pages and beta-limit pages so they don't
          pollute the index. Paginated pages (?page>=2) auto-noindex via
          robots_meta_content so page 2+ doesn't compete with page 1. -->
-    <% if (robots_content = robots_meta_content) %>
+    <% robots_content = robots_meta_content %>
+    <% if robots_content %>
       <meta name="robots" content="<%= robots_content %>">
     <% end %>
 
     <!-- Canonical URL -->
-    <% if content_for?(:canonical_url) %>
-      <link rel="canonical" href="<%= content_for(:canonical_url) %>">
-    <% else %>
-      <link rel="canonical" href="<%= request.base_url %><%= request.path %>">
+    <%# Never pair noindex with rel=canonical: the default canonical drops the query
+        string, so /scores?filter=… would point at /scores and Google consolidates the
+        noindex onto that target — which itself folds into /. %>
+    <% unless robots_content %>
+      <% if content_for?(:canonical_url) %>
+        <link rel="canonical" href="<%= content_for(:canonical_url) %>">
+      <% else %>
+        <link rel="canonical" href="<%= request.base_url %><%= request.path %>">
+      <% end %>
     <% end %>
 
     <%# Suppress self-hreflang on pages canonicalized elsewhere (hidden arrangement
         members) — their language cluster belongs to the representative, not them. %>
-    <% unless content_for?(:canonical_url) %>
+    <% unless content_for?(:canonical_url) || robots_content %>
       <!-- Alternate language versions (hreflang) -->
       <link rel="alternate" hreflang="en" href="<%= request.base_url %><%= request.path.gsub(%r{^/de(/|$)}, '/') %>">
       <link rel="alternate" hreflang="de" href="<%= request.base_url %>/de<%= request.path.gsub(%r{^/de}, '') %>">

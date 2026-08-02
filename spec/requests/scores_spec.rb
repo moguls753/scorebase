@@ -66,6 +66,14 @@ RSpec.describe 'Scores' do
         expect(response.body).not_to include(I18n.t('search.or_explore'))
       end
 
+      it 'emits no canonical or hreflang alongside noindex' do
+        get scores_path(instrument: 'piano')
+
+        expect(response.body).to include('noindex,follow')
+        expect(response.body).not_to include('rel="canonical"')
+        expect(response.body).not_to include('rel="alternate" hreflang')
+      end
+
       it 'filters by voicing and rejects invalid voicing params' do
         create(:score, title: 'Solo Piece', num_parts: 1)
         create(:score, title: 'Quartet Piece', num_parts: 4)
