@@ -84,9 +84,7 @@ class Ahoy::Store < Ahoy::DatabaseStore
   end
 end
 
-# Pageviews are tracked from JavaScript via /ahoy/events to filter scrapers
-# that don't run JS. Server-side ahoy.track (e.g. SMD click during redirect)
-# still works: :when_needed creates the visit lazily for events that need one.
+# ahoy.js runs cookies:false and never calls /_internal/visits — `false` here would create no visits at all.
 Ahoy.api = true
 Ahoy.server_side_visits = :when_needed
 

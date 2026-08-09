@@ -409,13 +409,13 @@ RSpec.describe 'Scores' do
       let(:free) { create(:score, title: 'Locus Iste', composer: 'Bruckner, Anton') }
       let(:edition) { create(:score, :smd, title: 'Locus Iste', composer: 'Anton Bruckner') }
 
-      it 'renders the section with an xlink-tagged link when a match exists' do
+      it 'renders the section linking to the matched edition' do
         ScoreSmdMatch.create!(score: free, smd_score: edition, rank: 1)
 
         get score_path(id: free.id)
 
         expect(response.body).to include('Professional Editions')
-        expect(response.body).to include(score_path(id: edition.id, src: 'xlink'))
+        expect(response.body).to include(score_path(id: edition.id))
       end
 
       it 'omits the section without matches' do
@@ -433,29 +433,17 @@ RSpec.describe 'Scores' do
         expect(response.body).not_to include('Professional Editions')
       end
 
-      it 'tracks an xlink visit for real browsers only' do
-        expect {
-          get score_path(id: edition.id, src: 'xlink'), headers: browser_headers
-        }.to change { Ahoy::Event.where(name: 'Cross-link visit').count }.by(1)
-        expect(Ahoy::Event.last.properties).to eq('score_id' => edition.id)
-
-        expect {
-          get score_path(id: edition.id, src: 'xlink')
-        }.not_to change { Ahoy::Event.count }
-      end
-
-      it 'never tracks without the xlink param or on non-SMD targets' do
+      it 'never creates an Ahoy visit server-side' do
         expect {
           get score_path(id: edition.id), headers: browser_headers
-          get score_path(id: free.id, src: 'xlink'), headers: browser_headers
-        }.not_to change { Ahoy::Event.where(name: 'Cross-link visit').count }
+        }.not_to change { Ahoy::Visit.count }
       end
 
-      it 'ignores Turbo hover-prefetch requests' do
+      it 'skips the view counter on Turbo hover-prefetch requests' do
         expect {
-          get score_path(id: edition.id, src: 'xlink'),
+          get score_path(id: edition.id),
               headers: browser_headers.merge('HTTP_X_SEC_PURPOSE' => 'prefetch')
-        }.not_to change { Ahoy::Event.count }
+        }.not_to change { edition.reload.views }
       end
     end
 

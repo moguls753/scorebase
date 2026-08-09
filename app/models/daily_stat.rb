@@ -2,123 +2,91 @@
 #
 # Table name: daily_stats
 #
-#  id                         :integer          not null, primary key
-#  browsers                   :json
-#  converting_visits          :integer
-#  countries                  :json
-#  cross_link_visits_by_score :json
-#  date                       :date
-#  devices                    :json
-#  paths                      :json
-#  referrers                  :json
-#  returning_rates            :json
-#  smd_clicks_by_score        :json
-#  user_agents                :json
-#  visits                     :integer          default(0)
-#  created_at                 :datetime         not null
-#  updated_at                 :datetime         not null
+#  id                      :integer          not null, primary key
+#  countries               :json
+#  date                    :date
+#  devices                 :json
+#  human_converting_visits :integer
+#  human_visits            :integer
+#  paths                   :json
+#  referrers               :json
+#  smd_clicks_by_score     :json
+#  visits                  :integer          default(0)
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
 #
 # Indexes
 #
 #  index_daily_stats_on_date  (date) UNIQUE
 #
 class DailyStat < ApplicationRecord
-  # Hosts that count as "internal" — a visit referred from one of these is
-  # someone navigating between pages on our own site, not a fresh arrival.
-  # Configurable via ENV so dev/staging/prod can each provide their own host
-  # list (e.g. "scorebase.org,localhost,staging.scorebase.org").
+  # ENV-configurable so dev/staging/prod can each declare their own on-site hosts.
   INTERNAL_HOSTS = ENV.fetch("INTERNAL_ANALYTICS_HOSTS", "scorebase.org")
                       .split(",").map(&:strip).reject(&:empty?).freeze
 
-  RETURNING_WINDOWS = { "7d" => 7, "30d" => 30, "90d" => 90, "180d" => 180 }.freeze
+  REFERRER_CAPTURE_STARTED_ON = Date.new(2026, 7, 16)
+
+  scope :in_window, ->(days) { where(date: (days - 1).days.ago.to_date..Date.current) }
+  scope :measured,  -> { where.not(human_visits: nil) }
 
   def total_smd_clicks
     (smd_clicks_by_score || {}).values.sum
   end
 
-  def total_cross_link_visits
-    (cross_link_visits_by_score || {}).values.sum
+  def self.summary
+    # Unmeasured rows carry visits but no human_visits — including them divides a short numerator by a full denominator.
+    rows   = measured.to_a
+    raw    = rows.sum { |r| r.visits.to_i }
+    humans = rows.sum { |r| r.human_visits.to_i }
+    conv   = rows.sum { |r| r.human_converting_visits.to_i }
+
+    {
+      days:            rows.size,
+      visits:          raw,
+      human_visits:    humans,
+      avg_visits:      rows.empty? ? 0 : (raw.to_f / rows.size).round,
+      avg_human:       rows.empty? ? 0 : (humans.to_f / rows.size).round,
+      human_share:     raw.zero? ? nil : (humans * 100.0 / raw).round(1),
+      smd_clicks:      rows.sum(&:total_smd_clicks),
+      converting:      conv,
+      conversion_rate: humans.zero? ? nil : (conv * 100.0 / humans).round(1)
+    }
   end
 
-  # Nil for rows aggregated before `converting_visits` existed: the dashboard
-  # renders those as "—" rather than a misleading 0%.
-  def smd_conversion_rate
-    return nil if visits.to_i.zero? || converting_visits.nil?
-    (converting_visits * 100.0 / visits).round(1)
-  end
-
-  # Roll up Ahoy data for `date` into a DailyStat row matching the dashboard's
-  # JSON-column contract. Idempotent. Skipped entirely on days with no Ahoy
-  # data so legacy/pre-cutover rows aren't clobbered with zeros.
-  #
-  # `visits` (and visit-derived breakdowns: countries, browsers, devices,
-  # user_agents, referrers) count *external arrivals only* — visits whose
-  # referring_domain is NULL (direct entry) or not one of INTERNAL_HOSTS.
-  # `paths` stays unfiltered: per-page engagement is meaningful regardless of
-  # how the user got there. `smd_clicks_by_score` and `converting_visits` both
-  # count external clicks only, sharing the `visits` denominator — historical
-  # rows are polluted by server-side clicks on internal-referrer visits that
-  # would otherwise push conversion rates well over 100%.
-  #
-  # Why referrer and not a $view check: a buy-click with no prior JS pageview gets a
-  # lazily-created (server_side_visits :when_needed) internal-referrer visit, so
-  # external-referrer and has-a-pageview select the same rows here; bots are already
-  # out. Measured 07/2026: internal buy-click visits are 0.3% pageview, external 100%.
+  # Idempotent; skipped on days with no Ahoy data so pre-cutover rows aren't clobbered with zeros.
   def self.aggregate_for!(date)
     range           = date.beginning_of_day..date.end_of_day
     all_visits      = Ahoy::Visit.where(started_at: range)
     external_visits = if INTERNAL_HOSTS.any?
-      all_visits.where(
-        "referring_domain IS NULL OR referring_domain NOT IN (?)", INTERNAL_HOSTS
-      )
+      all_visits.where("referring_domain IS NULL OR referring_domain NOT IN (?)", INTERNAL_HOSTS)
     else
       all_visits
     end
-    all_events      = Ahoy::Event.where(time: range)
-    pageviews       = all_events.where(name: "$view")
-    clicks          = all_events.where(name: "SMD click")
-    cross_links     = all_events.where(name: "Cross-link visit")
-    external_clicks = clicks.where(visit_id: external_visits.select(:id))
+    pageviews = Ahoy::Event.where(time: range, name: "$view")
+    clicks    = Ahoy::Event.where(time: range, name: "SMD click")
 
     return if pageviews.count.zero? && all_visits.count.zero?
 
-    find_or_create_by(date: date).update!(
-      visits:              external_visits.count,
-      converting_visits:   external_clicks.distinct.count(:visit_id),
-      countries:           external_visits.where.not(country: nil).group(:country).count,
-      referrers:           external_visits.group("COALESCE(NULLIF(referring_domain, ''), 'direct')").count,
-      paths:               pageviews.group("json_extract(properties, '$.page')").count,
-      devices:             external_visits.where.not(device_type: nil).group(:device_type).count,
-      browsers:            external_visits.where.not(browser: nil).group(:browser).count,
-      user_agents:         external_visits.where.not(user_agent: nil).group("substr(user_agent, 1, 100)").count,
-      smd_clicks_by_score: external_clicks.group("json_extract(properties, '$.score_id')").count,
-      cross_link_visits_by_score: cross_links.group("json_extract(properties, '$.score_id')").count,
-      returning_rates:     returning_rates_for(date)
-    )
-  end
+    attrs = { visits: external_visits.count }
 
-  def self.returning_rates_for(date)
-    today_hashes = Ahoy::Visit
-                     .where(started_at: date.all_day)
-                     .where.not(visitor_hash: nil)
-                     .distinct.pluck(:visitor_hash)
-    return RETURNING_WINDOWS.transform_values { 0.0 } if today_hashes.empty?
+    if date >= REFERRER_CAPTURE_STARTED_ON
+      viewed       = external_visits.where(id: pageviews.select(:visit_id))
+      repeat       = pageviews.group(:visit_id).having("COUNT(*) > 1").select(:visit_id)
+      humans       = viewed.where.not(referring_domain: nil).or(viewed.where(id: repeat))
+      human_views  = pageviews.where(visit_id: humans.select(:id))
+      human_clicks = clicks.where(visit_id: humans.select(:id))
 
-    today_set = today_hashes.to_set
-    total     = today_set.size
-
-    RETURNING_WINDOWS.transform_values do |window_days|
-      prior_range = (date - window_days.days).beginning_of_day...date.beginning_of_day
-      prior_pairs = Ahoy::Visit.where(started_at: prior_range)
-                               .pluck(:visitor_hash, :visitor_hash_next)
-
-      prior_set = Set.new
-      prior_pairs.each do |h, hn|
-        prior_set << h  if h.present?
-        prior_set << hn if hn.present?
-      end
-
-      (today_set & prior_set).size.to_f / total
+      attrs.merge!(
+        human_visits:            humans.count,
+        human_converting_visits: human_clicks.distinct.count(:visit_id),
+        countries:               humans.where.not(country: nil).group(:country).count,
+        referrers:               humans.group("COALESCE(NULLIF(referring_domain, ''), 'direct')").count,
+        devices:                 humans.where.not(device_type: nil).group(:device_type).count,
+        paths:                   human_views.group("json_extract(properties, '$.page')").distinct.count(:visit_id),
+        smd_clicks_by_score:     human_clicks.group("json_extract(properties, '$.score_id')").count
+      )
     end
+
+    find_or_create_by(date: date).update!(attrs)
   end
 end

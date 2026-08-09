@@ -66,6 +66,16 @@ RSpec.describe "Ahoy tracking", type: :request do
     expect(visit.referrer).to be_nil
   end
 
+  it "attaches a later event to the pageview's visit instead of creating a second one" do
+    track_view("page" => "/scores/1", "referring_domain" => "google.com")
+
+    events = [{ name: "SMD click", properties: { "score_id" => 7 }, time: Time.current.iso8601, id: SecureRandom.uuid }]
+    expect { post "/_internal/events", params: { events_json: events.to_json }, headers: headers }
+      .not_to change { Ahoy::Visit.count }
+
+    expect(Ahoy::Visit.last.events.pluck(:name)).to contain_exactly("$view", "SMD click")
+  end
+
   it "records an internal referral as scorebase.org so DailyStat can exclude it" do
     track_view("page" => "/scores/1", "referring_domain" => "scorebase.org")
 

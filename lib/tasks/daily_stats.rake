@@ -6,8 +6,9 @@ namespace :daily_stats do
 
     dates.each { |date| DailyStat.aggregate_for!(date) }
 
-    covered = DailyStat.where(date: dates).where.not(converting_visits: nil).count
+    scoped = DailyStat.where(date: dates)
     puts "Backfill done: #{dates.count} dates re-aggregated, " \
-         "#{covered} rows now carry converting_visits."
+         "#{scoped.measured.count} carry human metrics " \
+         "(#{DailyStat::REFERRER_CAPTURE_STARTED_ON} onward)."
   end
 end

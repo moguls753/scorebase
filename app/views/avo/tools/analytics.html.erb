@@ -2,46 +2,9 @@
   <style>
     .analytics-grid { display: grid; gap: 1.5rem; }
     .analytics-grid-2 { grid-template-columns: repeat(2, 1fr); }
-    .analytics-grid-3 { grid-template-columns: repeat(3, 1fr); }
-    .analytics-grid-4 { grid-template-columns: repeat(4, 1fr); }
-    @media (max-width: 1024px) {
-      .analytics-grid-3, .analytics-grid-4 { grid-template-columns: repeat(2, 1fr); }
-    }
     @media (max-width: 640px) {
-      .analytics-grid-2, .analytics-grid-3, .analytics-grid-4 { grid-template-columns: 1fr; }
+      .analytics-grid-2 { grid-template-columns: 1fr; }
     }
-
-    .stat-card {
-      background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
-      border: 1px solid #e5e5e5;
-      border-radius: 12px;
-      padding: 1.25rem;
-      transition: all 0.2s ease;
-    }
-    .stat-card:hover {
-      border-color: #d4d4d4;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .stat-value {
-      font-size: 2rem;
-      font-weight: 700;
-      font-variant-numeric: tabular-nums;
-      line-height: 1.1;
-    }
-    .stat-label {
-      font-size: 0.75rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      color: #737373;
-      margin-top: 0.25rem;
-    }
-    .stat-trend {
-      font-size: 0.875rem;
-      margin-top: 0.5rem;
-    }
-    .stat-trend.up { color: #16a34a; }
-    .stat-trend.down { color: #dc2626; }
 
     .data-table {
       width: 100%;
@@ -65,20 +28,6 @@
     }
     .data-table td.right { text-align: right; font-variant-numeric: tabular-nums; }
     .data-table tr:hover td { background: #fafafa; }
-    .data-table .bar-cell {
-      position: relative;
-      padding-right: 6rem;
-    }
-    .data-table .bar {
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      height: 6px;
-      background: linear-gradient(90deg, #6366f1 0%, #a5b4fc 100%);
-      border-radius: 3px;
-      max-width: 4rem;
-    }
 
     .pill {
       display: inline-flex;
@@ -91,7 +40,6 @@
     }
     .pill-blue { background: #eff6ff; color: #1d4ed8; }
     .pill-green { background: #f0fdf4; color: #15803d; }
-    .pill-orange { background: #fff7ed; color: #c2410c; }
     .pill-purple { background: #faf5ff; color: #7e22ce; }
 
     .range-selector {
@@ -112,11 +60,6 @@
     }
     .range-btn:hover { color: #404040; background: #e5e5e5; }
     .range-btn.active { background: white; color: #171717; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-
-    .returning-color-7d   { color: #6366f1; }
-    .returning-color-30d  { color: #10b981; }
-    .returning-color-90d  { color: #f59e0b; }
-    .returning-color-180d { color: #8b5cf6; }
 
     .device-icon {
       display: inline-flex;
@@ -141,148 +84,30 @@
       <p class="text-sm text-gray-500">Traffic and visitor insights</p>
     </div>
     <div class="range-selector">
-      <%= link_to "1D", avo.analytics_path(days: 1), class: "range-btn #{@range_days == 1 ? 'active' : ''}" %>
       <%= link_to "7D", avo.analytics_path(days: 7), class: "range-btn #{@range_days == 7 ? 'active' : ''}" %>
-      <%= link_to "14D", avo.analytics_path(days: 14), class: "range-btn #{@range_days == 14 ? 'active' : ''}" %>
       <%= link_to "30D", avo.analytics_path(days: 30), class: "range-btn #{@range_days == 30 ? 'active' : ''}" %>
       <%= link_to "90D", avo.analytics_path(days: 90), class: "range-btn #{@range_days == 90 ? 'active' : ''}" %>
-      <%= link_to "180D", avo.analytics_path(days: 180), class: "range-btn #{@range_days == 180 ? 'active' : ''}" %>
     </div>
   </div>
 
-  <%# Key Metrics %>
-  <div class="analytics-grid analytics-grid-4">
-    <div class="stat-card">
-      <div class="stat-value text-indigo-600"><%= number_with_delimiter(@total_visits) %></div>
-      <div class="stat-label">Total Visits (<%= @range_days %>d)</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value text-emerald-600"><%= number_with_delimiter(@avg_daily_visits) %></div>
-      <div class="stat-label">Avg Daily Visits</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value text-amber-600"><%= number_with_delimiter(@today&.visits || 0) %></div>
-      <div class="stat-label">Today's Visits</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-value text-purple-600"><%= @countries.keys.count %></div>
-      <div class="stat-label">Countries</div>
-    </div>
-  </div>
-
-  <%# Returning Visitors %>
-  <%= render Avo::PanelComponent.new(name: "Returning Visitors") do |c| %>
-    <% c.with_body do %>
-      <div class="px-6 py-4 space-y-6">
-        <%# Returning-visitor count — follows the range selector %>
-        <div class="flex items-center gap-4 pb-5 border-b border-gray-100">
-          <span class="text-5xl font-bold tabular-nums text-indigo-600 leading-none"><%= number_with_delimiter(@returning_visitors_total) %></span>
-          <span class="text-sm leading-snug">
-            <span class="text-gray-600">returning <%= "visitor".pluralize(@returning_visitors_total) %></span><br>
-            <span class="text-gray-400">visited on 2+ separate days, last <%= @returning_window_days %> days</span>
-          </span>
-        </div>
-
-        <% if @latest_returning_stat %>
-          <%# Latest-day summary %>
-          <div>
-            <div class="flex items-baseline justify-between mb-3">
-              <h3 class="text-xs font-medium text-gray-500 uppercase tracking-wide">Latest values</h3>
-              <span class="text-xs text-gray-400 tabular-nums"><%= @latest_returning_stat.date.strftime("%b %-d, %Y") %></span>
-            </div>
-            <div class="analytics-grid analytics-grid-4">
-              <% @latest_returning_stat.returning_rates.each do |window, rate| %>
-                <div class="stat-card">
-                  <div class="stat-value returning-color-<%= window %>"><%= number_to_percentage(rate * 100, precision: 1) %></div>
-                  <div class="stat-label">Returning <%= window %></div>
-                </div>
-              <% end %>
-            </div>
-          </div>
-
-          <%# Trend chart over selected range %>
-          <div>
-            <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-              Trend (last <%= @range_days %>d)
-            </div>
-            <%= line_chart @returning_series,
-              colors: %w[#6366f1 #10b981 #f59e0b #8b5cf6],
-              suffix: "%",
-              library: {
-                scales: {
-                  y: { beginAtZero: true, grid: { color: "#f5f5f5" } },
-                  x: { grid: { display: false } }
-                },
-                plugins: {
-                  legend: { display: true, position: "bottom", labels: { boxWidth: 12, padding: 16, font: { size: 11 } } }
-                },
-                elements: {
-                  line: { tension: 0.4, borderWidth: 2 },
-                  point: { radius: 0, hoverRadius: 5 }
-                }
-              },
-              height: "260px" %>
-          </div>
-
-          <%# Per-day table %>
-          <div>
-            <div class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-2">
-              Daily values
-            </div>
-            <div class="overflow-x-auto max-h-80">
-              <table class="data-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <% DailyStat::RETURNING_WINDOWS.keys.each do |window| %>
-                      <th class="right">Returning <%= window %></th>
-                    <% end %>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% @stats.reverse.each do |stat| %>
-                    <tr>
-                      <td class="font-medium">
-                        <%= stat.date.strftime("%a, %b %-d") %>
-                        <% if stat.date == Date.current %>
-                          <span class="pill pill-green ml-2">Today</span>
-                        <% end %>
-                      </td>
-                      <% DailyStat::RETURNING_WINDOWS.keys.each do |window| %>
-                        <% rate = stat.returning_rates&.dig(window) %>
-                        <td class="right tabular-nums <%= rate ? "text-gray-700" : "text-gray-300" %>">
-                          <%= rate ? number_to_percentage(rate * 100, precision: 1) : "—" %>
-                        </td>
-                      <% end %>
-                    </tr>
-                  <% end %>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        <% else %>
-          <p class="text-gray-400 text-center py-12">
-            No returning-visitor data in this range yet.<br>
-            <span class="text-sm">Populates with each hourly aggregation; longer windows ramp up over weeks.</span>
-          </p>
-        <% end %>
-      </div>
-    <% end %>
-  <% end %>
+  <%= render "summary_cards", summary: @summary %>
 
   <%# Visits Chart %>
-  <%= render Avo::PanelComponent.new(name: "Visits Over Time") do |c| %>
+  <%= render Avo::PanelComponent.new(name: "Visits Over Time (human vs raw)") do |c| %>
     <% c.with_body do %>
       <div class="px-6 py-4">
         <% if @stats.any? %>
-          <%= area_chart @stats.map { |s| [s.date.strftime("%b %d"), s.visits] },
-            colors: ["#6366f1"],
+          <%= line_chart [
+            { name: "Visits (raw)", data: @stats.map { |s| [s.date.strftime("%b %d"), s.visits] } },
+            { name: "Human Visits", data: @stats.map { |s| [s.date.strftime("%b %d"), s.human_visits] } }
+          ],
+            colors: ["#9ca3af", "#16a34a"],
             library: {
               scales: {
                 y: { beginAtZero: true, grid: { color: "#f5f5f5" } },
                 x: { grid: { display: false } }
               },
-              plugins: { legend: { display: false } },
+              plugins: { legend: { display: true, position: "bottom" } },
               elements: { line: { tension: 0.4, borderWidth: 2 }, point: { radius: 0, hoverRadius: 4 } }
             },
             height: "280px" %>
@@ -375,64 +200,36 @@
     <% end %>
   </div>
 
-  <%# Two Column: Devices & Browsers %>
-  <div class="analytics-grid analytics-grid-2">
-    <%# Devices %>
-    <%= render Avo::PanelComponent.new(name: "Devices") do |c| %>
-      <% c.with_body do %>
-        <div class="px-6 py-4">
-          <% if @devices.any? %>
-            <div class="flex gap-8 justify-center py-4">
-              <% total = @devices.values.sum %>
-              <% @devices.each do |device, count| %>
-                <div class="text-center">
-                  <div class="device-icon device-<%= device %> mx-auto mb-2" style="width: 3rem; height: 3rem;">
-                    <% if device == "desktop" %>
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                    <% elsif device == "mobile" %>
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                    <% else %>
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                    <% end %>
-                  </div>
-                  <div class="text-2xl font-bold text-gray-900"><%= percentage(count, total).round %>%</div>
-                  <div class="text-sm text-gray-500 capitalize"><%= device %></div>
-                  <div class="text-xs text-gray-400 mt-1"><%= number_with_delimiter(count) %> visits</div>
+  <%# Devices %>
+  <%= render Avo::PanelComponent.new(name: "Devices") do |c| %>
+    <% c.with_body do %>
+      <div class="px-6 py-4">
+        <% if @devices.any? %>
+          <div class="flex gap-8 justify-center py-4">
+            <% total = @devices.values.sum %>
+            <% @devices.each do |device, count| %>
+              <div class="text-center">
+                <div class="device-icon device-<%= device %> mx-auto mb-2" style="width: 3rem; height: 3rem;">
+                  <% if device == "desktop" %>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                  <% elsif device == "mobile" %>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                  <% else %>
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                  <% end %>
                 </div>
-              <% end %>
-            </div>
-          <% else %>
-            <p class="text-gray-400 text-center py-8">No device data yet</p>
-          <% end %>
-        </div>
-      <% end %>
+                <div class="text-2xl font-bold text-gray-900"><%= percentage(count, total).round %>%</div>
+                <div class="text-sm text-gray-500 capitalize"><%= device %></div>
+                <div class="text-xs text-gray-400 mt-1"><%= number_with_delimiter(count) %> visits</div>
+              </div>
+            <% end %>
+          </div>
+        <% else %>
+          <p class="text-gray-400 text-center py-8">No device data yet</p>
+        <% end %>
+      </div>
     <% end %>
-
-    <%# Browsers %>
-    <%= render Avo::PanelComponent.new(name: "Browsers") do |c| %>
-      <% c.with_body do %>
-        <div class="px-6 py-4">
-          <% if @browsers.any? %>
-            <% total = @browsers.values.sum %>
-            <% max_count = @browsers.values.max || 1 %>
-            <div class="space-y-3">
-              <% @browsers.first(6).each do |browser, count| %>
-                <div class="flex items-center gap-3">
-                  <div class="w-20 text-sm font-medium text-gray-700"><%= browser %></div>
-                  <div class="flex-1 h-4 bg-gray-100 rounded-full overflow-hidden">
-                    <div class="h-full rounded-full <%= browser_color(browser) %>" style="width: <%= percentage(count, max_count).round %>%"></div>
-                  </div>
-                  <div class="w-16 text-right text-sm text-gray-500"><%= percentage(count, total) %>%</div>
-                </div>
-              <% end %>
-            </div>
-          <% else %>
-            <p class="text-gray-400 text-center py-8">No browser data yet</p>
-          <% end %>
-        </div>
-      <% end %>
-    <% end %>
-  </div>
+  <% end %>
 
   <%# Top Pages %>
   <%= render Avo::PanelComponent.new(name: "Top Pages") do |c| %>
@@ -443,7 +240,7 @@
             <thead>
               <tr>
                 <th>Page</th>
-                <th class="right">Views</th>
+                <th class="right">Visits</th>
                 <th class="right">%</th>
               </tr>
             </thead>
@@ -484,10 +281,8 @@
             <thead>
               <tr>
                 <th>Date</th>
-                <th class="right">Visits</th>
-                <th class="right">Countries</th>
-                <th class="right">Top Country</th>
-                <th class="right">Top Referrer</th>
+                <th class="right">Human Visits</th>
+                <th class="right">Visits (raw)</th>
               </tr>
             </thead>
             <tbody>
@@ -499,61 +294,14 @@
                       <span class="pill pill-green ml-2">Today</span>
                     <% end %>
                   </td>
-                  <td class="right"><%= number_with_delimiter(stat.visits) %></td>
-                  <td class="right text-gray-500"><%= (stat.countries || {}).keys.count %></td>
-                  <td class="right">
-                    <% top_country = (stat.countries || {}).max_by { |_, v| v }&.first %>
-                    <% if top_country %>
-                      <%= country_flag_emoji(top_country) %> <%= top_country %>
-                    <% else %>
-                      <span class="text-gray-300">-</span>
-                    <% end %>
-                  </td>
-                  <td class="right">
-                    <% top_ref = (stat.referrers || {}).max_by { |_, v| v }&.first %>
-                    <% if top_ref %>
-                      <span class="text-gray-600"><%= top_ref.truncate(20) %></span>
-                    <% else %>
-                      <span class="text-gray-300">-</span>
-                    <% end %>
-                  </td>
+                  <td class="right font-medium text-green-600"><%= stat.human_visits ? number_with_delimiter(stat.human_visits) : "—" %></td>
+                  <td class="right text-gray-500"><%= number_with_delimiter(stat.visits) %></td>
                 </tr>
               <% end %>
             </tbody>
           </table>
         <% else %>
           <p class="text-gray-400 text-center py-8">No data for this period</p>
-        <% end %>
-      </div>
-    <% end %>
-  <% end %>
-
-  <%# User Agents (for bot detection) %>
-  <%= render Avo::PanelComponent.new(name: "User Agents (Bot Detection)") do |c| %>
-    <% c.with_body do %>
-      <div class="px-2 py-2 max-h-96 overflow-y-auto">
-        <% if @user_agents.any? %>
-          <p class="text-xs text-gray-500 mb-3 px-4">Review for potential bots that slipped through detection</p>
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>User Agent</th>
-                <th class="right">Hits</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% @user_agents.first(50).each do |ua, count| %>
-                <tr>
-                  <td>
-                    <code class="text-xs bg-gray-50 px-2 py-1 rounded text-gray-600 break-all"><%= ua %></code>
-                  </td>
-                  <td class="right font-medium"><%= number_with_delimiter(count) %></td>
-                </tr>
-              <% end %>
-            </tbody>
-          </table>
-        <% else %>
-          <p class="text-gray-400 text-center py-8">No user agent data yet</p>
         <% end %>
       </div>
     <% end %>

@@ -16,7 +16,7 @@ FOREIGN KEY ("score_id")
  ON DELETE CASCADE);
 CREATE TABLE IF NOT EXISTS "waitlist_signups" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "email" varchar NOT NULL, "locale" varchar DEFAULT 'en' NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL);
 CREATE TABLE IF NOT EXISTS "score_page_deletion_logs" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "score_page_id" integer NOT NULL, "score_id" integer NOT NULL, "page_number" integer NOT NULL, "deleted_at" datetime(6) NOT NULL, "source" varchar, "context" text);
-CREATE TABLE IF NOT EXISTS "daily_stats" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date, "visits" integer DEFAULT 0, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "smd_clicks_by_score" json DEFAULT '{}', "user_agents" json, "countries" json, "referrers" json, "paths" json, "devices" json, "browsers" json, "returning_rates" json, "cross_link_visits_by_score" json DEFAULT '{}', "converting_visits" integer);
+CREATE TABLE IF NOT EXISTS "daily_stats" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "date" date, "visits" integer DEFAULT 0, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, "smd_clicks_by_score" json DEFAULT '{}', "countries" json, "referrers" json, "paths" json, "devices" json, "human_visits" integer, "human_converting_visits" integer);
 CREATE TABLE IF NOT EXISTS "score_smd_matches" ("id" integer PRIMARY KEY AUTOINCREMENT NOT NULL, "score_id" integer NOT NULL, "smd_score_id" integer NOT NULL, "rank" integer NOT NULL, "suppressed" boolean DEFAULT FALSE NOT NULL, "created_at" datetime(6) NOT NULL, "updated_at" datetime(6) NOT NULL, CONSTRAINT "fk_rails_ef221d632c"
 FOREIGN KEY ("score_id")
   REFERENCES "scores" ("id")
@@ -205,6 +205,8 @@ CREATE TRIGGER scores_instruments_fts_au AFTER UPDATE ON scores
           AND NEW.deleted_at IS NULL;
       END;
 INSERT INTO "schema_migrations" (version) VALUES
+('20260806120000'),
+('20260805120000'),
 ('20260721120000'),
 ('20260720120000'),
 ('20260719110000'),

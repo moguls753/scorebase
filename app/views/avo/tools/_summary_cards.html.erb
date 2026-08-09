@@ -1,0 +1,23 @@
+<div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+  <div class="bg-green-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-green-600"><%= summary[:days].positive? ? number_with_delimiter(summary[:human_visits]) : "—" %></div>
+    <div class="text-sm text-gray-500">Human Visits<%= " (#{summary[:days]}d measured) · #{summary[:human_share]}% of #{number_with_delimiter(summary[:visits])} raw" if summary[:human_share] %></div>
+  </div>
+  <div class="bg-indigo-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-indigo-600"><%= summary[:days].positive? ? number_with_delimiter(summary[:avg_human]) : "—" %></div>
+    <div class="text-sm text-gray-500">Human Visits / Day<%= " · #{number_with_delimiter(summary[:avg_visits])} raw" if summary[:days].positive? %></div>
+  </div>
+  <div class="bg-teal-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-teal-600"><%= summary[:days].positive? ? number_with_delimiter(summary[:smd_clicks]) : "—" %></div>
+    <div class="text-sm text-gray-500">Buy Clicks</div>
+  </div>
+  <div class="bg-violet-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-violet-600"><%= summary[:conversion_rate] ? "#{summary[:conversion_rate]}%" : "—" %></div>
+    <div class="text-sm text-gray-500">Conversion Rate<%= " · #{number_with_delimiter(summary[:converting])} of #{number_with_delimiter(summary[:human_visits])} visits" if summary[:conversion_rate] %></div>
+  </div>
+</div>
+<p class="mt-4 text-xs text-gray-500 leading-relaxed">
+  <strong>Human Visits</strong> counts external arrivals — on-site navigation excluded — that rendered a page in a real browser and either came from a named referrer or viewed a second page.
+  Every number on this page counts those visits only; <strong>raw</strong> counts every external arrival, is mostly bots, and is shown as a ceiling.
+  Human figures start 16 Jul 2026, when referrer recording began; Buy Clicks and Conversion Rate drop clicks from visits that fail the rule, so both read as a floor.
+</p>

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe DailyStat, type: :model do
   describe '.aggregate_for!' do
-    let(:date) { Date.new(2026, 4, 15) }
+    let(:date) { DailyStat::REFERRER_CAPTURE_STARTED_ON + 4 }
     let(:noon) { date.in_time_zone.change(hour: 12) }
 
     def make_visit(**overrides)
@@ -39,27 +39,20 @@ RSpec.describe DailyStat, type: :model do
         Ahoy::Event.create!(visit: v1, name: "SMD click", properties: { "score_id" => 42 }, time: noon)
         Ahoy::Event.create!(visit: v1, name: "SMD click", properties: { "score_id" => 42 }, time: noon)
         Ahoy::Event.create!(visit: v2, name: "SMD click", properties: { "score_id" => 99 }, time: noon)
-        Ahoy::Event.create!(visit: v1, name: "Cross-link visit", properties: { "score_id" => 42 }, time: noon)
-        Ahoy::Event.create!(visit: v2, name: "Cross-link visit", properties: { "score_id" => 42 }, time: noon)
       end
 
-      it 'aggregates into the dashboard JSON shape' do
+      it 'aggregates the human-visit basis into the dashboard JSON shape' do
         described_class.aggregate_for!(date)
         ds = DailyStat.find_by!(date: date)
 
-        # `visits` counts external arrivals (visits = sessions), not pageviews.
-        # v1 (google.com) and v2 (direct) are both external → 2 visits.
         expect(ds.visits).to eq(2)
-        expect(ds.paths).to eq("/scores/1" => 2, "/search" => 1)
-        expect(ds.countries).to eq("DE" => 1, "US" => 1)
-        expect(ds.browsers).to eq("Chrome" => 1, "Firefox" => 1)
-        expect(ds.devices).to eq("desktop" => 1, "mobile" => 1)
-        expect(ds.referrers).to eq("google.com" => 1, "direct" => 1)
-        expect(ds.user_agents).to eq("UA-1" => 1, "UA-2" => 1)
-        expect(ds.smd_clicks_by_score).to eq("42" => 2, "99" => 1)
-        expect(ds.cross_link_visits_by_score).to eq("42" => 2)
-        # v1 clicked twice, v2 once: converting_visits counts visits, not events.
-        expect(ds.converting_visits).to eq(2)
+        expect(ds.human_visits).to eq(1)
+        expect(ds.countries).to eq("DE" => 1)
+        expect(ds.devices).to eq("desktop" => 1)
+        expect(ds.referrers).to eq("google.com" => 1)
+        expect(ds.paths).to eq("/scores/1" => 1)
+        expect(ds.smd_clicks_by_score).to eq("42" => 2)
+        expect(ds.human_converting_visits).to eq(1)
       end
 
       it 'is idempotent on repeat invocation' do
@@ -71,7 +64,7 @@ RSpec.describe DailyStat, type: :model do
     end
 
     context 'internal-referrer filtering' do
-      it 'excludes internal-referrer visits from visits/countries/devices/referrers and their SMD clicks, but keeps their pageviews' do
+      it 'counts only external human visits across every breakdown' do
         external = make_visit(country: "DE", browser: "Chrome", device_type: "desktop",
                               referring_domain: "google.com", user_agent: "ext-ua")
         internal_a = make_visit(country: "US", browser: "Firefox", device_type: "mobile",
@@ -87,27 +80,37 @@ RSpec.describe DailyStat, type: :model do
         described_class.aggregate_for!(date)
         ds = DailyStat.find_by!(date: date)
 
-        # only the external visit counts
         expect(ds.visits).to eq(1)
+        expect(ds.human_visits).to eq(1)
         expect(ds.countries).to eq("DE" => 1)
-        expect(ds.browsers).to eq("Chrome" => 1)
         expect(ds.devices).to eq("desktop" => 1)
         expect(ds.referrers).to eq("google.com" => 1)
-        expect(ds.user_agents).to eq("ext-ua" => 1)
-
-        # content engagement stays unfiltered
-        expect(ds.paths).to eq("/scores" => 1, "/scores/123" => 1, "/scores/456" => 1)
-
-        # ...but revenue events share converting_visits' filtered denominator,
-        # so the internal visit's click is excluded from both.
+        expect(ds.paths).to eq("/scores" => 1)
         expect(ds.smd_clicks_by_score).to eq({})
-        expect(ds.converting_visits).to eq(0)
+        expect(ds.human_converting_visits).to eq(0)
+      end
+    end
+
+    context 'before referrer capture began' do
+      let(:earlier) { DailyStat::REFERRER_CAPTURE_STARTED_ON - 1 }
+      let(:earlier_noon) { earlier.in_time_zone.change(hour: 12) }
+
+      it 'leaves the human columns nil rather than writing a degraded value' do
+        visit = make_visit(started_at: earlier_noon)
+        2.times { Ahoy::Event.create!(visit: visit, name: "$view", properties: { "page" => "/" }, time: earlier_noon) }
+
+        described_class.aggregate_for!(earlier)
+        ds = DailyStat.find_by!(date: earlier)
+
+        expect(ds.visits).to eq(1)
+        expect(ds.human_visits).to be_nil
+        expect(ds.human_converting_visits).to be_nil
       end
     end
 
     context 'date scoping' do
       it 'does not pull in events from adjacent days' do
-        v_today = make_visit
+        v_today = make_visit(referring_domain: "google.com")
         Ahoy::Event.create!(visit: v_today, name: "$view", properties: { "page" => "/" }, time: noon)
 
         v_yesterday = make_visit(started_at: noon - 1.day)
@@ -132,125 +135,34 @@ RSpec.describe DailyStat, type: :model do
     end
   end
 
-  describe ".returning_rates_for" do
-    let(:today) { Date.new(2026, 5, 15) }
+  describe '.in_window' do
+    it 'spans exactly n calendar days ending today' do
+      create(:daily_stat, date: Date.current - 7)
+      edge = create(:daily_stat, date: Date.current - 6)
 
-    def make_visit(date:, visitor_hash:, visitor_hash_next: nil)
-      Ahoy::Visit.create!(
-        started_at:        date.in_time_zone.beginning_of_day + 12.hours,
-        visit_token:       SecureRandom.uuid,
-        visitor_token:     SecureRandom.uuid,
-        visitor_hash:      visitor_hash,
-        visitor_hash_next: visitor_hash_next
-      )
-    end
-
-    it "returns all zeros when no visits exist on the date" do
-      expect(DailyStat.returning_rates_for(today))
-        .to eq("7d" => 0.0, "30d" => 0.0, "90d" => 0.0, "180d" => 0.0)
-    end
-
-    it "computes the share of today's distinct visitors that also appeared in the window" do
-      make_visit(date: today, visitor_hash: "a")
-      make_visit(date: today, visitor_hash: "a")
-      make_visit(date: today, visitor_hash: "b")
-      make_visit(date: today, visitor_hash: "c")
-      make_visit(date: today - 5.days, visitor_hash: "a")
-
-      rates = DailyStat.returning_rates_for(today)
-      expect(rates["7d"]).to  be_within(0.001).of(1.0 / 3)
-      expect(rates["30d"]).to be_within(0.001).of(1.0 / 3)
-    end
-
-    it "matches across the salt rotation boundary via visitor_hash_next" do
-      jul5  = Date.new(2026, 7, 5)
-      jun30 = Date.new(2026, 6, 30)
-      h2 = "shared_h2_hash"
-      h1 = "shared_h1_hash"
-
-      make_visit(date: jul5,  visitor_hash: h2, visitor_hash_next: "future")
-      make_visit(date: jun30, visitor_hash: h1, visitor_hash_next: h2)
-
-      expect(DailyStat.returning_rates_for(jul5)["7d"]).to eq(1.0)
-    end
-
-    it "excludes visits with nil visitor_hash from numerator and denominator" do
-      make_visit(date: today,           visitor_hash: nil)
-      make_visit(date: today,           visitor_hash: "a")
-      make_visit(date: today - 3.days,  visitor_hash: "a")
-
-      expect(DailyStat.returning_rates_for(today)["7d"]).to eq(1.0)
+      expect(DailyStat.in_window(7)).to contain_exactly(edge)
     end
   end
 
-  describe ".aggregate_for! with returning_rates" do
-    it "writes returning_rates JSON alongside existing fields" do
-      midday_today = Date.current.in_time_zone.beginning_of_day + 12.hours
-      visit = Ahoy::Visit.create!(
-        started_at:        midday_today,
-        visit_token:       SecureRandom.uuid,
-        visitor_token:     SecureRandom.uuid,
-        visitor_hash:      "today_hash"
+  describe '.summary' do
+    it 'rolls measured rows up and ignores unmeasured rows on both sides of every ratio' do
+      create(:daily_stat, date: Date.current, visits: 400, human_visits: 200,
+                          human_converting_visits: 6, smd_clicks_by_score: { "1" => 8 })
+      create(:daily_stat, date: Date.current - 1, visits: 900, human_visits: nil,
+                          human_converting_visits: nil, smd_clicks_by_score: { "1" => 500 })
+
+      expect(DailyStat.in_window(7).summary).to eq(
+        days: 1, visits: 400, human_visits: 200, avg_visits: 400, avg_human: 200,
+        human_share: 50.0, smd_clicks: 8, converting: 6, conversion_rate: 3.0
       )
-      Ahoy::Event.create!(
-        visit:      visit,
-        name:       "$view",
-        time:       midday_today,
-        properties: { "page" => "/" }
-      )
-
-      DailyStat.aggregate_for!(Date.current)
-
-      stat = DailyStat.find_by(date: Date.current)
-      expect(stat).to be_present
-      expect(stat.returning_rates).to be_a(Hash)
-      expect(stat.returning_rates.keys).to contain_exactly("7d", "30d", "90d", "180d")
-    end
-  end
-
-  describe '#smd_conversion_rate' do
-    it 'expresses converting visits as a percentage of visits' do
-      stat = DailyStat.new(date: Date.current, visits: 160, converting_visits: 30)
-
-      expect(stat.smd_conversion_rate).to eq(18.8)
     end
 
-    it 'returns nil rather than dividing by zero on a day with no visits' do
-      stat = DailyStat.new(date: Date.current, visits: 0, converting_visits: 3)
+    it 'returns nil rates rather than dividing by zero on a window with no measured rows' do
+      create(:daily_stat, date: Date.current, visits: 400, human_visits: nil)
 
-      expect(stat.smd_conversion_rate).to be_nil
-    end
-
-    it 'returns nil for rows aggregated before converting_visits was backfilled' do
-      stat = DailyStat.new(date: Date.current, visits: 100, converting_visits: nil,
-                           smd_clicks_by_score: { "1" => 40 })
-
-      expect(stat.smd_conversion_rate).to be_nil
-    end
-
-    it 'stays within 100% when internal-referrer visits generate most of the clicks' do
-      date = Date.new(2026, 4, 15)
-      noon = date.in_time_zone.change(hour: 12)
-      visit = lambda do |referring_domain|
-        Ahoy::Visit.create!(started_at: noon, visit_token: SecureRandom.uuid,
-                            visitor_token: SecureRandom.uuid, referring_domain: referring_domain)
-      end
-
-      converting_external = visit.call("google.com")
-      visit.call("bing.com")
-      internal = visit.call("scorebase.org")
-
-      Ahoy::Event.create!(visit: converting_external, name: "$view", properties: { "page" => "/" }, time: noon)
-      Ahoy::Event.create!(visit: converting_external, name: "SMD click", properties: { "score_id" => 1 }, time: noon)
-      5.times { Ahoy::Event.create!(visit: internal, name: "SMD click", properties: { "score_id" => 2 }, time: noon) }
-
-      DailyStat.aggregate_for!(date)
-      stat = DailyStat.find_by!(date: date)
-
-      expect(stat.visits).to eq(2)
-      expect(stat.total_smd_clicks).to eq(1)
-      expect(stat.converting_visits).to eq(1)
-      expect(stat.smd_conversion_rate).to eq(50.0)
+      summary = DailyStat.in_window(7).summary
+      expect(summary[:human_share]).to be_nil
+      expect(summary[:conversion_rate]).to be_nil
     end
   end
 end

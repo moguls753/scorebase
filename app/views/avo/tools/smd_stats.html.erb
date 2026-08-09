@@ -1,81 +1,34 @@
 <div class="flex flex-col gap-6">
-  <%# Summary Stats %>
-  <%= render Avo::PanelComponent.new(name: '30-Day Summary') do |c| %>
+  <%= render Avo::PanelComponent.new(name: "#{@range_days}-Day Summary") do |c| %>
     <% c.with_body do %>
       <div class="px-6 py-4">
-        <div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
-          <div class="bg-orange-50 rounded-lg p-4">
-            <div class="text-2xl font-bold text-orange-600"><%= number_with_delimiter(@visits_30d) %></div>
-            <div class="text-sm text-gray-500">Total Visits</div>
-          </div>
-          <div class="bg-indigo-50 rounded-lg p-4">
-            <div class="text-2xl font-bold text-indigo-600"><%= number_with_delimiter(@xlinks_30d) %></div>
-            <div class="text-sm text-gray-500">Cross-link Visits</div>
-          </div>
-          <div class="bg-teal-50 rounded-lg p-4">
-            <div class="text-2xl font-bold text-teal-600"><%= number_with_delimiter(@clicks_30d) %></div>
-            <div class="text-sm text-gray-500">Buy Clicks (external)</div>
-          </div>
-          <div class="bg-violet-50 rounded-lg p-4">
-            <div class="text-2xl font-bold text-violet-600"><%= @conversion_30d ? "#{@conversion_30d}%" : "—" %></div>
-            <div class="text-sm text-gray-500">Conversion Rate<%= " (#{number_with_delimiter(@converting_30d)} converting)" if @conversion_30d %></div>
-          </div>
-        </div>
+        <%= render "summary_cards", summary: @summary %>
       </div>
     <% end %>
   <% end %>
 
-  <%# Chart %>
-  <%= render Avo::PanelComponent.new(name: 'Visits & Clicks (14 Days)') do |c| %>
+  <%= render Avo::PanelComponent.new(name: "Daily Stats (Last #{@range_days} Days)") do |c| %>
     <% c.with_body do %>
-      <div class="px-6 py-4">
-        <%= line_chart [
-          { name: "Visits", data: @stats.map { |s| [s.date, s.visits] } },
-          { name: "Cross-link Visits", data: @stats.map { |s| [s.date, s.total_cross_link_visits] } },
-          { name: "Buy Clicks", data: @stats.map { |s| [s.date, s.total_smd_clicks] } }
-        ],
-        colors: ["#ea580c", "#6366f1", "#0d9488"],
-        library: {
-          scales: { y: { beginAtZero: true } },
-          plugins: { legend: { position: "bottom" } },
-          elements: { line: { tension: 0.3 } }
-        } %>
-      </div>
-    <% end %>
-  <% end %>
-
-  <%# Daily Breakdown %>
-  <%= render Avo::PanelComponent.new(name: 'Daily Stats (Last 14 Days)') do |c| %>
-    <% c.with_body do %>
-      <div class="px-6 py-4">
+      <div class="px-6 py-4 max-h-96 overflow-y-auto">
         <% if @stats.any? %>
           <table class="min-w-full text-sm">
             <thead>
               <tr class="border-b border-gray-200">
                 <th class="py-2 text-left text-gray-600">Date</th>
-                <th class="py-2 text-right text-gray-600">Visits</th>
-                <th class="py-2 text-right text-gray-600">Cross-links</th>
+                <th class="py-2 text-right text-gray-600">Human Visits</th>
                 <th class="py-2 text-right text-gray-600">Buy Clicks</th>
-                <th class="py-2 text-right text-gray-600">Converting Visits</th>
-                <th class="py-2 text-right text-gray-600">Conversion Rate</th>
               </tr>
             </thead>
             <tbody>
               <% @stats.each do |stat| %>
                 <tr class="border-b border-gray-100 hover:bg-gray-50">
                   <td class="py-2 text-gray-700"><%= stat.date.strftime("%b %d, %Y") %></td>
-                  <td class="py-2 text-right font-mono"><%= number_with_delimiter(stat.visits) %></td>
-                  <td class="py-2 text-right font-mono text-indigo-600"><%= stat.total_cross_link_visits %></td>
-                  <td class="py-2 text-right font-mono text-teal-600"><%= stat.total_smd_clicks %></td>
-                  <td class="py-2 text-right font-mono text-violet-600"><%= stat.converting_visits || "—" %></td>
-                  <td class="py-2 text-right font-mono text-gray-500"><%= stat.smd_conversion_rate ? "#{stat.smd_conversion_rate}%" : "—" %></td>
+                  <td class="py-2 text-right font-mono font-semibold text-green-600"><%= stat.human_visits ? number_with_delimiter(stat.human_visits) : "—" %></td>
+                  <td class="py-2 text-right font-mono text-teal-600"><%= stat.human_visits ? stat.total_smd_clicks : "—" %></td>
                 </tr>
               <% end %>
             </tbody>
           </table>
-          <p class="mt-3 text-xs text-gray-500">
-            <strong>Visits</strong>, <strong>Buy Clicks</strong> and <strong>Converting Visits</strong> all count external arrivals only — visitors who came direct or from another site, not on-site (scorebase.org) navigation, which is mostly bots. The difference between the two click columns: <strong>Buy Clicks</strong> counts every buy-click event (clicking two editions, or clicking twice, each counts); <strong>Converting Visits</strong> counts distinct visitors who clicked buy at least once. <strong>Cross-links</strong> = free→SMD navigations (all traffic). <strong>Conversion Rate</strong> = Converting Visits / Visits.
-          </p>
         <% else %>
           <p class="text-gray-500 italic">No stats recorded yet.</p>
         <% end %>
@@ -83,8 +36,7 @@
     <% end %>
   <% end %>
 
-  <%# Top Clicked Scores %>
-  <%= render Avo::PanelComponent.new(name: 'Top Clicked Scores (All Time)') do |c| %>
+  <%= render Avo::PanelComponent.new(name: "Top Clicked Scores (Last #{@range_days} Days)") do |c| %>
     <% c.with_body do %>
       <div class="px-6 py-4">
         <% if @top_clicked_scores.any? %>

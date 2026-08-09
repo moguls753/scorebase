@@ -2,21 +2,18 @@
 #
 # Table name: daily_stats
 #
-#  id                         :integer          not null, primary key
-#  browsers                   :json
-#  converting_visits          :integer
-#  countries                  :json
-#  cross_link_visits_by_score :json
-#  date                       :date
-#  devices                    :json
-#  paths                      :json
-#  referrers                  :json
-#  returning_rates            :json
-#  smd_clicks_by_score        :json
-#  user_agents                :json
-#  visits                     :integer          default(0)
-#  created_at                 :datetime         not null
-#  updated_at                 :datetime         not null
+#  id                      :integer          not null, primary key
+#  countries               :json
+#  date                    :date
+#  devices                 :json
+#  human_converting_visits :integer
+#  human_visits            :integer
+#  paths                   :json
+#  referrers               :json
+#  smd_clicks_by_score     :json
+#  visits                  :integer          default(0)
+#  created_at              :datetime         not null
+#  updated_at              :datetime         not null
 #
 # Indexes
 #
@@ -25,25 +22,11 @@
 FactoryBot.define do
   factory :daily_stat do
     date { Date.current }
-    visits { rand(100..10000) }
+    visits { 200 }
     smd_clicks_by_score { {} }
-    user_agents { {} }
     countries { {} }
     referrers { {} }
     paths { {} }
     devices { {} }
-    browsers { {} }
-
-    trait :yesterday do
-      date { Date.yesterday }
-    end
-
-    trait :last_week do
-      date { 1.week.ago.to_date }
-    end
-
-    trait :with_smd_clicks do
-      smd_clicks_by_score { { "1" => 5, "2" => 3 } }
-    end
   end
 end

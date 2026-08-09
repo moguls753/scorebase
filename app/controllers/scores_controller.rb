@@ -38,10 +38,7 @@ class ScoresController < ApplicationController
 
     return head :gone if @score.deleted_at.present?
 
-    unless bot? || prefetch?
-      @score.increment!(:views)
-      ahoy.track "Cross-link visit", score_id: @score.id if params[:src] == "xlink" && @score.smd?
-    end
+    @score.increment!(:views) unless bot? || prefetch?
   end
 
   # NOTE: Hybrid file serving - three approaches by design:
