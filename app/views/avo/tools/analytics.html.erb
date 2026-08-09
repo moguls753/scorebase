@@ -282,6 +282,7 @@
               <tr>
                 <th>Date</th>
                 <th class="right">Human Visits</th>
+                <th class="right">from Google</th>
                 <th class="right">Visits (raw)</th>
               </tr>
             </thead>
@@ -295,11 +296,17 @@
                     <% end %>
                   </td>
                   <td class="right font-medium text-green-600"><%= stat.human_visits ? number_with_delimiter(stat.human_visits) : "—" %></td>
+                  <td class="right text-blue-600"><%= stat.google_visits ? number_with_delimiter(stat.google_visits) : "—" %></td>
                   <td class="right text-gray-500"><%= number_with_delimiter(stat.visits) %></td>
                 </tr>
               <% end %>
             </tbody>
           </table>
+          <p class="mt-3 px-2 text-xs text-gray-500">
+            <strong>from Google</strong> is the subset of Human Visits referred by Google search — the column to hold against
+            Search Console clicks for the same day. Expect ours to read a little higher: Console reports web search only and in
+            Pacific time, while this counts Images and Discover too, in UTC.
+          </p>
         <% else %>
           <p class="text-gray-400 text-center py-8">No data for this period</p>
         <% end %>

@@ -135,6 +135,22 @@ RSpec.describe DailyStat, type: :model do
     end
   end
 
+  describe '#google_visits' do
+    let(:referrers) do
+      { "google.com" => 40, "google.de" => 5, "mail.google.com" => 3,
+        "com.google.android.gm" => 2, "bing.com" => 9 }
+    end
+
+    it 'sums the Google search TLDs and ignores non-search Google hosts' do
+      ds = DailyStat.new(human_visits: 100, referrers: referrers)
+      expect(ds.google_visits).to eq(45)
+    end
+
+    it 'returns nil for a row from before referrer capture' do
+      expect(DailyStat.new(human_visits: nil, referrers: referrers).google_visits).to be_nil
+    end
+  end
+
   describe '.in_window' do
     it 'spans exactly n calendar days ending today' do
       create(:daily_stat, date: Date.current - 7)

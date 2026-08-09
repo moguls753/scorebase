@@ -33,6 +33,13 @@ class DailyStat < ApplicationRecord
     (smd_clicks_by_score || {}).values.sum
   end
 
+  # "google." prefix keeps the search TLDs (google.com, google.de, google.co.uk)
+  # and drops mail.google.com and the Android app's com.google.* referrers.
+  def google_visits
+    return nil if human_visits.nil?
+    (referrers || {}).sum { |host, count| host.start_with?("google.") ? count : 0 }
+  end
+
   def self.summary
     # Unmeasured rows carry visits but no human_visits — including them divides a short numerator by a full denominator.
     rows   = measured.to_a
