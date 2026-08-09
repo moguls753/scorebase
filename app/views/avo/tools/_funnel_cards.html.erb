@@ -1,0 +1,24 @@
+<div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+  <div class="bg-green-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-green-600"><%= summary[:days].positive? ? number_with_delimiter(summary[:human_visits]) : "—" %></div>
+    <div class="text-sm text-gray-500">Human Visits<%= " · #{summary[:days]}d measured" if summary[:days].positive? %></div>
+  </div>
+  <div class="bg-indigo-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-indigo-600"><%= summary[:funnel_days].positive? ? number_with_delimiter(summary[:smd_page_visits]) : "—" %></div>
+    <div class="text-sm text-gray-500">Reached a Paid Score<%= " · #{summary[:smd_reach]}% of them" if summary[:smd_reach] %></div>
+  </div>
+  <div class="bg-teal-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-teal-600"><%= summary[:funnel_days].positive? ? number_with_delimiter(summary[:smd_clicks]) : "—" %></div>
+    <div class="text-sm text-gray-500">Buy Clicks<%= " · from #{number_with_delimiter(summary[:converting])} visits" if summary[:funnel_days].positive? %></div>
+  </div>
+  <div class="bg-violet-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-violet-600"><%= summary[:conversion_rate] ? "#{summary[:conversion_rate]}%" : "—" %></div>
+    <div class="text-sm text-gray-500">Buy Rate<%= " · #{number_with_delimiter(summary[:converting])} of #{number_with_delimiter(summary[:smd_page_visits])}" if summary[:conversion_rate] %></div>
+  </div>
+</div>
+<p class="mt-4 text-xs text-gray-500 leading-relaxed">
+  The funnel reads left to right: real people arrive, some reach a paid (Sheet Music Direct) score page, some of those click through to buy.
+  <strong>Buy Rate</strong> divides converting visits by the ones that reached a paid page — not by all traffic — so it measures the step you can
+  actually influence. <strong>Human Visits</strong> uses the same definition and window as the Analytics dashboard, so the two pages are comparable.
+  Buy Clicks counts every click (two editions, or two clicks, each count); converting visits counts distinct people.
+</p>

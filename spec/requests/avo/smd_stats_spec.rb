@@ -35,24 +35,14 @@ RSpec.describe "Avo SMD stats", type: :request do
     response.body[%r{text-2xl font-bold text-green-600">([^<]*)<}, 1]&.strip
   end
 
-  it "reports the conversion rate from converting visits, not from click events" do
-    create(:daily_stat, date: Date.current, human_visits: 100, human_converting_visits: 6,
-                        smd_clicks_by_score: { "1" => 40 })
+  it "divides converting visits by visits that reached a paid page, not by all traffic" do
+    create(:daily_stat, date: Date.current, human_visits: 1000, smd_page_visits: 200,
+                        human_converting_visits: 6, smd_clicks_by_score: { "1" => 40 })
 
     get_smd_stats
 
     expect(response).to have_http_status(:ok)
-    expect(headline_rate).to eq("6.0%")
-  end
-
-  it "ignores rows without human_visits on both sides of the rate" do
-    create(:daily_stat, date: Date.current, human_visits: 100, human_converting_visits: 6)
-    create(:daily_stat, date: Date.current - 5, human_visits: nil, human_converting_visits: nil,
-                        smd_clicks_by_score: { "1" => 500 })
-
-    get_smd_stats
-
-    expect(headline_rate).to eq("6.0%")
+    expect(headline_rate).to eq("3.0%")
   end
 
   it "renders an em-dash when the window has no measured rows" do
@@ -64,14 +54,14 @@ RSpec.describe "Avo SMD stats", type: :request do
     expect(headline_rate).to eq("—")
   end
 
-  it "reports the same human visits as the analytics dashboard" do
-    create(:daily_stat, date: Date.current, human_visits: 100, human_converting_visits: 6)
-    create(:daily_stat, date: Date.current - 20, human_visits: 50, human_converting_visits: 1)
+  it "reports the same human visit total as the analytics dashboard" do
+    create(:daily_stat, date: Date.current, human_visits: 100, smd_page_visits: 20)
+    create(:daily_stat, date: Date.current - 20, human_visits: 50, smd_page_visits: 10)
 
     get_smd_stats
     expect(headline_human_visits).to eq("150")
 
     admin_get "/admin/analytics"
-    expect(headline_human_visits).to eq("150")
+    expect(response.body).to include("150 over 2d")
   end
 end

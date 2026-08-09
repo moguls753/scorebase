@@ -2,7 +2,7 @@
   <%= render Avo::PanelComponent.new(name: "#{@range_days}-Day Summary") do |c| %>
     <% c.with_body do %>
       <div class="px-6 py-4">
-        <%= render "summary_cards", summary: @summary %>
+        <%= render "funnel_cards", summary: @summary %>
       </div>
     <% end %>
   <% end %>

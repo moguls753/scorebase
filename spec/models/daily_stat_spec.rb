@@ -151,6 +151,25 @@ RSpec.describe DailyStat, type: :model do
     end
   end
 
+  describe 'smd_page_visits' do
+    let(:date) { DailyStat::REFERRER_CAPTURE_STARTED_ON + 4 }
+    let(:noon) { date.in_time_zone.change(hour: 12) }
+
+    it 'counts distinct human visits that viewed a paid score page, ignoring free and non-score pages' do
+      paid = create(:score, :smd)
+      free = create(:score)
+      visit = Ahoy::Visit.create!(started_at: noon, visit_token: SecureRandom.uuid,
+                                  visitor_token: SecureRandom.uuid, referring_domain: "google.com")
+      ["/scores/#{paid.id}", "/de/scores/#{paid.id}", "/scores/#{free.id}", "/pro/2026-sale"].each do |page|
+        Ahoy::Event.create!(visit: visit, name: "$view", properties: { "page" => page }, time: noon)
+      end
+
+      described_class.aggregate_for!(date)
+
+      expect(DailyStat.find_by!(date: date).smd_page_visits).to eq(1)
+    end
+  end
+
   describe '.in_window' do
     it 'spans exactly n calendar days ending today' do
       create(:daily_stat, date: Date.current - 7)
@@ -162,15 +181,30 @@ RSpec.describe DailyStat, type: :model do
 
   describe '.summary' do
     it 'rolls measured rows up and ignores unmeasured rows on both sides of every ratio' do
-      create(:daily_stat, date: Date.current, visits: 400, human_visits: 200,
-                          human_converting_visits: 6, smd_clicks_by_score: { "1" => 8 })
-      create(:daily_stat, date: Date.current - 1, visits: 900, human_visits: nil,
-                          human_converting_visits: nil, smd_clicks_by_score: { "1" => 500 })
+      create(:daily_stat, date: Date.current, visits: 400, human_visits: 200, smd_page_visits: 50,
+                          human_converting_visits: 6, smd_clicks_by_score: { "1" => 8 },
+                          referrers: { "google.com" => 80, "bing.com" => 20 })
+      create(:daily_stat, date: Date.current - 1, visits: 900, human_visits: nil, smd_page_visits: nil,
+                          human_converting_visits: nil, smd_clicks_by_score: { "1" => 500 },
+                          referrers: { "google.com" => 700 })
 
       expect(DailyStat.in_window(7).summary).to eq(
-        days: 1, visits: 400, human_visits: 200, avg_visits: 400, avg_human: 200,
-        human_share: 50.0, smd_clicks: 8, converting: 6, conversion_rate: 3.0
+        days: 1, visits: 400, human_visits: 200, google_visits: 80, smd_page_visits: 50,
+        funnel_days: 1, avg_human: 200, human_share: 50.0, smd_reach: 25.0,
+        smd_clicks: 8, converting: 6, conversion_rate: 12.0
       )
+    end
+
+    it 'sums every funnel figure over rows that carry smd_page_visits, not over all measured rows' do
+      create(:daily_stat, date: Date.current, visits: 400, human_visits: 200, smd_page_visits: 50,
+                          human_converting_visits: 6)
+      create(:daily_stat, date: Date.current - 1, visits: 400, human_visits: 200, smd_page_visits: nil,
+                          human_converting_visits: 40)
+
+      summary = DailyStat.in_window(7).summary
+      expect(summary[:days]).to eq(2)
+      expect(summary[:funnel_days]).to eq(1)
+      expect(summary[:conversion_rate]).to eq(12.0)
     end
 
     it 'returns nil rates rather than dividing by zero on a window with no measured rows' do

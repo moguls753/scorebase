@@ -1,0 +1,25 @@
+<div class="grid grid-cols-2 xl:grid-cols-4 gap-4">
+  <div class="bg-green-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-green-600"><%= summary[:days].positive? ? number_with_delimiter(summary[:avg_human]) : "—" %></div>
+    <div class="text-sm text-gray-500">Human Visits / Day<%= " · #{number_with_delimiter(summary[:human_visits])} over #{summary[:days]}d" if summary[:days].positive? %></div>
+  </div>
+  <div class="bg-slate-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-slate-600"><%= summary[:human_share] ? "#{summary[:human_share]}%" : "—" %></div>
+    <div class="text-sm text-gray-500">Human Share<%= " · #{number_with_delimiter(summary[:visits])} raw arrivals" if summary[:human_share] %></div>
+  </div>
+  <div class="bg-blue-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-blue-600"><%= summary[:days].positive? ? number_with_delimiter(summary[:google_visits]) : "—" %></div>
+    <div class="text-sm text-gray-500">From Google<%= " · #{(summary[:google_visits] * 100.0 / summary[:human_visits]).round}% of human visits" if summary[:human_visits].to_i.positive? %></div>
+  </div>
+  <div class="bg-indigo-50 rounded-lg p-4">
+    <div class="text-2xl font-bold text-indigo-600"><%= summary[:smd_reach] ? "#{summary[:smd_reach]}%" : "—" %></div>
+    <div class="text-sm text-gray-500">Reached a Paid Score<%= " · #{number_with_delimiter(summary[:smd_page_visits])} visits" if summary[:smd_reach] %></div>
+  </div>
+</div>
+<p class="mt-4 text-xs text-gray-500 leading-relaxed">
+  <strong>Human Visits</strong> = a page rendered in a real browser, arriving from a named referrer outside the site. Every figure on this
+  page counts those visits only. People who arrive with no referrer at all (bookmarks, links from messaging apps) are deliberately excluded —
+  that cohort is indistinguishable from crawlers, so the count runs roughly 20/day low rather than admitting them.
+  <strong>Human Share</strong> is the fraction of all raw arrivals that clears that bar; a falling share while raw climbs is a bot surge, not growth.
+  Human figures start 16 Jul 2026, when referrer recording began.
+</p>

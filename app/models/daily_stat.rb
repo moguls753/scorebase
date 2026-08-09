@@ -11,6 +11,7 @@
 #  paths                   :json
 #  referrers               :json
 #  smd_clicks_by_score     :json
+#  smd_page_visits         :integer
 #  visits                  :integer          default(0)
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
@@ -45,18 +46,27 @@ class DailyStat < ApplicationRecord
     rows   = measured.to_a
     raw    = rows.sum { |r| r.visits.to_i }
     humans = rows.sum { |r| r.human_visits.to_i }
-    conv   = rows.sum { |r| r.human_converting_visits.to_i }
+
+    # smd_page_visits arrived in a later migration, so a measured row can still lack it.
+    # Every funnel figure sums this narrower set, or the rate divides a full numerator by a partial denominator.
+    funnel     = rows.select(&:smd_page_visits)
+    reach_base = funnel.sum { |r| r.human_visits.to_i }
+    smd_seen   = funnel.sum(&:smd_page_visits)
+    conv       = funnel.sum { |r| r.human_converting_visits.to_i }
 
     {
       days:            rows.size,
+      funnel_days:     funnel.size,
       visits:          raw,
       human_visits:    humans,
-      avg_visits:      rows.empty? ? 0 : (raw.to_f / rows.size).round,
+      google_visits:   rows.sum { |r| r.google_visits.to_i },
+      smd_page_visits: smd_seen,
       avg_human:       rows.empty? ? 0 : (humans.to_f / rows.size).round,
       human_share:     raw.zero? ? nil : (humans * 100.0 / raw).round(1),
-      smd_clicks:      rows.sum(&:total_smd_clicks),
+      smd_reach:       reach_base.zero? ? nil : (smd_seen * 100.0 / reach_base).round(1),
+      smd_clicks:      funnel.sum(&:total_smd_clicks),
       converting:      conv,
-      conversion_rate: humans.zero? ? nil : (conv * 100.0 / humans).round(1)
+      conversion_rate: smd_seen.zero? ? nil : (conv * 100.0 / smd_seen).round(1)
     }
   end
 
@@ -77,14 +87,15 @@ class DailyStat < ApplicationRecord
     attrs = { visits: external_visits.count }
 
     if date >= REFERRER_CAPTURE_STARTED_ON
-      viewed       = external_visits.where(id: pageviews.select(:visit_id))
-      repeat       = pageviews.group(:visit_id).having("COUNT(*) > 1").select(:visit_id)
-      humans       = viewed.where.not(referring_domain: nil).or(viewed.where(id: repeat))
+      # Referrer, not pageview count: crawlers walking the catalogue also rack up pageviews, and the
+      # multi-view-no-referrer cohort measured 7.6% mobile against 27% for referred traffic.
+      humans       = external_visits.where(id: pageviews.select(:visit_id)).where.not(referring_domain: nil)
       human_views  = pageviews.where(visit_id: humans.select(:id))
       human_clicks = clicks.where(visit_id: humans.select(:id))
 
       attrs.merge!(
         human_visits:            humans.count,
+        smd_page_visits:         human_views.on_smd_score_page.distinct.count(:visit_id),
         human_converting_visits: human_clicks.distinct.count(:visit_id),
         countries:               humans.where.not(country: nil).group(:country).count,
         referrers:               humans.group("COALESCE(NULLIF(referring_domain, ''), 'direct')").count,

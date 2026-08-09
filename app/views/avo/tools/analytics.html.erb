@@ -90,7 +90,7 @@
     </div>
   </div>
 
-  <%= render "summary_cards", summary: @summary %>
+  <%= render "traffic_cards", summary: @summary %>
 
   <%# Visits Chart %>
   <%= render Avo::PanelComponent.new(name: "Visits Over Time (human vs raw)") do |c| %>

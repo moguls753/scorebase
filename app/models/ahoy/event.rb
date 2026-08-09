@@ -22,4 +22,16 @@ class Ahoy::Event < ApplicationRecord
   belongs_to :visit
 
   serialize :properties, coder: JSON
+
+  PAGE = "json_extract(ahoy_events.properties, '$.page')".freeze
+  # Without the instr guard a non-score path parses from character 8 and can cast to a real score id.
+  PAGE_SCORE_ID = <<~SQL.squish.freeze
+    CASE WHEN instr(#{PAGE}, '/scores/') > 0
+         THEN CAST(substr(#{PAGE}, instr(#{PAGE}, '/scores/') + 8) AS INTEGER) END
+  SQL
+  private_constant :PAGE_SCORE_ID
+
+  scope :on_smd_score_page, -> {
+    joins("JOIN scores ON scores.id = #{PAGE_SCORE_ID}").where(scores: { source: "smd" })
+  }
 end

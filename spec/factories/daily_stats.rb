@@ -11,6 +11,7 @@
 #  paths                   :json
 #  referrers               :json
 #  smd_clicks_by_score     :json
+#  smd_page_visits         :integer
 #  visits                  :integer          default(0)
 #  created_at              :datetime         not null
 #  updated_at              :datetime         not null
