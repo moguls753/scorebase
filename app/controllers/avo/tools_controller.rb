@@ -13,14 +13,16 @@ class Avo::ToolsController < Avo::ApplicationController
 
   # Both dashboards default to the same window so their headline numbers stay comparable.
   DEFAULT_WINDOW_DAYS = 30
+  MAX_WINDOW_DAYS     = 180
 
   def analytics
     @page_title = "Analytics Dashboard"
     add_breadcrumb "Analytics"
 
-    @range_days = (params[:days] || DEFAULT_WINDOW_DAYS).to_i.clamp(1, 180)
+    @range_days = (params[:days] || DEFAULT_WINDOW_DAYS).to_i.clamp(1, MAX_WINDOW_DAYS)
     @stats      = DailyStat.in_window(@range_days).order(date: :asc)
     @summary    = @stats.summary
+    @today      = DailyStat.find_by(date: Date.current)
 
     @countries = aggregate_json_field(:countries)
     @referrers = aggregate_json_field(:referrers)

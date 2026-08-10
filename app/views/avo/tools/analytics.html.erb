@@ -81,12 +81,22 @@
   <div class="flex items-center justify-between">
     <div>
       <h2 class="text-lg font-semibold text-gray-900">Site Analytics</h2>
-      <p class="text-sm text-gray-500">Traffic and visitor insights</p>
+      <p class="text-sm text-gray-500">
+        <% if @today %>
+          Today so far:
+          <span class="font-semibold text-green-600"><%= @today.human_visits ? number_with_delimiter(@today.human_visits) : "—" %></span> human
+          · <%= number_with_delimiter(@today.visits) %> raw <span class="text-gray-400">(day still running)</span>
+        <% else %>
+          Today so far: <span class="text-gray-400">nothing aggregated yet</span>
+        <% end %>
+      </p>
     </div>
     <div class="range-selector">
       <%= link_to "7D", avo.analytics_path(days: 7), class: "range-btn #{@range_days == 7 ? 'active' : ''}" %>
       <%= link_to "30D", avo.analytics_path(days: 30), class: "range-btn #{@range_days == 30 ? 'active' : ''}" %>
       <%= link_to "90D", avo.analytics_path(days: 90), class: "range-btn #{@range_days == 90 ? 'active' : ''}" %>
+      <%= link_to "Max", avo.analytics_path(days: Avo::ToolsController::MAX_WINDOW_DAYS),
+            class: "range-btn #{@range_days == Avo::ToolsController::MAX_WINDOW_DAYS ? 'active' : ''}" %>
     </div>
   </div>
 
