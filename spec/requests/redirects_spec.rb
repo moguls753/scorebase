@@ -32,4 +32,16 @@ RSpec.describe "SMD Redirects", type: :request do
       expect(response).to have_http_status(:forbidden)
     end
   end
+
+  describe "GET /en/*path" do
+    it "strips the /en prefix" do
+      get "/en/scores/123"
+      expect(response).to redirect_to("http://www.example.com/scores/123")
+    end
+
+    it "does not redirect to an attacker host smuggled in as an encoded leading slash" do
+      get "/en/%2Fevil.example.com/x"
+      expect(response).to redirect_to("http://www.example.com/evil.example.com/x")
+    end
+  end
 end

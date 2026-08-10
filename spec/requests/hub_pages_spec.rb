@@ -48,6 +48,40 @@ RSpec.describe "HubPages" do
       expect(response.body).to include('content="noindex,follow"')
       expect(response.body).not_to include('rel="canonical"')
     end
+
+    describe "pagination links" do
+      def link_href(body, rel)
+        Nokogiri::HTML(body).at_css(%(a[rel="#{rel}"]))&.[]("href")
+      end
+
+      it "links prev to the bare listing URL with no page param" do
+        31.times { create(:score, genre: "Motet", genre_status: "normalized") }
+
+        get genre_path(slug: "motet", page: 2)
+        expect(link_href(response.body, "prev")).to eq("/genres/motet")
+      end
+
+      it "renders no next link when the last page is exactly full" do
+        30.times { create(:score, genre: "Motet", genre_status: "normalized") }
+
+        get genre_path(slug: "motet")
+        expect(link_href(response.body, "next")).to be_nil
+      end
+
+      it "does not link to an attacker-supplied host" do
+        31.times { create(:score, genre: "Motet", genre_status: "normalized") }
+
+        get "/genres/motet?page=2&host=evil.example.com"
+        expect(link_href(response.body, "prev")).not_to include("evil.example.com")
+      end
+
+      it "carries filter and sort params into the next link" do
+        31.times { create(:score, genre: "Motet", genre_status: "normalized", instruments: "Piano") }
+
+        get genre_path(slug: "motet", instrument: "piano", sort: "newest")
+        expect(link_href(response.body, "next")).to eq("/genres/motet?instrument=piano&page=2&sort=newest")
+      end
+    end
   end
 
   describe "GET /composers" do

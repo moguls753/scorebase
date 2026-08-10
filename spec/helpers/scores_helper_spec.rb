@@ -190,4 +190,16 @@ RSpec.describe ScoresHelper, type: :helper do
       expect(helper.score_card_badge(score)).to be_nil
     end
   end
+
+  describe 'PAGINATION_PARAMS' do
+    it 'covers every filter param the scores list and the hub pages accept' do
+      accepted = ScoresController::SEARCH_TRIGGER_PARAMS |
+                 HubPagesHelper::COMPOSER_FILTER_PARAMS |
+                 HubPagesHelper::GENRE_FILTER_PARAMS |
+                 HubPagesHelper::PERIOD_FILTER_PARAMS |
+                 HubPagesHelper::INSTRUMENT_FILTER_PARAMS
+
+      expect(accepted - ScoresHelper::PAGINATION_PARAMS).to be_empty
+    end
+  end
 end

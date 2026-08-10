@@ -4,6 +4,9 @@ module ScoresHelper
   # Contextual filters: voice_type, language (shown when vocal instrument selected)
   FILTER_PARAMS = %i[instrument difficulty period genre length voicing voice_type language pricing].freeze
 
+  # Superset of every filter/search param the scores list and the hub listings accept.
+  PAGINATION_PARAMS = (FILTER_PARAMS + %i[source key time q sort composer]).freeze
+
   # Count active filters from params
   def active_filters_count
     FILTER_PARAMS.count { |param| params[param].present? }

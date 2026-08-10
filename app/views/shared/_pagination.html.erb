@@ -1,21 +1,27 @@
-<%# Pagination without COUNT query - detects next by full page, prev by page param %>
+<%# Pagination without COUNT query - Kaminari's without_count mode drives prev/next %>
 <%# Optional: turbo_frame parameter for Turbo Frame support %>
 <%# Guard: the results view already noindexes every filtered page, incl. page 1. %>
 <% content_for :robots, "noindex,follow" if !scores.first_page? && !content_for?(:robots) %>
 <% has_prev = !scores.first_page? %>
-<% has_next = scores.size == scores.limit_value %>
+<% has_next = scores.next_page.present? %>
 <% link_data = local_assigns[:turbo_frame] ? { turbo_frame: turbo_frame } : {} %>
+<%# Never url_for(query_parameters) — visitor keys like host/controller/slug become routing options. %>
+<% page_url = ->(n) do
+     qs = request.query_parameters.slice(*ScoresHelper::PAGINATION_PARAMS.map(&:to_s)).compact_blank
+     qs["page"] = n if n > 1
+     qs.any? ? "#{request.path}?#{qs.to_query}" : request.path
+   end %>
 <% if has_prev || has_next %>
   <div class="mt-10 sm:mt-12 flex justify-center">
     <nav class="pagination-nav" aria-label="Pagination">
       <% if has_prev %>
-        <%= link_to t('pagination.prev'), url_for(request.query_parameters.merge(page: scores.prev_page)), class: "pagination-link", rel: "prev", data: link_data %>
+        <%= link_to t('pagination.prev'), page_url.(scores.prev_page), class: "pagination-link", rel: "prev", data: link_data %>
       <% else %>
         <span class="pagination-link pagination-link--disabled"><%= t('pagination.prev') %></span>
       <% end %>
 
       <% if has_next %>
-        <%= link_to t('pagination.next'), url_for(request.query_parameters.merge(page: scores.next_page)), class: "pagination-link", rel: "next", data: link_data %>
+        <%= link_to t('pagination.next'), page_url.(scores.next_page), class: "pagination-link", rel: "next", data: link_data %>
       <% else %>
         <span class="pagination-link pagination-link--disabled"><%= t('pagination.next') %></span>
       <% end %>

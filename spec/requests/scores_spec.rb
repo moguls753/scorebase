@@ -173,6 +173,15 @@ RSpec.describe 'Scores' do
         expect(response.body).not_to match(%r{/scores/\d})
       end
 
+      it 'keeps the filter in the prev link — dropping it would flip page 2 back to the landing view' do
+        25.times { |i| create(:score, title: "Piano Piece #{i}", instruments: 'Piano') }
+
+        get scores_path(instrument: 'piano', page: 2)
+
+        prev_href = parsed(response.body).at_css('a[rel="prev"]')&.[]('href')
+        expect(prev_href).to eq('/scores?instrument=piano')
+      end
+
       it 'points the Clear link at the bare landing URL when only filters survive (frame-missing net, server half)' do
         create(:score, title: 'Piano Prelude', instruments: 'Piano')
 

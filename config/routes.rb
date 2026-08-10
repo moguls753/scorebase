@@ -22,7 +22,10 @@ Rails.application.routes.draw do
   # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
 
   # Redirect /en/* to /* (English is default, no prefix needed)
-  get "/en/*path", to: redirect("/%{path}", status: 301)
+  # %2F decodes to a leading slash, which would make the target protocol-relative (open redirect).
+  get "/en/*path", to: redirect(status: 301) { |params, _req|
+    "/#{ActionDispatch::Journey::Router::Utils.escape_path(params[:path].to_s.sub(%r{\A[\\/]+}, ''))}"
+  }
   get "/en", to: redirect("/", status: 301)
 
   scope "(:locale)", locale: /de/ do
