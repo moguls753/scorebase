@@ -47,6 +47,15 @@ RSpec.describe "Recurring schedule" do
     config.fetch("workers").flat_map { |worker| Array(worker["queues"]) }
   end
 
+  # An unparseable schedule is worse than a silent no-op: Supervisor.start aborts, taking down every
+  # queue in the job container, not just the offending entry.
+  it "gives every entry a schedule Solid Queue can parse" do
+    schedule.each do |name, entry|
+      expect(Fugit.parse(entry["schedule"])).to be_a(Fugit::Cron),
+        "recurring entry '#{name}' has an unparseable schedule: #{entry['schedule'].inspect}"
+    end
+  end
+
   it "names classes that exist, on queues that are worked, with arguments perform accepts" do
     schedule.each do |name, entry|
       next unless entry["class"]

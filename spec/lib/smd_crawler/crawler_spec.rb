@@ -263,5 +263,92 @@ RSpec.describe SmdCrawler::Crawler do
       expect(stats[:skipped]).to eq(0)
       expect(stats[:saved]).to eq(2)
     end
+
+    it "counts a soft-deleted row as known, so :import does not re-crawl it every day" do
+      Score.create!(external_id: "111", source: "smd", title: "Reaped", deleted_at: Time.current)
+
+      stats = crawler.crawl_sitemap(sitemap_xml, limit: 2, mode: :import)
+
+      expect(stats[:skipped]).to eq(1)
+      expect(stats[:saved]).to eq(1)
+    end
+
+    it "counts an id repeated within one sitemap as skipped rather than crawling it twice" do
+      repeated_xml = sitemap_xml.sub("222", "111")
+
+      stats = crawler.crawl_sitemap(repeated_xml, limit: 2, mode: :import)
+
+      expect(stats[:saved]).to eq(1)
+      expect(stats[:skipped]).to eq(1)
+    end
+
+    it "counts a response whose product id is not the one the sitemap listed" do
+      stub_request(:get, "https://www.sheetmusicdirect.com/se/ID_No/111/Product.aspx")
+        .to_return(status: 200, body: product_html.sub("111", "999"))
+
+      stats = crawler.crawl_sitemap(sitemap_xml, limit: 2, mode: :import)
+
+      expect(stats[:replaced]).to eq(1)
+    end
+
+    it "aborts a sitemap that is failing continuously instead of walking the whole list" do
+      stats = failing_crawl("cloudflare_challenge")
+
+      expect(stats[:aborted]).to be true
+      expect(stats[:examined]).to eq(described_class::MAX_CONSECUTIVE_FAILURES)
+      expect(stats[:errors]).to eq({ "cloudflare_challenge" => described_class::MAX_CONSECUTIVE_FAILURES })
+    end
+
+    it "walks past a block of retired ids, which 404 forever and would otherwise stall the import" do
+      stats = failing_crawl("not_found")
+
+      expect(stats[:aborted]).to be false
+      expect(stats[:examined]).to eq(described_class::MAX_CONSECUTIVE_FAILURES + 10)
+    end
+
+    def failing_crawl(error)
+      products = Array.new(described_class::MAX_CONSECUTIVE_FAILURES + 10) { |i| { id: "p#{i}", url: "u#{i}" } }
+      parser = instance_double(SmdCrawler::SitemapParser, parse_sitemap: products)
+      fetcher = instance_double(SmdCrawler::PageFetcher, fetch: { success: false, error: error })
+
+      described_class.new(fetcher: fetcher, parser: parser).crawl_sitemap("<urlset/>", limit: 1000)
+    end
+  end
+
+  describe "#crawl_index" do
+    it "stops at the sitemap that aborted instead of walking the rest of the index" do
+      products = Array.new(described_class::MAX_CONSECUTIVE_FAILURES) { |i| { id: "p#{i}", url: "u#{i}" } }
+      parser = instance_double(SmdCrawler::SitemapParser,
+                               parse_index: %w[https://smd.test/1.xml https://smd.test/2.xml],
+                               parse_sitemap: products)
+      fetcher = instance_double(SmdCrawler::PageFetcher)
+      allow(fetcher).to receive(:fetch).with(/\.xml\z/).and_return({ success: true, body: "<urlset/>" })
+      allow(fetcher).to receive(:fetch).with(/Product\.aspx\z/)
+                                       .and_return({ success: false, error: "cloudflare_challenge" })
+
+      stats = described_class.new(fetcher: fetcher, parser: parser).crawl_index("https://smd.test/index.xml")
+
+      expect(stats[:aborted]).to be true
+      expect(stats[:sitemaps]).to eq(1)
+    end
+
+    # 404s never abort and never count towards the save limit, so only the fetch budget bounds them.
+    it "stops a run of retired ids once it has spent its fetch budget" do
+      products = Array.new(200) { |i| { id: "p#{i}", url: "u#{i}" } }
+      parser = instance_double(SmdCrawler::SitemapParser,
+                               parse_index: %w[https://smd.test/1.xml https://smd.test/2.xml],
+                               parse_sitemap: products)
+      fetcher = instance_double(SmdCrawler::PageFetcher)
+      allow(fetcher).to receive(:fetch).with(/\.xml\z/).and_return({ success: true, body: "<urlset/>" })
+      allow(fetcher).to receive(:fetch).with(/Product\.aspx\z/).and_return({ success: false, error: "not_found" })
+
+      stats = described_class.new(fetcher: fetcher, parser: parser)
+                             .crawl_index("https://smd.test/index.xml", product_limit: 10)
+
+      expect(stats[:exhausted]).to be true
+      expect(stats[:saved]).to eq(0)
+      expect(stats[:fetches]).to eq(10 * described_class::MAX_FETCHES_PER_SAVE)
+      expect(stats[:sitemaps]).to eq(1)
+    end
   end
 end

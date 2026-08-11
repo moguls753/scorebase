@@ -44,7 +44,7 @@ production:
   # on. Scoped to composer_status = pending and failures are terminal, so it is
   # a free no-op when nothing new has arrived. The limit caps LLM spend per run
   # after a large import — cache hits and pattern matches cost nothing, only
-  # genuinely unseen names reach the API. Runs before Sunday's
+  # genuinely unseen names reach the API. Runs before the noon
   # backfill_smd_matches, which matches on composer surnames.
   normalize_composers:
     class: NormalizeComposersJob
@@ -52,23 +52,29 @@ production:
     args: [ { limit: 2000 } ]
     schedule: every day at 1am
 
-  # Safety net only — the primary trigger is the documented post-import
-  # `scores:backfill_smd_matches` run (catalogs change only on manual imports)
+  # After the day's SMD work: reps 6am, catalogue 8am (~11:20 at 8000), import 11am. Off the hour
+  # because aggregate_daily_stats fires hourly and has no retry, and the converge holds a
+  # database-wide SQLite write lock past the 5s busy_timeout on a large diff.
+  # Daily rather than triggered — a converge costs ~14s and both SMD jobs can change a match
+  # (SmdRefreshJob rewrites title and price_usd, which build_index reads), so no per-job hook
+  # would cover it without coupling every writer to this one.
   backfill_smd_matches:
     class: BackfillSmdMatchesJob
     queue: default
-    schedule: every sunday at 5am
+    schedule: every day at 12:01pm
 
   # SMD prices drift, and stale ones are quoted to buyers: a Jan-2026 import was
   # measured ~29% high across every sampled product. Both passes walk
-  # last_crawled_at ascending, so each run continues where the last stopped and
-  # no row can be starved.
+  # smd_stalest_first, so each run continues where the last stopped and no row
+  # can be starved.
   #
-  # Representatives are the only pages that earn commission, so they get their
-  # own faster cadence — 1100/day cycles all 7,254 in a week. The catalogue pass
-  # covers everything else at 5000/day (~63-day cycle). Roughly 100 min/day of
-  # crawling total at the crawler's ~1 req/sec throttle; the default queue has 3
-  # threads, so this occupies one and leaves two free.
+  # Representatives are sitemapped and average $40 a sale, so they keep their own
+  # cadence — 1100/day cycles all 9,308 in 8.5 days. The catalogue pass covers
+  # everything else at 8000/day; as of 2026-08-11 that is 194k rows never price-
+  # checked since the Feb import, ~24 days to clear. At the 0.5-1.5s throttle that
+  # is 2.2-3.3h, well inside the jobs' 12h concurrency semaphore. Raising it
+  # further means switching SmdRefreshJob's `.limit(n).each` to batches first, so
+  # the run stays inside the container's 1 GB.
   smd_refresh_representatives:
     class: SmdRefreshJob
     queue: default
@@ -78,8 +84,20 @@ production:
   smd_refresh_catalogue:
     class: SmdRefreshJob
     queue: default
-    args: [ { limit: 5000 } ]
+    args: [ { limit: 8000 } ]
     schedule: every day at 8am
+
+  # Discovery pass over the `hl` sitemap index only (SmdCrawlJob's default
+  # catalog) — `ame` and `other` stay untouched. The skip is the cursor, so each
+  # run continues where the last stopped. `mode: import` must stay unquoted —
+  # `:import` is a YAML syntax error in flow style and takes the whole schedule
+  # down with it. All three SMD jobs share one concurrency semaphore, so a late
+  # refresh delays this, not races it.
+  smd_import_new:
+    class: SmdCrawlJob
+    queue: default
+    args: [ { limit: 1000, mode: import } ]
+    schedule: every day at 11am
 
   # extract_pending_scores:
   #   class: ExtractPendingScoresJob

@@ -6,13 +6,18 @@ class SmdCrawlJob < ApplicationJob
   # Long-running job, limit retries
   retry_on StandardError, wait: 10.minutes, attempts: 2
 
+  # Shared with SmdRefreshJob: each crawl holds its own rate limiter, so overlap doubles the request rate at SMD.
+  limits_concurrency to: 1, key: "sheetmusicdirect.com", group: "smd_crawler", duration: 12.hours
+
   VALID_MODES = %i[import all].freeze
 
   # Discovers SMD products by walking SMD's own sitemaps.
   #
   # Refreshing scores we already have is SmdRefreshJob's job — it iterates the
-  # database instead, which is what makes it chunkable. A sitemap walk has no
-  # cursor, so a limited run always redoes the same first N products.
+  # database instead. Here the skip is the cursor: yesterday's saves are today's
+  # skips, so a limited run advances even though the walk restarts each time.
+  # A product SMD answers under a different mpn never becomes a skip, so
+  # stats[:replaced] nearing the limit means the walk needs a persisted cursor.
   #
   # @param limit [Integer, nil] Max products to process (nil = all)
   # @param mode [Symbol] :import (new only) or :all (re-crawl everything listed)

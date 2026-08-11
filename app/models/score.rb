@@ -652,7 +652,16 @@ class Score < ApplicationRecord
   # and unlike an expression it lets the (source, last_crawled_at) index serve the
   # sort instead of building a temp B-tree over every SMD row on each run.
   # :id breaks the tie while every row is still NULL, so the queue cannot reshuffle.
-  scope :smd_stalest_first, -> { where(source: "smd").order(:last_crawled_at, :id) }
+  # Among never-crawled rows, ungrouped ones go first: they carry their own buy button and take 76% of
+  # affiliate clicks, so their prices are the ones users see. The tie-break collapses to 0 once every
+  # row has been crawled, so members are delayed, never starved. It costs
+  # index_scores_on_source_and_last_crawled_at as a covering index and sorts in a temp b-tree instead
+  # (29ms -> 164ms on 315k rows) — irrelevant at two calls a day, but do not put this on a hot path.
+  scope :smd_stalest_first, lambda {
+    where(source: "smd").order(
+      Arel.sql("last_crawled_at, CASE WHEN last_crawled_at IS NULL AND group_key IS NOT NULL THEN 1 ELSE 0 END"), :id
+    )
+  }
 
   # Get all other parts in this score's arrangement group
   def grouped_parts
