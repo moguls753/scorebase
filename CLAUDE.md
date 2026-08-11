@@ -63,11 +63,11 @@ bin/kamal deploy     # Deploy to production
 
 | Container | Memory | Command | Purpose |
 |---|---|---|---|
-| `web` | 1 GB | Puma (default) | Rails web server (1 worker × 3 threads) |
+| `web` | 1.5 GB | Puma (default) | Rails web server (1 worker × 3 threads) |
 | `job` | 1 GB | `bin/jobs` | Solid Queue worker |
-| `scorebase-rag` accessory | 1.5 GB | `uvicorn src.api.main:app` | Python/FastAPI RAG service on :8001 |
+| `scorebase-rag` accessory | 3.4 GB | `uvicorn src.api.main:app` | Python/FastAPI RAG service on :8001 |
 
-**Headroom budget.** Allocated containers consume `1 + 1 + 1.5 = 3.5 GB`. Remaining ~4.5 GB covers the OS / Docker daemon / Kamal proxy / cloudflare-bypass accessory and leaves room to grow individual containers if needed (e.g. bumping `scorebase-rag` to 3 GB for a heavier embedding model like bge-m3). Earlier 4 GB-host constraints — single Puma worker required, `job` capped at 1 GB — no longer bind; revisit those numbers when the workload demands it rather than treating them as fixed.
+**Headroom budget.** Limits total `1.5 + 1 + 3.4 = 5.9 GB` of 7.6 GB, but real usage is far lower — measured 2026-08-11: 2.9 GB used, **4.7 GB available**. RAM is not the constraint here; the constraint is that `job` is the smallest cgroup at 1 GB while its worker idles near 580 MB, which leaves ~400 MB for whatever a job actually does. That is what OOM-killed a `-r job` one-off (see the one-off-command note above) and what forced `SmdCrawler::SitemapParser` to stream instead of building a DOM. Bumping `job` to 1.5 GB is affordable if something needs the room.
 
 **Important consequence:** `bin/kamal app exec --reuse "<cmd>"` (no role flag) runs the command on **both** containers. For read-only dry-runs that's harmless duplication. For mutations, migrations, cleanup tasks, or anything one-shot, **always scope to a single role**:
 
@@ -82,6 +82,19 @@ sitemap: app exec --reuse -r web "bin/rails sitemap:refresh:no_ping"
 ```
 
 Copy that shape when adding new aliases for recurring operations.
+
+**Running one-off Ruby in production — pipe a file over ssh, don't fight the quoting.** `bin/rails runner -` reads the script from stdin, which removes every quoting layer at once. This is the reliable form for anything longer than one expression:
+
+```bash
+C=$(ssh root@46.224.124.123 "docker ps --format '{{.Names}}' --filter label=role=web --filter status=running | head -1")
+ssh root@46.224.124.123 "docker exec -i $C bin/rails runner -" < script.rb
+```
+
+The script is then ordinary Ruby — interpolation, heredocs, double quotes, all fine.
+
+Inline via `bin/kamal app exec --reuse -r web "bin/rails runner \"...\""` still works for a one-liner, but the Ruby then travels through SSH *and* two shell layers, so it must contain **no `"`, no backticks, no `$`, and no `#{}`** — all four are eaten before Ruby sees them, and it surfaces as a confusing mid-script syntax error rather than a quoting complaint. Single quotes and `+` concatenation only. For process memory read `/proc/self/statm`; a shelled-out `ps` needs backticks and will not survive.
+
+**Memory when running one-off commands.** `app exec --reuse` starts a *second* Rails process inside the container alongside the one already running, and the two share the container's cgroup limit. `web` has 1.465 GB, **`job` only 1 GB** and its worker idles around 560 MB — so a `-r job` one-off has ~400 MB of headroom and anything memory-hungry (Nokogiri DOM over a large XML, a big `pluck`) gets OOM-killed with `docker exit status: 137` and no output. Prefer `-r web` for read-only investigation; reserve `-r job` for things that genuinely touch queue state.
 
 **Other aliases already defined** (in `config/deploy.yml`):
 
@@ -145,7 +158,7 @@ pip install -e .
 python -m src.api.main  # Runs on :8001
 ```
 
-**Production:** runs as a Kamal accessory `scorebase-rag` (image `ghcr.io/moguls753/scorebase-rag:latest`, built from `rag/Dockerfile`). The image bakes the `paraphrase-multilingual-MiniLM-L12-v2` embedding model at build time so cold starts don't depend on HuggingFace. Both Rails and the RAG container run as UID 1000 to share `scorebase_storage` (SQLite) safely. ChromaDB persists in `scorebase_chroma` volume.
+**Production:** runs as a Kamal accessory `scorebase-rag` (image `ghcr.io/moguls753/scorebase-rag:latest`, built from `rag/Dockerfile`). The image bakes the `BAAI/bge-m3` embedding model at build time so cold starts don't depend on HuggingFace. That costs 4.3 GB of the ~6.3 GB image because the hub serves the weights twice — `refs/main` resolves to a revision carrying `pytorch_model.bin`, and sentence-transformers separately pulls `model.safetensors` from another revision. **Do not prune the second one to save 2.1 GB** (measured 2026-08-11): it is re-downloaded on the first `encode()`, so the space returns in the container's writable layer on every restart and the cold start starts depending on HuggingFace after all. Both Rails and the RAG container run as UID 1000 to share `scorebase_storage` (SQLite) safely. ChromaDB persists in `scorebase_chroma` volume.
 
 **Two requirements files:** `rag/requirements.txt` is the local-dev manifest (includes `music21` for the extractor). `rag/requirements-prod.txt` is the slim manifest used by the Docker image (no music21; pinned `torch==2.x.x+cpu`).
 
@@ -161,7 +174,7 @@ bin/kamal rag-index                                              # one batch (50
 # repeat rag-index until rag-stats shows Templated == 0
 ```
 
-The indexer's resume logic (`get_indexed_score_ids` in `rag/src/pipeline/indexer.py`) skips already-indexed rows, so partial progress is safe to retry. If a batch OOMs the 1.5 GB accessory cgroup, drop the alias's batch size from 5000 to 2000 in `config/deploy.yml`.
+The indexer's resume logic (`get_indexed_score_ids` in `rag/src/pipeline/indexer.py`) skips already-indexed rows, so partial progress is safe to retry. If a batch OOMs the 3.4 GB accessory cgroup, drop the alias's batch size from 5000 to 2000 in `config/deploy.yml`.
 
 **Pruning deleted scores.** Every indexer run first reconciles ChromaDB against the live catalogue — vectors whose score was soft-deleted or purged are dropped (keep-set diff, `rag/src/pipeline/prune_deleted.py`). Run `bin/kamal rag-prune` (preview: `bin/kamal rag-prune-check`) to reconcile without indexing — e.g. right after a bulk delete. Both are safe to run while the RAG service is live; Chroma tolerates the concurrent reader.
 

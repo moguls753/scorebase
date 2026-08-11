@@ -76,6 +76,19 @@ RSpec.describe SmdCrawler::SitemapParser do
       expect(products.length).to eq(1)
       expect(products.first[:id]).to eq("1925090")
     end
+
+    # Streaming reads raw markup, so the entity decoding the DOM gave for free has to be explicit.
+    it "decodes XML entities in the url" do
+      xml = <<~XML
+        <?xml version="1.0" encoding="utf-8"?>
+        <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+          <url><loc>https://www.sheetmusicdirect.com/se/ID_No/42/Product.aspx?a=1&amp;b=2</loc></url>
+        </urlset>
+      XML
+
+      expect(parser.parse_sitemap(xml).first[:url])
+        .to eq("https://www.sheetmusicdirect.com/se/ID_No/42/Product.aspx?a=1&b=2")
+    end
   end
 
   describe "#extract_product_id" do

@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require "cgi"
 require "nokogiri"
 
 module SmdCrawler
@@ -14,16 +15,20 @@ module SmdCrawler
       doc.xpath("//sitemap/loc").map(&:text)
     end
 
-    # Parse sitemap XML, return list of product hashes with :id and :url
+    # Parse sitemap XML, return list of product hashes with :id and :url.
+    # Streamed, not a DOM: SMD's sitemaps hold 50k urls in 28 MB, and Nokogiri::XML added ~310 MB
+    # resident for one of them — enough to OOM the 1 GB job container mid-crawl.
     def parse_sitemap(xml)
-      doc = Nokogiri::XML(xml)
-      doc.remove_namespaces!
+      products = []
+      Nokogiri::XML::Reader(xml).each do |node|
+        next unless node.node_type == Nokogiri::XML::Reader::TYPE_ELEMENT && node.name == "loc"
 
-      doc.xpath("//url/loc").filter_map do |loc|
-        url = loc.text
+        # Reader#inner_xml hands back raw markup where the DOM's #text decoded entities.
+        url = CGI.unescapeHTML(node.inner_xml)
         id = extract_product_id(url)
-        { id: id, url: url } if id
+        products << { id: id, url: url } if id
       end
+      products
     end
 
     # Extract product ID from URL, or nil if not a product URL

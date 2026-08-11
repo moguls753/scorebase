@@ -1,11 +1,19 @@
+# Pinned 2026-08-11 to the versions the live accessory was running, captured with `pip freeze` in the
+# May-2026 image. They had already drifted several major versions past the old `>=` floors
+# (chroma-haystack 1 -> 4, sentence-transformers 3 -> 5), so a rebuild was silently an upgrade of the
+# whole stack. chromadb and transformers are pinned too though nothing here depends on them directly:
+# chromadb owns the on-disk format of the scorebase_chroma volume, and transformers owns model
+# loading. Bump deliberately, one at a time, and re-run a smart-search query afterwards.
 --extra-index-url https://download.pytorch.org/whl/cpu
 torch==2.11.0+cpu
-haystack-ai>=2.22.0
-chroma-haystack>=1.0.0
-sentence-transformers>=3.0.0
-fastapi>=0.115.0
-uvicorn[standard]>=0.32.0
-groq>=0.4.0
-openai>=1.0.0
-pydantic>=2.0.0
-langdetect>=1.0.9
+haystack-ai==2.29.0
+chroma-haystack==4.3.0
+chromadb==1.5.9
+sentence-transformers==5.5.1
+transformers==5.9.0
+fastapi==0.136.1
+uvicorn[standard]==0.47.0
+groq==1.2.0
+openai==2.38.0
+pydantic==2.13.4
+langdetect==1.0.9

@@ -9,6 +9,11 @@ deploy_timeout: 300
 # Name of the container image (use your-user/app-name on external registries).
 image: moguls753/scorebase
 
+# Two roles per version, so only even numbers buy a usable rollback: 2 keeps the previous web+job
+# pair, the default 5 kept 2.5 versions and 890 MB of unreferenced image each. `kamal rollback` does
+# not re-pull, so anything older than one step back has to go via git revert + deploy.
+retain_containers: 2
+
 # Deploy to these servers.
 servers:
   web:
