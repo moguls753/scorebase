@@ -18,6 +18,12 @@ SitemapGenerator::Sitemap.sitemaps_path = "sitemaps"
 SitemapGenerator::Sitemap.compress = true
 
 SitemapGenerator::Sitemap.create do
+  # Google uses <lastmod> only where it is verifiably accurate, and discounts the
+  # field for the whole sitemap where it is not. Omitting it stamps the build time
+  # on every hub, which claims all of them changed at once on every weekly run.
+  catalogue_lastmod = Score.active.maximum(:updated_at)
+  hub_lastmod = ->(scope) { scope.maximum(:updated_at) || catalogue_lastmod }
+
   # ===========================================
   # STATIC PAGES (highest priority)
   # ===========================================
@@ -47,28 +53,28 @@ SitemapGenerator::Sitemap.create do
   # ===========================================
 
   # Composers index
-  add composers_path, changefreq: "weekly", priority: 0.9
-  add composers_path(locale: :de), changefreq: "weekly", priority: 0.9
+  add composers_path, lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
+  add composers_path(locale: :de), lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
 
   # Genres index
-  add genres_path, changefreq: "weekly", priority: 0.9
-  add genres_path(locale: :de), changefreq: "weekly", priority: 0.9
+  add genres_path, lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
+  add genres_path(locale: :de), lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
 
   # Instruments index
-  add instruments_path, changefreq: "weekly", priority: 0.9
-  add instruments_path(locale: :de), changefreq: "weekly", priority: 0.9
+  add instruments_path, lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
+  add instruments_path(locale: :de), lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
 
   # Periods index
-  add periods_path, changefreq: "weekly", priority: 0.9
-  add periods_path(locale: :de), changefreq: "weekly", priority: 0.9
+  add periods_path, lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
+  add periods_path(locale: :de), lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
 
   # Artists index (SMD modern artists)
-  add artists_path, changefreq: "weekly", priority: 0.9
-  add artists_path(locale: :de), changefreq: "weekly", priority: 0.9
+  add artists_path, lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
+  add artists_path(locale: :de), lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
 
   # Ensembles index (SMD ensemble-category hubs)
-  add ensembles_path, changefreq: "weekly", priority: 0.9
-  add ensembles_path(locale: :de), changefreq: "weekly", priority: 0.9
+  add ensembles_path, lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
+  add ensembles_path(locale: :de), lastmod: catalogue_lastmod, changefreq: "weekly", priority: 0.9
 
   # ===========================================
   # INDIVIDUAL HUB PAGES (from HubDataBuilder)
@@ -77,44 +83,50 @@ SitemapGenerator::Sitemap.create do
   # Composer pages (uses ComposerMapping for clean data)
   composers = HubDataBuilder.composers
   composers.each do |item|
-    add composer_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
-    add composer_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
+    last = hub_lastmod.call(Score.active.where(composer: item[:name]))
+    add composer_path(slug: item[:slug]), lastmod: last, changefreq: "weekly", priority: 0.8
+    add composer_path(slug: item[:slug], locale: :de), lastmod: last, changefreq: "weekly", priority: 0.8
   end
 
   # Artist pages (SMD modern artists - Taylor Swift, Hans Zimmer, etc.)
   artists = HubDataBuilder.artists
   artists.each do |item|
-    add artist_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
-    add artist_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
+    last = hub_lastmod.call(Score.active.where(artist: item[:name]))
+    add artist_path(slug: item[:slug]), lastmod: last, changefreq: "weekly", priority: 0.8
+    add artist_path(slug: item[:slug], locale: :de), lastmod: last, changefreq: "weekly", priority: 0.8
   end
 
   # Genre pages (only normalized scores, via by_genre scope)
   genres = HubDataBuilder.genres
   genres.each do |item|
-    add genre_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
-    add genre_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
+    last = hub_lastmod.call(Score.active.by_genre(item[:name]))
+    add genre_path(slug: item[:slug]), lastmod: last, changefreq: "weekly", priority: 0.8
+    add genre_path(slug: item[:slug], locale: :de), lastmod: last, changefreq: "weekly", priority: 0.8
   end
 
   # Instrument pages (allowlist ensures clean names, LIKE matches all scores)
   instruments = HubDataBuilder.instruments
   instruments.each do |item|
-    add instrument_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
-    add instrument_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
+    last = hub_lastmod.call(Score.active.by_instrument(item[:name]))
+    add instrument_path(slug: item[:slug]), lastmod: last, changefreq: "weekly", priority: 0.8
+    add instrument_path(slug: item[:slug], locale: :de), lastmod: last, changefreq: "weekly", priority: 0.8
   end
 
   # Period pages (historical eras)
   periods = HubDataBuilder.periods
   periods.each do |item|
-    add period_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
-    add period_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
+    last = hub_lastmod.call(Score.active.by_period(item[:name]))
+    add period_path(slug: item[:slug]), lastmod: last, changefreq: "weekly", priority: 0.8
+    add period_path(slug: item[:slug], locale: :de), lastmod: last, changefreq: "weekly", priority: 0.8
   end
 
   # Ensemble pages (curated smd_category allowlist, dedup arrangements)
   # Keyword slug: (not positional) — the optional (:locale) route scope otherwise
   # binds a positional arg to :locale and raises.
   HubDataBuilder.ensembles.each do |item|
-    add ensemble_path(slug: item[:slug]), changefreq: "weekly", priority: 0.8
-    add ensemble_path(slug: item[:slug], locale: :de), changefreq: "weekly", priority: 0.8
+    last = hub_lastmod.call(Score.active.where(smd_category: item[:name]))
+    add ensemble_path(slug: item[:slug]), lastmod: last, changefreq: "weekly", priority: 0.8
+    add ensemble_path(slug: item[:slug], locale: :de), lastmod: last, changefreq: "weekly", priority: 0.8
   end
 
   # ===========================================
@@ -130,14 +142,15 @@ SitemapGenerator::Sitemap.create do
   # Uses same scopes as controller for consistent counts
   composers.each do |composer_item|
     instruments.each do |instrument_item|
-      count = Score.active.where(composer: composer_item[:name])
-                   .by_instrument(instrument_item[:name]).count
-      next if count < threshold
+      scope = Score.active.where(composer: composer_item[:name])
+                   .by_instrument(instrument_item[:name])
+      next if scope.count < threshold
 
+      last = hub_lastmod.call(scope)
       add composer_instrument_path(composer_slug: composer_item[:slug], instrument_slug: instrument_item[:slug]),
-          changefreq: "weekly", priority: 0.7
+          lastmod: last, changefreq: "weekly", priority: 0.7
       add composer_instrument_path(composer_slug: composer_item[:slug], instrument_slug: instrument_item[:slug], locale: :de),
-          changefreq: "weekly", priority: 0.7
+          lastmod: last, changefreq: "weekly", priority: 0.7
     end
   end
 
@@ -146,14 +159,15 @@ SitemapGenerator::Sitemap.create do
   # Uses same scopes as controller for consistent counts
   genres.each do |genre_item|
     instruments.each do |instrument_item|
-      count = Score.active.by_genre(genre_item[:name])
-                   .by_instrument(instrument_item[:name]).count
-      next if count < threshold
+      scope = Score.active.by_genre(genre_item[:name])
+                   .by_instrument(instrument_item[:name])
+      next if scope.count < threshold
 
+      last = hub_lastmod.call(scope)
       add genre_instrument_path(genre_slug: genre_item[:slug], instrument_slug: instrument_item[:slug]),
-          changefreq: "weekly", priority: 0.7
+          lastmod: last, changefreq: "weekly", priority: 0.7
       add genre_instrument_path(genre_slug: genre_item[:slug], instrument_slug: instrument_item[:slug], locale: :de),
-          changefreq: "weekly", priority: 0.7
+          lastmod: last, changefreq: "weekly", priority: 0.7
     end
   end
 
@@ -162,14 +176,15 @@ SitemapGenerator::Sitemap.create do
   # Uses same scopes as controller for consistent counts
   periods.each do |period_item|
     instruments.each do |instrument_item|
-      count = Score.active.by_period(period_item[:name])
-                   .by_instrument(instrument_item[:name]).count
-      next if count < threshold
+      scope = Score.active.by_period(period_item[:name])
+                   .by_instrument(instrument_item[:name])
+      next if scope.count < threshold
 
+      last = hub_lastmod.call(scope)
       add period_instrument_path(period_slug: period_item[:slug], instrument_slug: instrument_item[:slug]),
-          changefreq: "weekly", priority: 0.7
+          lastmod: last, changefreq: "weekly", priority: 0.7
       add period_instrument_path(period_slug: period_item[:slug], instrument_slug: instrument_item[:slug], locale: :de),
-          changefreq: "weekly", priority: 0.7
+          lastmod: last, changefreq: "weekly", priority: 0.7
     end
   end
 
@@ -179,14 +194,15 @@ SitemapGenerator::Sitemap.create do
   difficulties = HubDataBuilder::DIFFICULTY_ORDER
   instruments.each do |instrument_item|
     difficulties.each do |difficulty_slug|
-      count = Score.active.by_instrument(instrument_item[:name])
-                   .by_difficulty(difficulty_slug).count
-      next if count < threshold
+      scope = Score.active.by_instrument(instrument_item[:name])
+                   .by_difficulty(difficulty_slug)
+      next if scope.count < threshold
 
+      last = hub_lastmod.call(scope)
       add instrument_difficulty_path(instrument_slug: instrument_item[:slug], difficulty_slug: difficulty_slug),
-          changefreq: "weekly", priority: 0.8
+          lastmod: last, changefreq: "weekly", priority: 0.8
       add instrument_difficulty_path(instrument_slug: instrument_item[:slug], difficulty_slug: difficulty_slug, locale: :de),
-          changefreq: "weekly", priority: 0.8
+          lastmod: last, changefreq: "weekly", priority: 0.8
     end
   end
 
@@ -195,21 +211,24 @@ SitemapGenerator::Sitemap.create do
   # ===========================================
   # High-value for seasonal SEO queries like "christmas choir music free"
 
+  christmas_lastmod = hub_lastmod.call(Score.active.christmas)
+
   # Christmas index page
-  add christmas_path, changefreq: "yearly", priority: 0.8
-  add christmas_path(locale: :de), changefreq: "yearly", priority: 0.8
+  add christmas_path, lastmod: christmas_lastmod, changefreq: "yearly", priority: 0.8
+  add christmas_path(locale: :de), lastmod: christmas_lastmod, changefreq: "yearly", priority: 0.8
 
   # Christmas choir (SATB)
-  add christmas_choir_path, changefreq: "yearly", priority: 0.8
-  add christmas_choir_path(locale: :de), changefreq: "yearly", priority: 0.8
+  add christmas_choir_path, lastmod: christmas_lastmod, changefreq: "yearly", priority: 0.8
+  add christmas_choir_path(locale: :de), lastmod: christmas_lastmod, changefreq: "yearly", priority: 0.8
 
   # Christmas + Instrument combinations (uses HubDataBuilder as single source of truth)
   HubDataBuilder::CHRISTMAS_INSTRUMENTS.each do |instrument_slug|
-    count = Score.active.christmas.by_instrument(instrument_slug).count
-    next if count < HubDataBuilder::CHRISTMAS_INSTRUMENT_THRESHOLD
+    scope = Score.active.christmas.by_instrument(instrument_slug)
+    next if scope.count < HubDataBuilder::CHRISTMAS_INSTRUMENT_THRESHOLD
 
-    add christmas_instrument_path(instrument_slug: instrument_slug), changefreq: "yearly", priority: 0.7
-    add christmas_instrument_path(instrument_slug: instrument_slug, locale: :de), changefreq: "yearly", priority: 0.7
+    last = hub_lastmod.call(scope)
+    add christmas_instrument_path(instrument_slug: instrument_slug), lastmod: last, changefreq: "yearly", priority: 0.7
+    add christmas_instrument_path(instrument_slug: instrument_slug, locale: :de), lastmod: last, changefreq: "yearly", priority: 0.7
   end
 
   # ===========================================
