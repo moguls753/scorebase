@@ -191,6 +191,27 @@ RSpec.describe ScoresHelper, type: :helper do
     end
   end
 
+  describe '#smd_ensemble_fact' do
+    it 'links a category to its ensemble hub once the hub exists' do
+      create_list(:score, HubDataBuilder::THRESHOLD, :smd, smd_category: 'Concert Band')
+      score = build(:score, :smd, smd_category: 'Concert Band')
+      expect(helper.smd_ensemble_fact(score)[:link]).to eq(helper.ensemble_path(slug: 'concert-band'))
+    end
+
+    it 'returns nil for a format category that has no hub' do
+      score = build(:score, :smd, smd_category: 'Piano Solo')
+      expect(helper.smd_ensemble_fact(score)).to be_nil
+    end
+
+    it 'drops the arrangement cell it would only restate' do
+      create_list(:score, HubDataBuilder::THRESHOLD, :smd, smd_category: 'Concert Band')
+      score = build(:score, :smd, smd_category: 'Concert Band', arrangement_category: 'Band')
+      expect(helper.smd_arrangement_fact(score)).to be_nil
+      expect(helper.smd_arrangement_fact(build(:score, :smd, smd_category: 'Piano Solo',
+        arrangement_category: 'Piano'))[:value]).to eq('Piano')
+    end
+  end
+
   describe 'PAGINATION_PARAMS' do
     it 'covers every filter param the scores list and the hub pages accept' do
       accepted = ScoresController::SEARCH_TRIGGER_PARAMS |

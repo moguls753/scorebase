@@ -213,7 +213,8 @@ module ScoresHelper
     "score.tempo" => { char: "♩" },
     "score.duration" => { char: "◷", css: "score-fact-icon--nudge-1" },
     "score.difficulty" => { char: "◆", css: "score-fact-icon--nudge-2" },
-    "score.language" => { char: "¶" }
+    "score.language" => { char: "¶" },
+    "score.ensemble" => { char: "⁂" }
   }.freeze
 
   def fact_icon(key)
@@ -301,6 +302,10 @@ module ScoresHelper
       facts << fact_entry("score.period", translate_period(score.period), link: scores_path(period: score.period))
     end
 
+    if (ensemble = smd_ensemble_fact(score))
+      facts << ensemble
+    end
+
     # Genre - linkable (primary genre if multiple exist)
     if (primary_genre = score.genre_list.first)
       facts << fact_entry("score.genre", translate_genre(primary_genre), link: scores_path(genre: primary_genre))
@@ -377,7 +382,7 @@ module ScoresHelper
       smd_price_fact(score),
       { label: t("score.rating"), value: format_smd_rating(score) },
       { label: t("score.brand"), value: score.brand },
-      { label: t("score.arrangement"), value: score.arrangement_category },
+      smd_arrangement_fact(score),
       smd_interactive_fact(score)
     ].compact
   end
@@ -388,6 +393,32 @@ module ScoresHelper
     return nil unless price_data
 
     { label: t("score.price"), price: price_data }
+  end
+
+  # The ensemble hub is otherwise reachable only via /ensembles, which left the
+  # larger hubs uncrawled — this is their internal-link surface.
+  def smd_ensemble_fact(score)
+    hub = ensemble_hub_for(score)
+    return nil unless hub
+
+    fact_entry("score.ensemble", translate_hub_name(:ensembles, hub),
+               link: ensemble_path(slug: hub[:slug]))
+  end
+
+  # arrangement_category is a strict coarsening of the ensemble ("Concert Band"
+  # -> "Band"), so it only earns its own cell where no ensemble hub applies.
+  def smd_arrangement_fact(score)
+    return nil if ensemble_hub_for(score)
+
+    { label: t("score.arrangement"), value: score.arrangement_category }
+  end
+
+  # Resolved against the built hubs, not the allowlist: a category below
+  # THRESHOLD has no page, and linking it would 404.
+  def ensemble_hub_for(score)
+    return nil if score.smd_category.blank?
+
+    HubDataBuilder.ensembles.find { |item| item[:name] == score.smd_category }
   end
 
   # Interactive badge - shown when SMD score has playback features

@@ -297,6 +297,7 @@ en:
     smd_hint: "Professional arrangement from Sheet Music Direct"
     brand: "Publisher"
     arrangement: "Arrangement"
+    ensemble: "Ensemble"
     price: "Price"
     interactive: "Interactive"
     # SMD grouped parts

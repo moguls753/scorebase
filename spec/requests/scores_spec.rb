@@ -411,6 +411,17 @@ RSpec.describe 'Scores' do
       end
     end
 
+    describe 'ensemble hub link' do
+      it 'links an SMD score to the hub for its ensemble category' do
+        create_list(:score, HubDataBuilder::THRESHOLD, :smd, smd_category: 'Concert Band')
+        score = create(:score, :smd, smd_category: 'Concert Band')
+
+        get score_path(id: score.id)
+
+        expect(response.body).to include("href=\"#{ensemble_path(slug: 'concert-band')}\"")
+      end
+    end
+
     describe 'professional editions cross-links' do
       let(:browser_headers) do
         { 'HTTP_USER_AGENT' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36' }
