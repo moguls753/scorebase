@@ -54,8 +54,10 @@ Rails' SQLite adapter still table-copies for `rename_column`/`remove_column`, bu
 ```bash
 bin/dev              # Start Rails
 bundle exec rspec    # Run tests
-bin/kamal deploy     # Deploy to production
+bin/kamal deploy     # Deploy to production — the maintainer runs this, never the agent
 ```
+
+**Deploying is the maintainer's job.** Take work to green (rubocop + rspec pass, change verified) and stop there, reporting what is ready. Do not run `bin/kamal deploy`, and do not ask whether to deploy.
 
 ## Deployment Topology (Kamal)
 
