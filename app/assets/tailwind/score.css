@@ -730,7 +730,7 @@
 .score-fact-cell {
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 3px;
   padding: 12px 14px;
   background: var(--color-bg-elevated);
