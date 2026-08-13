@@ -15,10 +15,9 @@ Rails.application.configure do
   # Turn on fragment caching in view templates.
   config.action_controller.perform_caching = true
 
-  # One week, not the Rails-default year: public/ also holds files that are NOT
-  # digest stamped (sitemap.xml.gz, robots.txt, og-image), and a year-long header
-  # pins them at the Cloudflare edge — Google was served an 8-day-stale sitemap.
-  config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.week.to_i}" }
+  # Must stay below the weekly sitemap rebuild — public/ holds non-digest-stamped
+  # files, and this header is obeyed by Thruster in-container as well as Cloudflare.
+  config.public_file_server.headers = { "cache-control" => "public, max-age=#{1.day.to_i}" }
 
   # Enable serving of images, stylesheets, and JavaScripts from an asset server.
   # config.asset_host = "http://assets.example.com"
