@@ -1,0 +1,19 @@
+<%# Real anchors, not the filter dropdown below: these combination pages are indexable
+    and were otherwise reachable only from the sitemap. %>
+<% items = HubDataBuilder.top_instruments_for(type, name, limit: 6) %>
+<% if items.any? %>
+  <nav class="flex items-center gap-x-4 gap-y-1 flex-wrap" aria-label="<%= t('hub.by_instrument') %>">
+    <span class="text-xs font-bold uppercase tracking-wide text-[var(--color-text-muted)]">
+      <%= t('hub.by_instrument') %>
+    </span>
+    <% items.each do |item| %>
+      <% path = case type
+                when :composer then composer_instrument_path(composer_slug: slug, instrument_slug: item[:slug])
+                when :genre then genre_instrument_path(genre_slug: slug, instrument_slug: item[:slug])
+                when :period then period_instrument_path(period_slug: slug, instrument_slug: item[:slug])
+                end %>
+      <%= link_to translate_hub_name(:instruments, item), path,
+                  class: "text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors" %>
+    <% end %>
+  </nav>
+<% end %>

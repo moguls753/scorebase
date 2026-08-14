@@ -171,7 +171,23 @@ class HubDataBuilder
         Rails.logger.info "[HubDataBuilder] Cached #{data.size} #{key}"
       end
 
+      warm_top_instruments
       Rails.logger.info "[HubDataBuilder] Cache warm complete"
+    end
+
+    # Hub heroes link to the instrument combination pages, so every hub needs this
+    # key resolved — a cold one costs ~370ms on a visitor's render.
+    def warm_top_instruments
+      started = Time.current
+      count = 0
+      { composer: composers, genre: genres, period: periods }.each do |type, items|
+        items.each do |item|
+          Rails.cache.write("hub/top_instruments/#{type}/#{item[:name].parameterize}",
+                            build_top_instruments_for(type, item[:name]), expires_in: CACHE_TTL)
+          count += 1
+        end
+      end
+      Rails.logger.info "[HubDataBuilder] Cached #{count} top_instruments in #{(Time.current - started).round}s"
     end
 
     # Returns top instruments for a given dimension that meet the threshold

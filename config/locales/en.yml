@@ -382,6 +382,8 @@ en:
     ensembles_instrumental: "Bands & Orchestras"
     ensembles_choral: "Choirs"
 
+    by_instrument: "By instrument"
+
     # Single dimension pages
     composer_page_title: "%{name} — Sheet Music"
     composer_page_description: "Browse %{count} sheet music scores by %{name}. Free to download and print."

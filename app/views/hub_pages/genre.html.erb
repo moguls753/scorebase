@@ -48,6 +48,8 @@
           <%= f.submit t('search.button'), class: "mm-button mm-button-primary cursor-pointer text-xs px-5 sm:px-6" %>
         </div>
       <% end %>
+
+      <%= render "hub_pages/instrument_links", type: :genre, name: @genre_name, slug: params[:slug] %>
     </div>
   </div>
 </section>

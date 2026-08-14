@@ -382,6 +382,8 @@ de:
     ensembles_instrumental: "Orchester & Ensembles"
     ensembles_choral: "Chöre"
 
+    by_instrument: "Nach Instrument"
+
     # Single dimension pages
     composer_page_title: "%{name} — Noten"
     composer_page_description: "Entdecke %{count} Noten von %{name}. Kostenlos herunterladen und drucken."
