@@ -9,15 +9,15 @@
       <span class="text-[var(--color-border-subtle)]">/</span>
       <%= link_to periods_path, class: "hover:text-[var(--color-accent)] transition-colors" do %><%= t('hub.periods') %><% end %>
       <span class="text-[var(--color-border-subtle)]">/</span>
-      <%= link_to period_path(slug: params[:period_slug]), class: "hover:text-[var(--color-accent)] transition-colors" do %><%= t("hub.period_names.#{params[:period_slug].underscore}", default: @period_name) %><% end %>
+      <%= link_to period_path(slug: params[:period_slug]), class: "hover:text-[var(--color-accent)] transition-colors" do %><%= @period_display_name %><% end %>
       <span class="text-[var(--color-border-subtle)]">/</span>
-      <span class="text-[var(--color-accent)]"><%= @instrument_name %></span>
+      <span class="text-[var(--color-accent)]"><%= @instrument_display_name %></span>
     </nav>
 
     <div class="flex flex-col gap-4">
       <div>
         <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
-          <%= t("hub.period_names.#{params[:period_slug].underscore}", default: @period_name) %><span class="text-[var(--color-accent)] mx-2 sm:mx-3 font-black">//</span><span class="text-[var(--color-accent)]"><%= @instrument_name %></span>
+          <%= @period_display_name %><span class="text-[var(--color-accent)] mx-2 sm:mx-3 font-black">//</span><span class="text-[var(--color-accent)]"><%= @instrument_display_name %></span>
         </h1>
         <p class="text-sm sm:text-base text-[var(--color-text-muted)] max-w-2xl leading-relaxed">
           <%= @page_description %>

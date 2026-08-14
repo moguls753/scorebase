@@ -119,7 +119,8 @@ class HubPagesController < ApplicationController
     # Dynamic filter options (faceted)
     @filter_options = build_genre_filter_options(base_scope, params)
 
-    set_detail_meta(:genre, @genre_name)
+    @genre_display_name = localized_hub_name(:genres, params[:slug], @genre_name)
+    set_detail_meta(:genre, @genre_display_name)
   end
 
   def instrument
@@ -146,7 +147,8 @@ class HubPagesController < ApplicationController
     # Dynamic filter options (faceted)
     @filter_options = build_instrument_filter_options(base_scope, params)
 
-    set_detail_meta(:instrument, @instrument_name)
+    @instrument_display_name = localized_hub_name(:instruments, params[:slug], @instrument_name)
+    set_detail_meta(:instrument, @instrument_display_name)
   end
 
   def period
@@ -174,7 +176,8 @@ class HubPagesController < ApplicationController
     # Dynamic filter options (faceted)
     @filter_options = build_period_filter_options(base_scope, params)
 
-    set_detail_meta(:period, @period_name)
+    @period_display_name = localized_hub_name(:periods, params[:slug], @period_name)
+    set_detail_meta(:period, @period_display_name)
   end
 
   def ensemble
@@ -221,9 +224,10 @@ class HubPagesController < ApplicationController
     @scores = paginate(Score.active.where(composer: @composer_name).by_instrument(@instrument_name))
     not_found if @total_count < HubDataBuilder::THRESHOLD
 
-    @page_title = t("hub.composer_instrument_title", composer: @composer_name, instrument: @instrument_name)
+    @instrument_display_name = localized_hub_name(:instruments, params[:instrument_slug], @instrument_name)
+    @page_title = t("hub.composer_instrument_title", composer: @composer_name, instrument: @instrument_display_name)
     @page_description = t("hub.composer_instrument_description",
-      composer: @composer_name, instrument: @instrument_name, count: @total_count)
+      composer: @composer_name, instrument: @instrument_display_name, count: @total_count)
   end
 
   def genre_instrument
@@ -233,9 +237,11 @@ class HubPagesController < ApplicationController
     @scores = paginate(Score.active.by_genre(@genre_name).by_instrument(@instrument_name))
     not_found if @total_count < HubDataBuilder::THRESHOLD
 
-    @page_title = t("hub.genre_instrument_title", genre: @genre_name, instrument: @instrument_name)
+    @genre_display_name = localized_hub_name(:genres, params[:genre_slug], @genre_name)
+    @instrument_display_name = localized_hub_name(:instruments, params[:instrument_slug], @instrument_name)
+    @page_title = t("hub.genre_instrument_title", genre: @genre_display_name, instrument: @instrument_display_name)
     @page_description = t("hub.genre_instrument_description",
-      genre: @genre_name, instrument: @instrument_name, count: @total_count)
+      genre: @genre_display_name, instrument: @instrument_display_name, count: @total_count)
   end
 
   def period_instrument
@@ -245,9 +251,11 @@ class HubPagesController < ApplicationController
     @scores = paginate(Score.active.by_period(@period_name).by_instrument(@instrument_name))
     not_found if @total_count < HubDataBuilder::THRESHOLD
 
-    @page_title = t("hub.period_instrument_title", period: @period_name, instrument: @instrument_name)
+    @period_display_name = localized_hub_name(:periods, params[:period_slug], @period_name)
+    @instrument_display_name = localized_hub_name(:instruments, params[:instrument_slug], @instrument_name)
+    @page_title = t("hub.period_instrument_title", period: @period_display_name, instrument: @instrument_display_name)
     @page_description = t("hub.period_instrument_description",
-      period: @period_name, instrument: @instrument_name, count: @total_count)
+      period: @period_display_name, instrument: @instrument_display_name, count: @total_count)
   end
 
   # Instrument + Difficulty pages (SEO landing pages like /piano/beginners)
@@ -310,6 +318,7 @@ class HubPagesController < ApplicationController
   def christmas_instrument
     @instrument_slug = params[:instrument_slug]
     @instrument_name = @instrument_slug.titleize
+    @instrument_display_name = localized_hub_name(:instruments, @instrument_slug, @instrument_name)
 
     base_scope = Score.active.christmas.by_instrument(@instrument_slug)
 
@@ -577,6 +586,12 @@ class HubPagesController < ApplicationController
     @page_description = t("hub.#{type}_description", count: data.size)
   end
 
+  # Scopes must query the canonical English name; anything rendered or put in a
+  # title needs the localized one, or a German page reads "Piano" and "Sonata".
+  def localized_hub_name(type, slug, name)
+    helpers.translate_hub_name(type, { slug: slug, name: name })
+  end
+
   def set_detail_meta(type, name)
     @page_title = t("hub.#{type}_page_title", name: name)
     @page_description = t("hub.#{type}_page_description", name: name, count: @total_count)
@@ -623,12 +638,14 @@ class HubPagesController < ApplicationController
   end
 
   def set_instrument_difficulty_meta
+    @instrument_display_name = localized_hub_name(:instruments, params[:instrument_slug], @instrument_name)
+    difficulty_display = t("difficulty.#{@difficulty_slug}", default: @difficulty_name)
     @page_title = t("hub.instrument_difficulty_title",
-      difficulty: @difficulty_name,
-      instrument: @instrument_name)
+      difficulty: difficulty_display,
+      instrument: @instrument_display_name)
     @page_description = t("hub.instrument_difficulty_description",
-      difficulty: @difficulty_name.downcase,
-      instrument: @instrument_name.downcase,
+      difficulty: difficulty_display.downcase,
+      instrument: @instrument_display_name.downcase,
       count: @total_count)
   end
 

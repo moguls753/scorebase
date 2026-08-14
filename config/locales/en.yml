@@ -383,6 +383,7 @@ en:
     ensembles_choral: "Choirs"
 
     by_instrument: "By instrument"
+    name_by_instrument: "%{name} by instrument"
 
     # Single dimension pages
     composer_page_title: "%{name} — Sheet Music"

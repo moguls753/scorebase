@@ -10,7 +10,7 @@
       <span class="text-[var(--color-border-subtle)]">/</span>
       <%= link_to instruments_path, class: "hover:text-[var(--color-accent)] transition-colors" do %><%= t('score.instruments') %><% end %>
       <span class="text-[var(--color-border-subtle)]">/</span>
-      <%= link_to instrument_path(slug: params[:instrument_slug]), class: "hover:text-[var(--color-accent)] transition-colors" do %><%= t("hub.instrument_names.#{params[:instrument_slug].underscore}", default: @instrument_name) %><% end %>
+      <%= link_to instrument_path(slug: params[:instrument_slug]), class: "hover:text-[var(--color-accent)] transition-colors" do %><%= @instrument_display_name %><% end %>
       <span class="text-[var(--color-border-subtle)]">/</span>
       <span class="text-[var(--color-accent)] truncate max-w-[150px]"><%= t("difficulty.#{@difficulty_slug}", default: @difficulty_name) %></span>
     </nav>
@@ -19,7 +19,7 @@
       <!-- Title + Meta -->
       <div>
         <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
-          <%= t("difficulty.#{@difficulty_slug}", default: @difficulty_name) %> <%= t("hub.instrument_names.#{params[:instrument_slug].underscore}", default: @instrument_name) %> <%= t('hub.sheet_music', default: 'Sheet Music') %>
+          <%= t("difficulty.#{@difficulty_slug}", default: @difficulty_name) %> <%= @instrument_display_name %> <%= t('hub.sheet_music', default: 'Sheet Music') %>
         </h1>
         <p class="text-sm sm:text-base font-medium hero-subtitle">
           <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@total_count) %></span>
@@ -34,7 +34,7 @@
         <div class="flex gap-2 sm:gap-3">
           <div class="flex-1 relative">
             <%= f.text_field :q,
-              placeholder: t('hub.search_difficulty_scores', level: @difficulty_name.downcase, instrument: @instrument_name.downcase, default: "Search #{@difficulty_name.downcase} #{@instrument_name.downcase} scores..."),
+              placeholder: t('hub.search_difficulty_scores', level: @difficulty_name.downcase, instrument: @instrument_display_name.downcase, default: "Search #{@difficulty_name.downcase} #{@instrument_display_name.downcase} scores..."),
               value: params[:q],
               class: "w-full mm-input text-sm sm:text-base",
               style: "padding-left: 44px;",

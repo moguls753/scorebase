@@ -9,17 +9,17 @@
       <span class="text-[var(--color-border-subtle)]">/</span>
       <%= link_to christmas_path, class: "hover:text-[var(--color-accent)] transition-colors" do %><%= t('hub.christmas') %><% end %>
       <span class="text-[var(--color-border-subtle)]">/</span>
-      <span class="text-[var(--color-accent)]"><%= @instrument_name %></span>
+      <span class="text-[var(--color-accent)]"><%= @instrument_display_name %></span>
     </nav>
 
     <div class="flex flex-col gap-5">
       <div>
         <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
-          <%= t('hub.christmas_instrument_heading', instrument: @instrument_name) %>
+          <%= t('hub.christmas_instrument_heading', instrument: @instrument_display_name) %>
         </h1>
         <p class="text-sm sm:text-base font-medium hero-subtitle">
           <span class="text-[var(--color-accent)] font-bold"><%= number_with_delimiter(@total_count) %></span>
-          <%= t('hub.free_instrument_christmas_scores', instrument: @instrument_name.downcase) %>
+          <%= t('hub.free_instrument_christmas_scores', instrument: @instrument_display_name.downcase) %>
         </p>
       </div>
 
@@ -28,7 +28,7 @@
         <div class="flex gap-2 sm:gap-3">
           <div class="flex-1 relative">
             <%= f.text_field :q,
-              placeholder: t('hub.search_christmas_instrument', instrument: @instrument_name.downcase),
+              placeholder: t('hub.search_christmas_instrument', instrument: @instrument_display_name.downcase),
               value: params[:q],
               class: "w-full mm-input text-sm sm:text-base",
               style: "padding-left: 44px;",

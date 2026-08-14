@@ -383,6 +383,7 @@ de:
     ensembles_choral: "Chöre"
 
     by_instrument: "Nach Instrument"
+    name_by_instrument: "%{name} nach Instrument"
 
     # Single dimension pages
     composer_page_title: "%{name} — Noten"

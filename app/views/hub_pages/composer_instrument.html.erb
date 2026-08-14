@@ -11,13 +11,13 @@
       <span class="text-[var(--color-border-subtle)]">/</span>
       <%= link_to composer_path(slug: params[:composer_slug]), class: "hover:text-[var(--color-accent)] transition-colors truncate max-w-[100px]" do %><%= @composer_name %><% end %>
       <span class="text-[var(--color-border-subtle)]">/</span>
-      <span class="text-[var(--color-accent)]"><%= @instrument_name %></span>
+      <span class="text-[var(--color-accent)]"><%= @instrument_display_name %></span>
     </nav>
 
     <div class="flex flex-col gap-4">
       <div>
         <h1 class="text-2xl sm:text-3xl lg:text-4xl font-[var(--font-family-display)] mb-3 leading-tight font-black uppercase tracking-tight hero-title">
-          <%= @composer_name %><span class="text-[var(--color-text-muted)] font-medium normal-case text-base sm:text-lg lg:text-xl tracking-normal mx-2 sm:mx-3"><%= t('hub.separator_for') %></span><span class="text-[var(--color-accent)]"><%= @instrument_name %></span>
+          <%= @composer_name %><span class="text-[var(--color-text-muted)] font-medium normal-case text-base sm:text-lg lg:text-xl tracking-normal mx-2 sm:mx-3"><%= t('hub.separator_for') %></span><span class="text-[var(--color-accent)]"><%= @instrument_display_name %></span>
         </h1>
         <p class="text-sm sm:text-base text-[var(--color-text-muted)] max-w-2xl leading-relaxed">
           <%= @page_description %>
