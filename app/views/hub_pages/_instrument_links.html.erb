@@ -3,13 +3,12 @@
     reads as "narrow down further", not as a second instrument filter. %>
 <% items = HubDataBuilder.top_instruments_for(type, name, limit: 6) %>
 <% if items.any? %>
-  <nav class="mt-10 pt-6 border-t-2 border-[var(--color-border)]"
-       aria-labelledby="instrument-links-heading">
+  <nav class="mt-12" aria-labelledby="instrument-links-heading">
     <h2 id="instrument-links-heading"
         class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight mb-4">
       <%= t('hub.name_by_instrument', name: title) %>
     </h2>
-    <div class="flex flex-wrap gap-x-6 gap-y-2">
+    <div class="flex flex-wrap gap-2">
       <% items.each do |item| %>
         <% path = case type
                   when :composer then composer_instrument_path(composer_slug: slug, instrument_slug: item[:slug])
@@ -17,7 +16,7 @@
                   when :period then period_instrument_path(period_slug: slug, instrument_slug: item[:slug])
                   end %>
         <%= link_to translate_hub_name(:instruments, item), path,
-                    class: "text-sm font-medium text-[var(--color-text-muted)] hover:text-[var(--color-accent)] transition-colors" %>
+                    class: "mm-badge mm-badge--instrument hover:border-[var(--color-accent)] transition-colors" %>
       <% end %>
     </div>
   </nav>
