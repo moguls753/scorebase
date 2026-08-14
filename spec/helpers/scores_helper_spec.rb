@@ -212,6 +212,38 @@ RSpec.describe ScoresHelper, type: :helper do
     end
   end
 
+  describe 'hub links on the facts grid' do
+    def link_for(score, label)
+      helper.unified_score_facts(score).find { |f| f[:label] == I18n.t(label) }&.dig(:link)
+    end
+
+    it 'sends a period to its hub, resolving LLM variants to the canonical era' do
+      create_list(:score, HubDataBuilder::THRESHOLD, period: 'Modern')
+      score = build(:score, period: 'Contemporary')
+      expect(link_for(score, 'score.period')).to eq(helper.period_path(slug: 'modern'))
+    end
+
+    it 'leaves a period unlinked when no hub covers it, since the filter returns nothing' do
+      expect(link_for(build(:score, period: 'Civil War Era'), 'score.period')).to be_nil
+    end
+
+    it 'sends a genre to its hub' do
+      create_list(:score, HubDataBuilder::THRESHOLD, genre: 'Sonata', genre_status: 'normalized')
+      score = build(:score, genre: 'Sonata', genre_status: 'normalized')
+      expect(link_for(score, 'score.genre')).to eq(helper.genre_path(slug: 'sonata'))
+    end
+
+    it 'keeps the filter for a normalized genre below the hub threshold' do
+      score = build(:score, genre: 'Sonata', genre_status: 'normalized')
+      expect(link_for(score, 'score.genre')).to eq(helper.scores_path(genre: 'Sonata'))
+    end
+
+    it 'leaves an unnormalized genre unlinked — the filter would return nothing' do
+      score = build(:score, genre: 'Psalm-tunes', genre_status: 'pending')
+      expect(link_for(score, 'score.genre')).to be_nil
+    end
+  end
+
   describe 'PAGINATION_PARAMS' do
     it 'covers every filter param the scores list and the hub pages accept' do
       accepted = ScoresController::SEARCH_TRIGGER_PARAMS |

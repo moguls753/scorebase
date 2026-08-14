@@ -297,18 +297,23 @@ module ScoresHelper
   def build_musical_facts(score)
     facts = []
 
-    # Period - linkable (discover scores from the same era)
+    # Period - linkable (discover scores from the same era). No fallback: by_period
+    # returns nothing for any value that has no hub, so a filter link would be dead.
     if score.period.present?
-      facts << fact_entry("score.period", translate_period(score.period), link: scores_path(period: score.period))
+      facts << fact_entry("score.period", translate_period(score.period),
+                          link: hub_path_for(:periods, canonical_period(score.period)))
     end
 
     if (ensemble = smd_ensemble_fact(score))
       facts << ensemble
     end
 
-    # Genre - linkable (primary genre if multiple exist)
+    # Genre - linkable (primary genre if multiple exist). The filter fallback only
+    # returns rows for a normalized genre, which is also what by_genre requires.
     if (primary_genre = score.genre_list.first)
-      facts << fact_entry("score.genre", translate_genre(primary_genre), link: scores_path(genre: primary_genre))
+      fallback = scores_path(genre: primary_genre) if score.genre_status == "normalized"
+      facts << fact_entry("score.genre", translate_genre(primary_genre),
+                          link: hub_path_for(:genres, primary_genre) || fallback)
     end
 
     # Key signature - descriptive, not linkable (too broad for discovery)
@@ -405,6 +410,30 @@ module ScoresHelper
                link: ensemble_path(slug: hub[:slug]))
   end
 
+  # The /scores filter these replace is noindex, so it can never rank and the link
+  # is spent on a dead end.
+  HUB_PATHS = { periods: :period_path, genres: :genre_path }.freeze
+
+  def hub_path_for(type, name)
+    hub = hub_item_for(type, name)
+    hub && public_send(HUB_PATHS.fetch(type), slug: hub[:slug])
+  end
+
+  def hub_item_for(type, name)
+    return nil if name.blank?
+
+    HubDataBuilder.public_send(type).find { |item| item[:name] == name }
+  end
+
+  # Scores carry LLM output variants ("Contemporary", "20th Century"); hubs and the
+  # by_period scope are both keyed on the canonical era, so an unmapped variant
+  # resolves to nothing at all rather than to the wrong era.
+  def canonical_period(name)
+    return nil if name.blank?
+
+    HubDataBuilder::PERIODS.find { |_, variants| variants.include?(name) }&.first
+  end
+
   # arrangement_category is a strict coarsening of the ensemble ("Concert Band"
   # -> "Band"), so it only earns its own cell where no ensemble hub applies.
   def smd_arrangement_fact(score)
@@ -416,9 +445,7 @@ module ScoresHelper
   # Resolved against the built hubs, not the allowlist: a category below
   # THRESHOLD has no page, and linking it would 404.
   def ensemble_hub_for(score)
-    return nil if score.smd_category.blank?
-
-    HubDataBuilder.ensembles.find { |item| item[:name] == score.smd_category }
+    hub_item_for(:ensembles, score.smd_category)
   end
 
   # Interactive badge - shown when SMD score has playback features
