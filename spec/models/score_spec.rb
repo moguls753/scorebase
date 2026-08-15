@@ -235,4 +235,23 @@ RSpec.describe Score do
       expect(ScoreSmdMatch.count).to eq(0)
     end
   end
+
+  describe "hub filter scopes" do
+    it "accepts the slug the hub dropdown emits" do
+      score = create(:score, genre: "Art Song", genre_status: "normalized")
+      expect(Score.by_genre("art-song")).to include(score)
+    end
+
+    it "does not treat a flute as a lute" do
+      flute = create(:score, instruments: "Alto Flute, Piano")
+      lute  = create(:score, instruments: "Lute, Flute")
+      expect(Score.by_instrument("lute")).to include(lute)
+      expect(Score.by_instrument("lute")).not_to include(flute)
+    end
+
+    it "still matches an instrument named inside a longer part" do
+      score = create(:score, instruments: "Violoncello, Piano")
+      expect(Score.by_instrument("cello")).to include(score)
+    end
+  end
 end

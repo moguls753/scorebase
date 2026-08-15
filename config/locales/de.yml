@@ -301,6 +301,7 @@ de:
     price: "Preis"
     interactive: "Interaktiv"
     # SMD grouped parts
+    includes_instrument: "inkl. %{instrument}"
     parts_label: "Stimmen"
     other_parts: "Weitere Stimmen"
     set_label: "Stimmensatz"
@@ -383,7 +384,7 @@ de:
     ensembles_choral: "Chöre"
 
     by_instrument: "Nach Instrument"
-    name_by_instrument: "%{name} nach Instrument"
+    common_instruments: "Häufigste Instrumente"
 
     # Single dimension pages
     composer_page_title: "%{name} — Noten"
@@ -401,11 +402,11 @@ de:
 
     # Combined pages
     composer_instrument_title: "%{composer} %{instrument} Noten — Download"
-    composer_instrument_description: "Entdecke %{count} %{instrument}-Noten von %{composer}. Kostenlos herunterladen und drucken."
+    composer_instrument_description: "Entdecke %{count} Noten von %{composer} mit %{instrument} — vom Solowerk bis zur Ensemblestimme. Kostenlos herunterladen und drucken."
     genre_instrument_title: "%{genre} %{instrument} Noten — Download"
-    genre_instrument_description: "Entdecke %{count} %{genre}-Noten für %{instrument}. Kostenlos herunterladen und drucken."
+    genre_instrument_description: "Entdecke %{count} %{genre}-Noten mit %{instrument} — vom Solowerk bis zur Ensemblestimme. Kostenlos herunterladen und drucken."
     period_instrument_title: "%{period} %{instrument} Noten — Download"
-    period_instrument_description: "Entdecke %{count} %{instrument}-Noten aus der %{period}. Kostenlos herunterladen und drucken."
+    period_instrument_description: "Entdecke %{count} Noten aus der %{period} mit %{instrument} — vom Solowerk bis zur Ensemblestimme. Kostenlos herunterladen und drucken."
 
     # Instrument + Difficulty pages (SEO landing pages like /piano/beginners)
     instrument_difficulty_title: "%{difficulty} %{instrument} Noten — Kostenloser Download"
@@ -434,6 +435,7 @@ de:
 
     # Separators
     separator_for: "für"
+
 
     # UI elements
     browse_by_instrument: "Nach Instrument filtern"

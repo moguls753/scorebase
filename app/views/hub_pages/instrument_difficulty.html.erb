@@ -172,7 +172,7 @@
                 </span>
               </label>
               <%= f.select :composer,
-                  options_for_select(
+                  filter_options_for_select(
                     [[t('hub.filter_composer'), '']] + @filter_options[:composers].map { |c| [c[:name], c[:slug]] },
                     params[:composer]
                   ),
@@ -190,7 +190,7 @@
                 </span>
               </label>
               <%= f.select :genre,
-                  options_for_select(
+                  filter_options_for_select(
                     [[t('hub.filter_genre'), '']] + @filter_options[:genres].map { |g| [translate_hub_name(:genres, g), g[:slug]] },
                     params[:genre]
                   ),
@@ -232,7 +232,7 @@
     <% if @scores.any? %>
       <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
         <% @scores.each do |score| %>
-          <%= render 'score_card', score: score %>
+          <%= render 'score_card', score: score, instrument: @instrument_name, instrument_label: @instrument_display_name %>
         <% end %>
       </div>
 

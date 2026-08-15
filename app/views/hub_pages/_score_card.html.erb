@@ -1,3 +1,4 @@
+<%# locals: (score:, instrument: nil, instrument_label: nil) %>
 <%= link_to score_path(score), class: "mm-card overflow-hidden group flex flex-col", data: { turbo_frame: "_top", turbo_prefetch: false } do %>
   <%= render "scores/thumbnail", score: score %>
 
@@ -10,11 +11,18 @@
       <%= score.composer.presence || t('search.unknown_composer') %>
     </p>
 
-    <% if score.primary_instrument.present? || score.has_grouped_parts? %>
+    <% part_badge = instrument_part_badge(score, instrument, instrument_label) %>
+    <% if score.primary_instrument.present? || part_badge.present? || score.has_grouped_parts? %>
       <div class="flex flex-wrap gap-1.5 mt-auto pt-3">
         <% if score.primary_instrument.present? %>
           <span class="mm-badge mm-badge--instrument text-[10px] sm:text-[11px]">
             <%= score.primary_instrument %>
+          </span>
+        <% end %>
+
+        <% if part_badge.present? %>
+          <span class="mm-badge mm-badge--instrument text-[10px] sm:text-[11px]">
+            <%= part_badge %>
           </span>
         <% end %>
 

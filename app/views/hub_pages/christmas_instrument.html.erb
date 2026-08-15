@@ -65,7 +65,7 @@
   <% if @scores.any? %>
     <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 sm:gap-5 lg:gap-6">
       <% @scores.each do |score| %>
-        <%= render 'score_card', score: score %>
+        <%= render 'score_card', score: score, instrument: @instrument_name, instrument_label: @instrument_display_name %>
       <% end %>
     </div>
     <%= render 'shared/pagination', scores: @scores, turbo_frame: 'scores' %>

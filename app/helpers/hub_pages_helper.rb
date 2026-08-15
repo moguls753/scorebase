@@ -74,6 +74,31 @@ module HubPagesHelper
     I18n.t(translation_key, default: item[:name])
   end
 
+  # Scopes match case-insensitively, so ?instrument=Organ filters yet never equals the "organ" option value
+  def filter_options_for_select(pairs, selected)
+    match = pairs.find { |_label, value| value.to_s.parameterize == selected.to_s.parameterize }
+    options_for_select(pairs, match ? match.last : selected)
+  end
+
+  # One slot more when a chip is marked current, so marking never costs an outbound link
+  def instrument_link_items(type, name, active_slug)
+    items = HubDataBuilder.top_instruments_for(type, name, limit: active_slug ? 7 : 6)
+    marked = items.any? { |item| item[:slug] == active_slug }
+    items = items.first(6) unless marked
+    items if items.count { |item| item[:slug] != active_slug } >= (marked ? 2 : 3)
+  end
+
+  # by_instrument matches any part, so a "Choir" card on an organ page is correct, not a filter bug
+  def instrument_part_badge(score, instrument_name, label = nil)
+    return if instrument_name.blank?
+
+    needle = instrument_name.downcase
+    return if instrument_mentioned?(score.primary_instrument, needle)
+    return unless instrument_mentioned?(score.instruments, needle)
+
+    t("score.includes_instrument", instrument: label.presence || instrument_name)
+  end
+
   # Normalizes the first letter for grouping, handling non-alphabetic chars
   # Returns the letter (A-Z) or "#" for numbers/symbols
   # Accented letters are normalized: "Ääkkönen" -> "A", "Österreich" -> "O"
@@ -107,5 +132,12 @@ module HubPagesHelper
   def hub_card_style(index, delay_ms: 20)
     delay = hub_card_delay(index, delay_ms: delay_ms)
     delay.positive? ? "animation-delay: #{delay}ms" : nil
+  end
+
+  private
+
+  def instrument_mentioned?(field, needle)
+    haystack = HubDataBuilder::INSTRUMENT_DECOYS.fetch(needle, []).inject(field.to_s.downcase) { |acc, decoy| acc.gsub(decoy, " ") }
+    haystack.include?(needle)
   end
 end

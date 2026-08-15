@@ -423,7 +423,7 @@ class Score < ApplicationRecord
   scope :by_genre, ->(genre_name) {
     return all if genre_name.blank?
     where(genre_status: "normalized")
-      .where("LOWER(genre) = ?", genre_name.downcase)
+      .where("LOWER(genre) = ?", canonical_hub_genre(genre_name).downcase)
   }
 
   # Period filter - maps canonical period names to LLM output variants.
@@ -437,11 +437,19 @@ class Score < ApplicationRecord
   }
 
   # Instrument filter for hub pages (uses FTS5 trigram index for fast substring matching)
+  # Accepts hub slugs too: "double-bass" must tokenize as two words or it can never match the index
   scope :by_instrument, ->(instrument_name) {
     return all if instrument_name.blank?
-    fts_query = build_fts5_query(instrument_name)
+    needle = instrument_name.to_s.tr("-", " ").downcase
+    fts_query = build_fts5_query(needle)
     return all if fts_query.blank?
-    where("id IN (SELECT rowid FROM scores_instruments_fts WHERE instruments MATCH ?)", fts_query)
+
+    matched = where("id IN (SELECT rowid FROM scores_instruments_fts WHERE instruments MATCH ?)", fts_query)
+    decoys = HubDataBuilder::INSTRUMENT_DECOYS[needle]
+    return matched unless decoys
+
+    stripped = decoys.inject("LOWER(instruments)") { |sql, _| "REPLACE(#{sql}, ?, ' ')" }
+    matched.where("#{stripped} LIKE ?", *decoys, "%#{needle}%")
   }
 
   # Pricing filter: free (public domain) vs commercial (SMD with price)
@@ -545,6 +553,10 @@ class Score < ApplicationRecord
       )
     SQL
   }
+
+  def self.canonical_hub_genre(value)
+    HubDataBuilder::GENRES_BY_SLUG.fetch(value.to_s.parameterize, value)
+  end
 
   # Build FTS5 query with AND semantics
   # "rock & roll" -> "rock" "roll" (AND match, special chars stripped)

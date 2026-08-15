@@ -301,6 +301,7 @@ en:
     price: "Price"
     interactive: "Interactive"
     # SMD grouped parts
+    includes_instrument: "incl. %{instrument}"
     parts_label: "parts"
     other_parts: "Other Parts"
     set_label: "Parts"
@@ -383,7 +384,7 @@ en:
     ensembles_choral: "Choirs"
 
     by_instrument: "By instrument"
-    name_by_instrument: "%{name} by instrument"
+    common_instruments: "Most common instruments"
 
     # Single dimension pages
     composer_page_title: "%{name} — Sheet Music"
@@ -401,11 +402,11 @@ en:
 
     # Combined pages
     composer_instrument_title: "%{composer} %{instrument} Sheet Music — Downloads"
-    composer_instrument_description: "Browse %{count} %{instrument} sheet music scores by %{composer}. Free to download and print."
+    composer_instrument_description: "Browse %{count} scores by %{composer} featuring %{instrument} — from solo works to ensemble parts. Free to download and print."
     genre_instrument_title: "%{genre} %{instrument} Sheet Music — Downloads"
-    genre_instrument_description: "Browse %{count} %{genre} sheet music scores for %{instrument}. Free to download and print."
+    genre_instrument_description: "Browse %{count} %{genre} scores featuring %{instrument} — from solo works to ensemble parts. Free to download and print."
     period_instrument_title: "%{period} %{instrument} Sheet Music — Downloads"
-    period_instrument_description: "Browse %{count} %{instrument} sheet music scores from the %{period} period. Free to download and print."
+    period_instrument_description: "Browse %{count} scores from the %{period} period featuring %{instrument} — from solo works to ensemble parts. Free to download and print."
 
     # Instrument + Difficulty pages (SEO landing pages like /piano/beginners)
     instrument_difficulty_title: "%{difficulty} %{instrument} Sheet Music — Free Downloads"
@@ -434,6 +435,7 @@ en:
 
     # Separators
     separator_for: "for"
+
 
     # UI elements
     browse_by_instrument: "Browse by instrument"

@@ -347,6 +347,13 @@ a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
   letter-spacing: 0.01em;
 }
 
+.mm-badge--current {
+  background: rgba(var(--color-accent-rgb), 0.16);
+  color: var(--color-primary);
+  border-color: var(--color-accent);
+  cursor: default;
+}
+
 /* ========================================
    LYRICS ACCORDION - Neubrutalist Style
    ======================================== */

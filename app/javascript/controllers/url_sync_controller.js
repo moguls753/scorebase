@@ -1,5 +1,14 @@
 import { Controller } from "@hotwired/stimulus"
 
+// Mirrors HubPagesHelper#filter_options_for_select - both must slug identically
+const slugify = (value) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+
 export default class extends Controller {
   connect() {
     this.boundHandleFrameLoad = this.handleFrameLoad.bind(this)
@@ -35,7 +44,10 @@ export default class extends Controller {
       if (field.type === "hidden" || field.type === "text" || field.type === "search") {
         field.value = paramValue
       } else if (field.tagName === "SELECT") {
-        field.value = paramValue
+        // Assigning the raw param would blank the select: ?instrument=Organ filters, but the option value is "organ"
+        const wanted = slugify(paramValue)
+        const option = Array.from(field.options).find(o => slugify(o.value) === wanted)
+        field.value = option ? option.value : paramValue
       }
     })
   }

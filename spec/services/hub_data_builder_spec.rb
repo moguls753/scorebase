@@ -167,4 +167,17 @@ RSpec.describe HubDataBuilder do
       expect(described_class.find_by_slug(:genres, "hymn")).to be_nil
     end
   end
+
+  describe "INSTRUMENT_DECOYS" do
+    # Trigram FTS matches substrings, so a new allowlist entry can silently swallow another
+    it "declares every allowlisted instrument that contains another one" do
+      undeclared = described_class::VALID_INSTRUMENTS.filter_map do |needle|
+        supersets = described_class::VALID_INSTRUMENTS.select { |other| other != needle && other.include?(needle) }
+        missing = supersets - described_class::INSTRUMENT_DECOYS.fetch(needle, [])
+        [ needle, missing ] if missing.any?
+      end
+
+      expect(undeclared).to be_empty
+    end
+  end
 end

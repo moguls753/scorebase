@@ -1,23 +1,25 @@
-<%# Real anchors, not the filter dropdown above: these combination pages are indexable
-    and were otherwise reachable only from the sitemap. Sits below the results so it
-    reads as "narrow down further", not as a second instrument filter. %>
-<% items = HubDataBuilder.top_instruments_for(type, name, limit: 6) %>
-<% if items.any? %>
-  <nav class="mt-12" aria-labelledby="instrument-links-heading">
-    <h2 id="instrument-links-heading"
-        class="text-sm font-[var(--font-family-display)] text-[var(--color-primary)] font-black uppercase tracking-tight mb-4">
-      <%= t('hub.name_by_instrument', name: title) %>
-    </h2>
-    <div class="flex flex-wrap gap-2">
-      <% items.each do |item| %>
+<%# locals: (type:, name:, slug:, active_slug: nil) %>
+<% items = instrument_link_items(type, name, active_slug) %>
+<% if items %>
+  <nav class="flex flex-wrap gap-2" aria-label="<%= t('hub.common_instruments') %>">
+    <% items.each do |item| %>
+      <% label = capture do %>
+        <%= translate_hub_name(:instruments, item) %>
+        <%# 80%, not less: below that the count drops under 4.5:1 on the hero background %>
+        <span class="ml-1.5 font-normal opacity-80"><%= number_with_delimiter(item[:count]) %></span>
+      <% end %>
+      <% if item[:slug] == active_slug %>
+        <span class="mm-badge mm-badge--instrument mm-badge--current" aria-current="page"><%= label %></span>
+      <% else %>
         <% path = case type
                   when :composer then composer_instrument_path(composer_slug: slug, instrument_slug: item[:slug])
                   when :genre then genre_instrument_path(genre_slug: slug, instrument_slug: item[:slug])
                   when :period then period_instrument_path(period_slug: slug, instrument_slug: item[:slug])
                   end %>
-        <%= link_to translate_hub_name(:instruments, item), path,
-                    class: "mm-badge mm-badge--instrument hover:border-[var(--color-accent)] transition-colors" %>
+        <%= link_to path, class: "mm-badge mm-badge--instrument hover:border-[var(--color-accent)] transition-colors" do %>
+          <%= label %>
+        <% end %>
       <% end %>
-    </div>
+    <% end %>
   </nav>
 <% end %>

@@ -14,7 +14,7 @@
         <%= t('score.instrument') %>
       </label>
       <%= f.select :instrument,
-          options_for_select(
+          filter_options_for_select(
             [[t('filters.any'), '']] + filter_options[:instruments].map { |i| [translate_hub_name(:instruments, i), i[:slug]] },
             params[:instrument]
           ),
@@ -35,7 +35,7 @@
         <%= t('sort.composer') %>
       </label>
       <%= f.select :composer,
-          options_for_select(
+          filter_options_for_select(
             [[t('filters.any'), '']] + filter_options[:composers].map { |c| [c[:name], c[:slug]] },
             params[:composer]
           ),
@@ -56,7 +56,7 @@
         <%= t('filters.genre') %>
       </label>
       <%= f.select :genre,
-          options_for_select(
+          filter_options_for_select(
             [[t('filters.any'), '']] + filter_options[:genres].map { |g| [translate_hub_name(:genres, g), g[:slug]] },
             params[:genre]
           ),

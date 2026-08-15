@@ -32,6 +32,8 @@
         </div>
       </div>
 
+      <%= render "hub_pages/instrument_links", type: :composer, name: @composer_name, slug: params[:slug] %>
+
       <!-- Scoped Search Bar - Prominent neubrutalist style -->
       <%= form_with url: composer_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "max-w-2xl" do |f| %>
         <%= composer_filter_hidden_fields(f) %>
@@ -177,7 +179,7 @@
                 </span>
               </label>
               <%= f.select :instrument,
-                  options_for_select(
+                  filter_options_for_select(
                     [[t('hub.filter_instrument'), '']] + @filter_options[:instruments].map { |i| [translate_hub_name(:instruments, i), i[:slug]] },
                     params[:instrument]
                   ),
@@ -195,7 +197,7 @@
                 </span>
               </label>
               <%= f.select :genre,
-                  options_for_select(
+                  filter_options_for_select(
                     [[t('hub.filter_genre'), '']] + @filter_options[:genres].map { |g| [translate_hub_name(:genres, g), g[:slug]] },
                     params[:genre]
                   ),
@@ -256,6 +258,4 @@
       </div>
     <% end %>
   </turbo-frame>
-
-  <%= render "hub_pages/instrument_links", type: :composer, name: @composer_name, slug: params[:slug], title: @composer_name %>
 </div>

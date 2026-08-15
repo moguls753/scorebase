@@ -170,7 +170,7 @@
                 </span>
               </label>
               <%= f.select :instrument,
-                  options_for_select(
+                  filter_options_for_select(
                     [[t('hub.filter_instrument'), '']] + @filter_options[:instruments].map { |i| [translate_hub_name(:instruments, i), i[:slug]] },
                     params[:instrument]
                   ),
@@ -188,7 +188,7 @@
                 </span>
               </label>
               <%= f.select :composer,
-                  options_for_select(
+                  filter_options_for_select(
                     [[t('hub.filter_composer'), '']] + @filter_options[:composers].map { |c| [c[:name], c[:slug]] },
                     params[:composer]
                   ),

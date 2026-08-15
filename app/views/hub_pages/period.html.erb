@@ -25,6 +25,8 @@
         </p>
       </div>
 
+      <%= render "hub_pages/instrument_links", type: :period, name: @period_name, slug: params[:slug] %>
+
       <!-- Scoped Search Bar -->
       <%= form_with url: period_path(slug: params[:slug]), method: :get, data: { turbo_frame: "scores", controller: "url-sync" }, class: "max-w-2xl" do |f| %>
         <%= period_filter_hidden_fields(f) %>
@@ -170,7 +172,7 @@
                 </span>
               </label>
               <%= f.select :instrument,
-                  options_for_select(
+                  filter_options_for_select(
                     [[t('hub.filter_instrument'), '']] + @filter_options[:instruments].map { |i| [translate_hub_name(:instruments, i), i[:slug]] },
                     params[:instrument]
                   ),
@@ -188,7 +190,7 @@
                 </span>
               </label>
               <%= f.select :composer,
-                  options_for_select(
+                  filter_options_for_select(
                     [[t('hub.filter_composer'), '']] + @filter_options[:composers].map { |c| [c[:name], c[:slug]] },
                     params[:composer]
                   ),
@@ -206,7 +208,7 @@
                 </span>
               </label>
               <%= f.select :genre,
-                  options_for_select(
+                  filter_options_for_select(
                     [[t('hub.filter_genre'), '']] + @filter_options[:genres].map { |g| [translate_hub_name(:genres, g), g[:slug]] },
                     params[:genre]
                   ),
@@ -267,6 +269,4 @@
       </div>
     <% end %>
   </turbo-frame>
-
-  <%= render "hub_pages/instrument_links", type: :period, name: @period_name, slug: params[:slug], title: @period_display_name %>
 </div>

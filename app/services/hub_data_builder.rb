@@ -92,12 +92,23 @@ class HubDataBuilder
     "voice"
   ].freeze
 
+  # The instruments index is trigram FTS, i.e. a plain substring match, so "lute"
+  # hits every flute. Stripped before matching; "Baritone Horn" must still count as a horn.
+  INSTRUMENT_DECOYS = {
+    "lute" => %w[flute],
+    "harp" => %w[harpsichord harpsicord],
+    "cornet" => %w[cornetto cornett],
+    "horn" => ["english horn", "basset horn", "flugelhorn", "hornpipe"],
+    "bassoon" => %w[contrabassoon]
+  }.freeze
+
   # ===========================================
   # VALID GENRES (loaded from config/genre_vocabulary.yml)
   # ===========================================
   # Single source of truth for both LLM classification and hub pages.
   GENRE_VOCABULARY_PATH = Rails.root.join("config/genre_vocabulary.yml").freeze
   VALID_GENRES = YAML.load_file(GENRE_VOCABULARY_PATH).fetch("genres").freeze
+  GENRES_BY_SLUG = VALID_GENRES.index_by(&:parameterize).freeze
 
   # ===========================================
   # ENSEMBLE CATEGORIES (SMD smd_category allowlist for buyer-query hub pages)

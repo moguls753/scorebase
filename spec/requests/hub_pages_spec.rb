@@ -49,6 +49,25 @@ RSpec.describe "HubPages" do
       expect(response.body).not_to include('rel="canonical"')
     end
 
+    it "shows the instrument filter as selected when the param is not slug-cased" do
+      12.times { create(:score, genre: "Motet", genre_status: "normalized", instruments: "Organ") }
+
+      get genre_path(slug: "motet", instrument: "Organ")
+
+      selected = Nokogiri::HTML(response.body).at_css("select#filter-instrument option[selected]")
+      expect(selected["value"]).to eq("organ")
+    end
+
+    it "filters on the multi-word slugs the dropdown emits" do
+      12.times { |i| create(:score, title: "Motet #{i}", genre: "Motet", genre_status: "normalized", instruments: "Double Bass") }
+      12.times { |i| create(:score, title: "Piano piece #{i}", genre: "Motet", genre_status: "normalized", instruments: "Piano") }
+
+      get genre_path(slug: "motet", instrument: "double-bass")
+
+      expect(response.body).to include("Motet 0")
+      expect(response.body).not_to include("Piano piece 0")
+    end
+
     describe "pagination links" do
       def link_href(body, rel)
         Nokogiri::HTML(body).at_css(%(a[rel="#{rel}"]))&.[]("href")
@@ -212,6 +231,48 @@ RSpec.describe "HubPages" do
     it "returns 404 for an unknown slug" do
       get ensemble_path(slug: "nonexistent")
       expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe "GET /genres/:genre_slug/:instrument_slug" do
+    def motet_with(instruments)
+      instruments.each do |instrument|
+        12.times { create(:score, genre: "Motet", genre_status: "normalized", instruments: instrument) }
+      end
+    end
+
+    def instrument_row(body)
+      Nokogiri::HTML(body).at_css(%(nav[aria-label="#{I18n.t('hub.common_instruments')}"]))
+    end
+
+    it "marks the current instrument and links to its siblings" do
+      motet_with(%w[Organ Piano Violin Cello])
+
+      get genre_instrument_path(genre_slug: "motet", instrument_slug: "organ")
+
+      row = instrument_row(response.body)
+      current = row.at_css('[aria-current="page"]')
+      expect(current.name).to eq("span")
+      expect(current.text).to include("Organ")
+      expect(row.css("a").map { |a| a["href"] })
+        .to contain_exactly("/genres/motet/piano", "/genres/motet/violin", "/genres/motet/cello")
+    end
+
+    it "keeps the row wherever the hub itself shows one" do
+      motet_with(%w[Organ Piano Violin])
+
+      get genre_instrument_path(genre_slug: "motet", instrument_slug: "organ")
+
+      expect(instrument_row(response.body).css("a").map { |a| a["href"] })
+        .to contain_exactly("/genres/motet/piano", "/genres/motet/violin")
+    end
+
+    it "hides the row when the current instrument leaves fewer than two links" do
+      motet_with(%w[Organ Piano])
+
+      get genre_instrument_path(genre_slug: "motet", instrument_slug: "organ")
+
+      expect(instrument_row(response.body)).to be_nil
     end
   end
 end
