@@ -1,6 +1,9 @@
-<%# locals: (type:, name:, slug:, active_slug: nil) %>
+<%# locals: (type:, name:, slug:, active_slug: nil, separator: false) %>
 <% items = instrument_link_items(type, name, active_slug) %>
 <% if items %>
+  <% if separator %>
+    <div class="hidden lg:block w-px h-6 bg-[var(--color-border)]"></div>
+  <% end %>
   <nav class="flex flex-wrap gap-2" aria-label="<%= t('hub.common_instruments') %>">
     <% items.each do |item| %>
       <% label = capture do %>
