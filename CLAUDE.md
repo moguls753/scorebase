@@ -149,8 +149,25 @@ CI runs these; failing locally first saves the round-trip:
 ```bash
 bin/rubocop -f github     # style + lint; CI fails on any offense
 bundle exec rspec         # full test suite
+bin/brakeman --no-pager   # static security scan; CI fails on any warning
 bundle audit              # gem CVE check
 ```
+
+**Brakeman and `where` — the one that keeps recurring.** Any string interpolation into a SQL fragment trips `SQL Injection`, even when the interpolated value comes from a frozen constant and the *user* value is a bind. Brakeman cannot see that distinction, so it fails CI and you are left choosing between an ignore entry and a rewrite. Build the fragment with Arel instead and there is nothing to flag:
+
+```ruby
+# trips Brakeman — the REPLACE nesting is interpolated, even though `decoys` is a constant
+stripped = decoys.inject("LOWER(instruments)") { |sql, _| "REPLACE(#{sql}, ?, ' ')" }
+where("#{stripped} LIKE ?", *decoys, "%#{needle}%")
+
+# clean, same SQL, same plan (Score.instruments_without)
+node = decoys.inject(arel_table[:instruments].lower) do |acc, decoy|
+  Arel::Nodes::NamedFunction.new("REPLACE", [ acc, Arel::Nodes.build_quoted(decoy), Arel::Nodes.build_quoted(" ") ])
+end
+where(node.matches("%#{needle}%"))
+```
+
+`config/brakeman.ignore` holds three genuinely-reviewed exceptions (an external redirect, two deliberate SSL bypasses). Adding a fourth for interpolated SQL is the wrong move — the rewrite is a few lines and removes the question permanently.
 
 If you only touched a few files, scope rubocop to them (`bin/rubocop app/... spec/...`) — full repo run is slower.
 

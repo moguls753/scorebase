@@ -448,8 +448,7 @@ class Score < ApplicationRecord
     decoys = HubDataBuilder::INSTRUMENT_DECOYS[needle]
     return matched unless decoys
 
-    stripped = decoys.inject("LOWER(instruments)") { |sql, _| "REPLACE(#{sql}, ?, ' ')" }
-    matched.where("#{stripped} LIKE ?", *decoys, "%#{needle}%")
+    matched.where(instruments_without(decoys).matches("%#{needle}%"))
   }
 
   # Pricing filter: free (public domain) vs commercial (SMD with price)
@@ -561,6 +560,12 @@ class Score < ApplicationRecord
   # Build FTS5 query with AND semantics
   # "rock & roll" -> "rock" "roll" (AND match, special chars stripped)
   # "Dvořák symphony" -> "dvorak" "symphony" (accent-normalized)
+  def self.instruments_without(decoys)
+    decoys.inject(arel_table[:instruments].lower) do |node, decoy|
+      Arel::Nodes::NamedFunction.new("REPLACE", [ node, Arel::Nodes.build_quoted(decoy), Arel::Nodes.build_quoted(" ") ])
+    end
+  end
+
   def self.build_fts5_query(query)
     return "" if query.blank?
     normalized = query.unicode_normalize(:nfkd).gsub(/\p{M}/, "").downcase
