@@ -149,10 +149,12 @@ bin/kamal deploy     # Deploy to production — the maintainer runs this, never 
 | Container | Memory | Command | Purpose |
 |---|---|---|---|
 | `web` | 1.5 GB | Puma (default) | Rails web server (1 worker × 3 threads) |
-| `job` | 1 GB | `bin/jobs` | Solid Queue worker |
+| `job` | 1.5 GB | `bin/jobs` | Solid Queue worker |
 | `scorebase-rag` accessory | 3.4 GB | `uvicorn src.api.main:app` | Python/FastAPI RAG service on :8001 |
 
-**Headroom budget.** Limits total `1.5 + 1 + 3.4 = 5.9 GB` of 7.6 GB, but real usage is far lower — measured 2026-08-11: 2.9 GB used, **4.7 GB available**. RAM is not the constraint here; the constraint is that `job` is the smallest cgroup at 1 GB while its worker idles near 580 MB, which leaves ~400 MB for whatever a job actually does. That is what OOM-killed a `-r job` one-off (see the one-off-command note above) and what forced `SmdCrawler::SitemapParser` to stream instead of building a DOM. Bumping `job` to 1.5 GB is affordable if something needs the room.
+**Headroom budget.** Limits total `1.5 + 1.5 + 3.4 = 6.4 GB` of 7.6 GB, but real usage is far lower — measured 2026-08-11: 2.9 GB used, **4.7 GB available**. `job` was 1 GB until 2026-08, which left only ~400 MB over its idling worker: that is what OOM-killed a `-r job` one-off and what forced `SmdCrawler::SitemapParser` to stream instead of building a DOM. At 1.5 GB both Rails roles now have comparable headroom (~900 MB over an idle worker), so role choice is about *what the command touches*, not about memory.
+
+**CPU, not RAM, is the scarce one.** The host has 4 vCPU and `web` runs Puma. A long CPU-bound one-off there competes with request serving: a full `sitemap:refresh` held `web` at ~125% CPU for hours and pushed `/search` from milliseconds to 0.3–1.1s (FTS itself measured 2–3ms throughout — the database was never the problem). Long builds therefore belong on `-r job`, which is why the `sitemap` alias uses it.
 
 **Important consequence:** `bin/kamal app exec --reuse "<cmd>"` (no role flag) runs the command on **both** containers. For read-only dry-runs that's harmless duplication. For mutations, migrations, cleanup tasks, or anything one-shot, **always scope to a single role**:
 
@@ -179,7 +181,7 @@ The script is then ordinary Ruby — interpolation, heredocs, double quotes, all
 
 Inline via `bin/kamal app exec --reuse -r web "bin/rails runner \"...\""` still works for a one-liner, but the Ruby then travels through SSH *and* two shell layers, so it must contain **no `"`, no backticks, no `$`, and no `#{}`** — all four are eaten before Ruby sees them, and it surfaces as a confusing mid-script syntax error rather than a quoting complaint. Single quotes and `+` concatenation only. For process memory read `/proc/self/statm`; a shelled-out `ps` needs backticks and will not survive.
 
-**Memory when running one-off commands.** `app exec --reuse` starts a *second* Rails process inside the container alongside the one already running, and the two share the container's cgroup limit. `web` has 1.465 GB, **`job` only 1 GB** and its worker idles around 560 MB — so a `-r job` one-off has ~400 MB of headroom and anything memory-hungry (Nokogiri DOM over a large XML, a big `pluck`) gets OOM-killed with `docker exit status: 137` and no output. Prefer `-r web` for read-only investigation; reserve `-r job` for things that genuinely touch queue state.
+**Memory when running one-off commands.** `app exec --reuse` starts a *second* Rails process inside the container alongside the one already running, and the two share the container's cgroup limit. Both roles are now 1.5 GB with their worker idling near 560–720 MB, so either has ~800 MB of headroom; anything memory-hungry beyond that (Nokogiri DOM over a large XML, a big `pluck`) still gets OOM-killed with `docker exit status: 137` and no output. Pick the role by cost, not size: short read-only investigation on `-r web`, anything long or CPU-bound on `-r job` so it cannot slow request serving.
 
 **Other aliases already defined** (in `config/deploy.yml`):
 

@@ -254,8 +254,12 @@ en:
     complexity: "Complexity"
     rating: "Rating"
     genres: "Genres & Forms"
-    views: "views"
-    favs: "favs"
+    views:
+      one: "view"
+      other: "views"
+    favs:
+      one: "fav"
+      other: "favs"
     complexity_scale: "%{value} / 3"
     rating_scale: "%{value} / 5.0"
     # Extended CPDL fields

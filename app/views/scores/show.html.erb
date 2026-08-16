@@ -210,13 +210,13 @@
             <% if @score.views.to_i.positive? %>
               <div class="score-stat">
                 <span class="score-stat-value"><%= @score.views %></span>
-                <span class="score-stat-label"><%= t('score.views') %></span>
+                <span class="score-stat-label"><%= t('score.views', count: @score.views.to_i) %></span>
               </div>
             <% end %>
             <% if @score.favorites.to_i.positive? %>
               <div class="score-stat">
                 <span class="score-stat-value"><%= @score.favorites %></span>
-                <span class="score-stat-label"><%= t('score.favs') %></span>
+                <span class="score-stat-label"><%= t('score.favs', count: @score.favorites.to_i) %></span>
               </div>
             <% end %>
           </div>

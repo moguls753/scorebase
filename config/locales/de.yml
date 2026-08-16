@@ -254,8 +254,12 @@ de:
     complexity: "Schwierigkeit"
     rating: "Bewertung"
     genres: "Genres & Formen"
-    views: "Aufrufe"
-    favs: "Favoriten"
+    views:
+      one: "Aufruf"
+      other: "Aufrufe"
+    favs:
+      one: "Favorit"
+      other: "Favoriten"
     complexity_scale: "%{value} / 3"
     rating_scale: "%{value} / 5,0"
     # Extended CPDL fields
