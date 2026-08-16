@@ -275,4 +275,56 @@ RSpec.describe "HubPages" do
       expect(instrument_row(response.body)).to be_nil
     end
   end
+
+  describe "GET /composers/:composer_slug/:instrument_slug" do
+    # Both hub items must clear THRESHOLD on their own, or find_or_404 fires before
+    # the count gate and the example passes for the wrong reason.
+    def hub_fixture(bach_on_piano)
+      bach_on_piano.times { create(:score, composer: "Bach, Johann Sebastian", instruments: "Piano") }
+      (10 - bach_on_piano).times { create(:score, composer: "Bach, Johann Sebastian", instruments: "Violin") }
+      10.times { create(:score, composer: "Satie, Erik", instruments: "Piano") }
+      ComposerMapping.create!(original_name: "Bach, Johann Sebastian", normalized_name: "Bach, Johann Sebastian")
+      ComposerMapping.create!(original_name: "Satie, Erik", normalized_name: "Satie, Erik")
+    end
+
+    # Between the two thresholds the page leaves the sitemap but must still render:
+    # 404ing it would deindex a URL that returns on the next import.
+    it "keeps serving a combination that dropped below the sitemap threshold" do
+      hub_fixture(7)
+
+      get composer_instrument_path(composer_slug: "bach-johann-sebastian", instrument_slug: "piano")
+      expect(response).to have_http_status(:success)
+    end
+
+    it "returns 404 below the serve threshold" do
+      hub_fixture(3)
+
+      get composer_instrument_path(composer_slug: "bach-johann-sebastian", instrument_slug: "piano")
+      expect(response).to have_http_status(:not_found)
+    end
+  end
+
+  describe "GET /instruments/:slug filter options" do
+    # The unfiltered facets are cached; a filtered request must not be served them,
+    # or its dropdowns list composers the filter excludes.
+    around do |example|
+      vorher = Rails.cache
+      Rails.cache = ActiveSupport::Cache::MemoryStore.new
+      example.run
+      Rails.cache = vorher
+    end
+
+    it "does not serve cached unfiltered options on a filtered request" do
+      12.times { create(:score, composer: "Bach, Johann Sebastian", instruments: "Piano", genre: "Fugue", genre_status: "normalized") }
+      12.times { create(:score, composer: "Satie, Erik", instruments: "Piano", genre: "Motet", genre_status: "normalized") }
+      ComposerMapping.create!(original_name: "Bach, Johann Sebastian", normalized_name: "Bach, Johann Sebastian")
+      ComposerMapping.create!(original_name: "Satie, Erik", normalized_name: "Satie, Erik")
+
+      get instrument_path(slug: "piano")
+      expect(response.body).to include("motet")
+
+      get instrument_path(slug: "piano", composer: "bach-johann-sebastian")
+      expect(response.body).not_to include("motet")
+    end
+  end
 end

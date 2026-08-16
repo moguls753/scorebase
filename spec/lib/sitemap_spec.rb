@@ -180,4 +180,57 @@ RSpec.describe "Sitemap generation" do
       expect(xml).to include("/ensembles</loc>")
     end
   end
+
+  describe "combination hub pages" do
+    def generated_xml
+      SitemapGenerator::Interpreter.run(verbose: false)
+      Zlib::GzipReader.open(Rails.root.join("storage/sitemaps/sitemap.xml.gz"), &:read)
+    end
+
+    it "sums period variants for period + instrument combinations" do
+      7.times { create(:score, period: "Romantic", instruments: "Piano") }
+      5.times { create(:score, period: "19th Century", instruments: "Piano") }
+
+      expect(generated_xml).to include("/periods/romantic/piano</loc>")
+    end
+
+    it "sums genre case variants for genre + instrument combinations" do
+      5.times { create(:score, genre: "Motet", genre_status: "normalized", instruments: "Piano") }
+      5.times { create(:score, genre: "motet", genre_status: "normalized", instruments: "Piano") }
+
+      expect(generated_xml).to include("/genres/motet/piano</loc>")
+    end
+
+    it "counts only normalized genres in genre + instrument combinations" do
+      9.times { create(:score, genre: "Motet", genre_status: "normalized", instruments: "Piano") }
+      5.times { create(:score, genre: "Motet", genre_status: "pending", instruments: "Piano") }
+      create(:score, genre: "Motet", genre_status: "normalized", instruments: "Violin")
+
+      xml = generated_xml
+      expect(xml).to include("/genres/motet</loc>")
+      expect(xml).not_to include("/genres/motet/piano</loc>")
+    end
+
+    it "keeps composer case twins as separate counts" do
+      ComposerMapping.create!(original_name: "Anonymous", normalized_name: "Anonymous")
+      ComposerMapping.create!(original_name: "anonymous.", normalized_name: "anonymous")
+      10.times { create(:score, composer: "Anonymous", instruments: "Piano") }
+      6.times { create(:score, composer: "anonymous", instruments: "Piano") }
+      4.times { create(:score, composer: "anonymous", instruments: nil) }
+
+      # Only the "Anonymous" twin reaches threshold with piano: en + de, not four.
+      expect(generated_xml.scan("/composers/anonymous/piano</loc>").size).to eq(2)
+    end
+
+    it "does not let decoy instruments inflate a composer + instrument combination" do
+      ComposerMapping.create!(original_name: "J.S. Bach", normalized_name: "Bach, Johann Sebastian")
+      9.times { create(:score, composer: "Bach, Johann Sebastian", instruments: "Horn") }
+      3.times { create(:score, composer: "Bach, Johann Sebastian", instruments: "English Horn") }
+      2.times { create(:score, composer: "Handel, George Frideric", instruments: "Horn") }
+
+      xml = generated_xml
+      expect(xml).to include("/instruments/horn</loc>")
+      expect(xml).not_to include("/composers/bach-johann-sebastian/horn</loc>")
+    end
+  end
 end

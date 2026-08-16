@@ -549,28 +549,30 @@ class Score < ApplicationRecord
 
     # The duplicate_of_id conditions mirror deduplicate_arrangements — if the two
     # drift, search shows a row the listings hide, or hides one they show.
+    #
+    # One id list rather than two OR branches: an OR makes the planner drive off
+    # duplicate_of_id and walk the whole table.
     where(<<~SQL.squish)
-      duplicate_of_id IS NULL AND (
+      duplicate_of_id IS NULL AND id IN (
         /* Ungrouped matches: include directly */
-        (id IN (#{fts_match}) AND group_key IS NULL)
-        OR
+        SELECT id FROM scores
+        WHERE id IN (#{fts_match}) AND group_key IS NULL
+        UNION
         /* Grouped matches: include only the representative for each matching group */
-        id IN (
-          SELECT (
-            SELECT s2.id FROM scores s2
-            WHERE s2.group_key = matched_groups.group_key
-              AND s2.deleted_at IS NULL
-              AND s2.duplicate_of_id IS NULL
-            ORDER BY #{GROUP_REPRESENTATIVE_ORDER_SQL}
-            LIMIT 1
-          )
-          FROM (
-            SELECT DISTINCT s.group_key
-            FROM scores s
-            WHERE s.id IN (#{fts_match})
-              AND s.group_key IS NOT NULL
-          ) matched_groups
+        SELECT (
+          SELECT s2.id FROM scores s2
+          WHERE s2.group_key = matched_groups.group_key
+            AND s2.deleted_at IS NULL
+            AND s2.duplicate_of_id IS NULL
+          ORDER BY #{GROUP_REPRESENTATIVE_ORDER_SQL}
+          LIMIT 1
         )
+        FROM (
+          SELECT DISTINCT s.group_key
+          FROM scores s
+          WHERE s.id IN (#{fts_match})
+            AND s.group_key IS NOT NULL
+        ) matched_groups
       )
     SQL
   }

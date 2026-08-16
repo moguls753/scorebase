@@ -53,14 +53,17 @@ class HubPagesController < ApplicationController
     filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
 
     # Counts
+    unfiltered = filtered_scope.equal?(base_scope)
     @total_count = base_scope.count
-    @filtered_count = filtered_scope.count
+    @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
     @scores = paginate_filtered(filtered_scope)
 
     # Dynamic filter options (faceted)
-    @filter_options = build_composer_filter_options(base_scope, params)
+    @filter_options = cached_filter_options("composer/#{params[:slug]}", unfiltered) do
+      build_composer_filter_options(base_scope, params)
+    end
 
     # Other metadata
     @composer_period = base_scope.where.not(period: [nil, ""])
@@ -83,14 +86,17 @@ class HubPagesController < ApplicationController
     filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
 
     # Counts
+    unfiltered = filtered_scope.equal?(base_scope)
     @total_count = base_scope.count
-    @filtered_count = filtered_scope.count
+    @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
     @scores = paginate_filtered(filtered_scope)
 
     # Dynamic filter options (faceted)
-    @filter_options = build_artist_filter_options(base_scope, params)
+    @filter_options = cached_filter_options("artist/#{params[:slug]}", unfiltered) do
+      build_artist_filter_options(base_scope, params)
+    end
 
     set_detail_meta(:artist, @artist_name)
   end
@@ -110,14 +116,17 @@ class HubPagesController < ApplicationController
     filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
 
     # Counts
+    unfiltered = filtered_scope.equal?(base_scope)
     @total_count = base_scope.count
-    @filtered_count = filtered_scope.count
+    @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
     @scores = paginate_filtered(filtered_scope)
 
     # Dynamic filter options (faceted)
-    @filter_options = build_genre_filter_options(base_scope, params)
+    @filter_options = cached_filter_options("genre/#{params[:slug]}", unfiltered) do
+      build_genre_filter_options(base_scope, params)
+    end
 
     @genre_display_name = localized_hub_name(:genres, params[:slug], @genre_name)
     set_detail_meta(:genre, @genre_display_name)
@@ -138,14 +147,17 @@ class HubPagesController < ApplicationController
     filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
 
     # Counts
+    unfiltered = filtered_scope.equal?(base_scope)
     @total_count = base_scope.count
-    @filtered_count = filtered_scope.count
+    @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
     @scores = paginate_filtered(filtered_scope)
 
     # Dynamic filter options (faceted)
-    @filter_options = build_instrument_filter_options(base_scope, params)
+    @filter_options = cached_filter_options("instrument/#{params[:slug]}", unfiltered) do
+      build_instrument_filter_options(base_scope, params)
+    end
 
     @instrument_display_name = localized_hub_name(:instruments, params[:slug], @instrument_name)
     set_detail_meta(:instrument, @instrument_display_name)
@@ -167,14 +179,17 @@ class HubPagesController < ApplicationController
     filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
 
     # Counts
+    unfiltered = filtered_scope.equal?(base_scope)
     @total_count = base_scope.count
-    @filtered_count = filtered_scope.count
+    @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
     @scores = paginate_filtered(filtered_scope)
 
     # Dynamic filter options (faceted)
-    @filter_options = build_period_filter_options(base_scope, params)
+    @filter_options = cached_filter_options("period/#{params[:slug]}", unfiltered) do
+      build_period_filter_options(base_scope, params)
+    end
 
     @period_display_name = localized_hub_name(:periods, params[:slug], @period_name)
     set_detail_meta(:period, @period_display_name)
@@ -204,14 +219,17 @@ class HubPagesController < ApplicationController
     filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
 
     # Counts
+    unfiltered = filtered_scope.equal?(base_scope)
     @total_count = base_scope.count
-    @filtered_count = filtered_scope.count
+    @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
     @scores = paginate_filtered(filtered_scope)
 
     # Dynamic filter options (faceted)
-    @filter_options = build_ensemble_filter_options(base_scope, params)
+    @filter_options = cached_filter_options("ensemble/#{params[:slug]}", unfiltered) do
+      build_ensemble_filter_options(base_scope, params)
+    end
 
     set_detail_meta(:ensemble, @ensemble_display_name)
   end
@@ -222,7 +240,7 @@ class HubPagesController < ApplicationController
     @instrument_name = find_or_404(:instruments, params[:instrument_slug])
 
     @scores = paginate(Score.active.where(composer: @composer_name).by_instrument(@instrument_name))
-    not_found if @total_count < HubDataBuilder::THRESHOLD
+    not_found if @total_count < HubDataBuilder::SERVE_THRESHOLD
 
     @instrument_display_name = localized_hub_name(:instruments, params[:instrument_slug], @instrument_name)
     @page_title = t("hub.composer_instrument_title", composer: @composer_name, instrument: @instrument_display_name)
@@ -235,7 +253,7 @@ class HubPagesController < ApplicationController
     @instrument_name = find_or_404(:instruments, params[:instrument_slug])
 
     @scores = paginate(Score.active.by_genre(@genre_name).by_instrument(@instrument_name))
-    not_found if @total_count < HubDataBuilder::THRESHOLD
+    not_found if @total_count < HubDataBuilder::SERVE_THRESHOLD
 
     @genre_display_name = localized_hub_name(:genres, params[:genre_slug], @genre_name)
     @instrument_display_name = localized_hub_name(:instruments, params[:instrument_slug], @instrument_name)
@@ -249,7 +267,7 @@ class HubPagesController < ApplicationController
     @instrument_name = find_or_404(:instruments, params[:instrument_slug])
 
     @scores = paginate(Score.active.by_period(@period_name).by_instrument(@instrument_name))
-    not_found if @total_count < HubDataBuilder::THRESHOLD
+    not_found if @total_count < HubDataBuilder::SERVE_THRESHOLD
 
     @period_display_name = localized_hub_name(:periods, params[:period_slug], @period_name)
     @instrument_display_name = localized_hub_name(:instruments, params[:instrument_slug], @instrument_name)
@@ -277,17 +295,19 @@ class HubPagesController < ApplicationController
     filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
 
     # Counts
+    unfiltered = filtered_scope.equal?(base_scope)
     @total_count = base_scope.count
-    @filtered_count = filtered_scope.count
+    @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
-    # 404 if combination has too few scores
-    not_found if @total_count < HubDataBuilder::THRESHOLD
+    not_found if @total_count < HubDataBuilder::SERVE_THRESHOLD
 
     # Paginate
     @scores = paginate_filtered(filtered_scope)
 
     # Dynamic filter options (faceted)
-    @filter_options = build_instrument_difficulty_filter_options(base_scope, params)
+    @filter_options = cached_filter_options("instrument-difficulty/#{params[:instrument_slug]}/#{params[:difficulty_slug]}", unfiltered) do
+      build_instrument_difficulty_filter_options(base_scope, params)
+    end
 
     set_instrument_difficulty_meta
   end
@@ -307,8 +327,9 @@ class HubPagesController < ApplicationController
     filtered_scope = base_scope
     filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
 
+    unfiltered = filtered_scope.equal?(base_scope)
     @total_count = base_scope.count
-    @filtered_count = filtered_scope.count
+    @filtered_count = unfiltered ? @total_count : filtered_scope.count
     @scores = paginate_filtered(filtered_scope)
 
     @page_title = t("hub.christmas_choir_title")
@@ -323,7 +344,7 @@ class HubPagesController < ApplicationController
     base_scope = Score.active.christmas.by_instrument(@instrument_slug)
 
     @total_count = base_scope.count
-    not_found if @total_count < HubDataBuilder::CHRISTMAS_INSTRUMENT_THRESHOLD
+    not_found if @total_count < HubDataBuilder::SERVE_THRESHOLD
 
     filtered_scope = base_scope
     filtered_scope = filtered_scope.search_by_title(params[:q]) if params[:q].present?
@@ -595,6 +616,16 @@ class HubPagesController < ApplicationController
   def set_detail_meta(type, name)
     @page_title = t("hub.#{type}_page_title", name: name)
     @page_description = t("hub.#{type}_page_description", name: name, count: @total_count)
+  end
+
+  FILTER_OPTIONS_TTL = 12.hours
+
+  # Facets scan the whole hub — 754ms on /instruments/piano — and the unfiltered
+  # variant is the one crawlers and first visits hit.
+  def cached_filter_options(key, unfiltered)
+    return yield unless unfiltered
+
+    Rails.cache.fetch("hub/filters/#{key}", expires_in: FILTER_OPTIONS_TTL) { yield }
   end
 
   def not_found

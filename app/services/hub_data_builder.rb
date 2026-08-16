@@ -12,6 +12,9 @@ class HubDataBuilder
   CACHE_FALLBACK_TTL = 1.day
   THRESHOLD = 10
 
+  # Leaving the sitemap is reversible, a 404 is not: it deindexes a URL that returns on the next import.
+  SERVE_THRESHOLD = 5
+
   # Historical periods mapped to values the LLM normalizer might output.
   # by_period scope queries the normalized `period` column directly.
   PERIODS = {

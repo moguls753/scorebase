@@ -154,7 +154,9 @@ bin/kamal deploy     # Deploy to production — the maintainer runs this, never 
 
 **Headroom budget.** Limits total `1.5 + 1.5 + 3.4 = 6.4 GB` of 7.6 GB, but real usage is far lower — measured 2026-08-11: 2.9 GB used, **4.7 GB available**. `job` was 1 GB until 2026-08, which left only ~400 MB over its idling worker: that is what OOM-killed a `-r job` one-off and what forced `SmdCrawler::SitemapParser` to stream instead of building a DOM. At 1.5 GB both Rails roles now have comparable headroom (~900 MB over an idle worker), so role choice is about *what the command touches*, not about memory.
 
-**CPU, not RAM, is the scarce one.** The host has 4 vCPU and `web` runs Puma. A long CPU-bound one-off there competes with request serving: a full `sitemap:refresh` held `web` at ~125% CPU for hours and pushed `/search` from milliseconds to 0.3–1.1s (FTS itself measured 2–3ms throughout — the database was never the problem). Long builds therefore belong on `-r job`, which is why the `sitemap` alias uses it.
+**CPU, not RAM, is the scarce one.** The host has 4 vCPU and `web` runs Puma. A full `sitemap:refresh` pins one core at ~100% for hours, which is why the `sitemap` alias runs on `-r job` — Puma kept answering in the measured case (its two workers sat at ~10% each), so treat this as headroom hygiene, not a proven outage.
+
+**Measure `x-runtime`, not wall time, and check the route exists.** Wall time from outside is dominated by the Cloudflare round trip (~230–780ms vs ~65ms straight to the origin with `--resolve`), so it cannot separate a slow server from a slow path. Worse, a 404 is *fast* — `/search?q=` is not a route (search is `scores#index` at `/scores?q=` and `/`), and measuring it produced a confident, wrong "search takes 4ms". Always confirm the status code is 200 before believing a latency number.
 
 **Important consequence:** `bin/kamal app exec --reuse "<cmd>"` (no role flag) runs the command on **both** containers. For read-only dry-runs that's harmless duplication. For mutations, migrations, cleanup tasks, or anything one-shot, **always scope to a single role**:
 

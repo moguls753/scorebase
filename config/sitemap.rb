@@ -82,8 +82,9 @@ SitemapGenerator::Sitemap.create do
 
   # Composer pages (uses ComposerMapping for clean data)
   composers = HubDataBuilder.composers
+  composer_lastmods = Score.active.group(:composer).maximum(:updated_at)
   composers.each do |item|
-    last = hub_lastmod.call(Score.active.where(composer: item[:name]))
+    last = composer_lastmods[item[:name]] || catalogue_lastmod
     add composer_path(slug: item[:slug]), lastmod: last, changefreq: "weekly", priority: 0.8
     add composer_path(slug: item[:slug], locale: :de), lastmod: last, changefreq: "weekly", priority: 0.8
   end
@@ -137,16 +138,22 @@ SitemapGenerator::Sitemap.create do
 
   threshold = HubDataBuilder::THRESHOLD
 
+  # Counted the way the page counts (paginate deduplicates): raw rows list combinations
+  # whose parts are hidden members, and those URLs 404 on arrival.
+
   # Composer + Instrument combinations
   # e.g., "Bach Piano", "Mozart Violin"
-  # Uses same scopes as controller for consistent counts
-  composers.each do |composer_item|
-    instruments.each do |instrument_item|
-      scope = Score.active.where(composer: composer_item[:name])
-                   .by_instrument(instrument_item[:name])
-      next if scope.count < threshold
+  # Instrument-outer: the FTS instrument scope is composer-independent, so two
+  # grouped queries per instrument replace one scoped count per pair (~2.6h -> seconds).
+  instruments.each do |instrument_item|
+    base = Score.active.by_instrument(instrument_item[:name]).deduplicate_arrangements
+    counts = base.group(:composer).count
+    lastmods = base.group(:composer).maximum(:updated_at)
 
-      last = hub_lastmod.call(scope)
+    composers.each do |composer_item|
+      next if counts[composer_item[:name]].to_i < threshold
+
+      last = lastmods[composer_item[:name]] || catalogue_lastmod
       add composer_instrument_path(composer_slug: composer_item[:slug], instrument_slug: instrument_item[:slug]),
           lastmod: last, changefreq: "weekly", priority: 0.7
       add composer_instrument_path(composer_slug: composer_item[:slug], instrument_slug: instrument_item[:slug], locale: :de),
@@ -156,14 +163,17 @@ SitemapGenerator::Sitemap.create do
 
   # Genre + Instrument combinations
   # e.g., "Sacred Choir", "Jazz Saxophone"
-  # Uses same scopes as controller for consistent counts
-  genres.each do |genre_item|
-    instruments.each do |instrument_item|
-      scope = Score.active.by_genre(genre_item[:name])
-                   .by_instrument(instrument_item[:name])
-      next if scope.count < threshold
+  # Grouping must mirror by_genre exactly: keep the status filter, group case-insensitively.
+  instruments.each do |instrument_item|
+    base = Score.active.by_instrument(instrument_item[:name]).deduplicate_arrangements.where(genre_status: "normalized")
+    counts = base.group("LOWER(genre)").count
+    lastmods = base.group("LOWER(genre)").maximum(:updated_at)
 
-      last = hub_lastmod.call(scope)
+    genres.each do |genre_item|
+      key = genre_item[:name].downcase
+      next if counts[key].to_i < threshold
+
+      last = lastmods[key] || catalogue_lastmod
       add genre_instrument_path(genre_slug: genre_item[:slug], instrument_slug: instrument_item[:slug]),
           lastmod: last, changefreq: "weekly", priority: 0.7
       add genre_instrument_path(genre_slug: genre_item[:slug], instrument_slug: instrument_item[:slug], locale: :de),
@@ -173,14 +183,17 @@ SitemapGenerator::Sitemap.create do
 
   # Period + Instrument combinations
   # e.g., "Classical Piano", "Baroque Violin"
-  # Uses same scopes as controller for consistent counts
-  periods.each do |period_item|
-    instruments.each do |instrument_item|
-      scope = Score.active.by_period(period_item[:name])
-                   .by_instrument(instrument_item[:name])
-      next if scope.count < threshold
+  # by_period matches a variant list, so sum counts and max lastmods over the variants.
+  instruments.each do |instrument_item|
+    base = Score.active.by_instrument(instrument_item[:name]).deduplicate_arrangements
+    counts = base.group(:period).count
+    lastmods = base.group(:period).maximum(:updated_at)
 
-      last = hub_lastmod.call(scope)
+    periods.each do |period_item|
+      variants = HubDataBuilder::PERIODS[period_item[:name]]
+      next if variants.sum { |v| counts[v].to_i } < threshold
+
+      last = variants.filter_map { |v| lastmods[v] }.max || catalogue_lastmod
       add period_instrument_path(period_slug: period_item[:slug], instrument_slug: instrument_item[:slug]),
           lastmod: last, changefreq: "weekly", priority: 0.7
       add period_instrument_path(period_slug: period_item[:slug], instrument_slug: instrument_item[:slug], locale: :de),
@@ -196,6 +209,7 @@ SitemapGenerator::Sitemap.create do
     difficulties.each do |difficulty_slug|
       scope = Score.active.by_instrument(instrument_item[:name])
                    .by_difficulty(difficulty_slug)
+                   .deduplicate_arrangements
       next if scope.count < threshold
 
       last = hub_lastmod.call(scope)
