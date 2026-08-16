@@ -85,17 +85,24 @@ RSpec.describe SmdMatchFinder do
   end
 
   describe ".free_family" do
-    it "checks is_instrumental first, then voicing/is_instrumental=false, then the instruments text" do
-      expect(described_class.free_family("SATB", true, "Piano")).to eq(:piano)
+    it "checks has_vocal first, then voicing, then the instruments text" do
+      expect(described_class.free_family("SATB", false, "Piano")).to eq(:piano)
       expect(described_class.free_family("SATB", nil, "Piano")).to eq(:vocal)
-      expect(described_class.free_family(nil, false, "Piano")).to eq(:vocal)
-      expect(described_class.free_family(nil, true, "Piano, Orchestra")).to eq(:piano)
+      expect(described_class.free_family(nil, true, "Piano")).to eq(:vocal)
+      expect(described_class.free_family(nil, false, "Piano, Orchestra")).to eq(:piano)
       expect(described_class.free_family(nil, nil, nil)).to eq(:other)
     end
 
+    # An undecided has_vocal must fall through to the instruments text; reading it as
+    # "not vocal" sent every unnormalised piano score to the vocal editions.
+    it "treats has_vocal nil as undecided, not as vocal" do
+      expect(described_class.free_family(nil, nil, "Piano")).to eq(:piano)
+      expect(described_class.free_family(nil, nil, "Brass Band")).to eq(:band)
+    end
+
     it "does not misread register-prefixed winds ('Alto Sax', 'flute') as vocal or guitar" do
-      expect(described_class.free_family(nil, true, "Alto Saxophone")).to eq(:winds)
-      expect(described_class.free_family(nil, true, "Flute, B♭ Clarinet")).to eq(:winds)
+      expect(described_class.free_family(nil, false, "Alto Saxophone")).to eq(:winds)
+      expect(described_class.free_family(nil, false, "Flute, B♭ Clarinet")).to eq(:winds)
     end
   end
 

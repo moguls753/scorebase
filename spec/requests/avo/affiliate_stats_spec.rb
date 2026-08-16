@@ -1,6 +1,6 @@
 require "rails_helper"
 
-RSpec.describe "Avo SMD stats", type: :request do
+RSpec.describe "Avo affiliate stats", type: :request do
   let(:admin_user) { "admin" }
   let(:admin_password) { "test-secret" }
 
@@ -21,8 +21,8 @@ RSpec.describe "Avo SMD stats", type: :request do
     }
   end
 
-  def get_smd_stats
-    admin_get "/admin/smd_stats"
+  def get_affiliate_stats
+    admin_get "/admin/affiliate_stats"
   end
 
   # The headline conversion card, by its markup, so the assertion can't drift onto
@@ -39,7 +39,7 @@ RSpec.describe "Avo SMD stats", type: :request do
     create(:daily_stat, date: Date.current, human_visits: 1000, smd_page_visits: 200,
                         human_converting_visits: 6, smd_clicks_by_score: { "1" => 40 })
 
-    get_smd_stats
+    get_affiliate_stats
 
     expect(response).to have_http_status(:ok)
     expect(headline_rate).to eq("3.0%")
@@ -48,7 +48,7 @@ RSpec.describe "Avo SMD stats", type: :request do
   it "renders an em-dash when the window has no measured rows" do
     create(:daily_stat, date: Date.current, human_visits: nil, human_converting_visits: nil)
 
-    get_smd_stats
+    get_affiliate_stats
 
     expect(response).to have_http_status(:ok)
     expect(headline_rate).to eq("—")
@@ -58,10 +58,34 @@ RSpec.describe "Avo SMD stats", type: :request do
     create(:daily_stat, date: Date.current, human_visits: 100, smd_page_visits: 20)
     create(:daily_stat, date: Date.current - 20, human_visits: 50, smd_page_visits: 10)
 
-    get_smd_stats
+    get_affiliate_stats
     expect(headline_human_visits).to eq("150")
 
     admin_get "/admin/analytics"
     expect(response.body).to include("150 over 2d")
+  end
+
+  it "shows SMD and Stretta funnels separately" do
+    create(:daily_stat, date: Date.current, human_visits: 1000,
+                        partner_page_visits: { "smd" => 200, "stretta" => 80 },
+                        partner_converting_visits: { "smd" => 6, "stretta" => 4 },
+                        partner_clicks_by_score: { "smd" => { "1" => 6 }, "stretta" => { "2" => 4 } })
+
+    get_affiliate_stats
+
+    expect(response).to have_http_status(:ok)
+    expect(response.body).to include("Sheet Music Direct")
+    expect(response.body).to include("Stretta Music")
+  end
+
+  it "labels the daily clicks table with a column per partner" do
+    create(:daily_stat, date: Date.current, human_visits: 1000,
+                        partner_page_visits: { "smd" => 200, "stretta" => 80 },
+                        partner_clicks_by_score: { "smd" => { "1" => 6 }, "stretta" => { "2" => 4 } })
+
+    get_affiliate_stats
+
+    expect(response.body).to include("Sheet Music Direct Clicks")
+    expect(response.body).to include("Stretta Music Clicks")
   end
 end

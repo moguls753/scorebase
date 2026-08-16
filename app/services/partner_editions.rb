@@ -59,6 +59,6 @@ class PartnerEditions
   end
 
   def free_family
-    @free_family ||= SmdMatchFinder.free_family(@score.voicing, @score.is_instrumental, @score.instruments)
+    @free_family ||= SmdMatchFinder.free_family(@score.voicing, @score.has_vocal, @score.instruments)
   end
 end

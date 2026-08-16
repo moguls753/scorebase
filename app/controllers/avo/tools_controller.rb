@@ -33,9 +33,9 @@ class Avo::ToolsController < Avo::ApplicationController
     @score_titles = Score.where(id: score_ids).pluck(:id, :title).to_h
   end
 
-  def smd_stats
-    @page_title = "SMD Affiliate Stats"
-    add_breadcrumb "SMD Stats"
+  def affiliate_stats
+    @page_title = "Affiliate Stats"
+    add_breadcrumb "Affiliate Stats"
 
     @range_days = DEFAULT_WINDOW_DAYS
     @stats      = DailyStat.in_window(@range_days).order(date: :desc)

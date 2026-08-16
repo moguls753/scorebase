@@ -16,7 +16,9 @@
               <tr class="border-b border-gray-200">
                 <th class="py-2 text-left text-gray-600">Date</th>
                 <th class="py-2 text-right text-gray-600">Human Visits</th>
-                <th class="py-2 text-right text-gray-600">Buy Clicks</th>
+                <% Score::COMMERCIAL_PARTNERS.each_value do |partner| %>
+                  <th class="py-2 text-right text-gray-600"><%= partner.name %> Clicks</th>
+                <% end %>
               </tr>
             </thead>
             <tbody>
@@ -24,7 +26,9 @@
                 <tr class="border-b border-gray-100 hover:bg-gray-50">
                   <td class="py-2 text-gray-700"><%= stat.date.strftime("%b %d, %Y") %></td>
                   <td class="py-2 text-right font-mono font-semibold text-green-600"><%= stat.human_visits ? number_with_delimiter(stat.human_visits) : "—" %></td>
-                  <td class="py-2 text-right font-mono text-teal-600"><%= stat.human_visits ? Score::COMMERCIAL_SOURCES.sum { |source| stat.total_clicks(source) } : "—" %></td>
+                  <% Score::COMMERCIAL_PARTNERS.each_value do |partner| %>
+                    <td class="py-2 text-right font-mono text-teal-600"><%= stat.human_visits ? stat.total_clicks(partner.source) : "—" %></td>
+                  <% end %>
                 </tr>
               <% end %>
             </tbody>
@@ -45,6 +49,7 @@
               <tr class="border-b border-gray-200">
                 <th class="py-2 text-left text-gray-600">Score</th>
                 <th class="py-2 text-left text-gray-600">Composer</th>
+                <th class="py-2 text-left text-gray-600">Partner</th>
                 <th class="py-2 text-right text-gray-600">Clicks</th>
               </tr>
             </thead>
@@ -55,6 +60,7 @@
                     <%= link_to score.title&.truncate(50) || "Untitled", main_app.score_path(id: score.id), target: "_blank", class: "text-teal-600 hover:underline" %>
                   </td>
                   <td class="py-2 text-gray-500"><%= score.composer&.truncate(30) %></td>
+                  <td class="py-2 text-gray-500"><%= score.partner_name %></td>
                   <td class="py-2 text-right font-mono text-teal-600 font-bold"><%= clicks %></td>
                 </tr>
               <% end %>

@@ -101,12 +101,12 @@ class SmdMatchFinder
     SMD_FAMILY.fetch(main_instrument, :other)
   end
 
-  # Cascade: the music21 is_instrumental flag is authoritative when set (it beats a
-  # stray voicing value on an instrumental piece like a piano rag); otherwise a
-  # vocal score is flagged by voicing (CPDL choir codes), else we parse instruments.
-  def self.free_family(voicing, is_instrumental, instruments)
-    return instrument_family(instruments) if is_instrumental == true
-    return :vocal if is_instrumental == false || voicing.present?
+  # Cascade: has_vocal is authoritative when set (it beats a stray voicing value on an
+  # instrumental piece like a piano rag), else voicing flags a vocal score (CPDL choir
+  # codes), else we parse instruments. nil is a third state — undecided, not "not vocal".
+  def self.free_family(voicing, has_vocal, instruments)
+    return instrument_family(instruments) if has_vocal == false
+    return :vocal if has_vocal == true || voicing.present?
 
     instrument_family(instruments)
   end

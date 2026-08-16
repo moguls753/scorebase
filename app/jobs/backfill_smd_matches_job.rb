@@ -34,13 +34,13 @@ class BackfillSmdMatchesJob < ApplicationJob
     index
   end
 
-  FREE_COLUMNS = %i[id title composer voicing is_instrumental instruments].freeze
+  FREE_COLUMNS = %i[id title composer voicing has_vocal instruments].freeze
 
   def desired_matches(index)
     desired = {}
     Score.active.free.in_batches do |batch|
-      batch.pluck(*FREE_COLUMNS).each do |id, title, composer, voicing, is_instrumental, instruments|
-        family = SmdMatchFinder.free_family(voicing, is_instrumental, instruments)
+      batch.pluck(*FREE_COLUMNS).each do |id, title, composer, voicing, has_vocal, instruments|
+        family = SmdMatchFinder.free_family(voicing, has_vocal, instruments)
         ids = SmdMatchFinder.matches_for(title, composer, index, free_family: family)
         desired[id] = ids if ids.any?
       end

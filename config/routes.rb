@@ -99,7 +99,7 @@ if defined? ::Avo
   Avo::Engine.routes.draw do
     # These routes are protected by Avo's authentication
     get "rag_pipeline", to: "tools#rag_pipeline", as: :rag_pipeline
-    get "smd_stats", to: "tools#smd_stats", as: :smd_stats
+    get "affiliate_stats", to: "tools#affiliate_stats", as: :affiliate_stats
     get "analytics", to: "tools#analytics", as: :analytics
   end
 end

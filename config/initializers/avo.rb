@@ -156,7 +156,7 @@ Avo.configure do |config|
 
     section "Tools", icon: "avo/tools" do
       link "Analytics", path: avo.analytics_path
-      link "SMD Stats", path: avo.smd_stats_path
+      link "Affiliate Stats", path: avo.affiliate_stats_path
       link "RAG Pipeline", path: avo.rag_pipeline_path
     end
   }
