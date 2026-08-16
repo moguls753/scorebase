@@ -54,7 +54,7 @@ class HubPagesController < ApplicationController
 
     # Counts
     unfiltered = filtered_scope.equal?(base_scope)
-    @total_count = base_scope.count
+    @total_count = cached_hub_count("composer/#{params[:slug]}", unfiltered) { base_scope.count }
     @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
@@ -87,7 +87,7 @@ class HubPagesController < ApplicationController
 
     # Counts
     unfiltered = filtered_scope.equal?(base_scope)
-    @total_count = base_scope.count
+    @total_count = cached_hub_count("artist/#{params[:slug]}", unfiltered) { base_scope.count }
     @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
@@ -117,7 +117,7 @@ class HubPagesController < ApplicationController
 
     # Counts
     unfiltered = filtered_scope.equal?(base_scope)
-    @total_count = base_scope.count
+    @total_count = cached_hub_count("genre/#{params[:slug]}", unfiltered) { base_scope.count }
     @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
@@ -148,7 +148,7 @@ class HubPagesController < ApplicationController
 
     # Counts
     unfiltered = filtered_scope.equal?(base_scope)
-    @total_count = base_scope.count
+    @total_count = cached_hub_count("instrument/#{params[:slug]}", unfiltered) { base_scope.count }
     @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
@@ -180,7 +180,7 @@ class HubPagesController < ApplicationController
 
     # Counts
     unfiltered = filtered_scope.equal?(base_scope)
-    @total_count = base_scope.count
+    @total_count = cached_hub_count("period/#{params[:slug]}", unfiltered) { base_scope.count }
     @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
@@ -220,7 +220,7 @@ class HubPagesController < ApplicationController
 
     # Counts
     unfiltered = filtered_scope.equal?(base_scope)
-    @total_count = base_scope.count
+    @total_count = cached_hub_count("ensemble/#{params[:slug]}", unfiltered) { base_scope.count }
     @filtered_count = unfiltered ? @total_count : filtered_scope.count
 
     # Paginate
@@ -626,6 +626,13 @@ class HubPagesController < ApplicationController
     return yield unless unfiltered
 
     Rails.cache.fetch("hub/filters/#{key}", expires_in: FILTER_OPTIONS_TTL) { yield }
+  end
+
+  # Same reasoning for the headline count: 584ms on Piano, identical for every visitor.
+  def cached_hub_count(key, unfiltered)
+    return yield unless unfiltered
+
+    Rails.cache.fetch("hub/count/#{key}", expires_in: FILTER_OPTIONS_TTL) { yield }
   end
 
   def not_found
