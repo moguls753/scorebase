@@ -37,15 +37,26 @@ RSpec.describe ComposerNormalizerBase do
       expect(score.composer).to eq("Smith, John Francis")
     end
 
-    it "does NOT cache when AI returns nil (allows retry)" do
+    it "caches a nil result so the name is never re-sent" do
       results = [{ "original" => "Smith, John", "normalized" => nil }]
 
       expect { normalizer.send(:apply_api_results, results) }
-        .not_to change { ComposerMapping.count }
+        .to change { ComposerMapping.count }.by(1)
 
-      expect(ComposerMapping.processed?("Smith, John")).to be false
+      expect(ComposerMapping.lookup("Smith, John")).to be_nil
+      expect(ComposerMapping.processed?("Smith, John")).to be true
       expect(score.reload.composer_status).to eq("failed")
       expect(score.composer).to eq("Smith, John") # unchanged
+    end
+
+    it "caches a nil result the cacheable? gate would reject" do
+      create(:score, composer: "Sitzmann F. + Jost H.", composer_status: "pending")
+
+      normalizer.send(:apply_api_results, [{ "original" => "Sitzmann F. + Jost H.", "normalized" => nil }])
+
+      expect(ComposerMapping.processed?("Sitzmann F. + Jost H.")).to be true
+      expect(ComposerMapping.find_by(original_name: "Sitzmann F. + Jost H.").source)
+        .to start_with(ComposerMapping::UNIDENTIFIED)
     end
 
     it "skips results with nil original" do
@@ -77,7 +88,7 @@ RSpec.describe ComposerNormalizerBase do
       ComposerMapping.create!(original_name: "Antonín Dvořák",
                               normalized_name: "Dvořák, Antonín", source: "test")
 
-      normalizer.send(:apply_cached_mappings)
+      normalizer.send(:apply_cached_mappings, ["Antonín Dvořák"])
 
       score = Score.find_by(composer: "Dvořák, Antonín")
       expect(score.composer_search_normalized).to eq("Dvorak, Antonin")

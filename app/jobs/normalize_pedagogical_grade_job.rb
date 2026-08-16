@@ -58,7 +58,7 @@ class NormalizePedagogicalGradeJob < ApplicationJob
   # - Known composer (composer_status: normalized)
   # - Has title (for LLM to identify the piece)
   def eligible_scores(limit)
-    Score.exclude_smd
+    Score.free
          .grade_pending
          .where(composer_status: :normalized)
          .where.not(title: [nil, ""])
@@ -132,7 +132,7 @@ class NormalizePedagogicalGradeJob < ApplicationJob
   # Propagate upstream failures: if composer normalization failed,
   # grade normalization can't succeed (no way to identify the piece)
   def propagate_upstream_failures
-    count = Score.exclude_smd
+    count = Score.free
                  .where(composer_status: :failed, grade_status: :pending)
                  .update_all(grade_status: :not_applicable, grade_source: "no_composer")
     logger.info "[NormalizePedagogicalGrade] Propagated #{count} composer failures" if count > 0

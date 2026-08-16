@@ -99,6 +99,31 @@ production:
     args: [ { limit: 1000, mode: import } ]
     schedule: every day at 11am
 
+  # Prices drift and stale ones are quoted to buyers. Rotation is by our own
+  # last_crawled_at, not by the shop's updatedAt — 100% of that catalogue carries a
+  # July/August 2026 timestamp from its migration, so it says nothing about change.
+  # 5000/day cycles a 1.2M-row catalogue in 240 days; raise once the row count is known.
+  stretta_refresh:
+    class: StrettaRefreshJob
+    queue: default
+    args: [ { limit: 5000 } ]
+    schedule: every day at 7am
+
+  # Converges the free -> Stretta cross-links, the same shape as backfill_smd_matches.
+  # Half an hour after it: both hold a database-wide SQLite write lock during their
+  # delete-then-insert, and overlapping them stalls every web write twice over.
+  backfill_stretta_matches:
+    class: BackfillStrettaMatchesJob
+    queue: default
+    schedule: every day at 12:31pm
+
+  # New arrivals only — products(sortKey: CREATED_AT) is safe at weekly volume,
+  # where a full pass would hit the connection's 25,000-element cap.
+  stretta_new_releases:
+    class: StrettaNewReleasesJob
+    queue: default
+    schedule: every monday at 5am
+
   # extract_pending_scores:
   #   class: ExtractPendingScoresJob
   #   queue: extractions

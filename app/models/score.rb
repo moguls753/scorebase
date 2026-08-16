@@ -8,6 +8,7 @@
 #  arpeggio_mark_count        :integer
 #  arrangement_category       :string
 #  artist                     :string
+#  available_for_sale         :boolean
 #  avg_chord_span             :float
 #  beat_count                 :integer
 #  brand                      :string
@@ -50,6 +51,7 @@
 #  grade_source               :string
 #  grade_status               :string           default("pending"), not null
 #  group_key                  :string
+#  group_rank                 :integer
 #  harmonic_rhythm            :float
 #  has_accompaniment          :boolean
 #  has_articulations          :boolean
@@ -106,10 +108,12 @@
 #  num_parts                  :integer
 #  oblique_motion_ratio       :float
 #  off_beat_count             :integer
+#  original_price_eur         :decimal(8, 2)
 #  original_price_usd         :decimal(8, 2)
 #  page_count                 :integer
 #  parallel_motion_ratio      :float
 #  part_names                 :text
+#  partner_slug               :string
 #  pdf_path                   :string
 #  pedagogical_grade          :string
 #  pedagogical_grade_de       :string
@@ -122,6 +126,7 @@
 #  posted_date                :date
 #  predominant_rhythm         :string
 #  preview_image_url          :string
+#  price_eur                  :decimal(8, 2)
 #  price_usd                  :decimal(8, 2)
 #  rag_status                 :string           default("pending"), not null
 #  rating                     :decimal(3, 2)
@@ -138,6 +143,7 @@
 #  source                     :string           default("pdmx")
 #  stepwise_count             :integer
 #  stepwise_motion_ratio      :float
+#  stretta_metadata           :json
 #  syllable_count             :integer
 #  syncopation_level          :float
 #  tags                       :text
@@ -164,8 +170,10 @@
 #  voice_ranges               :json
 #  voicing                    :string
 #  voicing_status             :string           default("pending"), not null
+#  work_key                   :string
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
+#  duplicate_of_id            :integer
 #  external_id                :string
 #
 # Indexes
@@ -182,6 +190,7 @@
 #  index_scores_on_computed_difficulty           (computed_difficulty)
 #  index_scores_on_created_at                    (created_at)
 #  index_scores_on_deleted_at                    (deleted_at)
+#  index_scores_on_duplicate_of_id               (duplicate_of_id)
 #  index_scores_on_duration_seconds              (duration_seconds)
 #  index_scores_on_event_count                   (event_count)
 #  index_scores_on_external_id                   (external_id)
@@ -216,6 +225,7 @@
 #  index_scores_on_rating                        (rating)
 #  index_scores_on_smd_category_and_deleted_at   (smd_category,deleted_at)
 #  index_scores_on_source                        (source)
+#  index_scores_on_source_and_external_id        (source,external_id) UNIQUE
 #  index_scores_on_source_and_last_crawled_at    (source,last_crawled_at)
 #  index_scores_on_tempo_bpm                     (tempo_bpm)
 #  index_scores_on_texture_type                  (texture_type)
@@ -224,14 +234,16 @@
 #  index_scores_on_views                         (views)
 #  index_scores_on_voicing                       (voicing)
 #  index_scores_on_voicing_status                (voicing_status)
+#  index_scores_on_work_key                      (work_key)
 #
 class Score < ApplicationRecord
+  include Commercial
   include Thumbnailable
   include Galleried
   include PdfSyncable
 
   # Sources
-  SOURCES = %w[pdmx cpdl imslp openscore-lieder openscore-quartets smd].freeze
+  SOURCES = %w[pdmx cpdl imslp openscore-lieder openscore-quartets smd stretta].freeze
 
   # Instrument patterns for grouping SMD ensemble parts
   INSTRUMENT_PATTERNS = [
@@ -269,8 +281,9 @@ class Score < ApplicationRecord
     /^Armonia$/i
   ].freeze
 
-  # SMD affiliate ID for commission tracking
+  # Affiliate IDs for commission tracking
   SMD_AFFILIATE_ID = "67428".freeze
+  STRETTA_AFFILIATE_ID = "b008e0ce1bb1b3e67cf6aa709dd128a0".freeze
 
   # Active Storage attachments
   has_one_attached :pdf_file
@@ -294,7 +307,6 @@ class Score < ApplicationRecord
   scope :from_pdmx, -> { where(source: "pdmx") }
   scope :from_cpdl, -> { where(source: "cpdl") }
   scope :from_imslp, -> { where(source: "imslp") }
-  scope :exclude_smd, -> { where.not(source: "smd") }
   scope :by_source, ->(source) { where(source: source) if source.present? }
 
   # Soft delete scopes - use Score.active in public-facing code
@@ -377,7 +389,10 @@ class Score < ApplicationRecord
     ready: "ready",          # All fields validated, ready for text generation
     templated: "templated",  # search_text generated (LLM)
     indexed: "indexed",      # In vector store, searchable
-    failed: "failed"         # Needs investigation
+    failed: "failed",        # Needs investigation
+    # rag:mark_ready selects rag_pending without a source filter, and a mapped
+    # partner row satisfies its condition — this keeps the paid catalogue out.
+    not_applicable: "not_applicable"
   }, default: :pending, prefix: :rag
   # Scopes for filtering
   scope :by_key_signature, ->(key) { where(key_signature: key) if key.present? }
@@ -451,15 +466,12 @@ class Score < ApplicationRecord
     matched.where(instruments_without(decoys).matches("%#{needle}%"))
   }
 
-  # Pricing filter: free (public domain) vs commercial (SMD with price)
+  # Pricing filter: free (public domain or priceless) vs commercial (partner with price)
   scope :by_pricing, ->(pricing) {
     case pricing
-    when "free"
-      where("source != 'smd' OR price_usd IS NULL OR price_usd <= 0")
-    when "commercial"
-      where(source: "smd").where("price_usd > 0")
-    else
-      all
+    when "free" then where.not(priced_condition)
+    when "commercial" then where(priced_condition)
+    else all
     end
   }
 
@@ -503,7 +515,12 @@ class Score < ApplicationRecord
   # Shared by BackfillGroupKeysJob#assign_representatives and the search scope's
   # inline subquery (both alias scores as s2) — if the two rankings drift, search
   # picks a row that deduplicate_arrangements hides and the arrangement vanishes.
+  #
+  # group_rank leads because the rest collapses for Stretta: its titles carry no
+  # " - " suffix and its price lives in price_eur, so every member would tie on
+  # s2.id. SMD leaves group_rank NULL, hence a constant 99 and an unchanged order.
   GROUP_REPRESENTATIVE_ORDER_SQL = <<~SQL.squish.freeze
+    COALESCE(s2.group_rank, 99),
     CASE
       WHEN s2.title NOT LIKE '% - %' THEN 0
       WHEN s2.title LIKE '%Full Score%' THEN 1
@@ -530,25 +547,30 @@ class Score < ApplicationRecord
     # Subquery for FTS matches
     fts_match = "SELECT rowid FROM scores_search_fts WHERE scores_search_fts MATCH #{connection.quote(fts_query)}"
 
+    # The duplicate_of_id conditions mirror deduplicate_arrangements — if the two
+    # drift, search shows a row the listings hide, or hides one they show.
     where(<<~SQL.squish)
-      /* Ungrouped matches: include directly */
-      (id IN (#{fts_match}) AND group_key IS NULL)
-      OR
-      /* Grouped matches: include only the representative for each matching group */
-      id IN (
-        SELECT (
-          SELECT s2.id FROM scores s2
-          WHERE s2.group_key = matched_groups.group_key
-            AND s2.deleted_at IS NULL
-          ORDER BY #{GROUP_REPRESENTATIVE_ORDER_SQL}
-          LIMIT 1
+      duplicate_of_id IS NULL AND (
+        /* Ungrouped matches: include directly */
+        (id IN (#{fts_match}) AND group_key IS NULL)
+        OR
+        /* Grouped matches: include only the representative for each matching group */
+        id IN (
+          SELECT (
+            SELECT s2.id FROM scores s2
+            WHERE s2.group_key = matched_groups.group_key
+              AND s2.deleted_at IS NULL
+              AND s2.duplicate_of_id IS NULL
+            ORDER BY #{GROUP_REPRESENTATIVE_ORDER_SQL}
+            LIMIT 1
+          )
+          FROM (
+            SELECT DISTINCT s.group_key
+            FROM scores s
+            WHERE s.id IN (#{fts_match})
+              AND s.group_key IS NOT NULL
+          ) matched_groups
         )
-        FROM (
-          SELECT DISTINCT s.group_key
-          FROM scores s
-          WHERE s.id IN (#{fts_match})
-            AND s.group_key IS NOT NULL
-        ) matched_groups
       )
     SQL
   }
@@ -568,18 +590,17 @@ class Score < ApplicationRecord
 
   def self.build_fts5_query(query)
     return "" if query.blank?
-    normalized = query.unicode_normalize(:nfkd).gsub(/\p{M}/, "").downcase
+    normalized = MusicText.fold(query).downcase
     words = normalized.split.map { |w| w.gsub(/["\(\)\*\-\+\:\^\~\&]/, "") }.reject(&:empty?)
     return "" if words.empty?
     words.map { |w| "\"#{w}\"" }.join(" ")
   end
 
   # Normalize text for search: strip accents, preserve case
-  # "Händel" -> "Handel", "Dvořák" -> "Dvorak", "Café" -> "Cafe"
+  # "Händel" -> "Handel", "Dvořák" -> "Dvorak", "Größe" -> "Grosse"
   # Used for normalizing title/composer columns and search_by_title scope
   def self.normalize_for_search(text)
-    return "" if text.blank?
-    text.unicode_normalize(:nfkd).gsub(/\p{M}/, "")
+    MusicText.fold(text)
   end
 
   # Derive group_key for SMD ensemble parts
@@ -655,13 +676,26 @@ class Score < ApplicationRecord
   #
   # Note: For search results, deduplication happens in the search scope itself.
   # This scope is for non-search listings (browsing all scores, filtering by source, etc.)
+  # duplicate_of_id belongs here, not only in the caller: an ungrouped suppressed
+  # row satisfies the group_key IS NULL branch and would come through untouched.
   scope :deduplicate_arrangements, -> {
-    where(group_key: nil).or(where(is_group_representative: true))
+    not_duplicate.where(group_key: nil).or(not_duplicate.where(is_group_representative: true))
   }
 
   # SMD arrangement representatives = the commercial buy pages listed in the sitemap.
   # Shared by config/sitemap.rb and its spec so the scoping can't drift.
   scope :smd_group_representatives, -> { where(source: "smd", is_group_representative: true) }
+
+  # The Stretta pages worth submitting: representatives that are actually reachable
+  # from inside the site, either on an ensemble hub or from a free score's buy box.
+  # All 254,329 representatives would be half a million URLs across two locales, most
+  # of them orphans — a sitemap of pages nothing links to is a crawl-budget request
+  # with nothing behind it.
+  scope :stretta_sitemap_pages, -> {
+    linked = ScoreStrettaMatch.where(suppressed: false).select(:stretta_score_id)
+    where(source: "stretta", is_group_representative: true, available_for_sale: true)
+      .where(arel_table[:smd_category].not_eq(nil).or(arel_table[:id].in(linked.arel)))
+  }
 
   # Refresh order for SmdRefreshJob: never-crawled first, then oldest crawl.
   # Stamping last_crawled_at as we go is what makes a chunked run resumable.
@@ -691,12 +725,6 @@ class Score < ApplicationRecord
     group_key.present? && grouped_parts.exists?
   end
 
-  # Instrument-suffixed titles only, so a set listing doesn't count itself
-  def group_parts_count
-    return 1 if group_key.blank?
-    Score.active.where(group_key: group_key).where("title LIKE '% - %'").count
-  end
-
   # The active representative (buy page) this hidden member should canonicalize to,
   # so Google consolidates crawl signals onto the rep instead of indexing thin
   # near-duplicate part pages. Returns nil for non-members and when no active rep
@@ -706,27 +734,62 @@ class Score < ApplicationRecord
     Score.active.find_by(group_key: group_key, is_group_representative: true)
   end
 
-  # Unscoped so dependent cleanup removes suppressed rows too (purge contract)
+  # The page this one should canonicalise to: the winner of a cross-source
+  # duplicate first, otherwise its group's visible representative.
+  def canonical_score
+    winner = duplicate_of
+    return winner if winner && winner.deleted_at.nil?
+
+    group_representative
+  end
+
+  # The row this one duplicates. Suppression is a foreign key, not a deletion:
+  # the loser keeps its page and the next converge can reverse the decision.
+  belongs_to :duplicate_of, class_name: "Score", optional: true
+  has_many :duplicates, class_name: "Score", foreign_key: :duplicate_of_id,
+           dependent: :nullify, inverse_of: :duplicate_of
+
+  scope :not_duplicate, -> { where(duplicate_of_id: nil) }
+
+  # The *_match_links pair must stay unscoped: dependent cleanup has to remove
+  # suppressed rows too (purge contract). Display therefore reads through its own
+  # scoped association, which also makes the editions preloadable.
   has_many :smd_match_links, class_name: "ScoreSmdMatch", dependent: :delete_all
   has_many :smd_match_targets, class_name: "ScoreSmdMatch", foreign_key: :smd_score_id,
            dependent: :delete_all, inverse_of: :smd_score
-
+  has_many :shown_smd_matches, -> { where(suppressed: false).order(:rank) },
+           class_name: "ScoreSmdMatch", inverse_of: :score
   # Professional SMD editions of this free score (BackfillSmdMatchesJob)
-  def professional_editions
-    Score.active
-         .joins("INNER JOIN score_smd_matches ON score_smd_matches.smd_score_id = scores.id")
-         .where(score_smd_matches: { score_id: id, suppressed: false })
-         .order("score_smd_matches.rank")
+  has_many :professional_editions, -> { active }, through: :shown_smd_matches, source: :smd_score
+
+  has_many :stretta_match_links, class_name: "ScoreStrettaMatch", dependent: :delete_all
+  has_many :stretta_match_targets, class_name: "ScoreStrettaMatch", foreign_key: :stretta_score_id,
+           dependent: :delete_all, inverse_of: :stretta_score
+  has_many :shown_stretta_matches, -> { where(suppressed: false).order(:rank) },
+           class_name: "ScoreStrettaMatch", inverse_of: :score
+  # Publisher editions of this free score at Stretta (BackfillStrettaMatchesJob)
+  has_many :stretta_editions, -> { active }, through: :shown_stretta_matches, source: :stretta_score
+
+  # What distinguishes this row from its siblings.
+  # SMD encodes it in the title ("… (arr. Holmes) - Trombone 2"), Stretta in the
+  # itemtype ("Einzelstimme Trompete 1") — without the second branch every chip on
+  # a Stretta set reads the same generic label.
+  def part_name
+    return title.rpartition(" - ").last if title&.include?(" - ")
+
+    itemtype = stretta_metadata&.dig("itemtype").presence
+    return itemtype if itemtype
+
+    I18n.t("score.set_label", default: "Set") if group_key.present?
   end
 
-  # Extract the instrument/part name from title
-  # "Birds of a Feather (arr. Roger Holmes) - Trombone 2" -> "Trombone 2"
-  def part_name
-    if title&.include?(" - ")
-      title.rpartition(" - ").last
-    elsif group_key.present?
-      I18n.t("score.set_label", default: "Set")
-    end
+  # Counts what the card advertises as "N parts". SMD marks a part by the title
+  # suffix, Stretta by having siblings at all.
+  def group_parts_count
+    return 1 if group_key.blank?
+
+    scope = Score.active.where(group_key: group_key)
+    stretta? ? scope.count : scope.where("title LIKE '% - %'").count
   end
 
   # Sorting scopes
@@ -824,9 +887,8 @@ class Score < ApplicationRecord
     source == "smd"
   end
 
-  # SMD score with valid external_id (can link to purchase)
-  def smd_purchasable?
-    smd? && external_id.present?
+  def stretta?
+    source == "stretta"
   end
 
   def display_title

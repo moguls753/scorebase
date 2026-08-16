@@ -1,0 +1,115 @@
+{
+  "_about": {
+    "purpose": "Publisher order-number stem, to be appended as a further component of the delivery-aware Stretta group key: stretta:vendor|authors|title|subtitle|instrument|delivery|STEM",
+    "scope": "Apply ONLY for vendors listed in `rules`. For every other vendor omit the component entirely, so unknown publishers keep today's behaviour and carry no new risk.",
+    "nil_policy": "If the regex does not match, use the CONSTANT empty string as the stem, never the raw order number. A raw fallback would split every unrecognised number from every other one. Residual hazard (a group mixing a matched and an unmatched number still splits): measured 4 groups for Carus, 32 for Reift, 62 for Alfred.",
+    "post_processing": "Unless a rule says otherwise: take the capture, upcase it, and delete all whitespace. The catalogue carries both 'CV 91.142/49' and 'CV91.142/49' for one publication and the raw forms tear that part set in half.",
+    "asymmetry": "Adding a key component can only split, never merge. A stem that keeps too little only costs splitting power; a stem that keeps too much explodes a 30-part set into 30 cards. Every rule here is deliberately biased towards keeping too little.",
+    "measured_on": "storage/stretta-sighting.sqlite3, 1,720,060 rows, 2026-08-15",
+    "verification": "stem_rules.py holds the same rules with 40 self-test cases; measure_stem.py and break_detector.py produce the numbers in stem_report.md"
+  },
+
+  "rules": {
+    "Carus Verlag": {
+      "pattern": "\\A(CV|CARUS)\\s*([\\d.]+)",
+      "capture": 2,
+      "algorithm": "Two captures, not one. Match the pattern; from capture 2 delete '.' and strip leading zeros; the stem is the literal string \"CV\" + that digit string. Capture 1 is matched only to anchor the prefix and is deliberately DISCARDED: Carus writes the same publication as both 'CARUS 40001-19' and 'CV 40.001/19'. Case-insensitive match ('Carus 92064-00' occurs).",
+      "why": "Carus numbers one publication as CV <work>/<component>: CV 40.033/00 score, /05 choral score, /09 wind parts, /11 violin 1, /19 part set. Everything before the '/' is the work; the component suffix must go. Downloads mirror the print number either by appending 010000 (CV 40.493/09010000) or by a digit shift (print CV 03.392/20 -> download CV 33.922/0010000) -- delivery already separates print from download, so neither needs reconciling here. Leading zeros and the dot are inconsistent in the source ('CV 09.001/09' and 'CV9.001/62' are one 9-part set) and must be normalised away.",
+      "examples": [
+        ["CV 40.656/00", "CV40656"],
+        ["CV 40.656/13", "CV40656"],
+        ["CV 2.097/05", "CV2097"],
+        ["CV 91.868/82010000", "CV91868"],
+        ["CV 33.922/0010000", "CV33922"],
+        ["CV91.142/49", "CV91142"],
+        ["CV 91.142/00", "CV91142"],
+        ["CV 09.001/09", "CV9001"],
+        ["CV9.001/62", "CV9001"],
+        ["CARUS 40001-19", "CV40001"],
+        ["CV 40.001/55", "CV40001"],
+        ["CARUS 83050-00", "CV83050"]
+      ],
+      "measured": {
+        "multi_member_groups_before": 3140,
+        "multi_member_groups_after": 2851,
+        "groups_split": 298,
+        "part_set_breaks_full_table": 1,
+        "part_set_break_rate": "0.3%",
+        "rows_newly_visible": 505,
+        "hand_checked_splits": "30 sampled, 0 breaks"
+      },
+      "known_residual": "One group in the whole catalogue still breaks: a COPP-series row (COPP 60101-01, unparseable -> constant stem) sitting beside CV 92.422/00 for the same organ partita. The COPP row is available_for_sale = 0."
+    },
+
+    "Editions Marc Reift": {
+      "pattern": "\\A([A-Za-z]+\\s*\\d+)",
+      "capture": 1,
+      "algorithm": "Standard post-processing: upcase the capture and delete whitespace.",
+      "why": "Reift gives one publication one EMR number and numbers its parts with a -NN suffix: the 61-member 'Musica Sacra' set is EMR 1101-01 .. EMR 1101-61. Different publications get different base numbers, which is exactly what must split -- Vivaldi's Four Seasons arr. Mortimer is EMR 10230 / 10231 / 10232 / 10233 under one title and one scoring. Trailing letters ('EMR 2140C', 'EMR 325D') are dropped by the pattern; that only collapses further, which is the safe direction. The alphabetic prefix is captured rather than hard-coded because the catalogue also carries 'CD 7575' for the audio products.",
+      "examples": [
+        ["EMR 1101-01", "EMR1101"],
+        ["EMR 1101-27", "EMR1101"],
+        ["EMR1101-27", "EMR1101"],
+        ["EMR 10230", "EMR10230"],
+        ["EMR 10231", "EMR10231"],
+        ["EMR 2140C", "EMR2140"],
+        ["CD 7575", "CD7575"]
+      ],
+      "measured": {
+        "multi_member_groups_before": 4816,
+        "multi_member_groups_after": 1924,
+        "groups_split": 2923,
+        "part_set_breaks_full_table": 0,
+        "part_set_break_rate": "0.0%",
+        "rows_newly_visible": 3169,
+        "hand_checked_splits": "30 sampled, 0 breaks"
+      },
+      "known_residual": "1.12% of Reift order numbers do not match (bare numbers such as '1008', '12119B'); 32 multi-member groups mix a matched and an unmatched number and split for that reason alone."
+    },
+
+    "Alfred Music": {
+      "pattern": "\\A(\\d+)-(PO|PS)-(\\d+)\\z",
+      "capture": 3,
+      "algorithm": "Two captures: the stem is capture 1 + \"-\" + capture 3 (capture 2 is the product-line marker and is discarded). Standard post-processing after that. Deliberately narrow -- see `why`.",
+      "why": "Alfred runs several numbering schemes and only two of them are safe. PO (choral octavo) and PS (pop sheet) are single-item product lines: a title appears once per voicing/arrangement, each with its own number and its own price, and there are never parts to tear apart. The band and orchestra lines are the opposite: '00-PR-0006589' (score), '00-PK-0008091' (score+parts) and '00-PC-0018384_*' (17 parts) are one publication under three unrelated base numbers, and '98-RWS253000'/'98-RWS253001' are a set and its score. A rule covering those lines broke 171 genuine part sets; restricting it to PO/PS breaks 0 and still recovers 3,565 of the 3,979 rows (90%). Alfred's second scheme ('ALF0043927', 'ALF00EL01868') is Hal Leonard-shaped -- sequential numbers per part -- and is correctly left unmatched.",
+      "examples": [
+        ["00-PO-0007837", "00-0007837"],
+        ["00-PO-0007838", "00-0007838"],
+        ["00-PS-0000154", "00-0000154"],
+        ["98-DB1842", null],
+        ["98-PC-DB1842_ALH", null],
+        ["98-DB1637S", null],
+        ["00-51955S", null],
+        ["00-BDM03027C", null],
+        ["ALF0043927", null],
+        ["ALF00EL01868", null]
+      ],
+      "measured": {
+        "multi_member_groups_before": 9212,
+        "multi_member_groups_after": 7076,
+        "groups_split": 2138,
+        "part_set_breaks_full_table": 0,
+        "part_set_break_rate": "0.0%",
+        "rows_newly_visible": 3565,
+        "hand_checked_splits": "30 sampled, 0 breaks"
+      },
+      "known_residual": "93.24% of Alfred rows do not match, BY DESIGN -- they are the band/orchestra and ALF lines that must not be stemmed. 62 multi-member groups mix a matched and an unmatched number and split for that reason alone."
+    }
+  },
+
+  "rejected": {
+    "Schott Music": {
+      "reason": "No safe rule exists. Schott numbers the score, the choral score, the reduction and the parts of ONE publication with separate consecutive edition numbers, so there is no component suffix to strip. 'Die Musik kommt' is C 44568 (score) + C 44569 (choral score) + C 44570-11..-27 (17 parts); 'Gradus ad Symphoniam' is RL17781..RL17785, one number per string part. The best regex available (\\A([A-Za-z]+\\d*\\s*\\d+), stripping the ' Q<n>' download marker and the '-<n>' component suffix) splits 937 groups and 322 of them (34.4%) separate a score from its parts; hand-checking 30 sampled splits found 16 torn sets (53% -- higher than the detector because the detector only counts score-vs-part, not Taschenpartitur-vs-Klavierauszug). Omit the component for this vendor.",
+      "measured_if_shipped": {
+        "groups_split": 937,
+        "part_set_breaks_full_table": 322,
+        "part_set_break_rate": "34.4%",
+        "rows_newly_visible": 1101
+      }
+    },
+    "Hal Leonard": {
+      "reason": "No stem exists in the data at all. Every part of a set carries its own flat sequential number: 'The Best of Essential Elements for Jazz Ensemble' is HL07011461 (score), HL07011462 (alto sax 1), HL07011463 (alto sax 2) ... through HL07011516. The longest common prefix inside a part set is 7 characters in three sampled sets and 8 in a fourth, so no fixed truncation works, and any truncation that did would also merge unrelated products sharing a number block. Hal Leonard is the largest vendor by rows in multi-member groups (23,677 groups / 59,117 rows), so this is a real loss -- but the alternative is exploding its part sets. Omit.",
+      "measured_if_shipped": "not measured; no candidate rule was good enough to measure"
+    }
+  }
+}

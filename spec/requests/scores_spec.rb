@@ -370,7 +370,8 @@ RSpec.describe 'Scores' do
 
         get score_path(id: smd.id)
 
-        expect(response.body).to include(%(data-smd-redirect-score-id-value="#{smd.id}"))
+        expect(response.body).to include(%(data-buy-redirect-score-id-value="#{smd.id}"))
+        expect(response.body).to include(%(data-buy-redirect-event-value="SMD click"))
       end
 
       it 'includes the SMD category in the meta description' do

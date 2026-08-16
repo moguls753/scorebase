@@ -17,6 +17,40 @@ class BackfillGroupKeysJob < ApplicationJob
     stats
   end
 
+  # One atomic UPDATE: promotes each group's winner and demotes prior winners
+  # together. A crash mid-job can leave stale flags, but every arrangement keeps
+  # one visible card throughout (cleared keys fall back to the ungrouped branch)
+  # and the retry/nightly rerun converges.
+  #
+  # The WHERE touches only rows whose flag actually flips. Rewriting a row whose
+  # value is unchanged still fires both FTS triggers under a database-wide lock,
+  # and the grouped set grows by ~200k with the second partner.
+  # NULL winners (every member soft-deleted) are filtered out, or `IN` yields NULL
+  # for non-winners and the comparison silently stops demoting them.
+  #
+  # Public, and not source-scoped like the rest of this job: Stretta::Grouping's
+  # "stretta:"-prefixed group_key runs through this same winner-picking after a
+  # regroup import (lib/tasks/stretta.rake), without the SMD-only steps above it.
+  def assign_representatives
+    Score.connection.update(<<~SQL.squish)
+      WITH winners(id) AS (
+        SELECT winner_id FROM (
+          SELECT (
+            SELECT s2.id FROM scores s2
+            WHERE s2.group_key = groups.group_key
+              AND s2.deleted_at IS NULL
+            ORDER BY #{Score::GROUP_REPRESENTATIVE_ORDER_SQL}
+            LIMIT 1
+          ) AS winner_id
+          FROM (SELECT DISTINCT group_key FROM scores WHERE group_key IS NOT NULL AND deleted_at IS NULL) groups
+        ) WHERE winner_id IS NOT NULL
+      )
+      UPDATE scores
+      SET is_group_representative = CASE WHEN id IN (SELECT id FROM winners) THEN 1 ELSE NULL END
+      WHERE (id IN (SELECT id FROM winners)) <> (is_group_representative IS NOT NULL)
+    SQL
+  end
+
   private
 
   def assign_part_keys(scope)
@@ -74,27 +108,5 @@ class BackfillGroupKeysJob < ApplicationJob
 
     Score.active.where(group_key: key).where.not(id: parent.id)
          .distinct.pluck(:smd_category).include?(category)
-  end
-
-  # One atomic UPDATE: promotes each group's winner and demotes prior winners
-  # together. A crash mid-job can leave stale flags, but every arrangement keeps
-  # one visible card throughout (cleared keys fall back to the ungrouped branch)
-  # and the retry/nightly rerun converges.
-  def assign_representatives
-    Score.connection.update(<<~SQL.squish)
-      WITH winners(id) AS (
-        SELECT (
-          SELECT s2.id FROM scores s2
-          WHERE s2.group_key = groups.group_key
-            AND s2.deleted_at IS NULL
-          ORDER BY #{Score::GROUP_REPRESENTATIVE_ORDER_SQL}
-          LIMIT 1
-        )
-        FROM (SELECT DISTINCT group_key FROM scores WHERE group_key IS NOT NULL AND deleted_at IS NULL) groups
-      )
-      UPDATE scores
-      SET is_group_representative = CASE WHEN id IN (SELECT id FROM winners) THEN 1 ELSE NULL END
-      WHERE is_group_representative IS NOT NULL OR id IN (SELECT id FROM winners)
-    SQL
   end
 end

@@ -120,6 +120,41 @@ RSpec.describe "Sitemap generation" do
       expect(reps).not_to include(member, ungrouped, free)
     end
 
+    # All 254,329 Stretta representatives would be half a million URLs across two
+    # locales, most of them linked from nowhere. Only the internally reachable ones
+    # are submitted: on an ensemble hub, or in a free score's buy box.
+    describe "Stretta pages" do
+      let(:free) { create(:score, :pdmx) }
+
+      it "includes a representative that sits on an ensemble hub" do
+        page = create(:score, :stretta, is_group_representative: true, smd_category: "Concert Band")
+
+        expect(Score.active.stretta_sitemap_pages).to include(page)
+      end
+
+      it "includes a representative linked from a free score" do
+        page = create(:score, :stretta, is_group_representative: true)
+        ScoreStrettaMatch.create!(score: free, stretta_score: page, rank: 1)
+
+        expect(Score.active.stretta_sitemap_pages).to include(page)
+      end
+
+      it "excludes an orphan, a hidden member and an unsellable row" do
+        orphan = create(:score, :stretta, is_group_representative: true)
+        member = create(:score, :stretta, is_group_representative: nil, smd_category: "Concert Band")
+        gone = create(:score, :stretta, is_group_representative: true,
+                                        smd_category: "Concert Band", available_for_sale: false)
+
+        expect(Score.active.stretta_sitemap_pages).not_to include(orphan, member, gone)
+      end
+
+      it "stays out of the SMD representative scope" do
+        page = create(:score, :stretta, is_group_representative: true)
+
+        expect(Score.active.smd_group_representatives).not_to include(page)
+      end
+    end
+
     # Runs the real config/sitemap.rb end-to-end. Regression guard: a positional
     # score_path(score) binds to the optional (:locale) route segment, not :id.
     it "emits each representative's URL in both locales" do

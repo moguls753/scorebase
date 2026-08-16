@@ -55,37 +55,52 @@ module ScoresHelper
   end
 
   # ─────────────────────────────────────────────────────────────────
-  # SMD (Sheet Music Direct) Helpers
+  # Commercial Partner Helpers (Sheet Music Direct)
   # ─────────────────────────────────────────────────────────────────
 
-  # Format USD price for display
-  # Shows dollar price globally - SMD converts to local currency on their site
-  def format_smd_price(score)
-    return nil if score.price_usd.blank? || score.price_usd.to_f <= 0
-    "$#{'%.2f' % score.price_usd}"
+  # Each partner prices in its own currency; the price is shown as the partner
+  # charges it, never converted. EUR follows the reader's convention — a German
+  # retailer's price reads "12,80 €" to a German and "€12.80" to an English speaker.
+  CURRENCY_FORMATS = { "USD" => "$%.2f", "EUR" => "€%.2f" }.freeze
+  CURRENCY_FORMATS_DE = { "EUR" => "%.2f €" }.freeze
+  CURRENCY_SYMBOLS = { "USD" => "$", "EUR" => "€" }.freeze
+
+  def format_price(amount, currency)
+    return nil if amount.blank? || amount.to_f <= 0
+
+    if I18n.locale == :de && (german = CURRENCY_FORMATS_DE[currency])
+      return format(german, amount).sub(".", ",")
+    end
+
+    format(CURRENCY_FORMATS.fetch(currency, "%.2f"), amount)
+  end
+
+  def format_score_price(score)
+    format_price(score.display_price, score.price_currency)
   end
 
   # Buy CTA label: price-qualified when known, plain "view" otherwise.
-  def smd_cta_label(score)
-    price = format_smd_price(score)
-    price ? t("score.buy_on_smd", price: price) : t("score.view_on_smd")
+  def buy_cta_label(score)
+    return nil unless score.commercial?
+    price = format_score_price(score)
+    price ? t("score.buy_on_#{score.source}", price: price) : t("score.view_on_#{score.source}")
   end
 
   # Check if score has a sale price (original > current)
-  def smd_on_sale?(score)
-    score.original_price_usd.present? &&
-      score.price_usd.present? &&
-      score.original_price_usd > score.price_usd
+  def score_on_sale?(score)
+    score.display_original_price.present? &&
+      score.display_price.present? &&
+      score.display_original_price > score.display_price
   end
 
   # Format price with optional sale display
   # Returns nil or { current:, original?: } hash
-  def format_smd_price_with_sale(score)
-    current = format_smd_price(score)
+  def format_score_price_with_sale(score)
+    current = format_score_price(score)
     return nil unless current
 
-    if smd_on_sale?(score)
-      { current: current, original: "$#{'%.2f' % score.original_price_usd}" }
+    if score_on_sale?(score)
+      { current: current, original: format_price(score.display_original_price, score.price_currency) }
     else
       { current: current }
     end
@@ -95,8 +110,44 @@ module ScoresHelper
   # Returns { type: :commercial, text: "$" } for paid scores, nil for free
   # Free scores have no badge - absence of badge implies free
   def score_card_badge(score)
-    return nil unless format_smd_price(score)
-    { type: :commercial, text: "$" }
+    return nil unless format_score_price(score)
+    { type: :commercial, text: CURRENCY_SYMBOLS.fetch(score.price_currency, score.price_currency) }
+  end
+
+  # nil for a partner whose affiliate redirect is not wired yet — the buy button is
+  # then omitted rather than pointed at the wrong merchant.
+  def buy_redirect_path(score)
+    case score.source
+    when "smd" then smd_redirect_path(smd_id: score.external_id)
+    when "stretta" then stretta_redirect_path(id: score.external_id)
+    end
+  end
+
+  # Stretta prices per copy but sells some titles only in bundles: product 6244 is
+  # €2.30 with a minimum of 10, so the real basket is €23.00. Showing the unit
+  # price alone understates by that factor, and a schema.org Offer that disagrees
+  # with the checkout can devalue structured data site-wide.
+  def minimum_order(score)
+    quantity = score.stretta_metadata&.dig("minquantity").to_i
+    return nil unless quantity > 1 && score.display_price
+
+    { quantity: quantity, total: format_price(score.display_price * quantity, score.price_currency) }
+  end
+
+  # The line under an edition's title: what tells two editions of one work apart,
+  # which is the scoring. SMD spells it in smd_category (set on every edition we
+  # show), Stretta in instruments; the composer would only repeat the free score's.
+  def edition_subtitle(edition)
+    edition.smd_category.presence || edition.instruments.presence || edition.brand
+  end
+
+  # [{ amount:, price: }] — Stretta's volume tiers, 0.9% of rows.
+  def bulk_prices(score)
+    Array(score.stretta_metadata&.dig("bulk_prices")).filter_map do |tier|
+      amount = tier["amount"].to_i
+      price = format_price(tier["price"], score.price_currency)
+      { amount: amount, price: price } if amount.positive? && price
+    end
   end
 
   # ─────────────────────────────────────────────────────────────────
@@ -117,9 +168,10 @@ module ScoresHelper
     "Klassik" => "Classical"
   }.freeze
 
-  # Buy-intent <title> for SMD category pages; unchanged plain form otherwise.
+  # Buy-intent <title> for a partner page with an ensemble category; unchanged
+  # plain form otherwise.
   def score_page_title(score)
-    if score.smd? && score.smd_category.present?
+    if score.commercial? && score.smd_category.present?
       "#{score.title} for #{score.smd_category} — Sheet Music"
     else
       title = score.display_title
@@ -153,7 +205,7 @@ module ScoresHelper
 
     # Add SMD ensemble category (Jazz Ensemble, Concert Band, etc.);
     # skip when it merely repeats the instruments string already added.
-    if score.smd? && score.smd_category.present? && !attrs.include?(score.smd_category)
+    if score.commercial? && score.smd_category.present? && !attrs.include?(score.smd_category)
       attrs << score.smd_category
     end
 
@@ -163,13 +215,13 @@ module ScoresHelper
       attrs << genre_label if genre_label
     end
 
-    # Add page count for SMD (useful info)
-    attrs << "#{score.page_count} pages" if score.smd? && score.page_count.to_i > 0
+    # Add page count for commercial scores (useful info)
+    attrs << t("meta.page_count", count: score.page_count) if score.commercial? && score.page_count.to_i > 0
 
     parts << attrs.join(", ") if attrs.any?
 
     # Value proposition (different for commercial vs free)
-    parts << (score.smd? ? t("meta.score_cta_smd") : t("meta.score_cta"))
+    parts << (score.commercial? ? t("meta.score_cta_#{score.source}") : t("meta.score_cta"))
 
     # Join and truncate to 155 chars
     description = parts.join(" — ")
@@ -338,9 +390,9 @@ module ScoresHelper
       facts << fact_entry("score.difficulty", nil, difficulty: level, grade: grade)
     end
 
-    # Pitch range - MusicXML extraction OR SMD metadata fallback
+    # Pitch range - MusicXML extraction OR partner metadata fallback
     range = format_pitch_range(score.lowest_pitch, score.highest_pitch)
-    range ||= score.pitch_range if score.smd? && score.pitch_range.present?
+    range ||= score.pitch_range.presence
     facts << fact_entry("score.range", range) if range
 
     # Tempo
@@ -371,7 +423,7 @@ module ScoresHelper
     facts = []
 
     # Source-specific facts
-    facts.concat(smd_catalog_facts(score)) if score.smd?
+    facts.concat(commercial_catalog_facts(score)) if score.commercial?
 
     # Common catalog fields
     facts << { label: t("score.cpdl_number"), value: score.cpdl_number, css: "font-mono" }
@@ -381,10 +433,10 @@ module ScoresHelper
     facts.select { |f| f[:value].present? || f[:price].present? }
   end
 
-  # SMD-specific catalog facts - consolidated for maintainability
-  def smd_catalog_facts(score)
+  # Partner catalog facts - consolidated for maintainability
+  def commercial_catalog_facts(score)
     [
-      smd_price_fact(score),
+      score_price_fact(score),
       { label: t("score.rating"), value: format_smd_rating(score) },
       { label: t("score.brand"), value: score.brand },
       smd_arrangement_fact(score),
@@ -393,8 +445,8 @@ module ScoresHelper
   end
 
   # Price fact - always uses :price key with { current:, original?: } hash
-  def smd_price_fact(score)
-    price_data = format_smd_price_with_sale(score)
+  def score_price_fact(score)
+    price_data = format_score_price_with_sale(score)
     return nil unless price_data
 
     { label: t("score.price"), price: price_data }
@@ -622,12 +674,13 @@ module ScoresHelper
   # Generate JSON-LD structured data for a music composition
   # Returns HTML-safe JSON (safe because .to_json escapes all user input for JSON context)
   def score_json_ld(score)
-    # Commercial SMD pages are Products carrying a price Offer (earns price rich
+    # Commercial partner pages are Products carrying a price Offer (earns price rich
     # results for buy-intent searches); free scores stay public-domain
-    # MusicCompositions. The Offer names SMD as seller (ScoreBase is an affiliate,
-    # not the merchant). Never emit review/aggregateRating — SMD's ratings aren't
-    # ScoreBase's own, and passing them off risks a site-wide structured-data penalty.
-    commercial = score.smd? && score.price_usd.to_f.positive?
+    # MusicCompositions. The Offer names the partner as seller (ScoreBase is an
+    # affiliate, not the merchant). Never emit review/aggregateRating — the partner's
+    # ratings aren't ScoreBase's own, and passing them off risks a site-wide
+    # structured-data penalty.
+    commercial = score.commercial? && score.display_price.to_f.positive?
 
     data = {
       "@context" => "https://schema.org",
@@ -646,14 +699,22 @@ module ScoresHelper
     if commercial
       data["image"] = score.thumbnail if score.thumbnail.present?
       data["brand"] = { "@type" => "Brand", "name" => score.brand } if score.brand.present?
-      data["offers"] = {
+      offer = {
         "@type" => "Offer",
-        "price" => format("%.2f", score.price_usd),
-        "priceCurrency" => "USD",
+        "price" => format("%.2f", score.display_price),
+        "priceCurrency" => score.price_currency,
         "availability" => "https://schema.org/InStock",
         "url" => request.original_url,
-        "seller" => { "@type" => "Organization", "name" => "Sheet Music Direct" }
+        "seller" => { "@type" => "Organization", "name" => score.partner_name }
       }
+      # Without eligibleQuantity the page advertises the unit price while checkout
+      # charges the bundle — a price mismatch Google can hold against the whole site.
+      if (minimum = minimum_order(score))
+        offer["eligibleQuantity"] = {
+          "@type" => "QuantitativeValue", "minValue" => minimum[:quantity], "unitCode" => "EA"
+        }
+      end
+      data["offers"] = offer
     end
 
     # Composer
@@ -760,7 +821,7 @@ module ScoresHelper
   # Only emit a parent crumb when the hub actually exists (>= THRESHOLD scores);
   # otherwise the BreadcrumbList would point at a 404. find_by_slug is cache-backed.
   def breadcrumb_parent_hub(score)
-    if score.smd? && score.artist.present?
+    if score.artist.present?
       slug = score.artist.parameterize
       name = HubDataBuilder.find_by_slug(:artists, slug)
       return { name: name, url: artist_url(slug: slug) } if name

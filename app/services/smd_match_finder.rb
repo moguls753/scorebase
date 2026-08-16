@@ -9,13 +9,24 @@
 class SmdMatchFinder
   MAX_MATCHES = 3
 
+  # A title that names a form rather than a work: the same composer wrote several,
+  # so title+surname is not identity. The German and Latin entries arrive with the
+  # Stretta catalogue — "Messe/Palestrina" would otherwise collapse a shelf of
+  # different masses into one match.
   GENERIC_FORM_TITLES = %w[
     minuet menuet prelude allegro gavotte romance march overture andante
     adagio waltz nocturne etude sonata sonatina rondo intermezzo fugue
     aria scherzo serenade chorale sinfonia allemande courante sarabande
     gigue air musette bagatelle toccata berceuse elegie andantino arietta
     barcarolle impromptu mazurka polonaise ballade fantasia pastorale canon
-  ].to_set.freeze
+    concerto concertino divertimento partita capriccio nocturno
+    messe motette kanon choral lied sonate konzert variationen fuge
+    walzer marsch tanz menuett arie hymne psalm
+    praludium praeludium ouverture ouvertuere stuck stueck
+    missa kyrie gloria credo sanctus benedictus requiem magnificat
+  ].to_set.merge([
+    "te deum", "salve regina", "pater noster", "ave maria", "ave verum", "agnus dei"
+  ]).freeze
 
   # Coarse instrument families shared by both sides of a match. The SMD side reads
   # the clean, 100%-populated main_instrument column; the free side derives its via
@@ -68,22 +79,14 @@ class SmdMatchFinder
     rank(candidates, free_family).map(&:first)
   end
 
-  def self.normalize(text)
-    return "" if text.blank?
-    text.unicode_normalize(:nfkd).gsub(/\p{M}/, "")
-        .downcase.gsub(/[^a-z0-9]+/, " ").strip
-  end
-
-  def self.surname(name)
-    return "" if name.blank?
-    head, comma, = name.partition(",")
-    normalize(comma.empty? ? head.split.last : head)
-  end
+  def self.normalize(text) = MusicText.normalize(text)
+  def self.surname(name) = MusicText.surname(name)
 
   # Instrument-family match first (a piano score's piano edition beats its banjo
-  # tab), then the same value-rank as GROUP_REPRESENTATIVE_ORDER_SQL: set listing
-  # first, price DESC (nil last), id for determinism. A nil/unclassifiable
-  # free_family leaves every candidate equal, preserving the price order.
+  # tab), then set listing first, price DESC (nil last), id for determinism. A
+  # nil/unclassifiable free_family leaves every candidate equal, preserving the
+  # price order. GROUP_REPRESENTATIVE_ORDER_SQL now leads with group_rank, which
+  # SMD never sets, so the two orders still agree on SMD rows.
   def self.rank(entries, free_family = nil)
     entries.sort_by do |id, instrument_part, price, _, _, family|
       [ compatible?(free_family, family) ? 0 : 1,
@@ -116,8 +119,11 @@ class SmdMatchFinder
     when /piano|keyboard|organ|harpsichord/ then :piano
     when /guitar|ukulele|\blute\b|banjo|mandolin/ then :guitar
     when /violin|viola|cello|double bass|contrabass|harp/ then :strings
-    when /flute|clarinet|sax|oboe|bassoon|trumpet|horn|trombone|tuba|recorder/ then :winds
     when /orchestra/ then :orchestra
+    # Before the winds branch, or every wind band classifies as :winds and a free
+    # band piece can never match a band edition — SMD_FAMILY has had :band all along.
+    when /concert band|wind band|marching band|brass band|blasorchester|\bband\b/ then :band
+    when /flute|clarinet|sax|oboe|bassoon|trumpet|horn|trombone|tuba|recorder/ then :winds
     else :other
     end
   end

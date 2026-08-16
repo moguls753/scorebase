@@ -8,6 +8,7 @@
 #  arpeggio_mark_count        :integer
 #  arrangement_category       :string
 #  artist                     :string
+#  available_for_sale         :boolean
 #  avg_chord_span             :float
 #  beat_count                 :integer
 #  brand                      :string
@@ -50,6 +51,7 @@
 #  grade_source               :string
 #  grade_status               :string           default("pending"), not null
 #  group_key                  :string
+#  group_rank                 :integer
 #  harmonic_rhythm            :float
 #  has_accompaniment          :boolean
 #  has_articulations          :boolean
@@ -106,10 +108,12 @@
 #  num_parts                  :integer
 #  oblique_motion_ratio       :float
 #  off_beat_count             :integer
+#  original_price_eur         :decimal(8, 2)
 #  original_price_usd         :decimal(8, 2)
 #  page_count                 :integer
 #  parallel_motion_ratio      :float
 #  part_names                 :text
+#  partner_slug               :string
 #  pdf_path                   :string
 #  pedagogical_grade          :string
 #  pedagogical_grade_de       :string
@@ -122,6 +126,7 @@
 #  posted_date                :date
 #  predominant_rhythm         :string
 #  preview_image_url          :string
+#  price_eur                  :decimal(8, 2)
 #  price_usd                  :decimal(8, 2)
 #  rag_status                 :string           default("pending"), not null
 #  rating                     :decimal(3, 2)
@@ -138,6 +143,7 @@
 #  source                     :string           default("pdmx")
 #  stepwise_count             :integer
 #  stepwise_motion_ratio      :float
+#  stretta_metadata           :json
 #  syllable_count             :integer
 #  syncopation_level          :float
 #  tags                       :text
@@ -164,8 +170,10 @@
 #  voice_ranges               :json
 #  voicing                    :string
 #  voicing_status             :string           default("pending"), not null
+#  work_key                   :string
 #  created_at                 :datetime         not null
 #  updated_at                 :datetime         not null
+#  duplicate_of_id            :integer
 #  external_id                :string
 #
 # Indexes
@@ -182,6 +190,7 @@
 #  index_scores_on_computed_difficulty           (computed_difficulty)
 #  index_scores_on_created_at                    (created_at)
 #  index_scores_on_deleted_at                    (deleted_at)
+#  index_scores_on_duplicate_of_id               (duplicate_of_id)
 #  index_scores_on_duration_seconds              (duration_seconds)
 #  index_scores_on_event_count                   (event_count)
 #  index_scores_on_external_id                   (external_id)
@@ -216,6 +225,7 @@
 #  index_scores_on_rating                        (rating)
 #  index_scores_on_smd_category_and_deleted_at   (smd_category,deleted_at)
 #  index_scores_on_source                        (source)
+#  index_scores_on_source_and_external_id        (source,external_id) UNIQUE
 #  index_scores_on_source_and_last_crawled_at    (source,last_crawled_at)
 #  index_scores_on_tempo_bpm                     (tempo_bpm)
 #  index_scores_on_texture_type                  (texture_type)
@@ -224,6 +234,7 @@
 #  index_scores_on_views                         (views)
 #  index_scores_on_voicing                       (voicing)
 #  index_scores_on_voicing_status                (voicing_status)
+#  index_scores_on_work_key                      (work_key)
 #
 FactoryBot.define do
   factory :score do
@@ -265,6 +276,16 @@ FactoryBot.define do
       tags { "Klassik" }
       composer { "Johann Sebastian Bach" }
       preview_image_url { "https://img.sheetmusic.direct/catalogue/product/test.jpg" }
+    end
+
+    trait :stretta do
+      source { "stretta" }
+      sequence(:external_id) { |n| "#{100_000 + n}" }
+      sequence(:partner_slug) { |n| "test-work-nr-#{100_000 + n}" }
+      price_eur { 12.80 }
+      brand { "Carus Verlag" }
+      available_for_sale { true }
+      group_rank { 10 }
     end
 
     trait :smd_on_sale do

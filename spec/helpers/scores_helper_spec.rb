@@ -1,40 +1,40 @@
 require 'rails_helper'
 
 RSpec.describe ScoresHelper, type: :helper do
-  describe '#format_smd_price' do
+  describe '#format_score_price' do
     let(:score) { build(:score, :smd) }
 
     it 'formats USD price' do
-      expect(helper.format_smd_price(score)).to eq("$7.19")
+      expect(helper.format_score_price(score)).to eq("$7.19")
     end
 
     it 'returns nil when price is blank' do
       score.price_usd = nil
-      expect(helper.format_smd_price(score)).to be_nil
+      expect(helper.format_score_price(score)).to be_nil
     end
   end
 
-  describe '#smd_on_sale?' do
+  describe '#score_on_sale?' do
     it 'returns true when original price exceeds current' do
       score = build(:score, :smd_on_sale)
-      expect(helper.smd_on_sale?(score)).to be true
+      expect(helper.score_on_sale?(score)).to be true
     end
 
     it 'returns false when no original price' do
       score = build(:score, :smd)
-      expect(helper.smd_on_sale?(score)).to be false
+      expect(helper.score_on_sale?(score)).to be false
     end
   end
 
-  describe '#format_smd_price_with_sale' do
+  describe '#format_score_price_with_sale' do
     it 'returns hash with current price only when not on sale' do
       score = build(:score, :smd)
-      expect(helper.format_smd_price_with_sale(score)).to eq({ current: "$7.19" })
+      expect(helper.format_score_price_with_sale(score)).to eq({ current: "$7.19" })
     end
 
     it 'returns hash with current and original when on sale' do
       score = build(:score, :smd_on_sale)
-      result = helper.format_smd_price_with_sale(score)
+      result = helper.format_score_price_with_sale(score)
       expect(result[:current]).to eq("$7.19")
       expect(result[:original]).to eq("$8.99")
     end
@@ -57,15 +57,68 @@ RSpec.describe ScoresHelper, type: :helper do
     end
   end
 
-  describe '#smd_cta_label' do
+  describe '#buy_cta_label' do
     it 'shows the price when one is known' do
       score = build(:score, :smd)
-      expect(helper.smd_cta_label(score)).to eq('Buy on SMD — $7.19')
+      expect(helper.buy_cta_label(score)).to eq('Buy on SMD — $7.19')
     end
 
     it 'falls back to the plain view label when no price is known' do
       score = build(:score, :smd, price_usd: nil)
-      expect(helper.smd_cta_label(score)).to eq('View on SMD')
+      expect(helper.buy_cta_label(score)).to eq('View on SMD')
+    end
+  end
+
+  describe 'a Stretta score' do
+    let(:score) { build(:score, :stretta, price_eur: 12.80, title: 'Missa brevis') }
+
+    it 'prices in euro, not converted to dollars' do
+      expect(helper.format_score_price(score)).to eq('€12.80')
+      expect(helper.score_card_badge(score)).to eq({ type: :commercial, text: '€' })
+    end
+
+    it 'writes a euro price the German way on the German locale' do
+      I18n.with_locale(:de) { expect(helper.format_score_price(score)).to eq('12,80 €') }
+    end
+
+    it 'is a Product with a euro Offer and never accessible-for-free' do
+      data = JSON.parse(helper.score_json_ld(score))
+
+      expect(data['@type']).to eq('Product')
+      expect(data['offers']).to include('price' => '12.80', 'priceCurrency' => 'EUR')
+      expect(data['offers']['seller']['name']).to eq('Stretta Music')
+      expect(data).not_to have_key('isAccessibleForFree')
+    end
+
+    # Product 6244 is €2.30 with a minimum of 10 — the basket is €23.00. An Offer
+    # that disagrees with checkout can devalue structured data site-wide.
+    it 'declares the minimum order quantity on the Offer and in the buy box' do
+      score.price_eur = 2.30
+      score.stretta_metadata = { 'minquantity' => 10 }
+
+      expect(helper.minimum_order(score)).to eq({ quantity: 10, total: '€23.00' })
+      expect(JSON.parse(helper.score_json_ld(score)).dig('offers', 'eligibleQuantity', 'minValue')).to eq(10)
+    end
+
+    it 'points the buy button at the affiliate redirect' do
+      expect(helper.buy_redirect_path(score)).to eq("/go/stretta/#{score.external_id}")
+    end
+  end
+
+  # Adding a partner to COMMERCIAL_PARTNERS without its copy renders "translation
+  # missing" on the buy button — the one place users act on.
+  describe 'partner copy' do
+    it 'exists in every locale for every commercial source' do
+      keys = %w[score.buy_on_%s score.view_on_%s score.%s_hint meta.score_cta_%s about.%s_name]
+
+      I18n.available_locales.each do |locale|
+        Score::COMMERCIAL_SOURCES.each do |source|
+          keys.each do |template|
+            key = format(template, source)
+            expect(I18n.exists?(key, locale)).to be(true), "missing #{key} for #{locale}"
+          end
+        end
+      end
     end
   end
 

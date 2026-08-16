@@ -473,6 +473,44 @@
   text-align: center;
 }
 
+/* Minimum-order notice: the unit price is not what the basket costs */
+.dl-hint--warn {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+/* Volume pricing tiers */
+.dl-bulk {
+  width: 100%;
+  margin-top: 10px;
+  font-size: 11px;
+  border-collapse: collapse;
+}
+
+.dl-bulk caption {
+  padding-bottom: 4px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-align: left;
+}
+
+.dl-bulk th,
+.dl-bulk td {
+  padding: 2px 0;
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.dl-bulk th {
+  text-align: left;
+}
+
+.dl-bulk td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
 /* Commercial/external buy button - teal to distinguish from free downloads */
 .dl-btn--buy {
   /* .dl-btn--primary's white text (3.74:1 on this bg, 2.49:1 on hover) fails WCAG AA -

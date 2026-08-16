@@ -24,7 +24,7 @@
                 <tr class="border-b border-gray-100 hover:bg-gray-50">
                   <td class="py-2 text-gray-700"><%= stat.date.strftime("%b %d, %Y") %></td>
                   <td class="py-2 text-right font-mono font-semibold text-green-600"><%= stat.human_visits ? number_with_delimiter(stat.human_visits) : "—" %></td>
-                  <td class="py-2 text-right font-mono text-teal-600"><%= stat.human_visits ? stat.total_smd_clicks : "—" %></td>
+                  <td class="py-2 text-right font-mono text-teal-600"><%= stat.human_visits ? Score::COMMERCIAL_SOURCES.sum { |source| stat.total_clicks(source) } : "—" %></td>
                 </tr>
               <% end %>
             </tbody>

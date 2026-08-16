@@ -1,8 +1,9 @@
 Rails.application.routes.draw do
   mount_avo
 
-  # SMD affiliate redirect with click tracking
+  # Affiliate redirects with click tracking
   get "/go/smd/:smd_id", to: "redirects#smd", as: :smd_redirect
+  get "/go/stretta/:id", to: "redirects#stretta", as: :stretta_redirect
 
   # Job queue dashboard (same auth as Avo admin)
   mount MissionControl::Jobs::Engine, at: "/jobs"

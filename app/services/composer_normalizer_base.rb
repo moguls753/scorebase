@@ -22,18 +22,22 @@ class ComposerNormalizerBase
     @stats = { pattern_matched: 0, cache_hits: 0, api_normalized: 0, api_failed: 0 }
   end
 
+  # The distinct pending names are read once and handed down; each phase returns
+  # what it consumed so the next never re-reads the table to find out.
   def normalize!
     puts "Provider: #{provider_name}"
     puts "Pending scores: #{Score.composer_pending.count}\n\n"
 
+    names = pending_composers
+
     # Phase 1: Pattern matches → failed (no API needed)
-    process_unnormalizable_patterns
+    names -= process_unnormalizable_patterns(names)
 
     # Phase 2: Apply cached mappings (no API needed)
-    apply_cached_mappings
+    names -= apply_cached_mappings(names)
 
     # Phase 3: API calls for remaining uncached scores
-    process_with_api
+    process_with_api(names)
 
     print_summary
   end
@@ -48,68 +52,64 @@ class ComposerNormalizerBase
   # Phase 1: Pattern Matches
   # ==========================================================================
 
-  def process_unnormalizable_patterns
-    composers = pending_composers.select { |c| ComposerMapping.known_unnormalizable?(c) }
-    return if composers.empty?
+  def process_unnormalizable_patterns(names)
+    composers = names.select { |c| ComposerMapping.known_unnormalizable?(c) }
+    return composers if composers.empty?
 
     puts "Phase 1: Processing #{composers.count} unnormalizable patterns..."
 
-    composers.each do |composer|
-      # Cache the nil result
-      ComposerMapping.register(original: composer, normalized: nil, source: "pattern")
-
-      # Mark scores as failed (composer field unchanged)
-      count = Score.composer_pending.where(composer: composer).update_all(composer_status: "failed")
-      @stats[:pattern_matched] += count
-    end
+    composers.each { |composer| ComposerMapping.register(original: composer, normalized: nil, source: "pattern") }
+    @stats[:pattern_matched] += mark_failed(composers)
 
     puts "  → Marked #{@stats[:pattern_matched]} scores as failed (anonymous/traditional/folk/etc.)\n\n"
+    composers
   end
 
   # ==========================================================================
   # Phase 2: Cached Mappings
   # ==========================================================================
 
-  def apply_cached_mappings
-    # Find pending composers that have cached mappings
-    composers = pending_composers.select { |c| ComposerMapping.processed?(c) }
-    return if composers.empty?
+  # One UPDATE per distinct target value, not per name: a cache hit is a lookup,
+  # but every update_all here rebuilds two FTS indexes under a database-wide lock.
+  def apply_cached_mappings(names)
+    mappings = cached_mappings(names)
+    return [] if mappings.empty?
 
-    puts "Phase 2: Applying #{composers.count} cached mappings..."
+    puts "Phase 2: Applying #{mappings.count} cached mappings..."
 
-    composers.each do |composer|
-      mapping = ComposerMapping.find_by(original_name: composer)
-      scores = Score.composer_pending.where(composer: composer)
-
-      count = if mapping.normalized_name
-        scores.update_all(normalized_attributes(mapping.normalized_name))
-      else
-        scores.update_all(composer_status: "failed")
-      end
-      @stats[:cache_hits] += count
+    by_target = mappings.group_by(&:last)
+    @stats[:cache_hits] += mark_failed(by_target.delete(nil)&.map(&:first) || [])
+    by_target.each do |normalized, pairs|
+      @stats[:cache_hits] += update_pending(pairs.map(&:first), normalized_attributes(normalized))
     end
 
     puts "  → Applied cached results to #{@stats[:cache_hits]} scores\n\n"
+    mappings.map(&:first)
   end
 
   # ==========================================================================
   # Phase 3: API Processing
   # ==========================================================================
 
-  def process_with_api
-    # Get remaining uncached scores (with all fields for AI context)
-    scores = Score.composer_pending
-                  .distinct
-                  .pluck(:composer, :title, :editor, :genre, :language)
-                  .uniq { |row| row[0] }
-                  .reject { |row| ComposerMapping.processed?(row[0]) }
+  # The limit applies to the name list, before any context row is read. Selecting
+  # first and trimming afterwards materialised one row per pending score.
+  def process_with_api(names)
+    names = names.first(@limit) if @limit&.positive?
+    return if names.empty?
 
-    scores = scores.first(@limit) if @limit&.positive?
-
-    return if scores.empty?
-
+    scores = context_rows(names)
     puts "Phase 3: Processing #{scores.count} scores with API..."
     process_batches(scores)
+  end
+
+  # One representative row per name for the LLM's context, chosen by SQLite's
+  # bare-column GROUP BY instead of by loading every row and deduplicating.
+  def context_rows(names)
+    in_slices(names).flat_map do |slice|
+      Score.composer_pending.where(composer: slice)
+           .group(:composer)
+           .pluck(:composer, :title, :editor, :genre, :language)
+    end
   end
 
   def process_batches(scores)
@@ -146,7 +146,7 @@ class ComposerNormalizerBase
         @stats[:api_normalized] += count
         puts "    [#{count}] #{truncate(original, 30)} → #{normalized}"
       else
-        # Don't cache nil from AI - allows retry with better prompts or different provider
+        ComposerMapping.register_unidentified(original: original, source: provider_name)
         count = scores.update_all(composer_status: "failed")
         @stats[:api_failed] += count
         puts "    [#{count}] #{truncate(original, 30)} → (unidentified)"
@@ -163,7 +163,33 @@ class ComposerNormalizerBase
   # ==========================================================================
 
   def pending_composers
-    Score.composer_pending.distinct.pluck(:composer)
+    Score.composer_pending.distinct.pluck(:composer).compact
+  end
+
+  # [original_name, normalized_name] for the names already decided. One IN per
+  # slice; the previous per-name exists? put a query on every pending composer.
+  def cached_mappings(names)
+    in_slices(names).flat_map do |slice|
+      ComposerMapping.where(original_name: slice).pluck(:original_name, :normalized_name)
+    end
+  end
+
+  def mark_failed(names)
+    update_pending(names, composer_status: "failed")
+  end
+
+  def update_pending(names, attributes)
+    in_slices(names).sum do |slice|
+      Score.composer_pending.where(composer: slice).update_all(attributes)
+    end
+  end
+
+  # SQLite has no bind placeholders here (prepared_statements is off), so an
+  # unbounded IN becomes a megabyte-sized SQL string.
+  IN_SLICE = 2_000
+
+  def in_slices(names)
+    names.each_slice(IN_SLICE)
   end
 
   # update_all skips the before_save that derives composer_search_normalized.

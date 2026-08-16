@@ -124,14 +124,19 @@ RSpec.describe DailyStat, type: :model do
     end
   end
 
-  describe '#total_smd_clicks' do
-    it 'sums values across the smd_clicks_by_score JSON' do
-      ds = DailyStat.new(smd_clicks_by_score: { "1" => 5, "2" => 3 })
-      expect(ds.total_smd_clicks).to eq(8)
+  describe '#total_clicks' do
+    it 'sums values across the partner JSON' do
+      ds = DailyStat.new(partner_clicks_by_score: { "stretta" => { "1" => 5, "2" => 3 } })
+      expect(ds.total_clicks("stretta")).to eq(8)
     end
 
-    it 'returns 0 for a nil column' do
-      expect(DailyStat.new(smd_clicks_by_score: nil).total_smd_clicks).to eq(0)
+    it 'falls back to the pre-split SMD column' do
+      ds = DailyStat.new(smd_clicks_by_score: { "1" => 5, "2" => 3 })
+      expect(ds.total_clicks("smd")).to eq(8)
+    end
+
+    it 'returns 0 when nothing is recorded' do
+      expect(DailyStat.new.total_clicks("smd")).to eq(0)
     end
   end
 
@@ -191,7 +196,13 @@ RSpec.describe DailyStat, type: :model do
       expect(DailyStat.in_window(7).summary).to eq(
         days: 1, visits: 400, human_visits: 200, google_visits: 80, smd_page_visits: 50,
         funnel_days: 1, avg_human: 200, human_share: 50.0, smd_reach: 25.0,
-        smd_clicks: 8, converting: 6, conversion_rate: 12.0
+        smd_clicks: 8, converting: 6, conversion_rate: 12.0,
+        partners: {
+          "smd" => { days: 1, page_visits: 50, clicks: 8, converting: 6,
+                     reach: 25.0, conversion_rate: 12.0 },
+          "stretta" => { days: 0, page_visits: 0, clicks: 0, converting: 0,
+                         reach: nil, conversion_rate: nil }
+        }
       )
     end
 

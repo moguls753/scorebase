@@ -103,6 +103,18 @@ class Avo::Resources::Score < Avo::BaseResource
     field :is_interactive, as: :boolean, hide_on: :index, name: "SMD Interactive?"
     field :preview_image_url, as: :text, hide_on: :index, name: "SMD Preview Image"
 
+    # Stretta fields
+    field :price_eur, as: :number, hide_on: :index, name: "Stretta Price (EUR)"
+    field :original_price_eur, as: :number, hide_on: :index, name: "Stretta Original Price"
+    field :partner_slug, as: :text, hide_on: :index, name: "Partner Slug (affiliate target)"
+    field :available_for_sale, as: :boolean, hide_on: :index
+    field :stretta_metadata, as: :code, hide_on: :index, language: :json
+
+    # Cross-source duplicate handling
+    field :work_key, as: :text, hide_on: :index
+    field :group_rank, as: :number, hide_on: :index
+    field :duplicate_of_id, as: :number, hide_on: :index, name: "Duplicate of (score id)"
+
     # Stats
     field :favorites, as: :number, hide_on: :index
     field :rating, as: :number, hide_on: :index, name: "SMD Rating"

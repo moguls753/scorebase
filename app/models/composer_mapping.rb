@@ -34,6 +34,9 @@ class ComposerMapping < ApplicationRecord
     /\bvarious\b/i
   ].freeze
 
+  # Source prefix marking a negative cache entry, so a retry can select them.
+  UNIDENTIFIED = "unidentified:"
+
   scope :verified, -> { where(verified: true) }
   scope :normalizable, -> { where.not(normalized_name: nil) }
 
@@ -80,6 +83,21 @@ class ComposerMapping < ApplicationRecord
     def register(original:, normalized:, source:, verified: false)
       return nil unless cacheable?(original)
 
+      store(original, normalized, source, verified)
+    end
+
+    # A name the LLM could not identify, cached regardless of cacheable? — names it
+    # rejects ("Sitzmann F. + Jost H.", "14th Century German Melody") were otherwise
+    # re-sent every night forever. Delete the "#{UNIDENTIFIED}%" rows to retry them.
+    def register_unidentified(original:, source:)
+      return nil if original.blank?
+
+      store(original, nil, "#{UNIDENTIFIED}#{source}", false)
+    end
+
+    private
+
+    def store(original, normalized, source, verified)
       find_or_create_by!(original_name: original) do |mapping|
         mapping.normalized_name = normalized
         mapping.source = source

@@ -1,0 +1,20 @@
+<%# One buy control: an affiliate-tagged link when purchasable, else the optional
+    static fallback (the list rows still show a price when unavailable). Client-
+    side-only Ahoy tracking — bots hitting /go/ server-side never fire the JS event.
+
+    Locals: edition:, css_class:, label:, unavailable: (optional) %>
+
+<% if edition.purchasable? %>
+  <%= link_to "#", class: css_class, aria: { label: buy_cta_label(edition) },
+        data: {
+          controller: "buy-redirect",
+          buy_redirect_url_value: buy_redirect_path(edition),
+          buy_redirect_score_id_value: edition.id,
+          buy_redirect_event_value: Ahoy::Event::CLICK_EVENTS[edition.source],
+          action: "click->buy-redirect#go"
+        } do %>
+    <%= label %>
+  <% end %>
+<% elsif (fallback = local_assigns[:unavailable]) %>
+  <span class="<%= css_class %> <%= css_class %>--static"><%= fallback %></span>
+<% end %>

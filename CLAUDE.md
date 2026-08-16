@@ -14,6 +14,7 @@ ScoreBase aggregates from several sources; importers live in `app/services/`:
 - **CPDL** — `CpdlImporter`, via the MediaWiki API. CPDL is Cloudflare-gated, so requests route through the **CloudflareBypass** accessory. Hardened May 2026: a content gate + post-parse thin-page filter (rejects collection/index pages), `apfilterredir=nonredirects` (no redirect-duplicates), and 5xx retry. Fully deleted-and-re-synced — clean, ~55k rows.
 - **IMSLP** — `ImslpImporter`, via IMSLP's worklist API + MediaWiki API over plain HTTP (not Cloudflare-gated). Being extended for composer-prioritized catalog completion — see `docs/superpowers/specs/2026-05-21-imslp-import-design.md`.
 - **SMD** (Sheet Music Direct) — commercial catalog.
+- **Stretta** — second commercial catalog (German publisher retailer), via its Shopify Storefront GraphQL API. See the Stretta section below.
 
 **CloudflareBypass accessory** (`scorebase-cloudflare-bypass`, port 8000, env `CLOUDFLARE_BYPASS_URL`) solves Cloudflare for scraping — used by `CpdlImporter` and `HttpDownloadable`. FlareSolverr was removed May 2026; CloudflareBypass is the sole bypass.
 
@@ -50,6 +51,76 @@ curl -sI https://scorebase.org/sitemap.xml.gz                                # 3
 **Ensemble hubs (buyer-query landing pages).** The `smd_category`-keyed ensemble hubs ("Concert Band Sheet Music", "SATB Choir Sheet Music") use a **CURATED** `HubDataBuilder::ENSEMBLE_CATEGORIES` allowlist — `smd_category` is a mixed taxonomy (most values are formats like "Piano Solo"), so it is never auto-derived. New scores in an existing allowlisted category auto-appear via the daily `HubCacheWarmJob`, but a genuinely new `smd_category` requires a one-line edit to the constant.
 
 **Cross-links (free → SMD "Professional Editions"):** `score_smd_matches` is derived data (`BackfillSmdMatchesJob`, title+composer-surname matching via `SmdMatchFinder`). It converges **daily at 12pm** — that recurring run is the mechanism, not a safety net, so an ordinary import needs no manual step. Run it by hand only after a bulk title/composer rewrite you don't want to wait a day for: `bin/kamal app exec --reuse -r web "bin/rails scores:backfill_smd_matches"`. The job takes no arguments and cannot be scoped — a single new SMD row can outrank an existing match on any free score, so every run rebuilds the whole index (~199k SMD rows) and walks every free score (~126k). That is ~14s and one database-wide SQLite write lock during the `delete_all`/`insert_all` transaction. Bad match spotted in prod? Set `suppressed = true` on its row (console one-liner); the converge preserves it forever. Preview matches without writing: `DRY_RUN=1 bin/rails scores:backfill_smd_matches`.
+
+## Two commercial partners
+
+`Score::COMMERCIAL_PARTNERS` is the single place that knows a source is a paid catalogue —
+its display name, its currency, and which column holds its price. `COMMERCIAL_SOURCES` is
+its keys, and `scope :commercial` / `scope :free` replace the old `exclude_smd`. Adding a
+third partner is one hash entry plus its i18n copy; `spec/helpers/scores_helper_spec.rb`
+fails the build if the copy is missing, because the alternative is "translation missing"
+rendered on the buy button.
+
+**Prices are never converted.** `price_usd` and `price_eur` are separate columns and stay
+that way — an exchange rate in the display path is a dependency nobody wants to maintain.
+Read them through `display_price` / `price_currency`, never directly.
+
+**`where.not` on a nullable column drops the NULL rows.** This bit twice: `by_pricing("free")`
+must keep the 12 priceless SMD rows (hence `NOT (source = ... AND COALESCE(price, 0) > 0)`),
+and `ConvergeDuplicatesJob` must write to rows whose `duplicate_of_id` is still NULL. Both
+build the condition in Arel — also the only way past Brakeman without an ignore entry.
+
+## Stretta
+
+~1.45M sellable sheet-music products (`Stretta::Classifier` over the full sighting). Full
+findings and every measurement in `docs/stretta-implementation-notes.md`; the plan it
+corrects is `docs/stretta-import-plan.md`.
+
+**The affiliate URL form is the whole business case.** Measured against the live shop:
+
+```
+/leitner-...-nr-148059.html?afl=CODE   -> 200, query string kept
+/x-nr-148059.html?afl=CODE             -> 301 to the slug URL, query string DROPPED
+```
+
+The second form earns nothing, and with half-yearly settlement the loss would surface in
+February. `RedirectsController#stretta` therefore reads `partner_slug` from our own row —
+never from the URL, which would be a path injection into stretta-music.de — and checks it
+against `\A[a-z0-9][a-z0-9-]*\z` before use.
+
+**The GraphQL API is open; the sitemap is not.** `Net::HTTP` gets `403 cf-mitigated: challenge`
+from `stretta-music.de` under every header set tried, while `curl` with the same headers gets
+the XML — the gate is on the TLS/HTTP fingerprint. `Stretta::SitemapHarvester` goes through
+`CloudflareBypassClient` like CPDL. The API itself answers Ruby directly and needs no bypass.
+
+**`products` is capped at 25,000 elements under every sort key**, so no paginated full pass
+exists. Full coverage comes from the sitemap; `sortKey: CREATED_AT` is only for the weekly
+new-arrivals pass, where the volume stays far below the cap. `updatedAt` is worthless as a
+delta signal — 100% of the catalogue carries a July/August 2026 shop-migration timestamp —
+so the price rotation runs on our own `last_crawled_at`.
+
+**`Stretta::Importer::UPDATABLE` is an ownership line, not an insert-only one.** Everything the
+mapper derives as a pure function of the product — `instruments`, `voicing`, `smd_category`,
+`group_rank`, title, price, `stretta_metadata` — is updatable, so re-running the import over an
+existing selection list is itself how an improved scoring vocabulary reaches rows that already
+exist; there is no separate re-derive task. What's excluded is what another job or an admin
+owns: `composer` (`NormalizeComposersJob` — without the exclusion, every sync writes back the
+raw German name it canonicalised the night before, daily), `pedagogical_grade`, `rag_status`,
+`is_group_representative`, and `group_key` (a new key moves a row between groups; only
+`regroup: true` touches it, and only `BackfillGroupKeysJob` re-picks representatives afterwards).
+`last_crawled_at` is written but deliberately outside the timestamped upsert — see the class
+comment for why it would otherwise poison every row's `updated_at` on every sync.
+
+**Jobs that select on `*_status: pending` need a source filter.** `rag_status` is the one the
+plan flags, but `NormalizeInstrumentsJob` had the same hole: an imported partner row whose
+scoring did not map satisfies every one of its conditions, and ~30% of 1.2M rows would have
+gone to the LLM. It now starts from `Score.free`. Check any new job of this shape.
+
+**Ligatures have no NFKD decomposition to ASCII.** `ß æ œ ø ł` survived the accent strip, so
+`Größe` became `gro e` in a match key and stayed `Größe` in the search column — "grosser gott"
+never found "Großer Gott". All of it now goes through `MusicText`, in `normalize`,
+`normalize_for_search` and `build_fts5_query` alike (query and index side must agree). After
+deploying this, run `BackfillSearchColumnsJob` once — 1,316 existing rows.
 
 ## Tech Stack
 

@@ -41,8 +41,10 @@ class Avo::ToolsController < Avo::ApplicationController
     @stats      = DailyStat.in_window(@range_days).order(date: :desc)
     @summary    = @stats.summary
 
-    clicks_by_score = @stats.measured.pluck(:smd_clicks_by_score).compact.each_with_object(Hash.new(0)) do |day_clicks, totals|
-      day_clicks.each { |score_id, count| totals[score_id.to_i] += count }
+    clicks_by_score = @stats.measured.each_with_object(Hash.new(0)) do |stat, totals|
+      Score::COMMERCIAL_SOURCES.each do |source|
+        stat.clicks_by_score(source).each { |score_id, count| totals[score_id.to_i] += count }
+      end
     end
 
     top_score_ids = clicks_by_score.sort_by { |_, count| -count }.first(20).to_h

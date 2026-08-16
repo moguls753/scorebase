@@ -92,6 +92,10 @@ de:
     description: "Suche und entdecke tausende Musiknoten. Noten aus allen wichtigen Archiven."
     score_cta: "Kostenlose PDF-Noten."
     score_cta_smd: "Digitale Noten zum Kauf verfügbar."
+    score_cta_stretta: "Gedruckte und digitale Ausgaben bestellbar."
+    page_count:
+      one: "%{count} Seite"
+      other: "%{count} Seiten"
 
   # Index / Search Page
   search:
@@ -295,6 +299,16 @@ de:
     view_on_smd: "Auf SMD ansehen"
     buy_on_smd: "Bei SMD kaufen — %{price}"
     smd_hint: "Professionelles Arrangement von Sheet Music Direct"
+    # Stretta (kommerzielle) Noten
+    view_on_stretta: "Bei Stretta ansehen"
+    buy_on_stretta: "Bei Stretta kaufen — %{price}"
+    stretta_hint: "Verlagsausgabe von Stretta Music"
+    publisher_editions: "Verlagsausgaben"
+    publisher_editions_trust: "Gedruckte und digitale Ausgaben klassischer Verlage, über Stretta Music."
+    min_quantity: "Mindestbestellmenge %{count} Stück — %{total} gesamt"
+    bulk_prices: "Staffelpreise"
+    bulk_price_row: "ab %{amount} Stück"
+    price_incl_vat: "inkl. MwSt."
     brand: "Verlag"
     arrangement: "Arrangement"
     ensemble: "Besetzung"
@@ -338,6 +352,8 @@ de:
     openscore_description: "Hochwertige Kodierungen von Kunstliedern und Streichquartetten des 19. Jahrhunderts. Mit Werken von Schubert, Schumann, Brahms, Beethoven und mehr."
     smd_name: "Sheet Music Direct"
     smd_description: "Digitale Notenplattform von Hal Leonard, dem weltweit größten Notenverleger. Über 1 Million lizenzierte Arrangements aus Pop, Rock, Film und Broadway. Kommerzielle Noten zum Kauf."
+    stretta_name: "Stretta Music"
+    stretta_description: "Deutscher Notenhändler mit über einer Million gedruckter und digitaler Ausgaben klassischer Verlage — Bärenreiter, Carus, Schott, Peters und viele mehr. Partituren, Stimmen, Chorpartituren und Klavierauszüge bestellbar."
     transparency_title: "Warum Pro?"
     transparency_p1: "Smart Search läuft auf KI. KI kostet Geld. Dein Abo hält es am Laufen, während der Katalog für alle kostenlos bleibt."
 
@@ -651,6 +667,9 @@ de:
       tb_choir: "TB-Chor"
       ssaa_choir: "SSAA-Chor"
       tbb_choir: "TBB-Chor"
+      brass_band: "Brass Band"
+      brass_ensemble: "Blechbläser-Ensemble"
+      chamber_ensemble: "Kammerensemble"
 
   # Pro Landing Page
   pro:

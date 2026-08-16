@@ -91,6 +91,10 @@ def get_active_score_ids() -> set[int]:
     return ids
 
 
+# Mirrors Score::COMMERCIAL_PARTNERS -- each partner prices in its own currency column.
+COMMERCIAL_PRICE_COLUMNS = {"smd": "price_usd"}
+
+
 def get_score_metadata(ids: list[int]) -> dict[int, dict]:
     """Return source + commercial flag per score, keyed by id.
 
@@ -103,19 +107,20 @@ def get_score_metadata(ids: list[int]) -> dict[int, dict]:
     conn = get_connection()
     conn.row_factory = sqlite3.Row
     placeholders = ",".join("?" * len(ids))
+    price_columns = ", ".join(sorted(set(COMMERCIAL_PRICE_COLUMNS.values())))
     cursor = conn.execute(f"""
-        SELECT id, source, price_usd
+        SELECT id, source, {price_columns}
         FROM scores
         WHERE id IN ({placeholders})
     """, ids)
 
     result = {}
     for row in cursor.fetchall():
-        price = row["price_usd"]
-        commercial = row["source"] == "smd" and price is not None and price > 0
+        price_column = COMMERCIAL_PRICE_COLUMNS.get(row["source"])
+        price = row[price_column] if price_column else None
         result[row["id"]] = {
             "source": row["source"] or "unknown",
-            "commercial": bool(commercial),
+            "commercial": bool(price is not None and price > 0),
         }
     conn.close()
     return result

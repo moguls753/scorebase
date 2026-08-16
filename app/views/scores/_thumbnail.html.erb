@@ -5,7 +5,7 @@
   <% end %>
 
   <% if score.has_thumbnail? %>
-    <%= image_tag score.thumbnail,
+    <%= image_tag score.thumbnail(width: 400),
         alt: score.title,
         loading: "lazy",
         decoding: "async",

@@ -1,0 +1,15 @@
+<%# Buy boxes for a free score, one block per partner. The display rule
+    (docs/stretta-import-plan.md §13): never two boxes for the same work — where both
+    partners carry it, partner_editions keeps the one that fits this score better. %>
+
+<% editions = PartnerEditions.for(score) %>
+
+<% if editions.smd.any? %>
+  <%= render "scores/editions", editions: editions.smd,
+        heading: t("score.professional_editions"), trust: t("score.professional_editions_trust") %>
+<% end %>
+
+<% if editions.stretta.any? %>
+  <%= render "scores/editions", editions: editions.stretta,
+        heading: t("score.publisher_editions"), trust: t("score.publisher_editions_trust") %>
+<% end %>

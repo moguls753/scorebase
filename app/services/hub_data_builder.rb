@@ -119,7 +119,12 @@ class HubDataBuilder
   ENSEMBLE_CATEGORIES = {
     instrumental: [
       "Concert Band", "Jazz Ensemble", "Orchestra", "Marching Band",
-      "Full Orchestra", "Concert Band: Flex-Band", "Guitar Ensemble", "Ukulele Ensemble"
+      "Full Orchestra", "Concert Band: Flex-Band", "Guitar Ensemble", "Ukulele Ensemble",
+      # Brass Ensemble exists as an SMD category (137 rows) but was never in the
+      # allowlist; the other two arrive with Stretta. A brass band is not a brass
+      # ensemble — 18,147 Stretta rows are the British ~28-player band, 12,588 are
+      # quintets and generic brass — so both earn a page.
+      "Brass Band", "Brass Ensemble", "Chamber Ensemble"
     ],
     choral: [
       "SATB Choir", "2-Part Choir", "SSA Choir", "SAB Choir", "3-Part Mixed Choir",

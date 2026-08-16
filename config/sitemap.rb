@@ -244,4 +244,13 @@ SitemapGenerator::Sitemap.create do
     add score_path(id: score.id), lastmod: score.updated_at, changefreq: "monthly", priority: 0.6
     add score_path(id: score.id, locale: :de), lastmod: score.updated_at, changefreq: "monthly", priority: 0.6
   end
+
+  # Stretta, restricted to the internally linked pages (Score.stretta_sitemap_pages).
+  # This crosses the 50,000-URL cap per file, which flips sitemap_generator into
+  # index mode — handled: bin/docker-entrypoint symlinks public/sitemaps as well as
+  # public/sitemap.xml.gz, so the child files serve.
+  Score.active.stretta_sitemap_pages.find_each do |score|
+    add score_path(id: score.id), lastmod: score.updated_at, changefreq: "monthly", priority: 0.6
+    add score_path(id: score.id, locale: :de), lastmod: score.updated_at, changefreq: "monthly", priority: 0.6
+  end
 end

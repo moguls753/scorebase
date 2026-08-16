@@ -61,6 +61,13 @@ RSpec.describe Score do
         expect(Score.by_pricing('commercial')).to include(commercial)
         expect(Score.by_pricing('invalid')).to include(free, commercial)
       end
+
+      it 'counts a priceless commercial score as free' do
+        priceless = create(:score, :smd, price_usd: nil)
+
+        expect(Score.by_pricing('free')).to include(priceless)
+        expect(Score.by_pricing('commercial')).not_to include(priceless)
+      end
     end
   end
 
@@ -75,11 +82,58 @@ RSpec.describe Score do
     end
   end
 
-  describe '#smd_purchasable?' do
-    it 'requires SMD source and external_id' do
-      expect(build(:score, :smd).smd_purchasable?).to be true
-      expect(build(:score, source: 'smd', external_id: nil).smd_purchasable?).to be false
-      expect(build(:score, :pdmx).smd_purchasable?).to be false
+  # group_rank leads GROUP_REPRESENTATIVE_ORDER_SQL. SMD never sets it, so its
+  # representative must still be picked by title shape and price.
+  describe 'group_rank in the representative order' do
+    it 'leaves an SMD group ranked by title shape' do
+      set = create(:score, :smd, title: 'Crazy Train (arr. Holmes)', group_key: 'g', price_usd: 5)
+      part = create(:score, :smd, title: 'Crazy Train (arr. Holmes) - Trombone 2', group_key: 'g', price_usd: 90)
+
+      BackfillGroupKeysJob.new.send(:assign_representatives)
+
+      expect(set.reload.is_group_representative).to be true
+      expect(part.reload.is_group_representative).to be_nil
+    end
+
+    it 'lets group_rank decide when it is set' do
+      score = create(:score, source: 'stretta', external_id: '1', title: 'Missa', group_key: 'g', group_rank: 10)
+      part = create(:score, source: 'stretta', external_id: '2', title: 'Missa', group_key: 'g', group_rank: 70)
+
+      BackfillGroupKeysJob.new.send(:assign_representatives)
+
+      expect(score.reload.is_group_representative).to be true
+      expect(part.reload.is_group_representative).to be_nil
+    end
+  end
+
+  # Each partner encodes the part differently. Missed, every chip on a Stretta set
+  # renders the same generic label and the block tells the reader nothing.
+  describe '#part_name' do
+    it 'reads SMD parts off the title suffix' do
+      score = build(:score, :smd, title: 'Birds of a Feather (arr. Holmes) - Trombone 2')
+      expect(score.part_name).to eq('Trombone 2')
+    end
+
+    it 'reads Stretta parts off the stored itemtype' do
+      score = build(:score, :stretta, title: 'Hymne', group_key: 'g',
+                                      stretta_metadata: { 'itemtype' => 'Violine 1 (Orchesterstimme)' })
+      expect(score.part_name).to eq('Violine 1 (Orchesterstimme)')
+    end
+  end
+
+  describe '#purchasable?' do
+    it 'requires a commercial source and external_id' do
+      expect(build(:score, :smd).purchasable?).to be true
+      expect(build(:score, source: 'smd', external_id: nil).purchasable?).to be false
+      expect(build(:score, :pdmx).purchasable?).to be false
+    end
+
+    # SMD never sets available_for_sale (always nil) — only an explicit false,
+    # which only Stretta ever writes, may hide the buy button.
+    it 'excludes a delisted Stretta product but not an SMD row with no signal' do
+      expect(build(:score, :stretta, available_for_sale: false).purchasable?).to be false
+      expect(build(:score, :stretta, available_for_sale: true).purchasable?).to be true
+      expect(build(:score, :smd, available_for_sale: nil).purchasable?).to be true
     end
   end
 

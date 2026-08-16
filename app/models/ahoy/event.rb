@@ -31,7 +31,11 @@ class Ahoy::Event < ApplicationRecord
   SQL
   private_constant :PAGE_SCORE_ID
 
-  scope :on_smd_score_page, -> {
-    joins("JOIN scores ON scores.id = #{PAGE_SCORE_ID}").where(scores: { source: "smd" })
+  scope :on_partner_score_page, ->(source) {
+    joins("JOIN scores ON scores.id = #{PAGE_SCORE_ID}").where(scores: { source: source })
   }
+
+  # One event name per partner rather than a shared one with a property: the
+  # historical "SMD click" rows stay readable without a compatibility branch.
+  CLICK_EVENTS = { "smd" => "SMD click", "stretta" => "Stretta click" }.freeze
 end

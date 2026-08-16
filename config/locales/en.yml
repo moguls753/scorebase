@@ -92,6 +92,10 @@ en:
     description: "Search and discover thousands of music scores from all major archives."
     score_cta: "Free PDF sheet music."
     score_cta_smd: "Digital sheet music available for purchase."
+    score_cta_stretta: "Printed and digital editions available to order."
+    page_count:
+      one: "%{count} page"
+      other: "%{count} pages"
 
   # Index / Search Page
   search:
@@ -295,6 +299,16 @@ en:
     view_on_smd: "View on SMD"
     buy_on_smd: "Buy on SMD — %{price}"
     smd_hint: "Professional arrangement from Sheet Music Direct"
+    # Stretta (commercial) scores
+    view_on_stretta: "View on Stretta"
+    buy_on_stretta: "Buy on Stretta — %{price}"
+    stretta_hint: "Publisher edition from Stretta Music"
+    publisher_editions: "Publisher Editions"
+    publisher_editions_trust: "Printed and digital editions from classical publishers, via Stretta Music."
+    min_quantity: "Minimum order %{count} copies — %{total} total"
+    bulk_prices: "Volume pricing"
+    bulk_price_row: "from %{amount} copies"
+    price_incl_vat: "incl. VAT"
     brand: "Publisher"
     arrangement: "Arrangement"
     ensemble: "Ensemble"
@@ -338,6 +352,8 @@ en:
     openscore_description: "High-quality encodings of 19th-century art songs and string quartets. Includes works by Schubert, Schumann, Brahms, Beethoven, and more."
     smd_name: "Sheet Music Direct"
     smd_description: "Digital sheet music platform by Hal Leonard, the world's largest print music publisher. Over 1 million licensed arrangements across pop, rock, film, and Broadway. Commercial scores available for purchase."
+    stretta_name: "Stretta Music"
+    stretta_description: "German sheet music retailer with over a million printed and digital editions from classical publishers — Bärenreiter, Carus, Schott, Peters and many more. Scores, parts, choral editions and piano reductions available to order."
     transparency_title: "Why Pro?"
     transparency_p1: "Smart Search runs on AI. AI costs money. Your subscription keeps it running while the catalog stays free for everyone."
 
@@ -651,6 +667,9 @@ en:
       tb_choir: "TB Choir"
       ssaa_choir: "SSAA Choir"
       tbb_choir: "TBB Choir"
+      brass_band: "Brass Band"
+      brass_ensemble: "Brass Ensemble"
+      chamber_ensemble: "Chamber Ensemble"
 
   # Pro Landing Page
   pro:

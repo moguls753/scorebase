@@ -325,6 +325,12 @@ a.mm-button:not([class*="hidden"]):not([class*="flex"]):not([class*="block"]) {
   border: var(--border-width) solid #0e7490;
 }
 
+.mm-badge-stretta {
+  background: #7c3aed;
+  color: #FFFFFF;
+  border: var(--border-width) solid #6d28d9;
+}
+
 .mm-badge-tag {
   background: var(--color-bg-surface);
   border: var(--border-width) solid var(--color-border);

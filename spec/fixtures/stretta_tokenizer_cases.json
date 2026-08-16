@@ -1,0 +1,320 @@
+[
+ {
+  "input": "sinfonisches Blasorchester",
+  "why": "highest volume",
+  "rows": 170060,
+  "expected": [
+   "sinfonisches blasorchester"
+  ]
+ },
+ {
+  "input": "Klavier",
+  "why": "highest volume",
+  "rows": 121263,
+  "expected": [
+   "klavier"
+  ]
+ },
+ {
+  "input": "Singstimme, Klavier [Gitarre]",
+  "why": "highest volume",
+  "rows": 63423,
+  "expected": [
+   "klavier",
+   "singstimme"
+  ]
+ },
+ {
+  "input": "Gitarre",
+  "why": "highest volume",
+  "rows": 60261,
+  "expected": [
+   "gitarre"
+  ]
+ },
+ {
+  "input": "Sinfonieorchester",
+  "why": "highest volume",
+  "rows": 33185,
+  "expected": [
+   "sinfonieorchester"
+  ]
+ },
+ {
+  "input": "Chor",
+  "why": "highest volume",
+  "rows": 32830,
+  "expected": [
+   "chor"
+  ]
+ },
+ {
+  "input": "Streichorchester",
+  "why": "highest volume",
+  "rows": 31513,
+  "expected": [
+   "streichorchester"
+  ]
+ },
+ {
+  "input": "Singstimme, Klavier",
+  "why": "highest volume",
+  "rows": 29041,
+  "expected": [
+   "klavier",
+   "singstimme"
+  ]
+ },
+ {
+  "input": "Jazzensemble",
+  "why": "highest volume",
+  "rows": 25234,
+  "expected": [
+   "jazzensemble"
+  ]
+ },
+ {
+  "input": "gemischter Chor (SATB), Klavier",
+  "why": "highest volume",
+  "rows": 24579,
+  "expected": [
+   "gemischter chor",
+   "klavier"
+  ]
+ },
+ {
+  "input": "Orgel",
+  "why": "highest volume",
+  "rows": 23794,
+  "expected": [
+   "orgel"
+  ]
+ },
+ {
+  "input": "Concert Band",
+  "why": "highest volume",
+  "rows": 21671,
+  "expected": [
+   "concert band"
+  ]
+ },
+ {
+  "input": "Variable Big Band (6 Bläser, Rhythmusgruppe); weitere Bläser ad lib.",
+  "why": "comma inside round brackets",
+  "rows": 235,
+  "expected": [
+   "variable big band",
+   "weitere blaser"
+  ]
+ },
+ {
+  "input": "gemischter Chor (SATB); Klavier ad lib.",
+  "why": "semicolon separator",
+  "rows": 7228,
+  "expected": [
+   "gemischter chor",
+   "klavier"
+  ]
+ },
+ {
+  "input": "Piano/Vocal/Chords",
+  "why": "slash separator",
+  "rows": 5670,
+  "expected": [
+   "chords",
+   "piano",
+   "vocal"
+  ]
+ },
+ {
+  "input": "Mandolin#Folk Instrument",
+  "why": "hash separator",
+  "rows": 536,
+  "expected": [
+   "folk instrument",
+   "mandolin"
+  ]
+ },
+ {
+  "input": "2. Violine",
+  "why": "leading ordinal",
+  "rows": 961,
+  "expected": [
+   "violine"
+  ]
+ },
+ {
+  "input": "1–2 Sopranblockflöten",
+  "why": "quantity range with en-dash",
+  "rows": 322,
+  "expected": [
+   "sopranblockfloten"
+  ]
+ },
+ {
+  "input": "Klavier; Singstimme ad lib.",
+  "why": "ad lib. suffix",
+  "rows": 2943,
+  "expected": [
+   "klavier",
+   "singstimme"
+  ]
+ },
+ {
+  "input": "gemischter Chor (SATB) a cappella",
+  "why": "a cappella suffix",
+  "rows": 10724,
+  "expected": [
+   "gemischter chor"
+  ]
+ },
+ {
+  "input": "SATB and Keyboard",
+  "why": "English 'and'",
+  "rows": 1039,
+  "expected": [
+   "keyboard",
+   "satb"
+  ]
+ },
+ {
+  "input": "Guitar or Lute",
+  "why": "English 'or'",
+  "rows": 536,
+  "expected": [
+   "guitar",
+   "lute"
+  ]
+ },
+ {
+  "input": "Chor und Keyboard",
+  "why": "German ' und '",
+  "rows": 361,
+  "expected": [
+   "chor",
+   "keyboard"
+  ]
+ },
+ {
+  "input": "großes Blasorchester",
+  "why": "eszett",
+  "rows": 43,
+  "expected": [
+   "grosses blasorchester"
+  ]
+ },
+ {
+  "input": "Klavier [Keyboard/Orgel]",
+  "why": "square brackets",
+  "rows": 4701,
+  "expected": [
+   "klavier"
+  ]
+ },
+ {
+  "input": "Piano Duets & Four Hands",
+  "why": "ampersand",
+  "rows": 732,
+  "expected": [
+   "four hands",
+   "piano duets"
+  ]
+ },
+ {
+  "input": "für Orchester",
+  "why": "leading 'für'",
+  "rows": 305,
+  "expected": [
+   "orchester"
+  ]
+ },
+ {
+  "input": "Klavier vierhändig",
+  "why": "vierhändig suffix",
+  "rows": 6704,
+  "expected": [
+   "klavier"
+  ]
+ },
+ {
+  "input": "SATB",
+  "why": "bare SATB code",
+  "rows": 625,
+  "expected": [
+   "satb"
+  ]
+ },
+ {
+  "input": "2 Sopranblockflöten",
+  "why": "German plural -en",
+  "rows": 411,
+  "expected": [
+   "sopranblockfloten"
+  ]
+ },
+ {
+  "input": "4 Hörner (Quartett)",
+  "why": "German plural -er",
+  "rows": 1079,
+  "expected": [
+   "horner"
+  ]
+ },
+ {
+  "input": "2 Violoncelli",
+  "why": "Latin plural -i",
+  "rows": 1070,
+  "expected": [
+   "violoncelli"
+  ]
+ },
+ {
+  "input": "2 BFL BC",
+  "why": "abbreviation list",
+  "rows": 4,
+  "expected": [
+   "bfl bc"
+  ]
+ },
+ {
+  "input": "Piano Solo",
+  "why": "solo/soli qualifier",
+  "rows": 230,
+  "expected": [
+   "piano"
+  ]
+ },
+ {
+  "input": "Lead Sheet",
+  "why": "value that is not an instrument",
+  "rows": 1280,
+  "expected": [
+   "lead sheet"
+  ]
+ },
+ {
+  "input": "Chor (2-stimmig), Klavier",
+  "why": "n-stimmig part count",
+  "rows": 5332,
+  "expected": [
+   "chor",
+   "klavier"
+  ]
+ },
+ {
+  "input": "Trompete [Kornett], Horn (Es), Klavier",
+  "why": "nested brackets",
+  "rows": 92,
+  "expected": [
+   "horn",
+   "klavier",
+   "trompete"
+  ]
+ },
+ {
+  "input": "(Score & parts)",
+  "why": "empty after stripping",
+  "rows": 3,
+  "expected": []
+ }
+]

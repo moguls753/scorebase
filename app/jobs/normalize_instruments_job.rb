@@ -40,8 +40,13 @@ class NormalizeInstrumentsJob < ApplicationJob
 
   private
 
+  # Commercial rows carry the partner's own scoring; those whose scoring did not
+  # map keep instruments_status: pending on purpose (so they can still be fixed),
+  # and every other condition here happens to be satisfied by an imported partner
+  # row — without the source filter one manual run sends the paid catalogue to the LLM.
   def eligible_scores(limit)
-    Score.instruments_pending
+    Score.free
+         .instruments_pending
          .has_vocal_normalized
          .where(has_vocal: false)
          .where.not(composer_status: "pending")

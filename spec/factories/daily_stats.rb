@@ -2,19 +2,22 @@
 #
 # Table name: daily_stats
 #
-#  id                      :integer          not null, primary key
-#  countries               :json
-#  date                    :date
-#  devices                 :json
-#  human_converting_visits :integer
-#  human_visits            :integer
-#  paths                   :json
-#  referrers               :json
-#  smd_clicks_by_score     :json
-#  smd_page_visits         :integer
-#  visits                  :integer          default(0)
-#  created_at              :datetime         not null
-#  updated_at              :datetime         not null
+#  id                        :integer          not null, primary key
+#  countries                 :json
+#  date                      :date
+#  devices                   :json
+#  human_converting_visits   :integer
+#  human_visits              :integer
+#  partner_clicks_by_score   :json
+#  partner_converting_visits :json
+#  partner_page_visits       :json
+#  paths                     :json
+#  referrers                 :json
+#  smd_clicks_by_score       :json
+#  smd_page_visits           :integer
+#  visits                    :integer          default(0)
+#  created_at                :datetime         not null
+#  updated_at                :datetime         not null
 #
 # Indexes
 #

@@ -8,11 +8,12 @@
     :mobile  - Compact buttons for quick actions above fold
     :sidebar - Full buttons with tooltips for desktop sidebar
 
-  Handles both free scores (PDF/MIDI/MXL downloads) and SMD commercial scores (buy button).
+  Handles both free scores (PDF/MIDI/MXL downloads) and commercial partner scores (buy button).
 %>
 <% score ||= @score %>
 <% variant ||= :sidebar %>
-<% return unless score.has_downloads? || score.smd_purchasable? %>
+<% return unless score.has_downloads? || score.purchasable? %>
+<% buy_path = score.purchasable? ? buy_redirect_path(score) : nil %>
 
 <%# IMSLP/CPDL host the file themselves — label the buttons so. %>
 <% external = score.external? %>
@@ -24,19 +25,20 @@
 <% if variant == :mobile %>
   <%# Mobile: Compact single-row layout %>
   <div class="dl-row">
-    <% if score.smd_purchasable? %>
-      <%# SMD: Single buy button (teal to distinguish from free downloads) %>
+    <% if buy_path %>
+      <%# Partner: Single buy button (teal to distinguish from free downloads) %>
       <%# JS-based redirect: href="#" so bots can't follow, Stimulus handles the click %>
       <%= link_to "#",
           class: "dl-btn dl-btn--primary dl-btn--buy",
-          aria: { label: smd_cta_label(score) },
+          aria: { label: buy_cta_label(score) },
           data: {
-            controller: "smd-redirect",
-            smd_redirect_url_value: smd_redirect_path(smd_id: score.external_id),
-            smd_redirect_score_id_value: score.id,
-            action: "click->smd-redirect#go"
+            controller: "buy-redirect",
+            buy_redirect_url_value: buy_path,
+            buy_redirect_score_id_value: score.id,
+            buy_redirect_event_value: Ahoy::Event::CLICK_EVENTS[score.source],
+            action: "click->buy-redirect#go"
           } do %>
-        <span class="dl-label"><%= smd_cta_label(score) %></span>
+        <span class="dl-label"><%= buy_cta_label(score) %></span>
       <% end %>
     <% else %>
       <%# Free: Download buttons %>
@@ -76,21 +78,38 @@
 <% else %>
   <%# Sidebar: Full labels, stacked vertically %>
   <div class="dl-stack">
-    <% if score.smd_purchasable? %>
-      <%# SMD: Buy button with helper text (teal to distinguish from free downloads) %>
+    <% if buy_path %>
+      <%# Partner: Buy button with helper text (teal to distinguish from free downloads) %>
       <%# JS-based redirect: href="#" so bots can't follow, Stimulus handles the click %>
       <%= link_to "#",
           class: "dl-btn dl-btn--primary dl-btn--buy dl-btn--full",
-          aria: { label: smd_cta_label(score) },
+          aria: { label: buy_cta_label(score) },
           data: {
-            controller: "smd-redirect",
-            smd_redirect_url_value: smd_redirect_path(smd_id: score.external_id),
-            smd_redirect_score_id_value: score.id,
-            action: "click->smd-redirect#go"
+            controller: "buy-redirect",
+            buy_redirect_url_value: buy_path,
+            buy_redirect_score_id_value: score.id,
+            buy_redirect_event_value: Ahoy::Event::CLICK_EVENTS[score.source],
+            action: "click->buy-redirect#go"
           } do %>
-        <span class="dl-label"><%= smd_cta_label(score) %></span>
+        <span class="dl-label"><%= buy_cta_label(score) %></span>
       <% end %>
-      <p class="dl-hint"><%= t('score.smd_hint') %></p>
+      <% if (minimum = minimum_order(score)) %>
+        <p class="dl-hint dl-hint--warn"><%= t("score.min_quantity", count: minimum[:quantity], total: minimum[:total]) %></p>
+      <% end %>
+      <% if (tiers = bulk_prices(score)).any? %>
+        <table class="dl-bulk">
+          <caption><%= t("score.bulk_prices") %></caption>
+          <tbody>
+            <% tiers.each do |tier| %>
+              <tr>
+                <th scope="row"><%= t("score.bulk_price_row", amount: tier[:amount]) %></th>
+                <td><%= tier[:price] %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      <% end %>
+      <p class="dl-hint"><%= t("score.#{score.source}_hint") %><% if score.price_currency == "EUR" %> · <%= t("score.price_incl_vat") %><% end %></p>
     <% else %>
       <%# Free: Download buttons %>
       <% if score.has_pdf? %>
