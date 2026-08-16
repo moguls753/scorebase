@@ -23,7 +23,7 @@ class RedirectsController < ApplicationController
       return
     end
 
-    # The buy click is tracked client-side (smd_redirect_controller.js) so only
+    # The buy click is tracked client-side (buy_redirect_controller.js) so only
     # real user clicks count — a bare GET to /go/ (bots/prefetch) must not track.
     # 302 (not 301) - temporary redirect so we can change affiliate ID or tracking later
     redirect_to smd_product_url(smd_id), allow_other_host: true

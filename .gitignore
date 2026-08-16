@@ -48,3 +48,7 @@
 # files (/sitemaps/sitemapN.xml.gz) are served once the sitemap passes 50k URLs.
 /public/sitemap*.xml.gz
 /public/sitemaps
+
+# Bytecode der Recherche-Skripte in tools/scripts
+__pycache__/
+*.pyc
