@@ -18,6 +18,16 @@ RSpec.describe "HubPages" do
   end
 
   describe "GET /genres/:slug" do
+    it "serves a genre in the serve band but keeps it off the index" do
+      7.times { create(:score, genre: "Motet", genre_status: "normalized") }
+
+      get genre_path(slug: "motet")
+      expect(response).to have_http_status(:success)
+
+      get genres_path
+      expect(response.body).not_to include("/genres/motet")
+    end
+
     it "returns success for genre with enough scores" do
       12.times { create(:score, genre: "Motet", genre_status: "normalized") }
 
@@ -221,8 +231,8 @@ RSpec.describe "HubPages" do
       expect(response.body).to include("Blasorchester Noten")
     end
 
-    it "returns 404 for a below-threshold category" do
-      5.times { create(:score, :smd, smd_category: "Concert Band") }
+    it "returns 404 below the serve threshold" do
+      3.times { create(:score, :smd, smd_category: "Concert Band") }
 
       get ensemble_path(slug: "concert-band")
       expect(response).to have_http_status(:not_found)

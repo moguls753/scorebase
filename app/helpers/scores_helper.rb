@@ -818,7 +818,7 @@ module ScoresHelper
 
   # SMD scores hang off the artist hub (falls back to composer); free scores off
   # the composer hub. Returns nil when no hub name applies (no exception on nil).
-  # Only emit a parent crumb when the hub actually exists (>= THRESHOLD scores);
+  # Only emit a parent crumb when the hub actually serves (>= SERVE_THRESHOLD scores);
   # otherwise the BreadcrumbList would point at a 404. find_by_slug is cache-backed.
   def breadcrumb_parent_hub(score)
     if score.artist.present?

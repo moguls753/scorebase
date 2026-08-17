@@ -178,16 +178,11 @@ class HubDataBuilder
     def warm_all
       Rails.logger.info "[HubDataBuilder] Starting cache warm..."
 
-      {
-        composers: build_composers,
-        artists: build_artists,
-        genres: build_genres,
-        instruments: build_instruments,
-        periods: build_periods,
-        ensembles: build_ensembles
-      }.each do |key, data|
-        Rails.cache.write("hub/#{key}", data, expires_in: CACHE_TTL)
-        Rails.logger.info "[HubDataBuilder] Cached #{data.size} #{key}"
+      %i[composers artists genres instruments periods ensembles].each do |key|
+        listed, band = send("build_#{key}", threshold: SERVE_THRESHOLD).partition { |item| item[:count] >= THRESHOLD }
+        Rails.cache.write("hub/#{key}", listed, expires_in: CACHE_TTL)
+        Rails.cache.write("hub/serve/#{key}", band, expires_in: CACHE_TTL)
+        Rails.logger.info "[HubDataBuilder] Cached #{listed.size} #{key} (+#{band.size} serve-only)"
       end
 
       warm_top_instruments
@@ -241,13 +236,18 @@ class HubDataBuilder
         return VALID_DIFFICULTIES[slug]
       end
 
-      data = public_send(type)
-      item = data.find { |i| i[:slug] == slug }
+      item = public_send(type).find { |i| i[:slug] == slug } || serve_band(type).find { |i| i[:slug] == slug }
       return nil unless item
 
-      name = item[:name]
-      count = current_count(type, name)
-      count >= THRESHOLD ? name : nil
+      current_count(type, item[:name]) >= SERVE_THRESHOLD ? item[:name] : nil
+    end
+
+    # Hubs between SERVE_THRESHOLD and THRESHOLD: neither listed nor sitemapped, but
+    # they render — so a hub dipping under THRESHOLD keeps serving instead of 404ing.
+    def serve_band(type)
+      fetch_or_build("hub/serve/#{type}") do
+        send("build_#{type}", threshold: SERVE_THRESHOLD).select { |item| item[:count] < THRESHOLD }
+      end
     end
 
     # Get count for instrument + difficulty combination
@@ -301,67 +301,67 @@ class HubDataBuilder
       Rails.cache.fetch(key, expires_in: CACHE_FALLBACK_TTL, &block)
     end
 
-    def build_composers
+    def build_composers(threshold: THRESHOLD)
       valid_composers = ComposerMapping.normalizable.pluck(:normalized_name).uniq
       composer_counts = Score.active.where(composer: valid_composers).group(:composer).count
 
-      build_hub_items(composer_counts)
+      build_hub_items(composer_counts, threshold: threshold)
     end
 
-    def build_artists
+    def build_artists(threshold: THRESHOLD)
       # Artists are SMD non-classical scores with artist field populated
       artist_counts = Score.active
                            .where.not(artist: [nil, ""])
                            .group(:artist)
                            .count
 
-      build_hub_items(artist_counts)
+      build_hub_items(artist_counts, threshold: threshold)
     end
 
-    def build_genres
+    def build_genres(threshold: THRESHOLD)
       # Count using by_genre scope (exact match + normalized) so counts match actual results
       VALID_GENRES.filter_map do |genre|
         count = Score.active.by_genre(genre).count
-        next if count < THRESHOLD
+        next if count < threshold
 
         { name: genre, slug: genre.parameterize, count: count }
       end.sort_by { |item| -item[:count] }
     end
 
-    def build_instruments
+    def build_instruments(threshold: THRESHOLD)
       # Count using LIKE matching (same as by_instrument scope) so counts match actual results
       VALID_INSTRUMENTS.filter_map do |instrument|
         count = Score.active.by_instrument(instrument).count
-        next if count < THRESHOLD
+        next if count < threshold
 
         { name: instrument.titleize, slug: instrument.parameterize, count: count }
       end.sort_by { |item| -item[:count] }
     end
 
-    def build_periods
+    def build_periods(threshold: THRESHOLD)
       PERIOD_ORDER.filter_map do |period_name|
         count = Score.active.by_period(period_name).count
-        next if count < THRESHOLD
+        next if count < threshold
 
         { name: period_name, slug: period_name.parameterize, count: count }
       end
     end
 
-    def build_ensembles
+    def build_ensembles(threshold: THRESHOLD)
       # Count deduplicated arrangements (reps + ungrouped) so each card is one
       # arrangement, not a part dump. smd_category is exact-match here.
       ENSEMBLE_CATEGORIES_FLAT.filter_map do |cat|
         count = Score.active.where(smd_category: cat).deduplicate_arrangements.count
-        next if count < THRESHOLD
+        next if count < threshold
 
         { name: cat, slug: cat.parameterize, count: count }
       end.sort_by { |item| -item[:count] }
     end
 
     # Convert counts hash to sorted hub items array
-    def build_hub_items(counts)
+    def build_hub_items(counts, threshold: THRESHOLD)
       counts
-        .select { |_, count| count >= THRESHOLD }
+        .select { |_, count| count >= threshold }
         .sort_by { |_, count| -count }
         .map do |name, count|
           if block_given?
@@ -370,6 +370,7 @@ class HubDataBuilder
             { name: name, slug: name.parameterize, count: count }
           end
         end
+        .reject { |item| item[:slug].blank? } # a fully non-Latin name parameterizes to "", which is not a URL
     end
   end
 end

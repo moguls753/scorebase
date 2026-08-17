@@ -125,15 +125,39 @@ RSpec.describe HubDataBuilder do
       expect(described_class.find_by_slug(:ensembles, "concert-band")).to eq("Concert Band")
     end
 
+    it "serves a hub between SERVE_THRESHOLD and THRESHOLD without listing it" do
+      7.times { create(:score, genre: "Motet", genre_status: "normalized") }
+
+      expect(described_class.find_by_slug(:genres, "motet")).to eq("Motet")
+      expect(described_class.genres.map { |g| g[:slug] }).not_to include("motet")
+    end
+
+    it "returns nil below SERVE_THRESHOLD" do
+      4.times { create(:score, genre: "Motet", genre_status: "normalized") }
+
+      expect(described_class.find_by_slug(:genres, "motet")).to be_nil
+    end
+
+    # The listed hub is the case that used to 404: it is in this morning's list at 12
+    # and drops to 7 by noon, so the gate has to read SERVE_THRESHOLD, not THRESHOLD.
+    it "keeps serving a listed hub whose live count fell below THRESHOLD" do
+      scores = 12.times.map { create(:score, genre: "Motet", genre_status: "normalized") }
+      expect(described_class.genres.map { |g| g[:slug] }).to include("motet")
+
+      scores.last(5).each(&:destroy)
+
+      expect(described_class.find_by_slug(:genres, "motet")).to eq("Motet")
+    end
+
     it "returns nil for a bogus ensemble slug" do
       expect(described_class.find_by_slug(:ensembles, "nonexistent")).to be_nil
     end
 
     it "gates an ensemble on the deduped rep count, not part-inflated rows" do
-      # 5 reps (< THRESHOLD) + 6 hidden members of one arrangement. Without
+      # 3 reps (< SERVE_THRESHOLD) + 8 hidden members of one arrangement. Without
       # deduplicate_arrangements the 11 rows would wrongly qualify the category.
-      5.times { create(:score, :smd, smd_category: "Concert Band") }
-      6.times { create(:score, :smd, smd_category: "Concert Band", group_key: "g", is_group_representative: false) }
+      3.times { create(:score, :smd, smd_category: "Concert Band") }
+      8.times { create(:score, :smd, smd_category: "Concert Band", group_key: "g", is_group_representative: false) }
 
       expect(described_class.find_by_slug(:ensembles, "concert-band")).to be_nil
     end
@@ -143,10 +167,10 @@ RSpec.describe HubDataBuilder do
       Rails.cache.delete("hub/ensembles")
       expect(described_class.ensembles.find { |e| e[:slug] == "concert-band" }).to be_present
 
-      # 5 reps + 6 members: raw rows (11) still >= THRESHOLD, deduped (5) < THRESHOLD.
+      # 3 reps + 8 members: raw rows (11) still >= THRESHOLD, deduped (3) < SERVE_THRESHOLD.
       # current_count must recount deduped -> nil despite the stale cache listing it.
-      reps.last(7).each(&:destroy)
-      6.times { create(:score, :smd, smd_category: "Concert Band", group_key: "g", is_group_representative: false) }
+      reps.last(9).each(&:destroy)
+      8.times { create(:score, :smd, smd_category: "Concert Band", group_key: "g", is_group_representative: false) }
 
       expect(described_class.find_by_slug(:ensembles, "concert-band")).to be_nil
     end
