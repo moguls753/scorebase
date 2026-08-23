@@ -208,6 +208,13 @@ RSpec.describe ScoresHelper, type: :helper do
       expect(data).not_to have_key('aggregateRating')
     end
 
+    it 'falls back to the site image when the partner gives no thumbnail' do
+      score = build(:score, :stretta)
+      data = ld(score)
+
+      expect(data['image']).to eq("#{helper.request.base_url}/og-image.png")
+    end
+
     it 'emits a free MusicComposition with no Offer and accessible-for-free' do
       score = build(:score)
       data = ld(score)

@@ -697,7 +697,8 @@ module ScoresHelper
     data["isAccessibleForFree"] = true unless commercial
 
     if commercial
-      data["image"] = score.thumbnail if score.thumbnail.present?
+      # Merchant listings require "image" on every Product page, so this can't be conditional.
+      data["image"] = score.thumbnail.presence || "#{request.base_url}/og-image.png"
       data["brand"] = { "@type" => "Brand", "name" => score.brand } if score.brand.present?
       offer = {
         "@type" => "Offer",
