@@ -17,14 +17,14 @@
     </div>
     <div class="bg-violet-50 rounded-lg p-4">
       <div class="text-2xl font-bold text-violet-600"><%= funnel[:conversion_rate] ? "#{funnel[:conversion_rate]}%" : "—" %></div>
-      <div class="text-sm text-gray-500">Buy Rate<%= " · #{number_with_delimiter(funnel[:converting])} of #{number_with_delimiter(funnel[:page_visits])}" if funnel[:conversion_rate] %></div>
+      <div class="text-sm text-gray-500">Buy Click Rate<%= " · #{number_with_delimiter(funnel[:converting])} of #{number_with_delimiter(funnel[:page_visits])}" if funnel[:conversion_rate] %></div>
     </div>
   </div>
 <% end %>
 
 <p class="mt-6 text-xs text-gray-500 leading-relaxed">
   The funnel reads left to right, per partner: real people arrive, some reach a paid score page, some of those click through to buy.
-  <strong>Buy Rate</strong> divides converting visits by the ones that reached a paid page — not by all traffic — so it measures the step you can
+  <strong>Buy Click Rate</strong> divides converting visits by the ones that reached a paid page — not by all traffic — so it measures the step you can
   actually influence. <strong>Human Visits</strong> uses the same definition and window as the Analytics dashboard, so the two pages are comparable.
   Buy Clicks counts every click (two editions, or two clicks, each count); converting visits counts distinct people.
 </p>
