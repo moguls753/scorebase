@@ -29,10 +29,7 @@ class RedirectsController < ApplicationController
     redirect_to smd_product_url(smd_id), allow_other_host: true
   end
 
-  # Measured 2026-08-15 against the live shop: the slug URL answers 200 and keeps
-  # ?afl=, while /x-nr-<id>.html answers 301 to the slug URL *without* the query
-  # string — that form silently drops the affiliate code, and with settlement only
-  # in February the loss would go unnoticed for half a year.
+  # The ID-only URL redirects to the canonical slug and drops affiliate attribution.
   def stretta
     id = params[:id]
 

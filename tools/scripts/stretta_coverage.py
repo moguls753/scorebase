@@ -1,9 +1,6 @@
 """Misst, wie viel von ScoreBases geklicktem freiem Repertoire Stretta abdeckt.
 
-Erzeugt die Zahlen in tools/stretta-api-evidence-2026-08-14.md §Abdeckung
-("90 % der Komponisten, 42 % der Werke").
-
-Vorbereitung — GSC-Seitendaten holen (siehe CLAUDE.md, tools/gsc.rb):
+Vorbereitung — GSC-Seitendaten holen (siehe tools/gsc.rb):
 
     ruby tools/gsc.rb query --dimensions page --days 90 --filter "page~~/scores/" \
       > /tmp/gsc-pages.json
