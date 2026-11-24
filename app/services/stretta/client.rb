@@ -60,13 +60,19 @@ module Stretta
 
     # Products for the given handles, in batches. Handles the API no longer knows
     # are simply absent from the result — 8.2% of sitemap ids are dead.
-    def products(handles)
-      return enum_for(:products, handles) unless block_given?
+    def products(handles, verify_metadata: false, &block)
+      return enum_for(:products, handles, verify_metadata: verify_metadata) unless block
 
+      each_product_batch(handles, verify_metadata: verify_metadata) { |_batch, products| products.each(&block) }
+    end
+
+    # Yield only successful requests, including confirmed misses. The refresh rotates
+    # these handles but leaves a failed batch eligible for the next pass.
+    def each_product_batch(handles, verify_metadata: true)
       consecutive_failures = 0
       handles.each_slice(@batch_size) do |batch|
         begin
-          data = post(batch_query(batch))
+          products = fetch_batch!(batch, verify_metadata: verify_metadata)
         rescue Error => e
           consecutive_failures += 1
           raise Aborted, "#{consecutive_failures} batches in a row failed: #{e.message}" if
@@ -77,12 +83,28 @@ module Stretta
         end
 
         consecutive_failures = 0
-        batch.each_with_index do |handle, index|
-          node = data["p#{index}"]
-          yield Product.from_graphql(node) if node
+        yield batch, products
+      end
+    end
+
+    def fetch_batch!(handles, verify_metadata:)
+      raise ArgumentError, "expected 1..#{BATCH_SIZE} handles" unless (1..BATCH_SIZE).cover?(handles.size)
+
+      post(batch_query(handles)) do |data, errors|
+        raise Error, "partial GraphQL response" if verify_metadata && errors.present?
+
+        handles.each_with_index.filter_map do |handle, index|
+          key = "p#{index}"
+          node = data[key]
+          if verify_metadata && (!data.key?(key) || (!node.nil? && !(node.is_a?(Hash) && node["handle"] == handle.to_s)))
+            raise Error, "missing or unexpected product alias #{key}"
+          end
+          Product.from_graphql(node, verify_metadata: verify_metadata) if node
         end
       end
     end
+
+    private :fetch_batch!
 
     # Newest first, for the weekly pass. The caller decides when to stop (by
     # breaking out) — a date watermark cannot work here, because our created_at is
@@ -128,6 +150,7 @@ module Stretta
         attempt += 1
         body = JSON.parse(request(query).body)
         data = body["data"]
+        raise Error, "missing GraphQL data" unless data.is_a?(Hash)
         # A batch-wide failure still comes back as {"p0"=>nil, "p1"=>nil, ...} — a
         # Hash#blank? check alone misses it, since a Hash with keys is never blank
         # however many of its values are nil, and that shape would otherwise read
@@ -135,7 +158,7 @@ module Stretta
         no_usable_data = data.blank? || data.values.all?(&:blank?)
         raise Error, body["errors"].to_s if body["errors"].present? && no_usable_data
 
-        body.fetch("data")
+        block_given? ? yield(data, body["errors"]) : data
       rescue Error, JSON::ParserError, KeyError, Net::HTTPBadResponse, IOError, SystemCallError, Timeout::Error => e
         raise Error, "#{e.class}: #{e.message}" if attempt >= MAX_ATTEMPTS
 

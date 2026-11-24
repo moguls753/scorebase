@@ -12,6 +12,26 @@ RSpec.describe Stretta::Client do
     { data: data, errors: errors }.compact.to_json
   end
 
+  describe "#each_product_batch" do
+    let(:node) { { "handle" => "a", "texts" => nil, "previewPdfs" => nil } }
+
+    it "distinguishes a confirmed missing product from a present product without search metadata" do
+      stub_request(:post, endpoint).to_return(status: 200, body: graphql_body(data: { p0: node, p1: nil }))
+      expect { |b| client.each_product_batch(%w[a b], &b) }
+        .to yield_with_args(%w[a b], contain_exactly(include(handle: "a", description: nil, preview_pdfs: [])))
+    end
+
+    it "does not acknowledge missing aliases, partial GraphQL errors or a corrupted metafield" do
+      [graphql_body(data: { p0: node }),
+       graphql_body(data: { p0: node, p1: nil }, errors: [{ message: "throttled" }]),
+       graphql_body(data: { p0: node.except("texts"), p1: nil }),
+       graphql_body(data: { p0: node.merge("previewPdfs" => { "value" => "invalid JSON" }), p1: nil })].each do |body|
+        stub_request(:post, endpoint).to_return(status: 200, body: body)
+        expect { |b| client.each_product_batch(%w[a b], &b) }.not_to yield_control
+      end
+    end
+  end
+
   describe "#products" do
     it "yields nothing for a handle the API doesn't know, with a single request" do
       stub_request(:post, endpoint)

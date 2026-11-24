@@ -17,6 +17,38 @@ RSpec.describe Stretta::Importer do
     expect(stats).to include(allowlist: 1, denylist: 1, written: 1)
   end
 
+  it "imports the publisher's description, contents and ordered preview references from the API" do
+    texts = { title: "Duo album", instrument: "Violine, Klavier",
+              description: "First position throughout.", content: "I. Air\nII. Gigue" }
+    previews = %w[010/score.pdf 010/part.pdf]
+    item = Stretta::Product.from_graphql({
+      "handle" => "10", "availableForSale" => true,
+      "texts" => { "value" => texts.to_json }, "previewPdfs" => { "value" => previews.to_json }
+    })
+
+    stats = described_class.new.import([item])
+
+    expect(stats).to include(empty_itemtype_corroborated: 1, written: 1)
+    expect(Score.find_by!(source: "stretta", external_id: "10").stretta_metadata).to include(
+      "description" => texts[:description], "content" => texts[:content], "preview_pdfs" => previews
+    )
+  end
+
+  it "adds the new metadata on refresh and leaves updated_at alone on an identical re-import" do
+    described_class.new.import([product])
+    score = Score.find_by!(source: "stretta", external_id: "148059")
+    expect(score.stretta_metadata.keys & %w[description content preview_pdfs]).to be_empty
+
+    enriched = product(description: "Organ arrangement", content: "Prelude", preview_pdfs: ["059/preview.pdf"])
+    described_class.new.import([enriched])
+    expect(score.reload.stretta_metadata).to include("description" => "Organ arrangement", "content" => "Prelude",
+                                                     "preview_pdfs" => ["059/preview.pdf"])
+
+    travel_to(1.day.from_now) do
+      expect { described_class.new.import([enriched]) }.not_to change { score.reload.updated_at }
+    end
+  end
+
   # The columns another job owns. Without this the sync writes back the raw name
   # that NormalizeComposersJob canonicalised the night before, and the row drops off
   # its hub and into the LLM queue — every single day.

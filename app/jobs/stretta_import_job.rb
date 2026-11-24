@@ -12,7 +12,7 @@ class StrettaImportJob < ApplicationJob
     client ||= Stretta::Client.new
     importer = Stretta::Importer.new(regroup: regroup)
 
-    stats = importer.import(client.products(handles))
+    stats = importer.import(client.products(handles, verify_metadata: true))
     logger.info "[StrettaImport] #{handles.size} handles -> #{stats}"
     stats
   end

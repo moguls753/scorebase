@@ -178,7 +178,7 @@ module Stretta
         classification_reason: classification_reason
       }.slice(*METADATA_KEYS).compact_blank
 
-      { stretta_metadata: metadata }
+      { stretta_metadata: metadata.merge(product.slice(*Product::SEARCH_FIELDS).compact_blank) }
     end
   end
 end

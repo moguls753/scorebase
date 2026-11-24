@@ -43,11 +43,11 @@ RSpec.describe Stretta::Classifier do
     end
 
     it "reads the shape the API client actually produces" do
-      product = Stretta::Product.from_graphql(
+      product = Stretta::Product.from_graphql({
         "handle" => "1", "availableForSale" => true,
         "texts" => { "value" => { title: "Werk", instrument: "Orgel", itemtype: "" }.to_json },
         "pages" => { "value" => '["20"]' }
-      )
+      })
 
       expect(described_class.classify(product)).to have_attributes(accepted?: true,
                                                                   reason: :empty_itemtype_corroborated)
