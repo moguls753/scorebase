@@ -85,6 +85,27 @@ RSpec.describe "SmartSearch", type: :request do
         expect(response).to have_http_status(:ok)
       end
 
+      it "does not cache an answer from a request started before index cutover" do
+        Dir.mktmpdir do |dir|
+          marker = File.join(dir, "cutover")
+          stub_const("SmartSearchQuery::CACHE_CUTOVER_FILE", marker)
+          start = Time.current.change(usec: 0)
+          travel_to(start)
+          allow(RagSearch).to receive(:smart_search) do
+            FileUtils.touch(marker, mtime: (start + 1.second).to_time)
+            travel_to(start + 2.seconds)
+            RagSearch::Result.new(rag_payload)
+          end
+          get smart_search_path(q: query)
+          expect(response).to have_http_status(:ok)
+          expect(SmartSearchQuery.recent_initial_for(query)).to be_nil
+          get smart_search_path(q: query)
+          expect(SmartSearchQuery.recent_initial_for(query)).to be_present
+        ensure
+          travel_back
+        end
+      end
+
       it "does NOT match an old row" do
         create(:smart_search_query, query: query, created_at: 8.hours.ago)
         allow(RagSearch).to receive(:smart_search).and_return(RagSearch::Result.new(rag_payload))

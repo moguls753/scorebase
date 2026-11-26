@@ -147,6 +147,7 @@ class SmartSearchController < ApplicationController
     SmartSearchQuery.create!(
       query: @query,
       query_type: :initial,
+      created_at: started, # A request already in flight at index cutover belongs to the old cache.
       ip_hash: hashed_ip,
       result_count: rag_result.score_ids.size,
       score_ids: rag_result.score_ids,

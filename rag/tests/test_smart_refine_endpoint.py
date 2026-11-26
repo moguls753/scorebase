@@ -96,17 +96,21 @@ def test_empty_recommendations(client, valid_body):
     assert response.status_code == 422
 
 
-def test_503_when_pipeline_raises(client, valid_body, monkeypatch):
+@pytest.mark.parametrize("busy", [True, False])
+def test_503_when_pipeline_raises(client, valid_body, monkeypatch, busy):
     monkeypatch.setenv("DEEPSEEK_API_KEY", "test")
 
+    from src.pipeline import SearchBusy
+
     def boom(**_kwargs):
-        raise RuntimeError("LLM exploded")
+        raise SearchBusy() if busy else RuntimeError("LLM exploded")
 
     from src.pipeline import search as search_module
     monkeypatch.setattr(search_module, "smart_refine", boom, raising=False)
 
     response = client.post("/smart-refine", json=valid_body)
     assert response.status_code == 503
+    assert ("retry-after" in response.headers) == busy
 
 
 def test_schema_parity_with_smart_search(client, valid_body, stub_pipeline, monkeypatch):

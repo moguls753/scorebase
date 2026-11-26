@@ -1,12 +1,20 @@
 """Database access for Rails SQLite."""
 
+import os
 import sqlite3
 from . import config
 
 
 def get_connection():
     """Get SQLite connection to Rails database."""
+    if os.environ.get("MLATEON_INDEX_PATH"):
+        return read_only_connection()
     return sqlite3.connect(config.RAILS_DB_PATH)
+
+
+def read_only_connection():
+    uri = config.RAILS_DB_PATH.resolve().as_uri() + "?mode=ro"
+    return sqlite3.connect(uri, uri=True)
 
 
 def get_templated_scores(limit: int = 100) -> list[dict]:
@@ -92,7 +100,31 @@ def get_active_score_ids() -> set[int]:
 
 
 # Mirrors Score::COMMERCIAL_PARTNERS -- each partner prices in its own currency column.
-COMMERCIAL_PRICE_COLUMNS = {"smd": "price_usd"}
+COMMERCIAL_PRICE_COLUMNS = {"smd": "price_usd", "stretta": "price_eur"}
+
+
+def _source_metadata(row):
+    column = COMMERCIAL_PRICE_COLUMNS.get(row["source"])
+    price = row[column] if column else None
+    return {"source": row["source"] or "unknown", "commercial": price is not None and price > 0}
+
+
+def get_smart_candidate_rows(ids: list[int]) -> dict[int, dict]:
+    """Hydrate currently searchable editions and their partner status in one read."""
+    if not ids:
+        return {}
+    conn = read_only_connection()
+    try:
+        conn.row_factory = sqlite3.Row
+        placeholders = ",".join("?" * len(ids))
+        prices = ", ".join(sorted(set(COMMERCIAL_PRICE_COLUMNS.values())))
+        rows = conn.execute(f"""SELECT id, title, search_text, source, {prices} FROM scores
+            WHERE id IN ({placeholders}) AND deleted_at IS NULL
+              AND rag_status IN ('templated', 'indexed') AND search_text IS NOT NULL""", ids)
+        return {r["id"]: {"score_id": r["id"], "title": r["title"] or "Untitled",
+                          "content": r["search_text"], **_source_metadata(r)} for r in rows}
+    finally:
+        conn.close()
 
 
 def get_score_metadata(ids: list[int]) -> dict[int, dict]:
@@ -114,14 +146,7 @@ def get_score_metadata(ids: list[int]) -> dict[int, dict]:
         WHERE id IN ({placeholders})
     """, ids)
 
-    result = {}
-    for row in cursor.fetchall():
-        price_column = COMMERCIAL_PRICE_COLUMNS.get(row["source"])
-        price = row[price_column] if price_column else None
-        result[row["id"]] = {
-            "source": row["source"] or "unknown",
-            "commercial": bool(price is not None and price > 0),
-        }
+    result = {r["id"]: _source_metadata(r) for r in cursor.fetchall()}
     conn.close()
     return result
 

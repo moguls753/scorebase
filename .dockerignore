@@ -30,6 +30,13 @@
 /tmp/storage/*
 !/tmp/storage/.keep
 
+# RAG release artifacts and local Python environment do not belong in the Rails image.
+/rag/data/
+/rag/.venv/
+/rag/venv/
+/rag/.env*
+**/tokens.f16
+
 # Ignore assets.
 /node_modules/
 /app/assets/builds/*

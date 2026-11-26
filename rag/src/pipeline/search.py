@@ -1,11 +1,7 @@
-"""Search pipeline using Haystack + LLM result selection."""
+"""Candidate retrieval and LLM result selection."""
 
 import logging
 import os
-from haystack import Pipeline
-from haystack.components.embedders import SentenceTransformersTextEmbedder
-from haystack_integrations.document_stores.chroma import ChromaDocumentStore
-from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRetriever
 
 from .. import config, db
 from ..llm import ResultSelector
@@ -17,12 +13,17 @@ logger = logging.getLogger(__name__)
 _pipeline = None
 
 
-def get_pipeline() -> Pipeline:
-    """Get or create search pipeline (cached)."""
+def get_pipeline():
+    """Legacy Chroma path for development without an mLateOn snapshot."""
     global _pipeline
 
     if _pipeline is not None:
         return _pipeline
+
+    from haystack import Pipeline
+    from haystack.components.embedders import SentenceTransformersTextEmbedder
+    from haystack_integrations.document_stores.chroma import ChromaDocumentStore
+    from haystack_integrations.components.retrievers.chroma import ChromaEmbeddingRetriever
 
     # Connect to ChromaDB
     document_store = ChromaDocumentStore(persist_path=str(config.CHROMA_PATH))
@@ -63,8 +64,11 @@ def search(query: str, top_k: int = 10) -> list[dict]:
     Returns:
         List of results with score_id, content (LLM description), similarity
     """
-    pipeline = get_pipeline()
+    if path := os.environ.get("MLATEON_INDEX_PATH"):
+        from . import mlateon
+        return mlateon.search(path, query, top_k)
 
+    pipeline = get_pipeline()
     embed_query = normalize_for_embedding(query)
     if embed_query != query:
         logger.debug("Normalized query for embedding: %r -> %r", query, embed_query)
@@ -91,12 +95,20 @@ def search(query: str, top_k: int = 10) -> list[dict]:
     ]
 
 
-def smart_search(query: str, top_k: int = 15, num_recommendations: int = 3) -> dict:
+def smart_candidates(query: str, top_k: int | None = None) -> list[dict]:
+    if os.environ.get("MLATEON_INDEX_PATH"):
+        limit = 30 if top_k is None else min(top_k, 30)
+    else:
+        limit = 15 if top_k is None else top_k
+    return search(query, top_k=limit)
+
+
+def smart_search(query: str, top_k: int | None = None, num_recommendations: int = 3) -> dict:
     """Search with LLM-powered result selection and explanations.
 
     Args:
         query: Natural language search (e.g., "easy Bach for piano")
-        top_k: Number of candidates for LLM to consider (default 15)
+        top_k: Candidate limit (default 30 for mLateOn, 15 for Chroma)
         num_recommendations: Number of final recommendations (default 3)
 
     Returns:
@@ -107,7 +119,7 @@ def smart_search(query: str, top_k: int = 15, num_recommendations: int = 3) -> d
         - raw_results: original vector search results (for debugging)
     """
     # Step 1: Vector search for candidates
-    raw_results = search(query, top_k=top_k)
+    raw_results = smart_candidates(query, top_k=top_k)
 
     if not raw_results:
         return {
@@ -147,14 +159,14 @@ def smart_refine(
     refinement: str,
     previous_summary: str,
     previous_recommendations: list[dict],
-    top_k: int = 15,
+    top_k: int | None = None,
 ) -> dict:
     """LLM-powered refinement: re-search with the enriched query, rerank with previous-turn context.
 
     Same return shape as smart_search().
     """
     enriched_query = f"{original_query} {refinement}"
-    candidates = search(enriched_query, top_k=top_k)
+    candidates = smart_candidates(enriched_query, top_k=top_k)
 
     selector = ResultSelector()
     selection = selector.select_with_refinement(
@@ -189,17 +201,17 @@ def main():
                         help="Search query")
     parser.add_argument("--smart", action="store_true",
                         help="Use LLM-powered smart search with explanations")
-    parser.add_argument("--top-k", type=int, default=15,
-                        help="Number of candidates (default 15)")
+    parser.add_argument("--top-k", type=int, help="Override the default candidate count")
     args = parser.parse_args()
 
     query = " ".join(args.query)
     print(f"Searching: '{query}'\n")
 
     if args.smart:
-        # Smart search with LLM selection
-        if not os.environ.get("GROQ_API_KEY"):
-            print("Error: GROQ_API_KEY not set for smart search")
+        from ..llm.factory import required_api_key_env_var
+        key = required_api_key_env_var()
+        if key and not os.environ.get(key):
+            print(f"Error: {key} not set for smart search")
             return
 
         print("Using smart search (LLM-powered)...\n")
@@ -215,7 +227,7 @@ def main():
         print(f"\n(Selected from {len(result['raw_results'])} candidates)")
     else:
         # Basic vector search
-        results = search(query, top_k=args.top_k)
+        results = search(query, top_k=args.top_k if args.top_k is not None else 15)
 
         for i, r in enumerate(results, 1):
             print(f"{i}. Score ID: {r['score_id']}")

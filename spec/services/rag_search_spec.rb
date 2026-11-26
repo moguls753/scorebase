@@ -21,6 +21,13 @@ RSpec.describe RagSearch do
     end
   end
 
+  describe ".smart_search" do
+    it "leaves the candidate count to the search service" do
+      stub_request(:get, "#{RagSearch::RAG_API_URL}/smart-search").with(query: { q: "duet" }).to_return(body: "{}")
+      expect(RagSearch.smart_search("duet").success).to be true
+    end
+  end
+
   describe ".smart_refine" do
     let(:body) {
       {

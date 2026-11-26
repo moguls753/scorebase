@@ -79,7 +79,6 @@ module SmartSearchEval
       record = base.merge(query: query)
       record[:vector] = vector_search(query)
       record[:smart] = smart_search(query)
-      record[:index_coverage] = coverage_signal(query)
       record
     end
 
@@ -90,7 +89,6 @@ module SmartSearchEval
       record = base.merge(query: query, refinement_text: refinement)
       record[:vector] = vector_search(query)
       record[:smart] = smart_search(query)
-      record[:index_coverage] = coverage_signal(query)
       record[:refine] =
         if record[:smart].is_a?(Hash) && record[:smart][:success] && record[:smart][:recommendations].present?
           smart_refine(
@@ -130,7 +128,7 @@ module SmartSearchEval
       return { skipped: true, reason: "blank query" } if query.to_s.strip.empty?
       timed do
         uri = URI("#{rag_url}/search")
-        uri.query = URI.encode_www_form(q: query, top_k: 20)
+        uri.query = URI.encode_www_form(q: query, top_k: 30)
         response = Net::HTTP.get_response(uri)
         if response.is_a?(Net::HTTPSuccess)
           body = JSON.parse(response.body)
@@ -150,7 +148,7 @@ module SmartSearchEval
       return { skipped: true, reason: "blank query" } if query.to_s.strip.empty?
       timed do
         uri = URI("#{rag_url}/smart-search")
-        uri.query = URI.encode_www_form(q: query, top_k: 15)
+        uri.query = URI.encode_www_form(q: query)
         response = Net::HTTP.get_response(uri)
         if response.is_a?(Net::HTTPSuccess)
           body = JSON.parse(response.body)
@@ -246,32 +244,18 @@ module SmartSearchEval
       }
     end
 
-    # Per-query index-coverage signal — a small set of catalog stats we can
-    # compute cheaply from the local DB. Helps the analyzer separate "model
-    # failed" from "answer wasn't in the candidate pool."
-    def coverage_signal(query)
-      {
-        "indexed_total" => Score.where(rag_status: "indexed").count,
-        "catalog_total" => Score.count,
-        "active_total" => Score.active.count
-      }
-    rescue StandardError
-      {}
-    end
-
     def build_metadata
       {
         timestamp: Time.now.utc.iso8601,
         rag_url: rag_url,
         llm_backend: ENV.fetch("LLM_BACKEND", "deepseek"),
         llm_model: ENV["DEEPSEEK_MODEL"] || ENV["GROQ_MODEL"] || ENV["LMSTUDIO_MODEL"],
-        embedding_model: "paraphrase-multilingual-MiniLM-L12-v2",
         code_sha: git_sha,
         catalog: {
           total_scores: safely { Score.count },
           active_scores: safely { Score.active.count },
-          indexed_scores: safely { Score.where(rag_status: "indexed").count },
-          most_recent_indexed_at: safely { Score.where(rag_status: "indexed").maximum(:indexed_at)&.iso8601 }
+          catalogue_status_indexed: safely { Score.where(rag_status: "indexed").count },
+          most_recent_catalogue_indexed_at: safely { Score.where(rag_status: "indexed").maximum(:indexed_at)&.iso8601 }
         }
       }
     end

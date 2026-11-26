@@ -28,7 +28,7 @@ namespace :rag do
         search_text_generated_at: nil
       )
     puts "Reset #{count} SMD scores to rag_status=ready"
-    puts "Next: delete Chroma entries via `bin/kamal accessory exec rag --reuse \"python -m src.pipeline.reset_smd\"`"
+    puts "Next: generate new search texts, then build a fresh mLateOn index."
   end
 
   desc "Reset search_text generation. SCOPE=failed|templated|all"
@@ -67,6 +67,11 @@ namespace :rag do
 
     puts "Marked #{count} scores as ready for RAG"
     print_rag_stats
+  end
+
+  desc "Stop reusing initial Smart Search answers issued before this retrieval cutover"
+  task cutover_cache: :environment do
+    FileUtils.touch(SmartSearchQuery::CACHE_CUTOVER_FILE)
   end
 
   desc "Show normalization and RAG pipeline stats"
@@ -158,8 +163,9 @@ namespace :rag do
 
     puts "Eligible (pass ready_for_rag?):  #{rag_ready_count} ← run rag:mark_ready"
     puts "Ready (awaiting templating):     #{ready} ← run rag:generate"
-    puts "Templated (awaiting indexing):   #{templated} ← run python indexer"
-    puts "Indexed (in ChromaDB):           #{indexed}"
+    puts "Templated (catalogue status):      #{templated}"
+    puts "Indexed (catalogue status):      #{indexed}"
+    puts "Use the mLateOn index check for actual coverage; snapshot builds do not change Rails statuses."
     puts "Failed:                          #{failed}" if failed > 0
 
     # ─────────────────────────────────────────────────────────────────
@@ -197,7 +203,7 @@ namespace :rag do
       puts "  2. bin/rails rag:generate LIMIT=1000  # Generate search_text"
     end
     if templated > 0
-      puts "  3. cd rag && python -m rag.src.pipeline.indexer -1  # Index to ChromaDB"
+      puts "  3. Compare the current mLateOn index with the catalogue; rebuild from a snapshot on drift."
     end
     if rag_ready_count == 0 && ready == 0 && templated == 0
       puts "  Run normalization tasks to grow the RAG-ready pool"

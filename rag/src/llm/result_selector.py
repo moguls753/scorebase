@@ -46,7 +46,7 @@ Your job is to pick the BEST matches and explain why each one fits the user's ne
 - Address the user directly ("This piece would work well for your student…").
 - Use the `summary` field to acknowledge any limitations of the result set (e.g. "The catalog has only a few matches for this query"). Do not put limitations in an individual explanation.
 - Use the `score_id` exactly as it appears in the search results. Do not invent or modify IDs.
-- Each candidate has a `source` (pdmx, cpdl, imslp, openscore-lieder, openscore-quartets = free public domain; smd = commercial / paid) and a `commercial` boolean. Use these for selection:
+- Each candidate has a catalogue `source` and a `commercial` boolean indicating a positive partner price. Use these for selection:
   - If the user explicitly asks for free / public-domain / no-cost / "free PDF" content, prefer candidates with `commercial: false`.
   - If the user asks for commercial / paid / professional / Hal Leonard / publisher arrangements, prefer `commercial: true`.
   - Otherwise mix freely based on musical fit. Do NOT mention `source` or commercial status in the `explanation` — the UI shows a visual badge for that. Just let it influence selection.
@@ -106,7 +106,7 @@ abandon the original intent unless the refinement explicitly contradicts it.
 - You MAY briefly contrast with a prior pick if it adds clarity (e.g. "More accessible than the Op.10 set I suggested before"), but contrast is optional. Do not force it onto every pick.
 - Use the `summary` to acknowledge the refinement and any limitations (e.g. "The catalog has only a few works that match both your original request and the refinement").
 - Use the `score_id` exactly as it appears in the candidates. Do not invent or modify IDs.
-- Each candidate has a `source` (pdmx, cpdl, imslp, openscore-lieder, openscore-quartets = free public domain; smd = commercial / paid) and a `commercial` boolean. If the user's original query or refinement asks for free / public-domain content, prefer `commercial: false`. If they ask for commercial / paid / publisher arrangements, prefer `commercial: true`. Otherwise mix freely. Do NOT mention source or commercial status in `explanation` — UI shows a badge.
+- Each candidate has a catalogue `source` and a `commercial` boolean indicating a positive partner price. If the user's original query or refinement asks for free / public-domain content, prefer `commercial: false`. If they ask for commercial / paid / publisher arrangements, prefer `commercial: true`. Otherwise mix freely. Do NOT mention source or commercial status in `explanation` — UI shows a badge.
 - Write `summary` and every `explanation` in the same language as the user's refinement (or the original query if the refinement is too short to tell).
 - Output valid JSON in the exact format specified below.
 </rules>
@@ -194,6 +194,26 @@ abandon the original intent unless the refinement explicitly contradicts it.
         parsed = self._parse_response(response)
         return response, parsed
 
+    @staticmethod
+    def _candidate_picks(parsed, search_results, limit):
+        # Some models quote IDs in JSON. Accept only an exact candidate ID or its
+        # exact string form; do not coerce arbitrary numbers or guess a match.
+        remaining = {str(r['score_id']): r['score_id'] for r in search_results
+                     if isinstance(r.get('score_id'), int)}
+        picks = []
+        for rec in parsed.get('recommendations', []):
+            if not isinstance(rec, dict):
+                continue
+            sid = remaining.pop(str(rec.get('score_id')), None)
+            if sid is None:
+                logger.warning('Dropping unknown or repeated candidate ID: %r', rec.get('score_id'))
+                continue
+            picks.append(Recommendation(score_id=sid, title=rec.get('title') or 'Untitled',
+                                        explanation=rec.get('explanation', ''), rank=len(picks) + 1))
+            if len(picks) >= limit:
+                break
+        return picks
+
     def select(
         self,
         query: str,
@@ -249,21 +269,7 @@ abandon the original intent unless the refinement explicitly contradicts it.
                     error="Parse error"
                 )
 
-            valid_ids = {r.get("score_id") for r in search_results if r.get("score_id") is not None}
-            recommendations = []
-            for rec in parsed.get("recommendations", []):
-                sid = rec.get("score_id")
-                if sid not in valid_ids:
-                    logger.warning(f"Dropping pick with non-candidate score_id={sid!r} for query: {query[:50]}")
-                    continue
-                recommendations.append(Recommendation(
-                    score_id=sid,
-                    title=rec.get("title") or "Untitled",
-                    explanation=rec.get("explanation", ""),
-                    rank=len(recommendations) + 1,
-                ))
-                if len(recommendations) >= num_recommendations:
-                    break
+            recommendations = self._candidate_picks(parsed, search_results, num_recommendations)
 
             summary = parsed.get("summary", "Here are my recommendations.")
 
@@ -338,21 +344,7 @@ abandon the original intent unless the refinement explicitly contradicts it.
                     error="Parse error",
                 )
 
-            valid_ids = {r.get("score_id") for r in search_results if r.get("score_id") is not None}
-            recommendations = []
-            for rec in parsed.get("recommendations", []):
-                sid = rec.get("score_id")
-                if sid not in valid_ids:
-                    logger.warning(f"Dropping refinement pick with non-candidate score_id={sid!r}")
-                    continue
-                recommendations.append(Recommendation(
-                    score_id=sid,
-                    title=rec.get("title") or "Untitled",
-                    explanation=rec.get("explanation", ""),
-                    rank=len(recommendations) + 1,
-                ))
-                if len(recommendations) >= num_recommendations:
-                    break
+            recommendations = self._candidate_picks(parsed, search_results, num_recommendations)
 
             return SelectionResult(
                 recommendations=recommendations,

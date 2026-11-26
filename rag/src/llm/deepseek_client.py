@@ -11,20 +11,15 @@ logger = logging.getLogger(__name__)
 class DeepSeekConfig:
     """Configuration for DeepSeek API.
 
-    Default model is deepseek-v4-flash with thinking mode forced off in
-    chat() via extra_body. Thinking mode was evaluated on 2026-04-29 (then
-    via deepseek-reasoner) and rolled back: it produced 16% empty results
-    (hallucinated score_ids that the whitelist correctly dropped) and 40%
-    refinement parse failures. Non-thinking is faster and far more reliable
-    for the schema-bound rerank task. Legacy deepseek-chat retires on
-    2026-07-24; v4-flash non-thinking is the same backend.
+    Use the current Flash API name, not the retired version-specific alias.
+    Thinking is disabled for the selector's schema-bound response.
 
     Default temperature is 0.2 because the result-selector task is schema-bound
     and rewards consistency over creativity.
     """
 
     api_key: str
-    model: str = "deepseek-v4-flash"
+    model: str = "deepseek-flash"
     base_url: str = "https://api.deepseek.com/v1"
     temperature: float = 0.2
     max_tokens: int = 1024
@@ -37,7 +32,7 @@ class DeepSeekConfig:
                 "DEEPSEEK_API_KEY environment variable not set.\n"
                 "Get your key at https://platform.deepseek.com/api_keys"
             )
-        model = os.environ.get("DEEPSEEK_MODEL", "deepseek-v4-flash")
+        model = os.environ.get("DEEPSEEK_MODEL", cls.model)
         return cls(api_key=api_key, model=model)
 
 

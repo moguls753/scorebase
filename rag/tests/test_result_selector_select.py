@@ -12,11 +12,12 @@ def make_selector(mock_response: str):
     return ResultSelector(client=client), client
 
 
-def test_drops_picks_with_unknown_score_ids():
+def test_accepts_quoted_candidate_ids_but_drops_unknown_and_repeated_picks():
     response = json.dumps({
         "recommendations": [
             {"score_id": 9999, "title": "Phantom", "explanation": "from outside the pool"},
-            {"score_id": 42,   "title": "Real",    "explanation": "from the pool"},
+            {"score_id": "42", "title": "Real",    "explanation": "from the pool"},
+            {"score_id": 42,   "title": "Real",    "explanation": "duplicate"},
         ],
         "summary": "ok",
     })
@@ -28,7 +29,7 @@ def test_drops_picks_with_unknown_score_ids():
     )
 
     assert result.success is True
-    assert [r.score_id for r in result.recommendations] == [42]
+    assert [(r.score_id, r.explanation) for r in result.recommendations] == [(42, "from the pool")]
 
 
 def test_returns_fewer_than_three_picks_when_llm_does():

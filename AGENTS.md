@@ -33,4 +33,4 @@ ScoreBase is a Rails/SQLite sheet-music search engine for free scores and commer
 
 - `config/deploy.yml` is authoritative for roles, limits, accessories and aliases. Scope any authorized one-off write to **one** role: an unscoped `app exec --reuse` can execute on both. A reused container shares its memory limit with the serving process; use the job role for heavy work.
 - For sitemap diagnosis distinguish the on-disk file, the origin cache (Thruster), and the CDN. Purging the edge before the origin is fresh can re-cache stale content.
-- RAG indexing has separate ready, templated and indexed stages. A zero templated count alone does not mean a bulk import is done. If progress stalls, compare SQLite status with Chroma before retrying; their writes are not atomic.
+- RAG `ready` rows still need a search text. The mLateOn snapshot includes active `templated` and `indexed` rows with nonblank texts and does not change Rails statuses. Check actual coverage with `python -m src.pipeline.mlateon --check PATH` against the intended catalogue.

@@ -1,0 +1,3 @@
+# Optional local Smart Search backend; install in a separate dev environment.
+-r requirements.txt
+sentence-transformers==6.3.0

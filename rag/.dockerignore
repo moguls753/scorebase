@@ -1,0 +1,5 @@
+# The accessory build context is rag/. Never send local indexes or virtualenvs.
+**
+!Dockerfile
+!requirements-prod.txt
+!src/**/*.py

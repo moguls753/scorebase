@@ -5,9 +5,12 @@ Rails calls this API to perform semantic search.
 
 import logging
 import os
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
+
+from ..pipeline import SearchBusy
 
 logging.basicConfig(
     level=logging.INFO,
@@ -15,7 +18,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-app = FastAPI(title="ScoreBase RAG API")
+@asynccontextmanager
+async def lifespan(app):
+    # Do not accept traffic with missing weights, an incomplete mount, or an unreadable catalogue.
+    if path := os.environ.get("MLATEON_INDEX_PATH"):
+        from ..pipeline.mlateon import warm_up
+        warm_up(path)
+    yield
+
+
+app = FastAPI(title="ScoreBase RAG API", lifespan=lifespan)
 
 
 # Request/Response models
@@ -58,6 +70,13 @@ class SmartRefineRequest(BaseModel):
     previous_recommendations: list[PreviousRecommendation] = Field(..., min_length=1, max_length=5)
 
 
+def search_error(exc: Exception) -> HTTPException:
+    if isinstance(exc, SearchBusy):
+        return HTTPException(status_code=503, detail="Search is busy. Try again shortly.", headers={"Retry-After": "2"})
+    logger.exception("Search failed")
+    return HTTPException(status_code=503, detail="Search temporarily unavailable.")
+
+
 # Endpoints
 @app.get("/")
 def health():
@@ -66,7 +85,7 @@ def health():
 
 
 @app.get("/search")
-def search(q: str, top_k: int = 10) -> SearchResponse:
+def search(q: str, top_k: int = Query(10, ge=1, le=1000)) -> SearchResponse:
     """Basic vector search for scores.
 
     Args:
@@ -81,11 +100,7 @@ def search(q: str, top_k: int = 10) -> SearchResponse:
     try:
         results = search_module.search(q, top_k=top_k)
     except Exception as e:
-        logger.error(f"Search failed: {e}")
-        raise HTTPException(
-            status_code=503,
-            detail="Search index not available. Run indexer first."
-        )
+        raise search_error(e) from e
 
     return SearchResponse(
         query=q,
@@ -101,7 +116,7 @@ def search(q: str, top_k: int = 10) -> SearchResponse:
 
 
 @app.get("/smart-search")
-def smart_search(q: str, top_k: int = 15) -> SmartSearchResponse:
+def smart_search(q: str, top_k: int | None = Query(None, ge=1)) -> SmartSearchResponse:
     """LLM-powered smart search with recommendations and explanations.
 
     This is the Pro feature endpoint. Returns 3 best matches with
@@ -109,7 +124,7 @@ def smart_search(q: str, top_k: int = 15) -> SmartSearchResponse:
 
     Args:
         q: Natural language query (e.g., "I need something for my piano student")
-        top_k: Number of candidates for LLM to consider (default 15)
+        top_k: Candidate limit; defaults to 30 for mLateOn or 15 for Chroma.
 
     Returns:
         3 recommendations with explanations and a summary
@@ -127,11 +142,7 @@ def smart_search(q: str, top_k: int = 15) -> SmartSearchResponse:
     try:
         result = search_module.smart_search(q, top_k=top_k)
     except Exception as e:
-        logger.error(f"Smart search failed: {e}")
-        raise HTTPException(
-            status_code=503,
-            detail="Search failed. Check index and API key."
-        )
+        raise search_error(e) from e
 
     return SmartSearchResponse(
         query=q,
@@ -173,8 +184,7 @@ def smart_refine(req: SmartRefineRequest) -> SmartSearchResponse:
             previous_recommendations=[r.model_dump() for r in req.previous_recommendations],
         )
     except Exception as e:
-        logger.error(f"smart_refine failed: {e}")
-        raise HTTPException(status_code=503, detail="Refinement service failed.")
+        raise search_error(e) from e
 
     return SmartSearchResponse(
         query=f"{req.original_query} + {req.refinement}",

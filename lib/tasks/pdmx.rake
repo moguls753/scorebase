@@ -155,20 +155,9 @@ namespace :pdmx do
       puts "RAG reset: #{stale_ids.size} rows -> rag_status=pending, search_text=nil"
       puts "Wrote IDs to: #{queue_path}"
       puts ""
-      puts "Next steps to refresh embeddings:"
-      puts "  1. Purge those IDs from ChromaDB (one-off):"
-      puts "       cd rag && python -c \""
-      puts "     from haystack_integrations.document_stores.chroma import ChromaDocumentStore"
-      puts "     from src import config"
-      puts "     ids = [int(x) for x in open('#{queue_path}').read().split() if x.strip()]"
-      puts "     ds = ChromaDocumentStore(persist_path=str(config.CHROMA_PATH))"
-      puts "     ds._collection.delete(ids=[f'score_{i}' for i in ids])"
-      puts "     print(f'Deleted {len(ids)} docs')"
-      puts "     \""
-      puts "  2. Re-template + re-index through normal pipeline:"
-      puts "       bin/rails rag:mark_ready"
-      puts "       bin/rails rag:generate LIMIT=#{stale_ids.size}"
-      puts "       cd rag && python -m src.pipeline.indexer #{stale_ids.size}"
+      puts "Refresh search texts for the corrected IDs before taking a fresh catalogue snapshot."
+      puts "Build and check a new mLateOn release from that snapshot (see README)."
+      puts "Leave any retained Chroma rollback index untouched."
     end
   end
 

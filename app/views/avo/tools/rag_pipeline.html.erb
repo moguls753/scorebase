@@ -31,7 +31,7 @@
           </div>
           <div class="bg-blue-50 rounded-lg p-4">
             <div class="text-2xl font-bold text-blue-600"><%= number_with_delimiter(@status_counts["indexed"] || 0) %></div>
-            <div class="text-sm text-gray-500">Indexed (searchable)</div>
+            <div class="text-sm text-gray-500">Indexed (catalogue status)</div>
           </div>
           <div class="bg-yellow-50 rounded-lg p-4">
             <div class="text-2xl font-bold text-yellow-600"><%= number_with_delimiter(@status_counts["pending"] || 0) %></div>
@@ -78,7 +78,7 @@
   <% end %>
 
   <%# Recently Indexed %>
-  <%= render Avo::PanelComponent.new(name: 'Recently Indexed Scores') do |c| %>
+  <%= render Avo::PanelComponent.new(name: 'Recent Catalogue Index Timestamps') do |c| %>
     <% c.with_body do %>
       <div class="px-6 py-4">
         <% if @recently_indexed.any? %>
@@ -105,7 +105,7 @@
             </tbody>
           </table>
         <% else %>
-          <p class="text-gray-500 italic">No scores have been indexed yet.</p>
+          <p class="text-gray-500 italic">No catalogue index timestamps yet.</p>
         <% end %>
       </div>
     <% end %>

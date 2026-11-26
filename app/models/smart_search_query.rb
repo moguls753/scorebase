@@ -30,6 +30,7 @@
 #
 class SmartSearchQuery < ApplicationRecord
   RECENT_QUERY_TTL = 6.hours
+  CACHE_CUTOVER_FILE = Rails.root.join("storage", "smart_search_cache_cutover_#{Rails.env}")
   MAX_QUERY_LENGTH = 500
   MAX_REFINEMENT_LENGTH = 300
   MAX_SUMMARY_LENGTH = 1000
@@ -53,10 +54,13 @@ class SmartSearchQuery < ApplicationRecord
   before_save :truncate_rag_fields
 
   def self.recent_initial_for(query_text, locale: I18n.locale.to_s)
+    since = RECENT_QUERY_TTL.ago
+    cutoff = File.mtime(CACHE_CUTOVER_FILE) if File.exist?(CACHE_CUTOVER_FILE)
+    since = cutoff if cutoff && cutoff > since
     initial
       .where("LOWER(TRIM(query)) = ?", query_text.to_s.strip.downcase)
       .where(locale: locale)
-      .where("created_at > ?", RECENT_QUERY_TTL.ago)
+      .where("created_at > ?", since)
       .where(error: nil)
       .order(created_at: :desc)
       .first

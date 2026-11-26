@@ -24,7 +24,7 @@ de:
     heading: "Smart Search"
     beta_badge: "Beta"
     tagline: "Beschreibe in natürlicher Sprache, was du suchst"
-    beta_note_html: "Öffentliche Beta — Smart Search läuft auf KI; jede Anfrage verursacht API-Kosten. Es gibt ein Limit von 5 Suchen pro IP und Tag plus ein tägliches seitenweites Limit während der Beta. Aktuell sind etwa %{indexed_pct} der gemeinfreien Noten indexiert (Schwerpunkt Klassik und Chor, wird laufend ausgebaut). Feedback willkommen — %{mailto}"
+    beta_note_html: "Öffentliche Beta — Smart Search läuft auf KI; jede Anfrage verursacht API-Kosten. Es gibt ein Limit von 5 Suchen pro IP und Tag plus ein tägliches seitenweites Limit während der Beta. Smart Search durchsucht einen Teil des Katalogs. Alle Ausgaben findest du über die normale Suche. Feedback willkommen — %{mailto}"
     feedback_link: "schreib mir eine Mail"
     input_placeholder: "z.B. einfach für meine Schülerin"
     search_button_label: "Suche"

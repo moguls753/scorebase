@@ -12,7 +12,7 @@ venv/
 .venv/
 
 # Data
-data/chroma/
+data/
 
 # IDE
 .idea/
