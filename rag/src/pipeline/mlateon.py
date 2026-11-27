@@ -199,7 +199,7 @@ def warm_up(path):
 def search(path, query, limit):
     if limit < 1:
         raise ValueError("Candidate limit must be positive")
-    if not _search_lock.acquire(timeout=2):
+    if not _search_lock.acquire(timeout=15):
         raise SearchBusy("mLateOn candidate search is busy")
     try:
         index, encoder = _backend(path)
